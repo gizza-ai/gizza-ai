@@ -1,0 +1,83 @@
+slug          = "video-duration-validator"
+title         = "Video Duration Validator — Check a Clip Against a Target Length"
+description   = "Check a video's exact duration against a target length and get a PASS or FAIL with the delta. Enforce a 30s ad, a 59s Reel or a minimum watch time in your browser."
+tags          = ["video", "duration", "length", "validator", "qc", "ad-spec", "reel", "check"]
+h1            = "Check a Video's Duration Against a Target"
+hero_subtitle = "Pick a clip, set the length it is supposed to be, and get PASS or FAIL with the exact delta in seconds. The duration is read from the container header in your browser — nothing is uploaded."
+wasm          = "gizza_ai_video_duration_validator_web"
+export        = "run"
+live          = false
+output_label  = "Duration check (JSON)"
+format        = "json"
+
+# Field order MUST equal web/src/lib.rs run() param order:
+# video, target_seconds, tolerance_seconds, mode.
+[[input]]
+name   = "video"
+label  = "Video or audio file"
+source = "file"
+accept = "video/*,audio/*"
+
+[[input]]
+name        = "target_seconds"
+label       = "Target length (seconds)"
+source      = "field"
+placeholder = "30"
+
+[[input]]
+name        = "tolerance_seconds"
+label       = "Tolerance (± seconds)"
+source      = "field"
+placeholder = "0.5"
+
+[[input]]
+name        = "mode"
+label       = "Comparison"
+source      = "field"
+placeholder = "within"
+[input.labels]
+within = "Within — target ± tolerance (default)"
+max    = "At most — an upper limit"
+min    = "At least — a lower limit"
+
+[[example]]
+label = "30s ad slot (± 0.5s)"
+[example.params]
+target_seconds    = "30"
+tolerance_seconds = "0.5"
+mode              = "within"
+
+[[example]]
+label = "15s spot (± 0.5s)"
+[example.params]
+target_seconds    = "15"
+tolerance_seconds = "0.5"
+mode              = "within"
+
+[[example]]
+label = "6s bumper — exact"
+[example.params]
+target_seconds    = "6"
+tolerance_seconds = "0"
+mode              = "within"
+
+[[example]]
+label = "Short-form cap — 60s max"
+[example.params]
+target_seconds    = "60"
+tolerance_seconds = "0"
+mode              = "max"
+
+[[example]]
+label = "Short-form cap — 180s max"
+[example.params]
+target_seconds    = "180"
+tolerance_seconds = "0"
+mode              = "max"
+
+[[example]]
+label = "At least 10 minutes"
+[example.params]
+target_seconds    = "600"
+tolerance_seconds = "5"
+mode              = "min"

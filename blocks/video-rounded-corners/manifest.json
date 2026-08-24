@@ -1,0 +1,91 @@
+{
+  "name": "gizza-ai/video-rounded-corners",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Round the corners of a video into a card-style clip",
+  "role": "skill",
+  "tool": {
+    "description": "Round the corners of every frame of a video so the clip looks like a card, with transparent or solid-colored corners. Set radius (pixels, or percent of the shorter side), pick which corners to round (all/top/bottom/left/right), and choose background = transparent or a color. Transparency needs format webm (VP9) or mov (ProRes 4444); mp4 requires a background color. Provide the video as either url (HTTP/HTTPS) or ref (id from a prior tool call). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "transparent",
+          "description": "What fills the cut-off corners: \"transparent\" (default, needs format webm or mov) or a solid color as a CSS name (black, white, navy) or hex (#1E90FF). A solid color lets you export mp4.",
+          "type": "string"
+        },
+        "corners": {
+          "default": "all",
+          "description": "Which corners to round: \"all\" (four), \"top\" (both top corners), \"bottom\", \"left\" or \"right\". Default: all.",
+          "enum": [
+            "all",
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "webm",
+          "description": "Output container/codec: \"webm\" (VP9 — web-playable AND keeps transparency), \"mp4\" (H.264 — universal but has no alpha, so it needs a background color), or \"mov\" (ProRes 4444 with alpha for editors; very large files). Default: webm.",
+          "enum": [
+            "webm",
+            "mp4",
+            "mov"
+          ],
+          "type": "string"
+        },
+        "keep_audio": {
+          "default": true,
+          "description": "Keep the original audio track (true, default) or drop it (false). Silent clips are unaffected.",
+          "type": "boolean"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Encode quality 1-100 (higher = better and larger). Maps to the codec's CRF; ignored for mov/ProRes, which is always near-lossless. Default: 75.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "radius": {
+          "default": 24.0,
+          "description": "Corner radius. In pixels by default (e.g. 40 for a typical card); with radius_unit=percent it is a share of the SHORTER side, where 50 fully rounds the ends. Clamped to half the shorter side. Default: 24.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "number"
+        },
+        "radius_unit": {
+          "default": "px",
+          "description": "How radius is measured: \"px\" (absolute pixels, 1-1000) or \"percent\" (1-50 percent of the shorter side, resolution-independent). Default: px.",
+          "enum": [
+            "px",
+            "percent"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

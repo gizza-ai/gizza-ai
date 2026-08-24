@@ -1,0 +1,48 @@
+{
+  "name": "gizza-ai/brotli-decompress",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode a Brotli (.br) payload from Base64 or hex to text, hex, or Base64.",
+  "role": "skill",
+  "tool": {
+    "description": "Decompress a Brotli (RFC 7932) payload — the codec behind HTTP content-encoding: br and most modern web asset bundles — and show what is inside it. Paste the compressed blob in 'data' as Base64 or hex; encoding='auto' (default) works out which by decoding both and keeping whichever actually inflates. Choose output='text' (default, UTF-8), 'hex', or 'base64', and set stats=true for compressed/decompressed sizes plus the compression ratio. Brotli has no magic number, so a wrong-codec blob is diagnosed after the decode attempt: gzip, zlib, xz, LZ4, zstd, bzip2, ZIP, 7-Zip, and tar inputs are named along with the sibling tool that handles them. Limits: 8 MiB compressed in, 16 MiB decompressed out. For a .br FILE by URL or ref, use file-compressor with operation=decompress format=brotli instead.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The Brotli-compressed payload, encoded per 'encoding' — e.g. a Base64 copy of an HTTP body served with content-encoding: br, an asset-bundle chunk, or a hex dump of a .br file. ASCII whitespace and line breaks are ignored, so a wrapped paste works. Max 8 MiB compressed.",
+          "type": "string"
+        },
+        "encoding": {
+          "default": "auto",
+          "description": "How the payload in 'data' is encoded: 'auto' (default — tries hex then Base64 and keeps whichever actually Brotli-decompresses), 'base64' (standard or URL-safe, padding optional), or 'hex' (an optional 0x prefix is ignored).",
+          "enum": [
+            "auto",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "How to render the decompressed bytes: 'text' (default, UTF-8 — errors if the result is binary), 'hex' (lowercase, binary-safe), or 'base64'.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": false,
+          "description": "Prepend a size summary — compressed bytes, decompressed bytes, the decompressed/compressed ratio, and the percentage of space saved — before the payload. Default false returns only the payload.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

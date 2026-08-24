@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "vcard-qr"
+version = "0.1.0"
+abi = 1
+summary = "Build a vCard from contact details and render it as a scannable QR code"

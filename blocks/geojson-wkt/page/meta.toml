@@ -1,0 +1,121 @@
+slug          = "geojson-wkt"
+title         = "GeoJSON WKT Converter — WKT, EWKT, WKB and GeoJSON"
+description   = "Convert geometries between GeoJSON, WKT/EWKT, and WKB/EWKB with SRID, precision, endian, and multi-feature controls."
+tags          = ["geojson", "wkt", "wkb", "ewkt", "ewkb", "geometry", "gis", "srid", "postgis", "converter"]
+h1            = "Convert GeoJSON, WKT, and WKB Geometries"
+hero_subtitle = "Paste GeoJSON, WKT/EWKT, or WKB/EWKB and convert between GIS geometry formats locally, including Z/M dimensions, SRID metadata, and precision rounding."
+wasm          = "gizza_ai_geojson_wkt_web"
+export        = "run"
+live          = false
+output_label  = "Converted geometry"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Input geometry"
+placeholder = '{"type":"Point","coordinates":[30,10]}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "from"
+label  = "Input format"
+source = "field"
+[input.labels]
+auto    = "Auto-detect"
+geojson = "GeoJSON"
+wkt     = "WKT / EWKT"
+wkb     = "WKB / EWKB"
+
+[[input]]
+name   = "to"
+label  = "Output format"
+source = "field"
+[input.labels]
+wkt     = "WKT / EWKT"
+geojson = "GeoJSON"
+wkb     = "WKB / EWKB"
+
+[[input]]
+name   = "multi"
+label  = "Multiple geometries"
+source = "field"
+[input.labels]
+collection = "Wrap as GeometryCollection"
+lines      = "One geometry per line"
+
+[[input]]
+name        = "srid"
+label       = "SRID to write"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "precision"
+label       = "Coordinate precision"
+placeholder = "-1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "wkb_encoding"
+label  = "WKB text encoding"
+source = "field"
+[input.labels]
+hex    = "Hex"
+base64 = "Base64"
+
+[[input]]
+name   = "wkb_endian"
+label  = "WKB byte order"
+source = "field"
+[input.labels]
+little = "Little-endian / NDR"
+big    = "Big-endian / XDR"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print GeoJSON"
+source = "field"
+
+[[example]]
+label = "GeoJSON point to WKT"
+[example.params]
+input = '{"type":"Point","coordinates":[30,10]}'
+from = "auto"
+to = "wkt"
+multi = "collection"
+srid = "0"
+precision = "-1"
+wkb_encoding = "hex"
+wkb_endian = "little"
+pretty = "true"
+
+[[example]]
+label = "EWKT polygon to GeoJSON"
+[example.params]
+input = "SRID=4326;POLYGON((30 10,40 40,20 40,10 20,30 10))"
+from = "wkt"
+to = "geojson"
+multi = "collection"
+srid = "0"
+precision = "3"
+wkb_encoding = "hex"
+wkb_endian = "little"
+pretty = "true"
+
+[[example]]
+label = "WKT point to WKB hex"
+[example.params]
+input = "POINT(1 2)"
+from = "wkt"
+to = "wkb"
+multi = "collection"
+srid = "0"
+precision = "-1"
+wkb_encoding = "hex"
+wkb_endian = "little"
+pretty = "true"

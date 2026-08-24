@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dna-reverse-complement"
+version = "0.1.0"
+abi = 1
+summary = "Reverse-complement a DNA or RNA sequence, IUPAC codes and case included."

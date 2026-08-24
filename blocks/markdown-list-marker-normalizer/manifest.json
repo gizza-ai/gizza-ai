@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/markdown-list-marker-normalizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Normalize Markdown bullets to one marker character and one indentation ladder.",
+  "role": "skill",
+  "tool": {
+    "description": "Normalize the unordered list markers in a Markdown document to one consistent character (-, *, or +, or whichever the file used first, or alternating per nesting depth) and snap sloppy nesting onto an exact spaces-per-level ladder, expanding tabs. Optionally renumber ordered lists sequentially or as all-1. / all-0., and set the number of spaces between each marker and its text. Item text, headings, tables, blockquotes, thematic breaks, line-start emphasis, and fenced code blocks are preserved exactly. Returns the rewritten Markdown. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "indent": {
+          "default": 2,
+          "description": "Spaces of indentation per nesting level, 1 to 8. Sloppy input such as 1, 3, or 5 spaces is snapped onto this exact ladder, and tabs are expanded at 4 columns then written back as spaces. Use 2 for Prettier and CommonMark defaults, 3 for Kramdown-safe ordered sublists, or 4 to match code blocks. Ignored when normalize_indent is false.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "markdown": {
+          "description": "The Markdown document to normalize. Only list scaffolding is rewritten: bullet characters, nesting indentation, ordered numbers, and the gap after each marker. Item text, headings, tables, blockquotes, thematic breaks such as --- or ***, emphasis at the start of a line, and every line inside a fenced code block are preserved exactly. Maximum 500000 characters.",
+          "type": "string"
+        },
+        "marker": {
+          "default": "dash",
+          "description": "Which character every unordered bullet becomes. dash uses -, asterisk uses *, plus uses +. consistent reuses whichever character the document used first, so an already-uniform file is left alone. sublist alternates by depth: - at the top level, * one level in, + two levels in, then repeating. Default dash, the marker Prettier and most style guides emit.",
+          "enum": [
+            "dash",
+            "asterisk",
+            "plus",
+            "consistent",
+            "sublist"
+          ],
+          "type": "string"
+        },
+        "marker_space": {
+          "default": 1,
+          "description": "Spaces between a list marker and the item text, 1 to 4. 1 is the common default (- item); 2 or 3 aligns wrapped text under the first character for ordered lists. Nested items are indented by the indent setting, not by this value.",
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "normalize_indent": {
+          "default": true,
+          "description": "Rewrite each item's indentation onto the indent ladder. Default true. Set false to change only the marker characters, numbering, and marker spacing while leaving every line's original leading whitespace untouched.",
+          "type": "boolean"
+        },
+        "ordered": {
+          "default": "keep",
+          "description": "What to do with numbered list items. keep leaves the numbers as written. ordered renumbers each list sequentially from its own first number, so 3. 7. 9. becomes 3. 4. 5. one writes every item as 1. and zero writes every item as 0. — both make reordering diff-free. The . or ) delimiter is always preserved.",
+          "enum": [
+            "keep",
+            "ordered",
+            "one",
+            "zero"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}

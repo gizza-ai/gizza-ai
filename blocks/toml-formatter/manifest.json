@@ -1,0 +1,81 @@
+{
+  "name": "gizza-ai/toml-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Format TOML with validation, sorting and comment preservation",
+  "role": "skill",
+  "tool": {
+    "description": "Validate and format a pasted TOML document. Pass the TOML text as `input`; choose indentation, key sorting, equals spacing, array layout, column width, value alignment, blank-line handling and whether to preserve comments. Invalid TOML returns a line and column error instead of emitting partial output. The formatter preserves comments and scalar literal spellings such as hex integers, underscores and literal strings where the requested layout can represent them.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align_values": {
+          "default": false,
+          "description": "Pad keys so equals signs align within a run of table entries. Ignored when spacing=compact.",
+          "type": "boolean"
+        },
+        "array_style": {
+          "default": "auto",
+          "description": "Array layout. 'auto' keeps short arrays on one line and expands long/commented arrays; 'expand' writes one element per line; 'collapse' forces one line.",
+          "enum": [
+            "auto",
+            "expand",
+            "collapse"
+          ],
+          "type": "string"
+        },
+        "blank_line_before_tables": {
+          "default": true,
+          "description": "Insert exactly one blank line before each table or array-of-tables header. Default true.",
+          "type": "boolean"
+        },
+        "column_width": {
+          "default": 80,
+          "description": "Line-width budget used by array_style=auto before expanding arrays, from 20 to 200 columns.",
+          "maximum": 200,
+          "minimum": 20,
+          "type": "integer"
+        },
+        "indent": {
+          "default": 0,
+          "description": "Spaces to indent entries inside tables, from 0 to 8. Default 0 keeps common Cargo.toml and pyproject.toml flat.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "TOML document to validate and format. Comments, scalar literal spelling and key/value content are preserved where possible.",
+          "type": "string"
+        },
+        "keep_comments": {
+          "default": true,
+          "description": "Preserve own-line and end-of-line comments when the selected layout can represent them. Disable to strip comments.",
+          "type": "boolean"
+        },
+        "sort_keys": {
+          "default": "preserve",
+          "description": "Key ordering within each table and inline table: preserve the source order, sort ascending, or sort descending.",
+          "enum": [
+            "preserve",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "spacing": {
+          "default": "standard",
+          "description": "Whitespace around equals signs. 'standard' emits `key = value`; 'compact' emits `key=value`.",
+          "enum": [
+            "standard",
+            "compact"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

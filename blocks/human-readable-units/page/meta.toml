@@ -1,0 +1,145 @@
+slug          = "human-readable-units"
+title         = "Human Readable Units Converter"
+description   = "Turn raw byte counts, durations and big numbers into readable units — 1500000000 to 1.5 GB, 123 seconds to 2m 3s, 1200000 to 1.2M. Runs in your browser."
+tags          = ["human readable bytes", "format bytes", "byte size formatter", "duration formatter", "seconds to hours minutes", "milliseconds to readable", "number abbreviation", "1.2M formatter", "kb mb gb converter", "kib mib gib", "iso 8601 duration", "hh:mm:ss"]
+h1            = "Human Readable Units"
+hero_subtitle = "Paste a raw byte count, a duration or a big number and read it the way people write it — 1.5 GB, 2m 3s, 1.2M. Everything runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_human_readable_units_web"
+export        = "run"
+live          = false
+output_label  = "Formatted"
+format        = "text"
+
+# Field ORDER must match the web `run()` parameter order. kind / input_unit /
+# base / style / detail render as <select> and trim_zeros as a checkbox —
+# control types come from the descriptor's schema (manifest.json), so labels
+# stay short here and the option lists are NOT duplicated.
+[[input]]
+name        = "value"
+label       = "Value"
+placeholder = "1500000000"
+source      = "field"
+
+[[input]]
+name        = "kind"
+label       = "What it counts"
+source      = "field"
+
+[input.labels]
+bytes = "Data size — B, kB, MB, GB…"
+duration = "Duration — 1h 2m 3s"
+number = "Plain count — 1.2M"
+
+[[input]]
+name        = "input_unit"
+label       = "Value is already in"
+source      = "field"
+
+[input.labels]
+auto = "Auto — bytes, or seconds for a duration"
+byte = "Bytes"
+bit = "Bits"
+kilobyte = "Kilobytes (1000 B)"
+megabyte = "Megabytes (1e6 B)"
+gigabyte = "Gigabytes (1e9 B)"
+nanosecond = "Nanoseconds"
+microsecond = "Microseconds"
+millisecond = "Milliseconds"
+second = "Seconds"
+minute = "Minutes"
+hour = "Hours"
+day = "Days"
+
+[[input]]
+name        = "base"
+label       = "Byte scale"
+source      = "field"
+
+[input.labels]
+decimal = "Decimal — 1000, kB / MB / GB"
+"binary-iec" = "Binary — 1024, KiB / MiB / GiB"
+"binary-jedec" = "Binary — 1024, KB / MB / GB"
+
+[[input]]
+name        = "style"
+label       = "Unit style"
+source      = "field"
+
+[input.labels]
+short = "Short — 1.5 GB, 2m 3s"
+long = "Long — 1.5 gigabytes, 2 minutes"
+narrow = "Narrow — 1.5GB, 2m3s"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places (0–6)"
+placeholder = "1"
+kind        = "slider"
+min         = "0"
+max         = "6"
+step        = "1"
+source      = "field"
+
+[[input]]
+name        = "max_units"
+label       = "Duration segments (1–7)"
+placeholder = "2"
+kind        = "slider"
+min         = "1"
+max         = "7"
+step        = "1"
+source      = "field"
+
+[[input]]
+name        = "trim_zeros"
+label       = "Drop trailing zeros"
+source      = "field"
+
+[[input]]
+name        = "detail"
+label       = "Output"
+source      = "field"
+
+[input.labels]
+value = "Just the formatted value"
+breakdown = "Full breakdown of every form"
+
+[[example]]
+label = "1500000000 bytes"
+[example.params]
+value = "1500000000"
+kind = "bytes"
+
+[[example]]
+label = "123 seconds"
+[example.params]
+value = "123"
+kind = "duration"
+
+[[example]]
+label = "1200000 → 1.2M"
+[example.params]
+value = "1200000"
+kind = "number"
+
+[[example]]
+label = "Binary KiB / MiB / GiB"
+[example.params]
+value = "1073741824"
+kind = "bytes"
+base = "binary-iec"
+
+[[example]]
+label = "11722000 ms build time"
+[example.params]
+value = "11722000"
+kind = "duration"
+input_unit = "millisecond"
+max_units = "3"
+
+[[example]]
+label = "Full breakdown"
+[example.params]
+value = "1500000000"
+kind = "bytes"
+detail = "breakdown"

@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/ics-agenda-view",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn an iCalendar .ics file into a day-by-day agenda with free-gap detection.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse pasted iCalendar (.ics) text into a deterministic agenda grouped by day. Converts UTC, floating, all-day and recognized TZID event times into a chosen display timezone; unfolds folded lines; unescapes text fields; expands a bounded RRULE subset with EXDATE; hides cancelled events by default; and finds free gaps inside a configurable daily working window. Output as plain text, Markdown or JSON. Runs locally with no calendar account, URL fetch or network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "day_end": {
+          "default": "18:00",
+          "description": "End of the daily free-gap search window in 24-hour HH:MM time. Must be after day_start; 24:00 is accepted. Default 18:00.",
+          "type": "string"
+        },
+        "day_start": {
+          "default": "09:00",
+          "description": "Start of the daily free-gap search window in 24-hour HH:MM time. Default 09:00.",
+          "type": "string"
+        },
+        "days": {
+          "default": 7,
+          "description": "Number of days to render, from 1 to 90. Default 7.",
+          "maximum": 90,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "details": {
+          "default": "normal",
+          "description": "How much event detail to show. compact prints times and summaries; normal adds location and recurrence/cancelled markers; full also includes organizer, UID, status, and a truncated description.",
+          "enum": [
+            "compact",
+            "normal",
+            "full"
+          ],
+          "type": "string"
+        },
+        "expand_recurring": {
+          "default": true,
+          "description": "Expand supported RRULEs (daily, weekly, monthly, yearly with interval/count/until/byday/bymonthday) inside the selected window. Turn off to list each recurring series only once. Default true.",
+          "type": "boolean"
+        },
+        "filter": {
+          "default": "",
+          "description": "Optional case-insensitive text filter. Matches event summary, location, description, organizer, UID, and status before the agenda is rendered. Leave blank for all events.",
+          "type": "string"
+        },
+        "ics": {
+          "description": "The full iCalendar text to parse, including BEGIN:VCALENDAR and one or more VEVENT entries. Supports LF or CRLF line endings, folded lines, TEXT escaping, DTSTART/DTEND/DURATION, all-day events, TZID parameters, EXDATE, and a bounded RRULE subset. Up to 1 MiB.",
+          "type": "string"
+        },
+        "include_cancelled": {
+          "default": false,
+          "description": "Include VEVENT entries whose STATUS is CANCELLED. Default false.",
+          "type": "boolean"
+        },
+        "min_gap_minutes": {
+          "default": 30,
+          "description": "Only show free gaps at least this many minutes long, from 5 to 480. Default 30.",
+          "maximum": 480,
+          "minimum": 5,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output format. text is an aligned agenda, markdown is a notes-friendly heading/list format, and json returns days, events, gaps, totals, and warnings.",
+          "enum": [
+            "text",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "show_gaps": {
+          "default": true,
+          "description": "Show free gaps between meetings inside the day_start/day_end window and include empty days. Turn off for a compact agenda with events only. Default true.",
+          "type": "boolean"
+        },
+        "start_date": {
+          "default": "",
+          "description": "Optional agenda start date as YYYY-MM-DD in the display timezone. Leave blank to start at the earliest event date after recurrence expansion.",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "UTC",
+          "description": "Display timezone as an IANA name such as UTC, Europe/Berlin, or America/New_York. Floating and all-day event times are interpreted in this zone; UTC and recognized TZID event times are converted into it.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ics"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/fasta-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse FASTA records into a CSV or TSV table of id, description, sequence and length.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert FASTA sequence text into a delimited table (CSV by default, or TSV/semicolon/pipe) with one row per record. The default columns are id, description, sequence and length; wrapped sequence lines are joined into one field and every field is RFC-4180 quoted when it contains the delimiter, a quote or a line break. header_mode chooses how the '>' header maps to columns (split into id + description, id only, or the whole header line). include_sequence and include_length toggle those columns; include_gc adds GC percentage and include_base_counts adds A/C/G/T/other counts. uppercase normalizes the sequence and dedupe drops repeated sequences. Handles up to 50000 records and runs entirely locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dedupe": {
+          "default": false,
+          "description": "When true, drop any record whose sequence (compared case-insensitively) already appeared, keeping the first occurrence. Default false.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator for the output table: 'comma' (CSV, the default), 'tab' (TSV), 'semicolon' (spreadsheets in comma-decimal locales) or 'pipe'.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "fasta": {
+          "description": "The FASTA text to convert — one or more records, each a '>id description' header line followed by one or more sequence lines (wrapped lines are joined). Example: a line '>seq1 first sequence' followed by a line 'ACGTACGTNN'.",
+          "type": "string"
+        },
+        "header_mode": {
+          "default": "split",
+          "description": "How the '>' header becomes columns: 'split' (default) puts the text before the first space in 'id' and the rest in a 'description' column; 'id_only' keeps just the id and drops the description column; 'full_header' puts the entire header line into 'id' with no description column.",
+          "enum": [
+            "split",
+            "id_only",
+            "full_header"
+          ],
+          "type": "string"
+        },
+        "header_row": {
+          "default": true,
+          "description": "When true (default), the first output row names the columns (id, description, sequence, length, ...). Set false for a bare data table.",
+          "type": "boolean"
+        },
+        "include_base_counts": {
+          "default": false,
+          "description": "When true, add five columns — a_count, c_count, g_count, t_count and other_count (N, gaps, amino acids, anything not A/C/G/T). Case-insensitive. Default false.",
+          "type": "boolean"
+        },
+        "include_gc": {
+          "default": false,
+          "description": "When true, add a 'gc_percent' column: (G+C)/(A+C+G+T) x 100 rounded to 2 decimals, case-insensitive, ignoring N and gaps. Default false.",
+          "type": "boolean"
+        },
+        "include_length": {
+          "default": true,
+          "description": "When true (default), include a 'length' column with the number of sequence characters (gaps and ambiguity codes such as N are counted).",
+          "type": "boolean"
+        },
+        "include_sequence": {
+          "default": true,
+          "description": "When true (default), include the joined sequence as a column. Set false for a names/metrics-only table.",
+          "type": "boolean"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When true, uppercase the emitted sequence column (acgt -> ACGT). Does not change lengths, GC or base counts, which are already case-insensitive. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "fasta"
+      ],
+      "type": "object"
+    }
+  }
+}

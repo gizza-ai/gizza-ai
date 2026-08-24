@@ -1,0 +1,99 @@
+slug          = "unified-diff-reverse"
+title         = "Reverse Unified Diff Online — Invert a Git Patch"
+description   = "Paste a unified or git diff and get the reverse patch that undoes it, including swapped hunks, paths, index lines, renames, modes, and summaries."
+tags          = ["reverse diff", "invert patch", "git diff reverse", "unified diff", "git apply reverse", "patch reverse", "revert patch"]
+h1            = "Reverse a Unified Diff"
+hero_subtitle = "Paste a git or unified diff and get the inverse patch back — hunks, paths, index hashes, renames, mode changes, and no-newline markers handled locally."
+wasm          = "gizza_ai_unified_diff_reverse_web"
+export        = "run"
+live          = false
+output_label  = "Reverse patch"
+format        = "text"
+
+[[input]]
+name        = "diff"
+label       = "Unified diff"
+placeholder = "diff --git a/src/main.rs b/src/main.rs\n--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,3 +1,4 @@\n fn main() {\n+    println!(\"hello\");\n }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+patch = "Reverse patch"
+summary = "Summary report"
+json = "JSON report + patch"
+
+[[input]]
+name        = "file"
+label       = "File filter"
+placeholder = "src/main.rs"
+source      = "field"
+
+[[input]]
+name   = "index_lines"
+label  = "Index lines"
+source = "field"
+
+[input.labels]
+swap = "Swap old/new hashes"
+keep = "Keep index lines unchanged"
+drop = "Drop index lines"
+
+[[input]]
+name   = "swap_paths"
+label  = "Swap file paths"
+source = "field"
+
+[[input]]
+name   = "on_binary"
+label  = "Binary patch sections"
+source = "field"
+
+[input.labels]
+fail = "Fail and name the binary file"
+skip = "Skip binary file sections"
+keep = "Keep binary sections unchanged"
+
+[[example]]
+label = "Revert a text change"
+[example.params]
+diff = "diff --git a/src/main.rs b/src/main.rs\n--- a/src/main.rs\n+++ b/src/main.rs\n@@ -1,3 +1,4 @@\n fn main() {\n+    println!(\"hello\");\n }\n"
+output = "patch"
+file = ""
+index_lines = "swap"
+swap_paths = "true"
+on_binary = "fail"
+
+[[example]]
+label = "Summary report"
+[example.params]
+diff = "--- a/list.txt\n+++ b/list.txt\n@@ -1,2 +1,2 @@\n-old\n+new\n keep\n"
+output = "summary"
+file = ""
+index_lines = "swap"
+swap_paths = "true"
+on_binary = "fail"
+
+[[example]]
+label = "Drop stale index hashes"
+[example.params]
+diff = "diff --git a/app.js b/app.js\nindex 1111111..2222222 100644\n--- a/app.js\n+++ b/app.js\n@@ -1 +1 @@\n-oldCall();\n+newCall();\n"
+output = "patch"
+file = ""
+index_lines = "drop"
+swap_paths = "true"
+on_binary = "fail"
+
+[[example]]
+label = "One file from a patch"
+[example.params]
+diff = "--- a/one.txt\n+++ b/one.txt\n@@ -1 +1 @@\n-a\n+b\n--- a/dir/two.txt\n+++ b/dir/two.txt\n@@ -1 +1 @@\n-c\n+d\n"
+output = "patch"
+file = "two.txt"
+index_lines = "swap"
+swap_paths = "true"
+on_binary = "fail"

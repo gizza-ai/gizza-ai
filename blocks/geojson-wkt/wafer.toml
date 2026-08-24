@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geojson-wkt"
+version = "0.1.0"
+abi = 1
+summary = "Convert geometries between GeoJSON, WKT/EWKT, and WKB/EWKB."

@@ -1,0 +1,74 @@
+slug          = "toggle-line-comments"
+title         = "Toggle Line Comments — comment or uncomment a block of code"
+description   = "Comment or uncomment pasted code with the right marker for its language — //, #, --, ;, %, REM, plus /* */ and <!-- -->. Runs in your browser."
+tags          = ["toggle line comments", "comment out code", "uncomment code", "comment code online", "add comment markers", "block comment tool", "line comment syntax"]
+h1            = "Toggle Line Comments"
+hero_subtitle = "Paste code and toggle its line comments the way an editor's Ctrl+/ does: the right marker for 33 languages, indentation kept, and a round trip that restores the original."
+wasm          = "gizza_ai_toggle_line_comments_web"
+export        = "run"
+live          = false
+output_label  = "Code"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "code"
+label       = "Code"
+placeholder = "function greet(name) {\n    return `hi ${name}`;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "language"
+label   = "Language"
+default = "auto"
+source  = "field"
+labels  = { auto = "Auto-detect (default)", javascript = "JavaScript  //", typescript = "TypeScript  //", java = "Java  //", csharp = "C#  //", c = "C  //", cpp = "C++  //", go = "Go  //", rust = "Rust  //", swift = "Swift  //", kotlin = "Kotlin  //", scala = "Scala  //", php = "PHP  //", python = "Python  #", ruby = "Ruby  #", perl = "Perl  #", shell = "Shell / Bash  #", powershell = "PowerShell  #", yaml = "YAML  #", toml = "TOML  #", r = "R  #", dockerfile = "Dockerfile  #", makefile = "Makefile  #", sql = "SQL  --", lua = "Lua  --", haskell = "Haskell  --", ini = "INI  ;", clojure = "Clojure / Lisp  ;;", latex = "LaTeX  %", vb = "Visual Basic  '", batch = "Batch  REM", css = "CSS  /* */", html = "HTML  <!-- -->", xml = "XML  <!-- -->" }
+
+[[input]]
+name    = "mode"
+label   = "Action"
+default = "toggle"
+source  = "field"
+labels  = { toggle = "Toggle (default) — uncomment if all lines are commented", comment = "Comment every line", uncomment = "Uncomment every line" }
+
+[[input]]
+name        = "marker"
+label       = "Custom marker (overrides the language)"
+placeholder = "//"
+default     = ""
+source      = "field"
+
+[[input]]
+name    = "space_after_marker"
+label   = "Space after the marker (// code)"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "align"
+label   = "Marker position"
+default = "indent"
+source  = "field"
+labels  = { indent = "Match the block's indentation (default)", column0 = "Flush left at column 0" }
+
+[[input]]
+name   = "comment_blank_lines"
+label  = "Also comment blank lines"
+source = "field"
+
+[[example]]
+label  = "Comment JavaScript"
+params = { code = "const a = 1;\nconst b = 2;", language = "javascript", mode = "comment", marker = "", space_after_marker = "true", align = "indent", comment_blank_lines = "false" }
+
+[[example]]
+label  = "Uncomment Python"
+params = { code = "# x = 1\n# y = 2", language = "python", mode = "toggle", marker = "", space_after_marker = "true", align = "indent", comment_blank_lines = "false" }
+
+[[example]]
+label  = "Keep the indentation"
+params = { code = "  if a:\n      b()\n  done()", language = "python", mode = "comment", marker = "", space_after_marker = "true", align = "indent", comment_blank_lines = "false" }
+
+[[example]]
+label  = "Wrap HTML in <!-- -->"
+params = { code = "<p>hi</p>\n<p>yo</p>", language = "html", mode = "comment", marker = "", space_after_marker = "true", align = "indent", comment_blank_lines = "false" }

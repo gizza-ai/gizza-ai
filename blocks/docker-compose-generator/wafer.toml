@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "docker-compose-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a docker-compose.yml from a short one-line-per-service spec"

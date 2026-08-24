@@ -1,0 +1,118 @@
+{
+  "name": "gizza-ai/issue-export-reporter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a Jira or Linear CSV issue export into status, cycle-time, velocity and burndown reports.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a pasted Jira or Linear CSV issue export and report the team's flow metrics. Auto-detects the export dialect and its columns (key, status, created, started, resolved, story points, sprint/cycle, assignee, type, priority), reading ISO and Jira-style timestamps. Reports: an overview (issues, completed, open, cancelled, completion rate, points, created range), a status breakdown with counts/share/points, lead time (created to resolved) and cycle time (started to resolved) as min/percentiles/max/mean, velocity per sprint or calendar period with averages, an arrivals-vs-departures burndown, and a per-issue table sorted slowest first. Percentiles default to 50,85,95 and are configurable; distributions can be grouped by assignee, type, priority, sprint or status; elapsed time can be measured in days or hours and can exclude weekends. Which statuses count as done or cancelled is configurable, and non-standard exports can be mapped with columns='field=header'. Output as text, markdown, csv or json. Only the timestamps present in the export are used — a plain CSV has no transition history, so time-in-status is not available. Runs entirely in the sandbox: no tracker connection, no upload, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "business_days": {
+          "default": false,
+          "description": "Count only Monday–Friday time in lead and cycle times, dropping Saturdays and Sundays. Default false (calendar time). Public holidays are not modelled.",
+          "type": "boolean"
+        },
+        "cancelled_statuses": {
+          "default": "cancelled,canceled,won't do,wont do,duplicate,rejected,invalid",
+          "description": "Comma-separated statuses for dropped work, matched case-insensitively. Cancelled issues are excluded from completion rate, velocity and the cycle-time distributions. Empty means the default list: cancelled, canceled, won't do, wont do, duplicate, rejected, invalid.",
+          "type": "string"
+        },
+        "columns": {
+          "default": "",
+          "description": "Optional column mapping for exports whose headers are not auto-detected, as a comma-separated list of field=header pairs, e.g. \"status=State, resolved=Done At, points=Estimate\". Fields: key, summary, status, created, started, resolved, points, sprint, assignee, type, priority. The header may also be given as a 1-based column number. Empty (default) means use the auto-detected columns.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The CSV issue export, pasted whole including the header row. Jira exports (Issue key, Status, Created, Resolved, Story Points, repeated Sprint columns) and Linear exports (ID, Status, Created, Started, Completed, Estimate, Cycle Name) are recognized automatically; any other CSV works as long as it has a status column or a completion-date column. Column names are matched case-insensitively, ignoring spaces and punctuation. Timestamps may be ISO (2024-01-05, 2024-01-05T09:07:33Z, with or without an offset) or Jira-style (05/Jan/24 9:07 AM). Up to 5 MB and 50,000 rows.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field delimiter of the pasted export. 'auto' (default) picks whichever of comma, semicolon, tab or pipe appears most often in the header row.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "done_statuses": {
+          "default": "done,closed,resolved,completed,shipped,released,merged",
+          "description": "Comma-separated statuses that count as finished work, matched case-insensitively. An issue also counts as finished when it carries a resolved/completed date. Empty means the default list: done, closed, resolved, completed, shipped, released, merged.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format. 'text' (default) is aligned plain-text tables; 'markdown' is pipe tables; 'csv' is spreadsheet-ready (multi-table reports are separated by a '# <title>' comment row); 'json' is a structured object with report, source, the detected column mapping, one section per table and any notes.",
+          "enum": [
+            "text",
+            "json",
+            "csv",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "group_by": {
+          "default": "none",
+          "description": "Split the lead/cycle-time distributions by a field instead of reporting one row for all issues. Default 'none'. Groups are listed largest first; issues with a blank value are grouped as (unassigned)/(no sprint)/(none).",
+          "enum": [
+            "none",
+            "assignee",
+            "type",
+            "priority",
+            "sprint",
+            "status"
+          ],
+          "type": "string"
+        },
+        "percentiles": {
+          "default": "50,85,95",
+          "description": "Comma-separated percentiles to report for lead and cycle time, each between 1 and 99, at most 6 (e.g. \"30,50,70,85,95\"). Empty means the default 50,85,95. Nearest-rank method: the smallest observed value at or below which at least p% of the issues fall. Min, max and mean are always reported alongside.",
+          "type": "string"
+        },
+        "period": {
+          "default": "auto",
+          "description": "Bucket size for velocity and burndown. 'auto' (default) uses sprints when the export has a Sprint/Cycle column, otherwise weeks; burndown always uses calendar buckets because sprint names have no calendar order. Weeks start on Monday.",
+          "enum": [
+            "auto",
+            "sprint",
+            "week",
+            "month",
+            "day"
+          ],
+          "type": "string"
+        },
+        "report": {
+          "default": "summary",
+          "description": "Which report to render. 'summary' (default) combines an overview, the status breakdown, the lead/cycle-time distributions and velocity; 'status' is the per-status count/share/points table; 'cycle_time' is the lead-time (created→resolved) and, when a start column exists, cycle-time (started→resolved) distributions; 'velocity' is completed issues and points per sprint or period plus per-period averages; 'burndown' is created vs completed vs net vs open-at-end per calendar period; 'items' is the per-issue table sorted slowest first.",
+          "enum": [
+            "summary",
+            "status",
+            "cycle_time",
+            "velocity",
+            "burndown",
+            "items"
+          ],
+          "type": "string"
+        },
+        "unit": {
+          "default": "days",
+          "description": "Unit for every elapsed time. Default 'days'; use 'hours' for short-lived work such as support tickets.",
+          "enum": [
+            "days",
+            "hours"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

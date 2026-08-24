@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/dna-reverse-complement",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reverse-complement a DNA or RNA sequence, IUPAC codes and case included.",
+  "role": "skill",
+  "tool": {
+    "description": "Return the reverse complement of a DNA or RNA sequence. Give it raw bases or FASTA (multiple '>' records are transformed individually, headers kept); whitespace between bases is ignored. The full IUPAC alphabet is supported with the standard degenerate pairings (A<->T, C<->G, U->A, R<->Y, K<->M, B<->V, D<->H, while S, W and N are self-complementary) and gaps ('-', '.') map to themselves. Use operation='complement' to complement without reversing or operation='reverse' to reverse without complementing. output_alphabet='auto' (default) keeps RNA as RNA and DNA as DNA; force it with 'dna' or 'rna'. Case is preserved unless preserve_case=false. Set line_width=60 for FASTA-style wrapping, on_invalid='drop' to strip digits/punctuation from a numbered paste, and show_stats=true for length and GC content. Example: sequence='ATGC' returns 'GCAT'.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "line_width": {
+          "default": 0,
+          "description": "Wrap each output sequence at this many characters per line, 0-200. 0 (default) puts each sequence on one line; 60 is the usual FASTA convention.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "on_invalid": {
+          "default": "error",
+          "description": "What to do with a character that is not a base, IUPAC code, or gap (digits from numbered listings, '*', punctuation). 'error' (default) rejects the input and names the character and its position; 'drop' deletes it; 'keep' passes it through untouched (it is still repositioned by a reverse).",
+          "enum": [
+            "error",
+            "drop",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "reverse_complement",
+          "description": "Which transform to apply. 'reverse_complement' (default) complements every base and reverses the order — the opposite strand read 5'->3'. 'complement' complements in place without reversing. 'reverse' only reverses the order of the bases.",
+          "enum": [
+            "reverse_complement",
+            "complement",
+            "reverse"
+          ],
+          "type": "string"
+        },
+        "output_alphabet": {
+          "default": "auto",
+          "description": "Alphabet of the output. 'auto' (default) keeps the input's: RNA (U) if the input contains U and no T, otherwise DNA (T). 'dna' forces U to be written as T; 'rna' forces T to be written as U.",
+          "enum": [
+            "auto",
+            "dna",
+            "rna"
+          ],
+          "type": "string"
+        },
+        "preserve_case": {
+          "default": true,
+          "description": "When true (default) the input's upper/lower case is kept, so lower-case regions stay marked. Set false to uppercase the whole output.",
+          "type": "boolean"
+        },
+        "sequence": {
+          "description": "The DNA or RNA sequence to transform. Raw bases or FASTA (one or more '>' records) are both accepted; spaces, tabs and line breaks between bases are ignored. Accepts A/C/G/T/U, the IUPAC ambiguity codes R Y S W K M B D H V N, and the gap symbols '-' and '.'. Example: 'ATGCTTA'. Maximum 1000000 characters.",
+          "type": "string"
+        },
+        "show_stats": {
+          "default": false,
+          "description": "When true, append a '#'-prefixed summary after the sequence: record count, length, GC content, ambiguous-code count and gap count. Default false so the output stays copy-paste-ready.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sequence"
+      ],
+      "type": "object"
+    }
+  }
+}

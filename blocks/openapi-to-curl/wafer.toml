@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "openapi-to-curl"
+version = "0.1.0"
+abi = 1
+summary = "Generate a ready-to-run curl command for every endpoint in an OpenAPI or Swagger spec."

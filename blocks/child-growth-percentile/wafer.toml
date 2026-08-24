@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "child-growth-percentile"
+version = "0.1.0"
+abi = 1
+summary = "Compute CDC child growth-chart percentiles from age, sex, height, weight and head circumference"

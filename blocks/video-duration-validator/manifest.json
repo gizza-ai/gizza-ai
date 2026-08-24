@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/video-duration-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check a video's duration against a target and flag clips that are too long or too short.",
+  "role": "skill",
+  "tool": {
+    "description": "Check a video's container duration against a target length and report PASS or FAIL. Provide the video as url or ref. Reads the duration straight from the container header with pure-Rust demuxers — no re-encoding, no ffmpeg, nothing is uploaded anywhere. Parameters: target_seconds (required, 0.001-86400) is the intended length; tolerance_seconds (default 0.5) is the allowed slack; mode=within|max|min (default within) selects the comparison — within passes inside target ± tolerance, max passes at or under target + tolerance, min passes at or over target - tolerance. Returns status (PASS/FAIL), pass, reason (ok/too_long/too_short), actual_seconds and actual_duration, target_seconds, tolerance_seconds, delta_seconds (actual - target; positive means too long), overshoot_seconds (how far outside the window), the allowed window, the container, and a one-line summary. Containers: MP4/M4A/MOV, Matroska/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, AAC/ADTS. A file whose header records no duration (a broken MediaRecorder WebM, a damaged moov atom) is an error, not a FAIL — remux it with video-duration-fix-remux first.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "mode": {
+          "default": "within",
+          "description": "Which comparison to apply: within (default) passes when the duration is inside target ± tolerance; max passes when it is at most target + tolerance (an upper limit, e.g. an ad slot); min passes when it is at least target - tolerance (a lower limit, e.g. a minimum watch time).",
+          "enum": [
+            "within",
+            "max",
+            "min"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "target_seconds": {
+          "description": "Required. The length the clip is supposed to be, in seconds (e.g. 30 for a 30-second ad, 59 for a Reel, 600 for a 10-minute lecture). Accepts decimals; 0.001-86400 (24 hours).",
+          "maximum": 86400,
+          "minimum": 0.001,
+          "type": "number"
+        },
+        "tolerance_seconds": {
+          "default": 0.5,
+          "description": "Allowed slack around the target, in seconds (default 0.5). 0 demands an exact match to the millisecond; 0.5 absorbs the usual keyframe/frame-rate rounding. 0-86400.",
+          "maximum": 86400,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_seconds"
+      ],
+      "type": "object"
+    }
+  }
+}

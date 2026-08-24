@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/repeated-word-remover",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove accidentally doubled words from text.",
+  "role": "skill",
+  "tool": {
+    "description": "Find and delete accidentally repeated words in text — 'the the', 'is is on on', a word doubled across a line wrap — while leaving the English repeats that are meant to be there ('had had', 'that that', 'a long long time') alone via an editable keep list. Only adjacent repeats are collapsed, and the first occurrence always wins, so capitalisation, indentation and punctuation survive. Return the cleaned text, a strikethrough-marked diff of what would be deleted, or an audit report with per-spot line/column positions and before/after word counts. Options cover case sensitivity, bridging line breaks or punctuation, repeated numbers, and a minimum word length. Runs locally in the sandbox; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "across_line_breaks": {
+          "default": true,
+          "description": "Treat a repeat split by a single hard line break as a repeat, catching the wrap-typo shape where a line ends with 'the' and the next line starts with 'the'. Default true — this is the commonest real doubled word in OCR and hard-wrapped text. A blank line is a paragraph break and never bridges a repeat.",
+          "type": "boolean"
+        },
+        "case_sensitive": {
+          "default": false,
+          "description": "Require the two words to match exactly, including case. Default false, so 'The the cat' is caught and the first spelling ('The') is the one kept. Set true when a capitalised word starting a sentence must not merge with the lower-case word before it.",
+          "type": "boolean"
+        },
+        "ignore_punctuation": {
+          "default": false,
+          "description": "Let commas, semicolons, colons, brackets, quotes, slashes and pipes sit between the two words, so 'well, well now' collapses to 'well now'. Default false, which keeps punctuated repetition intact. Sentence-enders . ! ? and dashes never bridge a repeat in either setting.",
+          "type": "boolean"
+        },
+        "include_numbers": {
+          "default": false,
+          "description": "Also collapse repeated tokens that contain no letters, such as '2024 2024' in a pasted table row. Default false, which protects numeric columns, IDs and version strings from being mangled.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Text to clean. Paste prose, notes, chat transcripts or OCR output. Only ADJACENT repeats are considered — a word that reappears later in the sentence is never touched. Max 200,000 bytes.",
+          "type": "string"
+        },
+        "keep_words": {
+          "default": "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum",
+          "description": "Words that are legitimately doubled in English and must never be collapsed, compared case-insensitively. Separate with commas, semicolons, spaces or newlines. Defaults to had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum — so 'He had had enough' and 'the fact that that happened' survive. Clear it to collapse every repeat.",
+          "type": "string"
+        },
+        "min_length": {
+          "default": 1,
+          "description": "Ignore repeats of words shorter than this many characters. A floor of 3 leaves 'I I' and 'a a' alone while still fixing 'the the'. 1 (the default) applies no floor. Must be between 1 and 20.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "clean",
+          "description": "Which rendering to return. 'clean' (default) is your text with every accidental repeat deleted. 'marked' returns the ORIGINAL text with each deleted copy wrapped in markdown strikethrough (~~the~~) so you can review the change before applying it. 'report' returns an audit: how many spots were found, word counts before and after, the percent saved, and one line/column entry per doubled-word spot.",
+          "enum": [
+            "clean",
+            "marked",
+            "report"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

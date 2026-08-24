@@ -1,0 +1,73 @@
+slug          = "random-projection-reducer"
+title         = "Random Projection Reducer — Johnson–Lindenstrauss Dimensionality Reduction Online"
+description   = "Reduce a wide numeric table to fewer dimensions with a Johnson–Lindenstrauss random projection, and see how much pairwise distances moved."
+tags          = ["random projection", "johnson-lindenstrauss", "dimensionality reduction", "gaussian random projection", "sparse random projection", "achlioptas", "rademacher matrix", "distance preservation", "embedding", "feature reduction"]
+h1            = "Random projection dimensionality reducer"
+hero_subtitle = "Paste a wide table of numbers and project it onto fewer dimensions with a random Gaussian, sparse, Achlioptas or Rademacher matrix. The report shows how far pairwise distances actually moved and what the Johnson–Lindenstrauss bound asks for. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_random_projection_reducer_web"
+export        = "run"
+live          = false
+output_label  = "Projection report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data matrix (one observation per line; columns split on comma, tab, semicolon, pipe or space)"
+placeholder = "ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8\n1,2,3,4,5,6,7,8\n8,7,6,5,4,3,2,1\n2,4,6,8,10,12,14,16"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "components"
+label       = "Target dimensions (a number like 3, a share like 25%, or auto)"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name   = "method"
+label  = "Random matrix"
+source = "field"
+labels = { gaussian = "Gaussian — dense, entries from N(0, 1/k)", sparse = "Sparse — ±values at density 1/√columns, zeros elsewhere", achlioptas = "Achlioptas — sparse at the fixed density 1/3", rademacher = "Rademacher — dense ± signs, equally likely" }
+
+[[input]]
+name        = "density"
+label       = "Density of non-zero entries (sparse and Achlioptas only; 0 = the method's own default)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "eps"
+label  = "Distortion tolerance eps (0.1 = ±10%; sets the target when dimensions is auto)"
+source = "field"
+kind   = "slider"
+placeholder = "0.1"
+step   = "0.01"
+
+[[input]]
+name        = "seed"
+label       = "Seed (the same seed always draws the same projection)"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+labels = { text = "Formatted report (settings, distortion, JL guidance, rows)", json = "JSON (full result, every row and the matrix)", csv = "CSV (projected rows only, ready to plot)", matrix = "CSV (the projection matrix itself)" }
+
+[[example]]
+label  = "8 channels → 3 dimensions"
+params = { data = "ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8\n1,2,3,4,5,6,7,8\n8,7,6,5,4,3,2,1\n2,4,6,8,10,12,14,16\n0,1,0,1,0,1,0,1\n5,5,5,5,5,5,5,5\n9,1,8,2,7,3,6,4", components = "3" }
+
+[[example]]
+label  = "Keep 25% of the columns"
+params = { data = "ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8\n1,2,3,4,5,6,7,8\n8,7,6,5,4,3,2,1\n2,4,6,8,10,12,14,16\n0,1,0,1,0,1,0,1\n5,5,5,5,5,5,5,5\n9,1,8,2,7,3,6,4", components = "25%" }
+
+[[example]]
+label  = "Sparse matrix, projected rows as CSV"
+params = { data = "ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8\n1,2,3,4,5,6,7,8\n8,7,6,5,4,3,2,1\n2,4,6,8,10,12,14,16\n0,1,0,1,0,1,0,1\n5,5,5,5,5,5,5,5\n9,1,8,2,7,3,6,4", components = "3", method = "sparse", format = "csv" }
+
+[[example]]
+label  = "Show the projection matrix"
+params = { data = "ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8\n1,2,3,4,5,6,7,8\n8,7,6,5,4,3,2,1\n2,4,6,8,10,12,14,16\n0,1,0,1,0,1,0,1\n5,5,5,5,5,5,5,5\n9,1,8,2,7,3,6,4", components = "2", method = "rademacher", seed = "7", format = "matrix" }

@@ -1,0 +1,230 @@
+slug          = "few-shot-text-classifier"
+title         = "Few-shot Text Classifier — label text from examples"
+description   = "Classify text from labeled examples. Choose TF-IDF, nearest-neighbor or centroid scoring, then get predictions, confidence and explanations."
+tags          = ["text classification", "few shot", "tf-idf", "machine learning", "nlp", "labeling", "classifier", "text analysis"]
+h1            = "Few-shot text classifier"
+hero_subtitle = "Paste a small support set as label/text examples, then classify one document or a batch of lines. The tool builds a local tf-idf style similarity model in your browser and reports the winning label, confidence, per-label scores, shared terms and nearest example — no API key, training job or model download."
+wasm          = "gizza_ai_few_shot_text_classifier_web"
+export        = "run"
+live          = false
+output_label  = "Classification result"
+format        = "text"
+
+[[input]]
+name        = "examples"
+label       = "Labeled examples"
+placeholder = "billing,invoice charge refund\nbilling,subscription payment failed\nsupport,password reset login issue\nsupport,account locked cannot sign in"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "text"
+label       = "Text to classify"
+placeholder = "I cannot sign in after resetting my password."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "separator"
+label  = "Example separator"
+source = "field"
+
+[input.labels]
+auto  = "Auto-detect tab, comma, pipe or colon"
+tab   = "Tab"
+comma = "Comma ,"
+pipe  = "Pipe |"
+colon = "Colon :"
+
+[[input]]
+name   = "input_mode"
+label  = "Classify text as"
+source = "field"
+
+[input.labels]
+single = "One document"
+lines  = "One document per non-blank line"
+
+[[input]]
+name   = "method"
+label  = "Decision method"
+source = "field"
+
+[input.labels]
+centroid   = "Label centroids (default)"
+knn        = "k nearest examples"
+best-match = "Best single example per label"
+
+[[input]]
+name        = "k"
+label       = "Nearest examples (k)"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "50"
+step        = "1"
+
+[[input]]
+name   = "similarity"
+label  = "Similarity metric"
+source = "field"
+
+[input.labels]
+cosine    = "Cosine angle (default)"
+dot       = "Dot product"
+euclidean = "Euclidean distance, inverted"
+jaccard   = "Jaccard term overlap"
+
+[[input]]
+name   = "weighting"
+label  = "Feature weighting"
+source = "field"
+
+[input.labels]
+tfidf  = "TF-IDF (default)"
+tf     = "Term frequency"
+binary = "Presence / absence"
+
+[[input]]
+name   = "analyzer"
+label  = "Feature analyzer"
+source = "field"
+
+[input.labels]
+word = "Word n-grams"
+char = "Character n-grams"
+
+[[input]]
+name        = "ngram_max"
+label       = "Maximum n-gram length"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "6"
+step        = "1"
+
+[[input]]
+name   = "lowercase"
+label  = "Lowercase before tokenizing"
+source = "field"
+
+[[input]]
+name   = "strip_accents"
+label  = "Strip accented Latin letters"
+source = "field"
+
+[[input]]
+name   = "remove_stopwords"
+label  = "Remove English stop words"
+source = "field"
+
+[[input]]
+name   = "sublinear_tf"
+label  = "Use sublinear term frequency"
+source = "field"
+
+[[input]]
+name        = "min_df"
+label       = "Minimum example frequency"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "min_confidence"
+label       = "Minimum confidence"
+placeholder = "0.0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name        = "top_k"
+label       = "Labels to show"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name   = "explain"
+label  = "Show explanation terms"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "JSON"
+csv    = "CSV"
+
+[[example]]
+label = "Support ticket triage"
+[example.params]
+examples = '''
+billing,invoice charge refund
+billing,subscription payment failed
+support,password reset login issue
+support,account locked cannot sign in
+sales,pricing quote enterprise plan
+sales,demo request for buying team
+'''
+text = "I cannot sign in after resetting my password."
+separator = "comma"
+method = "centroid"
+similarity = "cosine"
+weighting = "tfidf"
+analyzer = "word"
+ngram_max = "1"
+lowercase = "true"
+explain = "true"
+output = "report"
+
+[[example]]
+label = "Batch-label product feedback"
+[example.params]
+examples = '''
+bug|crashes when I open the settings panel
+bug|export button throws an error
+praise|love the new dashboard and charts
+praise|the app feels faster after the update
+feature|please add dark mode to reports
+feature|need an API endpoint for bulk import
+'''
+text = '''
+The import job failed with an error.
+Can you add a dark theme?
+The dashboard loads very quickly now.
+'''
+separator = "pipe"
+input_mode = "lines"
+method = "knn"
+k = "3"
+similarity = "cosine"
+weighting = "tfidf"
+top_k = "3"
+output = "csv"
+
+[[example]]
+label = "Typo-tolerant short text"
+[example.params]
+examples = '''
+fruit: apple banana orange pear
+fruit: berry mango melon grape
+animal: kitten puppy hamster rabbit
+animal: tiger zebra elephant horse
+'''
+text = "bananna and oragne smoothie"
+separator = "colon"
+method = "best-match"
+similarity = "jaccard"
+weighting = "binary"
+analyzer = "char"
+ngram_max = "3"
+strip_accents = "true"
+top_k = "2"
+output = "report"

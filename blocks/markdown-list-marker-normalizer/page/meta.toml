@@ -1,0 +1,126 @@
+slug          = "markdown-list-marker-normalizer"
+title         = "Markdown List Marker Normalizer — One Bullet Style, Clean Indentation"
+description   = "Normalize Markdown bullets to one marker (-, *, or +), snap nested list indentation to an exact step, and renumber ordered lists."
+tags          = ["markdown list marker", "normalize markdown bullets", "markdown bullet style", "fix markdown list indentation", "markdown ul style", "renumber markdown list", "markdown formatter", "md004 ul-style"]
+h1            = "Markdown List Marker Normalizer"
+hero_subtitle = "Make every bullet in a Markdown file use the same character and the same indentation step. Mixed -, *, and + markers, ragged 1/3/5-space nesting, tabs, and drifting 1. 2. 3. numbering all come out uniform — item text and fenced code are left exactly as they were."
+wasm          = "gizza_ai_markdown_list_marker_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized Markdown"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "* Setup\n   + Install\n   + Configure\n- Usage"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "marker"
+label  = "Bullet marker"
+source = "field"
+
+[input.labels]
+dash = "Dash — -"
+asterisk = "Asterisk — *"
+plus = "Plus — +"
+consistent = "Consistent — reuse the first marker in the file"
+sublist = "Sublist — alternate - * + by depth"
+
+[[input]]
+name        = "indent"
+label       = "Spaces per nesting level"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "8"
+step        = "1"
+
+[[input]]
+name   = "normalize_indent"
+label  = "Fix indentation steps"
+source = "field"
+
+[[input]]
+name   = "ordered"
+label  = "Ordered list numbering"
+source = "field"
+
+[input.labels]
+keep = "Keep — leave numbers as written"
+ordered = "Sequential — 1. 2. 3."
+one = "All ones — 1. 1. 1."
+zero = "All zeros — 0. 0. 0."
+
+[[input]]
+name        = "marker_space"
+label       = "Spaces after the marker"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "4"
+step        = "1"
+
+[[example]]
+label = "Dashes, 2-space steps"
+[example.params]
+markdown = "* Setup\n   + Install the CLI\n   + Configure the token\n- Usage\n\t* Run a build"
+marker = "dash"
+indent = "2"
+normalize_indent = "true"
+ordered = "keep"
+marker_space = "1"
+
+[[example]]
+label = "Asterisks, 4-space steps"
+[example.params]
+markdown = "- Setup\n   - Install the CLI\n- Usage"
+marker = "asterisk"
+indent = "4"
+normalize_indent = "true"
+ordered = "keep"
+marker_space = "1"
+
+[[example]]
+label = "Sublist — alternate by depth"
+[example.params]
+markdown = "- Fruit\n  - Citrus\n    - Lemon\n- Veg"
+marker = "sublist"
+indent = "2"
+normalize_indent = "true"
+ordered = "keep"
+marker_space = "1"
+
+[[example]]
+label = "Renumber 1. 2. 3."
+[example.params]
+markdown = "3. First step\n7. Second step\n9. Third step"
+marker = "dash"
+indent = "2"
+normalize_indent = "true"
+ordered = "ordered"
+marker_space = "1"
+
+[[example]]
+label = "Lazy 1. 1. 1. numbering"
+[example.params]
+markdown = "1. First step\n2. Second step\n3. Third step"
+marker = "dash"
+indent = "2"
+normalize_indent = "true"
+ordered = "one"
+marker_space = "1"
+
+[[example]]
+label = "Markers only, keep indentation"
+[example.params]
+markdown = "* Setup\n     + Install the CLI\n* Usage"
+marker = "dash"
+indent = "2"
+normalize_indent = "false"
+ordered = "keep"
+marker_space = "1"

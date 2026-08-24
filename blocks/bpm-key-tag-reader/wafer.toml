@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bpm-key-tag-reader"
+version = "0.1.0"
+abi = 1
+summary = "Read the stored tempo and musical-key tags from a track and convert the key to Camelot or Open Key"

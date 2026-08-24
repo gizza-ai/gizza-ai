@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/focus-picker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Pick the one task to focus on next from priority, due date and effort cues",
+  "role": "skill",
+  "tool": {
+    "description": "Choose the single most important next task from a pasted list, using deterministic local scoring. Each task can carry `!p0`-`!p4` priority, `due:` dates such as ISO dates, today/tomorrow, weekdays or +Nd/+Nw offsets, and `est:` effort such as 90m, 2h or 1d; pipe/tab columns are accepted too. Methods include balanced, deadline, WSJF, quick-wins and Eisenhower quadrants. The output names the top pick, explains why with score/priority/due/effort facts, optionally lists the full ranking, and can be text, Markdown or JSON. Caps: 500 tasks.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "default_effort": {
+          "default": 2.0,
+          "description": "Default effort in hours for rows without `est:` or an effort column. Effort lowers scores, especially WSJF and quick-wins. Default 2 hours.",
+          "maximum": 40,
+          "minimum": 0.25,
+          "type": "number"
+        },
+        "default_priority": {
+          "default": "p3",
+          "description": "Priority assigned to rows that do not say `!p0` through `!p4` or include a priority column. Lower numbers mean more important; default p3.",
+          "enum": [
+            "p0",
+            "p1",
+            "p2",
+            "p3",
+            "p4"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: readable text, a Markdown ranking table, or machine-readable JSON.",
+          "enum": [
+            "text",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "balanced",
+          "description": "Scoring method. `balanced` blends priority, due-date urgency and effort ease; `deadline` favors urgent due dates; `wsjf` divides value/urgency by job size; `quick-wins` favors small tasks; `eisenhower` ranks urgent/important quadrants.",
+          "enum": [
+            "balanced",
+            "deadline",
+            "wsjf",
+            "quick-wins",
+            "eisenhower"
+          ],
+          "type": "string"
+        },
+        "overdue_boost": {
+          "default": true,
+          "description": "When true, overdue tasks are pinned above non-overdue work before score tie-breaking. Turn off to rank everything strictly by the selected formula.",
+          "type": "boolean"
+        },
+        "show_ranking": {
+          "default": true,
+          "description": "When true, include the full ranked list after the single focus pick. Set false for a terse answer with only the top task, reason and summary.",
+          "type": "boolean"
+        },
+        "tasks": {
+          "description": "One task per line. Add optional inline tags such as `!p1`, `due:2026-08-25`, `due:tomorrow`, `due:+3d`, `est:90m`, `est:2h` or `est:1d`; or paste pipe/tab columns as `task | priority | due | effort`. Up to 500 tasks.",
+          "type": "string"
+        },
+        "today": {
+          "default": "",
+          "description": "Optional ISO date (YYYY-MM-DD) used as 'today' for relative due dates and reproducible examples. Leave blank to use the current date.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tasks"
+      ],
+      "type": "object"
+    }
+  }
+}

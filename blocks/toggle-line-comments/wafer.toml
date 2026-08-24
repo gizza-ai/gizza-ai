@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "toggle-line-comments"
+version = "0.1.0"
+abi = 1
+summary = "Comment or uncomment a block of code in the right syntax for its language"

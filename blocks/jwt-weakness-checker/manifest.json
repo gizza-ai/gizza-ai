@@ -1,0 +1,44 @@
+{
+  "name": "gizza-ai/jwt-weakness-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Audit a JWT for security weaknesses offline",
+  "role": "skill",
+  "tool": {
+    "description": "Audit a JSON Web Token (JWT) offline for security weaknesses: the alg:none / unsecured-token trap, weak or guessable HMAC secrets (dictionary attack over a built-in common-secret list plus any you supply), missing/expired/over-long expiry, missing iss/aud/iat/typ claims, kid-injection surface, algorithm-confusion risk, sensitive data in the payload, and oversized tokens. Returns a prioritized findings list with a 0-100 risk score. No secret or key is required and nothing leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "leeway": {
+          "description": "Clock-skew tolerance in seconds applied to exp/nbf checks (default 0).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_exp_days": {
+          "default": 30.0,
+          "description": "Lifetime (in days) above which the token's expiry is flagged as excessively long. Default 30; set 0 to disable this check.",
+          "maximum": 365,
+          "minimum": 0,
+          "type": "number"
+        },
+        "now": {
+          "description": "Reference time as seconds since the Unix epoch. When omitted (0), the current clock time is used for expiry checks.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "token": {
+          "description": "The compact JWT to audit (header.payload.signature).",
+          "type": "string"
+        },
+        "wordlist": {
+          "description": "Extra candidate HMAC secrets to test, in addition to the built-in common-secret list. Separate by newlines or commas. Example: 'secret,changeme,company-name-2024'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "token"
+      ],
+      "type": "object"
+    }
+  }
+}

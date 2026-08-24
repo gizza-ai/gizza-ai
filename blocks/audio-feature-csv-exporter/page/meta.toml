@@ -1,0 +1,227 @@
+slug          = "audio-feature-csv-exporter"
+title         = "Audio Feature CSV Exporter"
+description   = "Export per-frame audio features — RMS, spectral centroid, ZCR, rolloff, flatness, bandwidth, flux — to CSV, TSV, or JSON. Runs in your browser."
+tags          = ["audio", "features", "csv", "spectral-centroid", "zcr", "rolloff", "flatness", "machine-learning"]
+h1            = "Export Audio Features to CSV"
+hero_subtitle = "Upload an audio file and get a tidy frame-by-frame feature table — loudness, brightness, noisiness and onset columns — ready to plot, threshold, or feed to a classifier."
+wasm          = "gizza_ai_audio_feature_csv_exporter_web"
+export        = "run"
+live          = false
+output_label  = "Feature table"
+format        = "text"
+
+[[input]]
+name   = "input"
+label  = "Audio file"
+source = "file"
+accept = "audio/*"
+
+[[input]]
+name        = "input_format"
+label       = "Input encoding"
+source      = "field"
+placeholder = "base64"
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+placeholder = "csv"
+[input.labels]
+csv  = "CSV"
+tsv  = "TSV"
+json = "JSON with metadata"
+
+[[input]]
+name        = "frame_ms"
+label       = "Frame length (ms)"
+source      = "field"
+placeholder = "25"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "hop_ms"
+label       = "Hop length (ms)"
+source      = "field"
+placeholder = "10"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "window"
+label       = "Analysis window"
+source      = "field"
+placeholder = "hann"
+[input.labels]
+hann        = "Hann"
+hamming     = "Hamming"
+blackman    = "Blackman"
+rectangular = "Rectangular"
+
+[[input]]
+name   = "center"
+label  = "Centered frames (librosa center=True)"
+source = "field"
+
+[[input]]
+name        = "channel"
+label       = "Channel"
+source      = "field"
+placeholder = "mix"
+[input.labels]
+mix   = "Downmix to mono"
+left  = "Left only"
+right = "Right only"
+
+[[input]]
+name        = "resample_hz"
+label       = "Analysis sample rate (Hz, 0 = native)"
+source      = "field"
+placeholder = "0"
+kind        = "slider"
+step        = "1000"
+
+[[input]]
+name   = "rms"
+label  = "RMS level column"
+source = "field"
+
+[[input]]
+name   = "centroid"
+label  = "Spectral centroid column"
+source = "field"
+
+[[input]]
+name   = "zcr"
+label  = "Zero-crossing-rate column"
+source = "field"
+
+[[input]]
+name   = "rolloff"
+label  = "Spectral rolloff column"
+source = "field"
+
+[[input]]
+name   = "flatness"
+label  = "Spectral flatness column"
+source = "field"
+
+[[input]]
+name   = "bandwidth"
+label  = "Spectral bandwidth column"
+source = "field"
+
+[[input]]
+name   = "flux"
+label  = "Spectral flux column"
+source = "field"
+
+[[input]]
+name        = "rolloff_percent"
+label       = "Rolloff energy (%)"
+source      = "field"
+placeholder = "85"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "rms_scale"
+label       = "RMS units"
+source      = "field"
+placeholder = "dbfs"
+[input.labels]
+dbfs   = "dBFS"
+linear = "Linear amplitude"
+
+[[input]]
+name        = "flatness_scale"
+label       = "Flatness units"
+source      = "field"
+placeholder = "ratio"
+[input.labels]
+ratio = "Ratio (0-1)"
+db    = "Decibels"
+
+[[input]]
+name   = "include_time"
+label  = "Include time_s column"
+source = "field"
+
+[[input]]
+name   = "include_frame"
+label  = "Include frame index column"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+source      = "field"
+placeholder = "6"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label = "Default feature set"
+[example.params]
+output = "csv"
+frame_ms = "25"
+hop_ms = "10"
+window = "hann"
+center = "false"
+channel = "mix"
+rms = "true"
+centroid = "true"
+zcr = "true"
+rolloff = "true"
+flatness = "true"
+bandwidth = "false"
+flux = "false"
+include_time = "true"
+
+[[example]]
+label = "All seven features"
+[example.params]
+output = "csv"
+bandwidth = "true"
+flux = "true"
+include_frame = "true"
+decimals = "4"
+
+[[example]]
+label = "Librosa-style framing"
+[example.params]
+output = "csv"
+frame_ms = "93"
+hop_ms = "23"
+window = "hann"
+center = "true"
+rolloff_percent = "85"
+rms_scale = "linear"
+resample_hz = "22050"
+
+[[example]]
+label = "Onset detection"
+[example.params]
+output = "csv"
+frame_ms = "20"
+hop_ms = "5"
+rms = "true"
+centroid = "false"
+zcr = "false"
+rolloff = "false"
+flatness = "false"
+flux = "true"
+decimals = "5"
+
+[[example]]
+label = "JSON with metadata"
+[example.params]
+output = "json"
+bandwidth = "true"
+flux = "true"
+decimals = "4"
+resample_hz = "16000"

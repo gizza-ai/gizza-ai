@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-sentence-length-stats-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+gizza-ai-sentence-split-core = { path = "../../sentence-split/core" }
+serde = { version = "1", features = ["derive"] }

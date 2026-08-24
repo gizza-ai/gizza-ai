@@ -1,0 +1,33 @@
+{
+  "name": "gizza-ai/k8s-manifest-scaffold",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a Kubernetes Deployment + Service YAML manifest",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a ready-to-apply Kubernetes manifest — a Deployment and a matching Service as two YAML documents separated by '---' — from a name and an image. replicas (0-100, default 1), container_port (default 8080) and service_port (default 80) set the pod and Service ports, with the Service targetPort wired to the container port; service_type picks ClusterIP (default), NodePort or LoadBalancer, and node_port (30000-32767) pins a nodePort for NodePort Services. Optional namespace, image_pull_policy (IfNotPresent/Always/Never), cpu_request/cpu_limit/memory_request/memory_limit quantities, env as KEY=value lines, extra key=value labels, and probe_path to add matching liveness and readiness HTTP probes. Names, namespaces, ports, quantities, env names, labels and the probe path are all validated, ambiguous values are quoted so YAML keeps them as strings, and the same inputs always produce the same bytes. Runs locally.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name for both the Deployment and the Service, also used as the 'app' selector label, e.g. \"web\". Lowercase letters, digits, '-' and '.', max 63 characters (RFC 1123)." },
+        "image": { "type": "string", "description": "Container image reference, e.g. \"nginx:1.27\" or \"ghcr.io/acme/api:v1.2.3\"." },
+        "namespace": { "type": "string", "description": "metadata.namespace for both resources, e.g. \"prod\". Omitted from the manifest when blank." },
+        "replicas": { "type": "integer", "minimum": 0, "maximum": 100, "default": 1, "description": "Deployment replica count, 0-100 (0 scales down to no pods). Default 1." },
+        "container_port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 8080, "description": "Port the container listens on (containerPort), 1-65535. Also the Service targetPort and the probe port. Default 8080." },
+        "service_port": { "type": "integer", "minimum": 1, "maximum": 65535, "default": 80, "description": "Port the Service exposes, 1-65535. Default 80." },
+        "service_type": { "type": "string", "enum": ["ClusterIP", "NodePort", "LoadBalancer"], "default": "ClusterIP", "description": "How the Service is exposed: 'ClusterIP' (in-cluster only, default), 'NodePort' (a port on every node) or 'LoadBalancer' (a cloud load balancer)." },
+        "node_port": { "type": "integer", "minimum": 30000, "maximum": 32767, "description": "Fixed nodePort, 30000-32767. Only valid when service_type is 'NodePort'; leave unset to let Kubernetes pick one." },
+        "image_pull_policy": { "type": "string", "enum": ["IfNotPresent", "Always", "Never"], "default": "IfNotPresent", "description": "When the kubelet pulls the image: 'IfNotPresent' (default), 'Always' or 'Never'." },
+        "cpu_request": { "type": "string", "description": "CPU request as a Kubernetes quantity, e.g. \"100m\", \"0.5\" or \"2\". Omitted when blank." },
+        "cpu_limit": { "type": "string", "description": "CPU limit as a Kubernetes quantity, e.g. \"500m\". Omitted when blank." },
+        "memory_request": { "type": "string", "description": "Memory request as a Kubernetes quantity, e.g. \"128Mi\", \"512M\" or \"1Gi\". Omitted when blank." },
+        "memory_limit": { "type": "string", "description": "Memory limit as a Kubernetes quantity, e.g. \"256Mi\". Omitted when blank. The whole resources: block is dropped when all four resource fields are blank." },
+        "env": { "type": "string", "description": "Container environment as KEY=value lines, one per line, e.g. \"LOG_LEVEL=info\\nPORT=8000\". Blank and '#' comment lines are skipped, a leading 'export ' is dropped, quoted values are unquoted, and every value is emitted as a quoted string." },
+        "labels": { "type": "string", "description": "Extra key=value labels, newline- or comma-separated, e.g. \"tier=backend,team=payments\". Merged after the standard 'app' label on both resources and the pod template; the key 'app' is reserved." },
+        "probe_path": { "type": "string", "description": "HTTP path for a liveness and readiness probe on the container port, e.g. \"/healthz\". Blank emits neither probe." }
+      },
+      "required": ["name", "image"],
+      "additionalProperties": false
+    }
+  }
+}

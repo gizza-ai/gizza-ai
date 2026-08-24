@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/red-eye-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect flash red-eye regions in a photo and report where they are.",
+  "role": "skill",
+  "tool": {
+    "description": "Check a portrait or flash photo for red-eye and report every candidate region. Provide the image as url or ref (PNG or JPEG). Red-dominant, saturated, bright pixels are grouped into connected regions and filtered by pupil-like size and shape. Returns width, height, candidate_count, the sensitivity used, a regions list (center_x, center_y, radius_px, area_px, average_red, confidence 0-1, highest confidence first) and warnings explaining anything skipped. Parameters: sensitivity=low|medium|high (default medium), min_radius 1-80 px (default 3), max_radius 1-300 px (default 80), max_regions 1-100 (default 20). This is a detector only: it reports where red-eye is, it does not remove or edit it.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "max_radius": {
+          "default": 80,
+          "description": "Largest red-eye radius to report, in pixels, 1-300; must be at least min_radius, and lowering it rejects big red objects like clothing (default 80).",
+          "maximum": 300,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_regions": {
+          "default": 20,
+          "description": "Maximum number of regions to list, 1-100, highest confidence first; candidate_count still reports how many were found before this cap (default 20).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_radius": {
+          "default": 3,
+          "description": "Smallest red-eye radius to report, in pixels, 1-80; raise it to ignore red speckle and JPEG noise in a large photo (default 3).",
+          "maximum": 80,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sensitivity": {
+          "default": "medium",
+          "description": "How eagerly a pixel counts as flash red: low (only bright, strongly saturated red — fewest false positives), medium (default, typical phone/compact-camera red-eye), high (also flags dim, partly-corrected or amber eye, at the cost of more false positives).",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

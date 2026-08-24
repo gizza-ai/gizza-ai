@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/audio-bit-depth-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Change audio PCM bit depth (24-bit to 16-bit and more) with dithering",
+  "role": "skill",
+  "tool": {
+    "description": "Change an audio file's PCM bit depth — the classic case being a 24-bit master down to dithered 16-bit for CD or streaming delivery. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). bit_depth is 8, 16 (default), 24 or 32f (32-bit float). dither picks the noise added while requantizing down (default triangular = standard TPDF; none = plain truncation; shibata and friends are noise-shaped); it is ignored when the target is 32f because nothing is truncated. format is wav (default, carries every depth) or flac (16-bit and 24-bit only). keep_metadata copies source tags (default true). Sample RATE is untouched — use audio-resampler for that. Any input ffmpeg can decode works; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bit_depth": {
+          "default": "16",
+          "description": "Target PCM bit depth (default 16). 8 = 8-bit unsigned (48 dB range, tiny/retro); 16 = CD and streaming delivery standard (96 dB); 24 = studio/mastering standard (144 dB); 32f = 32-bit float for DAW interchange. flac stores 16 and 24 only.",
+          "enum": [
+            "8",
+            "16",
+            "24",
+            "32f"
+          ],
+          "type": "string"
+        },
+        "dither": {
+          "default": "triangular",
+          "description": "Dither added while requantizing DOWN, so truncation error becomes benign noise instead of audible distortion (default triangular = standard TPDF). none = plain truncation; rectangular = flat RPDF; triangular_hp = TPDF with a high-pass; lipshitz/f_weighted/modified_e_weighted/improved_e_weighted/shibata/low_shibata/high_shibata are noise-shaped variants that hide the noise where the ear is least sensitive (shibata is the usual pick for 16-bit masters). Ignored when the target is 32f, where nothing is truncated.",
+          "enum": [
+            "none",
+            "rectangular",
+            "triangular",
+            "triangular_hp",
+            "lipshitz",
+            "f_weighted",
+            "modified_e_weighted",
+            "improved_e_weighted",
+            "shibata",
+            "low_shibata",
+            "high_shibata"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "wav",
+          "description": "Output container (default wav). Both are lossless: wav carries every depth and previews everywhere; flac is compressed and supports 16-bit and 24-bit only.",
+          "enum": [
+            "wav",
+            "flac"
+          ],
+          "type": "string"
+        },
+        "keep_metadata": {
+          "default": true,
+          "description": "Copy title/artist/album tags from the source into the output (default true). Set false to write a clean file with no metadata.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

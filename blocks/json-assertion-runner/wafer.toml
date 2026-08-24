@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-assertion-runner"
+version = "0.1.0"
+abi = 1
+summary = "Run JSONPath assertions against a JSON payload"

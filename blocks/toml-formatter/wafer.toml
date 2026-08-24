@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "toml-formatter"
+version = "0.1.0"
+abi = 1
+summary = "Format TOML with validation, sorting and comment preservation"

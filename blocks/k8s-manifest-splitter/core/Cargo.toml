@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-k8s-manifest-splitter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+# serde_yml parses each document only to read apiVersion/kind/metadata.* — the
+# document bodies themselves are carried through byte-verbatim, so comments and
+# formatting survive the split. serde_json renders the `json` output.
+[dependencies]
+serde_yml = "0.0.12"
+serde_json = "1"

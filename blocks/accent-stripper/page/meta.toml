@@ -1,0 +1,125 @@
+slug          = "accent-stripper"
+title         = "Accent Stripper — Remove Diacritics and Transliterate Text"
+description   = "Paste text and strip accents to plain ASCII. Transliterate non-Latin scripts, preserve chosen characters, lowercase, and audit unmapped output."
+tags          = ["accents", "diacritics", "unicode", "transliteration", "ascii", "slug", "text cleanup", "normalization"]
+h1            = "Strip accents and transliterate text to plain ASCII"
+hero_subtitle = "Turn café, Straße, Ærøskøbing and Москва into ASCII-safe text for slugs, filenames, search keys and CSV cleanup. Choose full transliteration or conservative mark removal, decide what happens to unmapped characters, and keep selected letters when they matter."
+wasm          = "gizza_ai_accent_stripper_web"
+export        = "run"
+live          = false
+output_label  = "Converted text"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text"
+placeholder = "Crème Brûlée à la Française — Straße, Ærøskøbing, Москва"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Conversion mode"
+source = "field"
+
+[input.labels]
+transliterate = "Transliterate to ASCII (default)"
+marks-only    = "Marks only — drop combining accents"
+
+[[input]]
+name   = "unmapped"
+label  = "Characters still non-ASCII"
+source = "field"
+
+[input.labels]
+keep    = "Keep them"
+remove  = "Remove them"
+replace = "Replace them"
+
+[[input]]
+name        = "replacement"
+label       = "Replacement text"
+placeholder = "?"
+source      = "field"
+
+[[input]]
+name        = "keep"
+label       = "Keep these characters"
+placeholder = "ñ,ø"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "lowercase"
+label  = "Lowercase result"
+source = "field"
+
+[[input]]
+name   = "collapse_whitespace"
+label  = "Collapse whitespace"
+source = "field"
+
+[[input]]
+name   = "include_report"
+label  = "Return JSON audit report"
+source = "field"
+
+[[example]]
+label = "Recipe names and cities"
+[example.params]
+input = "Crème Brûlée à la Française — São Paulo, München, Zürich"
+mode = "transliterate"
+unmapped = "keep"
+replacement = "?"
+keep = ""
+lowercase = "false"
+collapse_whitespace = "false"
+include_report = "false"
+
+[[example]]
+label = "URL slug text"
+[example.params]
+input = "  Déjà Vu: Señor Piñata!  "
+mode = "transliterate"
+unmapped = "remove"
+replacement = "?"
+keep = ""
+lowercase = "true"
+collapse_whitespace = "true"
+include_report = "false"
+
+[[example]]
+label = "Conservative accent removal"
+[example.params]
+input = "café Straße Ærøskøbing Москва"
+mode = "marks-only"
+unmapped = "keep"
+replacement = "?"
+keep = ""
+lowercase = "false"
+collapse_whitespace = "false"
+include_report = "false"
+
+[[example]]
+label = "Preserve Spanish ñ"
+[example.params]
+input = "mañana piñata café"
+mode = "transliterate"
+unmapped = "keep"
+replacement = "?"
+keep = "ñ"
+lowercase = "false"
+collapse_whitespace = "false"
+include_report = "false"
+
+[[example]]
+label = "Audit unmapped symbols"
+[example.params]
+input = "café  𝕏"
+mode = "marks-only"
+unmapped = "replace"
+replacement = "_"
+keep = ""
+lowercase = "false"
+collapse_whitespace = "false"
+include_report = "true"

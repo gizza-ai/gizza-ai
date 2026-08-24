@@ -1,0 +1,105 @@
+slug          = "bson-extended-json-converter"
+title         = "MongoDB Extended JSON Converter"
+description   = "Convert MongoDB Extended JSON ($oid, $date, $numberLong) to and from plain JSON, with canonical or relaxed output, in your browser."
+tags          = ["mongodb", "bson", "extended-json", "ejson", "json", "oid", "objectid", "converter", "developer"]
+h1            = "MongoDB Extended JSON Converter"
+hero_subtitle = "Paste MongoDB Extended JSON or plain JSON, then unwrap, wrap, or switch between the canonical and relaxed dialects locally in your browser."
+wasm          = "gizza_ai_bson_extended_json_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted JSON"
+format        = "json"
+
+[[input]]
+name        = "input"
+label       = "JSON input"
+placeholder = '{"_id":{"$oid":"507f1f77bcf86cd799439011"},"created":{"$date":"2024-07-20T14:30:00Z"}}'
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "direction"
+label       = "Direction"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+"to-plain" = "Extended JSON → plain JSON"
+"to-extended" = "Plain JSON → Extended JSON"
+
+[[input]]
+name        = "mode"
+label       = "Extended JSON dialect"
+source      = "field"
+
+[input.labels]
+relaxed = "Relaxed (readable)"
+canonical = "Canonical (type-preserving)"
+
+[[input]]
+name        = "date_format"
+label       = "Dates in plain JSON"
+source      = "field"
+
+[input.labels]
+iso = "ISO-8601 string"
+"epoch-millis" = "Epoch milliseconds"
+
+[[input]]
+name        = "detect_types"
+label       = "Detect ObjectIds and dates in strings"
+source      = "field"
+
+[[input]]
+name        = "big_numbers_as_strings"
+label       = "Keep 64-bit and decimal values as strings"
+source      = "field"
+
+[[input]]
+name        = "pretty"
+label       = "Pretty-print output"
+source      = "field"
+
+[[example]]
+label = "Extended JSON → plain JSON"
+[example.params]
+input = '{"_id":{"$oid":"507f1f77bcf86cd799439011"},"created":{"$date":{"$numberLong":"1721485800000"}},"views":{"$numberLong":"42"},"name":"Ada"}'
+direction = "to-plain"
+mode = "relaxed"
+date_format = "iso"
+detect_types = "false"
+big_numbers_as_strings = "false"
+pretty = "true"
+
+[[example]]
+label = "Plain JSON → canonical"
+[example.params]
+input = '{"_id":"507f1f77bcf86cd799439011","created":"2024-07-20T14:30:00Z","views":42,"score":1.5}'
+direction = "to-extended"
+mode = "canonical"
+date_format = "iso"
+detect_types = "true"
+big_numbers_as_strings = "false"
+pretty = "true"
+
+[[example]]
+label = "Canonical → relaxed"
+[example.params]
+input = '{"at":{"$date":{"$numberLong":"1721485800000"}},"n":{"$numberInt":"7"},"d":{"$numberDouble":"1.5"}}'
+direction = "to-extended"
+mode = "relaxed"
+date_format = "iso"
+detect_types = "false"
+big_numbers_as_strings = "false"
+pretty = "true"
+
+[[example]]
+label = "Exact big numbers"
+[example.params]
+input = '{"views":{"$numberLong":"9007199254740993"},"price":{"$numberDecimal":"19.9900000000000000001"}}'
+direction = "to-plain"
+mode = "relaxed"
+date_format = "iso"
+detect_types = "false"
+big_numbers_as_strings = "true"
+pretty = "false"

@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/docker-compose-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a docker-compose.yml from a short one-line-per-service spec",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a complete, validated docker-compose.yml from a short spec with one line per service: \"name: image [key=value ...]\", for example \"web: nginx:alpine ports=8080:80 depends=api\". Per-service options cover image, build context, ports, expose, volumes, environment, env_file, depends_on, restart policy, command, entrypoint, container_name, user, working_dir, networks, labels and a CMD-SHELL healthcheck; values with spaces or commas go in double quotes. File-wide settings add a project name, the legacy version key, a shared user-defined network and driver, a default restart policy, and shared environment/env_file entries that each service can override. Named volumes and networks referenced by the services are collected into the top-level volumes: and networks: sections automatically, ports and environment values are quoted so YAML cannot reinterpret them as numbers or booleans, and every service name, port, volume, dependency and policy is validated before any YAML is emitted. Maximum 25 services; the same input always produces the same bytes. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "compose_version": {
+          "default": "none",
+          "description": "Legacy 'version:' key. Default 'none' omits it, which is what the current Compose specification wants; pick 3.9/3.8/3.7/2.4 only for an old docker-compose v1 binary that still requires it.",
+          "enum": [
+            "none",
+            "3.9",
+            "3.8",
+            "3.7",
+            "2.4"
+          ],
+          "type": "string"
+        },
+        "env": {
+          "description": "File-wide environment as KEY=value lines, one per line, e.g. \"TZ=UTC\\nLOG_LEVEL=info\". Added to every service beneath its own env=, which wins on a clash. Blank and '#' comment lines are skipped and a leading 'export ' is dropped.",
+          "type": "string"
+        },
+        "env_file": {
+          "description": "File-wide env_file paths added to every service, one per line or comma-separated, e.g. \".env\". A service's own env_file= entries are appended after these.",
+          "type": "string"
+        },
+        "network": {
+          "description": "Name of one shared user-defined network attached to every service that does not set its own networks=, e.g. \"appnet\". It is also declared in the top-level 'networks:' section. Blank leaves services on Compose's implicit default network.",
+          "type": "string"
+        },
+        "network_driver": {
+          "default": "bridge",
+          "description": "Driver for the shared network named by 'network': 'bridge' (default, single host), 'host', 'overlay' (Swarm), 'macvlan' or 'ipvlan'. Ignored when 'network' is blank.",
+          "enum": [
+            "bridge",
+            "host",
+            "overlay",
+            "macvlan",
+            "ipvlan"
+          ],
+          "type": "string"
+        },
+        "project_name": {
+          "description": "Top-level Compose project name written as 'name:', e.g. \"shop\". Omitted from the file when blank, in which case Docker uses the directory name.",
+          "type": "string"
+        },
+        "restart": {
+          "default": "none",
+          "description": "Default restart policy for every service that does not set its own restart=. Default 'none' emits no restart key at all; 'no' emits the explicit Docker policy \"no\".",
+          "enum": [
+            "none",
+            "no",
+            "always",
+            "on-failure",
+            "unless-stopped"
+          ],
+          "type": "string"
+        },
+        "services": {
+          "description": "The service spec, ONE SERVICE PER LINE as \"name: image [key=value ...]\", e.g. \"web: nginx:alpine ports=8080:80 depends=api\". Blank lines and lines starting with '#' are ignored; maximum 25 services. Per-service options: image=, build= (a build context instead of, or alongside, an image), ports= (comma-separated, e.g. \"8080:80,127.0.0.1:5432:5432/tcp\"), expose=, volumes= (comma-separated \"src:/container/path[:ro]\"; a source that is not a path becomes a named volume declared at the top level), env= (comma-separated KEY=value), env_file=, depends= (other service names), restart= (no/always/on-failure/unless-stopped), command=, entrypoint=, container_name=, user=, working_dir=, networks=, labels= (comma-separated key=value) and healthcheck= (a shell command run as CMD-SHELL). Wrap any value containing a space or comma in double quotes, e.g. command=\"npm run start\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "services"
+      ],
+      "type": "object"
+    }
+  }
+}

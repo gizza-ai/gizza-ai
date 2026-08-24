@@ -1,0 +1,152 @@
+slug          = "json-trim-strings"
+title         = "JSON Trim Strings — Strip Whitespace From Every String Value"
+description   = "Paste JSON and trim the whitespace off every string value at any depth. Collapse inner runs, catch non-breaking spaces, and optionally trim object keys."
+tags          = ["json", "trim", "whitespace", "data cleaning", "normalize", "nbsp", "etl", "strings"]
+h1            = "Trim the whitespace from every string in a JSON document"
+hero_subtitle = "A minifier protects what is inside your quotes; this cleans it. Paste JSON and get every string value trimmed at any depth — including the non-breaking spaces a spreadsheet paste leaves behind — with numbers, booleans, nulls, key order and array positions untouched."
+wasm          = "gizza_ai_json_trim_strings_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned JSON"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "JSON"
+placeholder = "{\"name\": \"  Ada  \", \"city\": \" Berlin \", \"tags\": [\" x \", \"y  \"]}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "trim"
+label  = "Trim which end"
+source = "field"
+
+[input.labels]
+both     = "Both ends"
+leading  = "Leading only (start)"
+trailing = "Trailing only (end)"
+none     = "Neither end (interior only)"
+
+[[input]]
+name   = "internal"
+label  = "Whitespace inside the string"
+source = "field"
+
+[input.labels]
+keep     = "Keep it exactly (pure trim)"
+collapse = "Collapse runs to one space"
+remove   = "Remove it all"
+
+[[input]]
+name   = "whitespace"
+label  = "What counts as whitespace"
+source = "field"
+
+[input.labels]
+unicode = "Unicode — includes NBSP, U+202F, U+3000"
+ascii   = "ASCII only — space, tab, CR, LF, FF"
+
+[[input]]
+name   = "keys"
+label  = "Also trim object keys"
+source = "field"
+
+[[input]]
+name   = "empty"
+label  = "Values left empty by the trim"
+source = "field"
+
+[input.labels]
+keep = "Keep as \"\""
+null = "Replace with null"
+drop = "Drop the key"
+
+[[input]]
+name        = "only_keys"
+label       = "Only these keys"
+placeholder = "name,city"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "skip_keys"
+label       = "Keys to never touch"
+placeholder = "code,signature,password_hash"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "indent"
+label       = "Indent (0 minifies)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[example]]
+label = "Padded record from a CSV import"
+[example.params]
+input = "{\"name\": \"  Ada  \", \"city\": \" Berlin \", \"tags\": [\" x \", \"y  \"], \"visits\": 7}"
+trim = "both"
+internal = "keep"
+whitespace = "unicode"
+keys = "false"
+empty = "keep"
+only_keys = ""
+skip_keys = ""
+indent = "2"
+
+[[example]]
+label = "Collapse double spaces inside names"
+[example.params]
+input = "{\"name\": \"  Ada   Lovelace  \", \"title\": \"Countess  of   Lovelace\"}"
+trim = "both"
+internal = "collapse"
+whitespace = "unicode"
+keys = "false"
+empty = "keep"
+only_keys = ""
+skip_keys = ""
+indent = "2"
+
+[[example]]
+label = "Squeeze SKUs, keep the notes"
+[example.params]
+input = "{\"sku\": \" AB 12  CD \", \"iban\": \"DE44 5001 0517 5407 3249 31\", \"note\": \"  ships in 2 days  \"}"
+trim = "both"
+internal = "remove"
+whitespace = "unicode"
+keys = "false"
+empty = "keep"
+only_keys = "sku,iban"
+skip_keys = ""
+indent = "2"
+
+[[example]]
+label = "Clean the keys too"
+[example.params]
+input = "{\" first name \": \" Ada \", \"last name \": \" Lovelace \"}"
+trim = "both"
+internal = "keep"
+whitespace = "unicode"
+keys = "true"
+empty = "keep"
+only_keys = ""
+skip_keys = ""
+indent = "2"
+
+[[example]]
+label = "Blank-only values become null, minified"
+[example.params]
+input = "{\"name\": \" Ada \", \"middle\": \"   \", \"nickname\": \"\", \"code\": \"  x  y  \"}"
+trim = "both"
+internal = "keep"
+whitespace = "unicode"
+keys = "false"
+empty = "null"
+only_keys = ""
+skip_keys = "code"
+indent = "0"

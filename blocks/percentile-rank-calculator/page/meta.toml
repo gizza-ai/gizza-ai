@@ -1,0 +1,60 @@
+slug          = "percentile-rank-calculator"
+title         = "Percentile Rank Calculator — Compare Values to a Dataset"
+description   = "Calculate percentile rank for one or more values in a dataset. Choose weak, strict, mean or rank tie handling, plus rounding and summary stats."
+tags          = ["percentile rank", "percentile calculator", "statistics", "dataset", "quartile", "z score", "ranking", "descriptive stats", "test score", "data analysis"]
+h1            = "Percentile Rank Calculator"
+hero_subtitle = "Paste a reference dataset, enter one or more values, and see where they fall: percentile rank, below/equal/above counts, quartile, z-score, and optional summary stats."
+wasm          = "gizza_ai_percentile_rank_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Percentile report"
+format        = "text"
+
+# Field order MUST equal web/src/lib.rs run param order: data, values, method, decimals, include_stats.
+[[input]]
+name        = "data"
+label       = "Reference dataset"
+placeholder = "6, 12, 13, 17, 17, 18, 20, 23, 24, 24, 25, 26, 27, 27, 30, 32, 33"
+source      = "field"
+
+[[input]]
+name        = "values"
+label       = "Value(s) to rank"
+placeholder = "25"
+source      = "field"
+
+[[input]]
+name   = "method"
+label  = "Tie handling method"
+source = "field"
+
+[input.labels]
+weak   = "weak — count values ≤ target (common default)"
+strict = "strict — count values < target"
+mean   = "mean — midpoint of strict and weak"
+rank   = "rank — average rank for tied values"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places (0–6)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "include_stats"
+label  = "Include dataset summary"
+source = "field"
+
+[[example]]
+label  = "Test score: 25 in sample class"
+params = { data = "6, 12, 13, 17, 17, 18, 20, 23, 24, 24, 25, 26, 27, 27, 30, 32, 33", values = "25", method = "weak", decimals = "2", include_stats = "true" }
+
+[[example]]
+label  = "Ties: compare all methods"
+params = { data = "1, 2, 2, 2, 5", values = "2", method = "rank", decimals = "1", include_stats = "false" }
+
+[[example]]
+label  = "Multiple values, compact output"
+params = { data = "10 20 30 40", values = "15, 40", method = "mean", decimals = "1", include_stats = "false" }

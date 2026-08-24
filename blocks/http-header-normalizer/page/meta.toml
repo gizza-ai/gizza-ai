@@ -1,0 +1,93 @@
+slug          = "http-header-normalizer"
+title         = "HTTP Header Normalizer — Fix Casing, Trim Values, Sort Headers"
+description   = "Canonicalize a pasted HTTP header block: Title-Case names, trimmed values, merged duplicates, sorted lines, optional redaction and a curl -H form. Free, in your browser."
+tags          = ["http header normalizer", "canonical header casing", "sort http headers", "title case headers", "merge duplicate headers", "curl -H generator", "redact headers", "header block formatter", "http header cleaner"]
+h1            = "HTTP Header Normalizer"
+hero_subtitle = "Paste a raw header block and get one canonical form back — names re-cased, values trimmed, duplicates folded, lines sorted. Two captures of the same request finally diff cleanly."
+wasm          = "gizza_ai_http_header_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized headers"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Header block (one 'Name: value' per line)"
+placeholder = "GET /v1/items?page=2 HTTP/1.1\nhost:   api.example.com\nACCEPT: application/json\naccept: text/plain\nx-request-id:   9f3c\ncontent-type:application/json"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "case"
+label   = "Field name casing"
+default = "canonical"
+source  = "field"
+labels  = { canonical = "Canonical Title-Case (default)", lower = "lowercase (HTTP/2 style)", upper = "UPPERCASE", preserve = "Keep as first written" }
+
+[[input]]
+name    = "sort"
+label   = "Line order"
+default = "name"
+source  = "field"
+labels  = { name = "Sort by field name (default)", none = "Keep the pasted order" }
+
+[[input]]
+name    = "duplicates"
+label   = "Repeated field names"
+default = "combine"
+source  = "field"
+labels  = { combine = "Join values with ', ' (default)", list = "Keep every occurrence on its own line", first = "Keep the first value", last = "Keep the last value" }
+
+[[input]]
+name   = "unfold"
+label  = "Join indented continuation lines"
+source = "field"
+
+[[input]]
+name   = "drop_empty"
+label  = "Drop headers with an empty value"
+source = "field"
+
+[[input]]
+name        = "drop_headers"
+label       = "Drop these names (comma-separated, x-* allowed)"
+placeholder = "authorization,cookie,x-internal-token"
+source      = "field"
+
+[[input]]
+name        = "keep_headers"
+label       = "Keep only these names (blank = keep everything)"
+placeholder = "host,content-type"
+source      = "field"
+
+[[input]]
+name    = "output"
+label   = "Result"
+default = "headers"
+source  = "field"
+labels  = { headers = "Normalized header block (default)", curl = "curl -H flags", summary = "CSV summary of the run" }
+
+[[example]]
+label  = "Canonical block (default)"
+params = { input = "GET /v1/items?page=2 HTTP/1.1\nhost:   api.example.com\nACCEPT: application/json\naccept: text/plain\nx-request-id:   9f3c\nuser-agent: demo/1.0\ncontent-type:application/json", case = "canonical", sort = "name", duplicates = "combine", unfold = "true", drop_empty = "false", drop_headers = "", keep_headers = "", output = "headers" }
+
+[[example]]
+label  = "lowercase, pasted order"
+params = { input = "Host: api.example.com\nContent-Type: application/json\nETag: \"abc\"", case = "lower", sort = "none", duplicates = "combine", unfold = "true", drop_empty = "false", drop_headers = "", keep_headers = "", output = "headers" }
+
+[[example]]
+label  = "Redact credentials"
+params = { input = "GET /account HTTP/1.1\nhost: api.example.com\nx-private-token: example\nx-internal-trace: 42\naccept: application/json", case = "canonical", sort = "name", duplicates = "combine", unfold = "true", drop_empty = "false", drop_headers = "x-*", keep_headers = "", output = "headers" }
+
+[[example]]
+label  = "As curl -H flags"
+params = { input = "host: api.example.com\naccept: application/json\nx-demo-id: example", case = "canonical", sort = "name", duplicates = "combine", unfold = "true", drop_empty = "false", drop_headers = "", keep_headers = "", output = "curl" }
+
+[[example]]
+label  = "Set-Cookie stays split"
+params = { input = "HTTP/1.1 200 OK\nset-cookie: a=1; Path=/\nset-cookie: b=2; Path=/\nvary: Accept-Encoding\nvary: Origin", case = "canonical", sort = "name", duplicates = "combine", unfold = "true", drop_empty = "false", drop_headers = "", keep_headers = "", output = "headers" }
+
+[[example]]
+label  = "CSV summary of the run"
+params = { input = "GET / HTTP/1.1\nhost:  api.example.com \naccept: a\nACCEPT: b\nx-debug:", case = "canonical", sort = "name", duplicates = "combine", unfold = "true", drop_empty = "true", drop_headers = "", keep_headers = "", output = "summary" }

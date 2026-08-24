@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/color-frequency-table",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Counts the exact pixel colors in an image and lists the top ones with counts and percentage coverage.",
+  "role": "skill",
+  "tool": {
+    "description": "Count the colours in an image exactly: the top-N pixel colours with their pixel counts and percentage coverage, plus how many distinct colours the image holds in total. Provide the image as either url (HTTP/HTTPS) or ref (id from a prior tool call). Unlike a palette extractor, the reported colours are the values literally present — a 4-colour logo reports exactly those 4. Every row carries rank, hex, hex_rgba, rgb(), rgba(), hsl(), the raw r/g/b/a, a plain-English colour name, the pixel count, the percentage and the Rec. 601 luminance. Around them: width, height, total_pixels, megapixels, unique_colors, grayscale_unique_colors, opaque_unique_colors, translucent_unique_colors, transparent_pixels/percent, the dominant colour, and listed_percent / remaining_colors / remaining_percent so the untabled tail is never silently dropped. The answer also carries a ready-made aligned table and a csv string for one-shot copy-paste. Parameters: top 1-256 rows (default 10), quantize 1-64 levels per channel to group near-identical shades and report each bucket's mean (default 1 = exact), min_percent 0-100 minimum share (default 0), ignore_transparency boolean (default true), sort frequency (default) | luminance | hue for presentation order only, color_format hex (default) | rgb | rgba | hsl for the table and csv column. PNG, JPEG, WebP, GIF, BMP and TIFF are supported. Images above 4 megapixels are read from a stride sample, flagged with sampled/stride and a warning. This is an analyser only; it never modifies the image.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "color_format": {
+          "default": "hex",
+          "description": "Which notation fills the colour column of the rendered table and csv: hex #rrggbb (default), rgb(r, g, b), rgba(r, g, b, a) with alpha 0-1, or hsl(h, s%, l%). Nothing is lost by choosing — every JSON row always carries all four notations plus hex_rgba and the raw r/g/b/a numbers.",
+          "enum": [
+            "hex",
+            "rgb",
+            "rgba",
+            "hsl"
+          ],
+          "type": "string"
+        },
+        "ignore_transparency": {
+          "default": true,
+          "description": "When true (default), pixels with alpha under 16 are counted separately (transparent_pixels / transparent_percent) and kept out of the census, so the junk RGB some encoders leave under alpha=0 cannot invent a colour nothing visible uses; set false to census those stored RGB values too. Alpha is part of the colour identity either way — every row carries hex_rgba.",
+          "type": "boolean"
+        },
+        "min_percent": {
+          "default": 0.0,
+          "description": "Drop colours covering less than this percent of the counted pixels, 0-100 (default 0 = keep everything). Applied before top, so min_percent=1 with top=256 lists every colour worth at least 1% and nothing else.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "quantize": {
+          "default": 1,
+          "description": "Bucket width in levels per channel, 1-64. 1 (default) counts EXACT colours — a 4-colour logo reports exactly those 4. Larger values group near-identical shades and report each bucket's mean colour instead, so a JPEG-noisy sky collapses into one row rather than thousands of near-duplicates: try 8 or 16 for photographs. Grouped rows are averages, so the hex need not occur literally in the image.",
+          "maximum": 64,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "frequency",
+          "description": "Order the listed rows are presented in. frequency (default) = most pixels first; luminance = darkest first, a tone ramp; hue = around the colour wheel from red, with greys leading. The top-N selection is ALWAYS by frequency, so \"top 10\" keeps meaning the 10 most common colours; each row's rank field stays its frequency rank.",
+          "enum": [
+            "frequency",
+            "luminance",
+            "hue"
+          ],
+          "type": "string"
+        },
+        "top": {
+          "default": 10,
+          "description": "How many colours to list, 1-256, most common first (default 10). The census itself always covers every colour: whatever the table leaves out is reported as unique_colors, remaining_colors and remaining_percent, so the tail is never silently dropped. Use 256 for a full inventory of a logo or icon.",
+          "maximum": 256,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

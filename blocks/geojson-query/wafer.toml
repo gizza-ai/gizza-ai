@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "geojson-query"
+version = "0.1.0"
+abi = 1
+summary = "Filter and aggregate GeoJSON features with a SQL-like spatial query."

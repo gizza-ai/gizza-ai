@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "fasta-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Parse FASTA records into a CSV or TSV table of id, description, sequence and length."

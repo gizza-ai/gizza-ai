@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "portfolio-pnl"
+version = "0.1.0"
+abi = 1
+summary = "Calculate profit/loss per position and overall from entry and current prices."

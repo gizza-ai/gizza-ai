@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/audio-pad-silence",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add silence to the start and/or end of an audio clip",
+  "role": "skill",
+  "tool": {
+    "description": "Add a chosen length of silence to the start and/or the end of an audio clip. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call) plus start and/or end in seconds (start defaults to 2, end to 0; max 3600 each, decimals allowed down to 0.001). Both sides can be padded in one pass; at least one must be greater than 0. The clip itself is unchanged and the output is exactly start + original + end seconds long — useful for IVR prompts, ad slots, podcast intros and alignment. The audio is re-encoded so the silence joins cleanly (no container-copy clicks). Output format mp3 (192 kbps, default), wav, ogg, flac or m4a; embedded album art is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "end": {
+          "default": 0.0,
+          "description": "Seconds of silence to add AFTER the clip (default 0, max 3600). Decimals are allowed — 1.5 is a second and a half. Set start and end together to pad both ends in one pass; at least one of them must be greater than 0.",
+          "maximum": 3600,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "mp3",
+          "description": "Output audio format. Default mp3 (192 kbps); wav is uncompressed PCM, flac is lossless, ogg is 192 kbps Vorbis, m4a is AAC.",
+          "enum": [
+            "mp3",
+            "wav",
+            "ogg",
+            "flac",
+            "m4a"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "start": {
+          "default": 2.0,
+          "description": "Seconds of silence to add BEFORE the clip (default 2, max 3600). Decimals are allowed down to 0.001 (1 ms) — 0.5 is half a second. Use 0 for no lead-in. Example: 2 gives a two-second run-up before the audio starts.",
+          "maximum": 3600,
+          "minimum": 0,
+          "type": "number"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

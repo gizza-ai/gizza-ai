@@ -1,0 +1,75 @@
+slug          = "markdown-link-check"
+title         = "Markdown Link Check — find broken anchors and bad link syntax"
+description   = "Paste Markdown and get an offline report for malformed links, duplicate reference definitions, broken anchors, empty targets, bad mailto links and hygiene warnings."
+tags          = ["markdown link checker", "markdown broken anchors", "markdown reference links", "markdown lint", "readme link checker", "offline markdown checker", "duplicate reference definitions"]
+h1            = "Markdown Link Check"
+hero_subtitle = "Check README links without touching the network: bad syntax, missing reference definitions, duplicate labels, empty targets and broken #anchors are reported with line and column numbers."
+wasm          = "gizza_ai_markdown_link_check_web"
+export        = "run"
+live          = false
+output_label  = "Link report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "markdown"
+label       = "Markdown"
+placeholder = "# Install\n\nSee [setup](#setup), [site](https://example.com), and [missing][ref].\n\n[ref]: https://example.com/one\n[ref]: https://example.com/two"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "link_kind"
+label  = "Link kind"
+source = "field"
+
+[input.labels]
+"all"       = "All links"
+"anchor"    = "#anchors only"
+"external"  = "External URLs"
+"relative"  = "Relative paths"
+"mailto"    = "Mail links"
+"image"     = "Images"
+"empty"     = "Empty targets"
+"reference" = "Reference links"
+
+[[input]]
+name   = "report_format"
+label  = "Report format"
+source = "field"
+
+[input.labels]
+"text"     = "Plain text"
+"markdown" = "Markdown table"
+"json"     = "JSON"
+
+[[input]]
+name   = "show_ok"
+label  = "Also list passing links"
+source = "field"
+
+[[input]]
+name   = "check_anchors"
+label  = "Check in-document #anchors"
+source = "field"
+
+[[input]]
+name   = "flag_insecure"
+label  = "Warn about http:// links"
+source = "field"
+
+[[example]]
+label  = "Broken anchor + duplicate reference"
+params = { markdown = "# Install\n\nSee [setup](#setup), [site](https://example.com), and [missing][ref].\n\n[ref]: https://example.com/one\n[ref]: https://example.com/two", link_kind = "all", report_format = "text", show_ok = "false", check_anchors = "true", flag_insecure = "false" }
+
+[[example]]
+label  = "Clean README snippet"
+params = { markdown = "# Install\n\nSee [Install](#install), [docs](./docs/start.md), and <https://example.com>.", link_kind = "all", report_format = "text", show_ok = "true", check_anchors = "true", flag_insecure = "false" }
+
+[[example]]
+label  = "CI JSON for anchors"
+params = { markdown = "# API\n\n[old section](#authentication)\n", link_kind = "anchor", report_format = "json", show_ok = "false", check_anchors = "true", flag_insecure = "false" }
+
+[[example]]
+label  = "Security hygiene"
+params = { markdown = "# Links\n\n[old](http://example.com)\n![](logo.png)\n[mail](mailto:not-an-address)", link_kind = "all", report_format = "markdown", show_ok = "false", check_anchors = "true", flag_insecure = "true" }

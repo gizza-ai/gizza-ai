@@ -1,0 +1,137 @@
+{
+  "name": "gizza-ai/openapi-stub-from-json",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an OpenAPI 3.1 path-and-operation stub (with component schemas) from sample request and response JSON.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a sample request body and/or response body into a ready-to-paste OpenAPI 3.1 path-and-operation stub, browser-local. Infers a JSON Schema for each sample (objects, arrays merged across every element, integers vs numbers, nulls, and string formats like date-time/email/uuid/uri/ipv4), then assembles paths → method → parameters/requestBody/responses with the schemas placed under components.schemas and referenced by $ref. Options: HTTP method, path (braced segments become path parameters), a sample query string (typed query parameters), status code, content type, operationId, tag, info.title/version, servers URL, a security scheme (bearer|basic|apiKey), YAML or JSON output, component vs inline schemas, nested-object extraction, required lists, format detection, example values, and generic 400/500 error responses. It generates ONE operation per run and can only describe what the sample contains — enums, validation constraints, headers and auth scopes must be added by hand. Returns the OpenAPI document as text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "api_version": {
+          "default": "",
+          "description": "Value for info.version in the generated document. Blank (default) uses '1.0.0'.",
+          "type": "string"
+        },
+        "components": {
+          "default": true,
+          "description": "Put the request/response body schemas under components.schemas and reference them with $ref. Default true; turn off to inline each schema at its use site.",
+          "type": "boolean"
+        },
+        "content_type": {
+          "default": "application/json",
+          "description": "Media type for the request and response bodies, e.g. application/json or application/vnd.api+json. Default application/json.",
+          "type": "string"
+        },
+        "detect_formats": {
+          "default": true,
+          "description": "Detect string formats from the sample values: date-time, date, email, uuid, uri and ipv4. Default true; turn off for plain string types.",
+          "type": "boolean"
+        },
+        "extract_nested": {
+          "default": false,
+          "description": "Also hoist nested objects (and array item objects) into their own component schemas, so {\"customer\":{...}} becomes a $ref to a Customer schema. Default false. Enabling this implies component schemas.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "yaml",
+          "description": "Output serialization: 'yaml' (default) or 'json'. Both encode the same OpenAPI 3.1 document.",
+          "enum": [
+            "yaml",
+            "json"
+          ],
+          "type": "string"
+        },
+        "include_error_responses": {
+          "default": false,
+          "description": "Add generic 400 and 500 responses backed by a shared Error schema ({error, message}). Default false.",
+          "type": "boolean"
+        },
+        "include_examples": {
+          "default": true,
+          "description": "Carry the sample bodies (and query values) through as OpenAPI 'example' values next to their schemas. Default true; turn off for a schema-only stub.",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "post",
+          "description": "HTTP method for the generated operation: get, post, put, patch, delete, head or options. Default post.",
+          "enum": [
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options"
+          ],
+          "type": "string"
+        },
+        "operation_id": {
+          "default": "",
+          "description": "Value for operationId, e.g. 'createUser'. Blank (default) derives one from the method and path (post /users → postUsers). Also names the generated component schemas.",
+          "type": "string"
+        },
+        "path": {
+          "default": "/items",
+          "description": "Request path for the operation, starting with '/'. Braced segments become path parameters — '/users/{userId}' emits a required userId parameter. Default /items.",
+          "type": "string"
+        },
+        "query": {
+          "default": "",
+          "description": "Optional sample query string, e.g. 'limit=10&active=true'. Each pair becomes an optional query parameter with a type inferred from its value. Blank (default) emits no query parameters.",
+          "type": "string"
+        },
+        "request_json": {
+          "default": "",
+          "description": "Sample request body as JSON, e.g. {\"name\":\"Ada\",\"age\":36}. Its inferred schema becomes the operation's requestBody. Leave blank for operations without a body (GET, DELETE); at least one of request_json / response_json must be filled in.",
+          "type": "string"
+        },
+        "required_props": {
+          "default": true,
+          "description": "List the keys observed in the sample under 'required'. Default true. For arrays of objects only keys present in EVERY element stay required.",
+          "type": "boolean"
+        },
+        "response_json": {
+          "default": "",
+          "description": "Sample response body as JSON, e.g. {\"id\":7,\"name\":\"Ada\"}. Its inferred schema becomes the response for the given status code. Leave blank for empty responses (204 No Content); at least one of request_json / response_json must be filled in.",
+          "type": "string"
+        },
+        "security": {
+          "default": "none",
+          "description": "Security scheme to declare and attach to the operation: 'none' (default), 'bearer' (HTTP bearer/JWT), 'basic' (HTTP basic) or 'apiKey' (X-API-Key header).",
+          "enum": [
+            "none",
+            "bearer",
+            "basic",
+            "apiKey"
+          ],
+          "type": "string"
+        },
+        "server_url": {
+          "default": "",
+          "description": "Base URL for servers[0].url, e.g. https://api.example.com/v1. Blank (default) omits the servers block entirely.",
+          "type": "string"
+        },
+        "status": {
+          "default": 200,
+          "description": "HTTP status code the sample response body belongs to (100-599). Its standard reason phrase becomes the response description. Default 200.",
+          "maximum": 599,
+          "minimum": 100,
+          "type": "integer"
+        },
+        "tag": {
+          "default": "",
+          "description": "Operation tag used to group the endpoint in docs. Blank (default) uses the first literal path segment.",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Value for info.title in the generated document. Blank (default) uses 'Sample API'.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

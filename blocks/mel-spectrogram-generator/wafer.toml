@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mel-spectrogram-generator"
+version = "0.1.0"
+abi = 1
+summary = "Render audio as a PNG mel spectrogram for ML debugging"

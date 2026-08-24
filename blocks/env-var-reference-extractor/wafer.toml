@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "env-var-reference-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Find every environment-variable reference in a script, Dockerfile or config"

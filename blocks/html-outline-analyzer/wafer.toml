@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "html-outline-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Extract an HTML heading outline and element tag counts from pasted markup."

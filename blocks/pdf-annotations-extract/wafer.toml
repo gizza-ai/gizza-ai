@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pdf-annotations-extract"
+version = "0.1.0"
+abi = 1
+summary = "Extract PDF comments, highlights and sticky notes with pages and authors"

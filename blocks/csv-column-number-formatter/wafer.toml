@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "csv-column-number-formatter"
+version = "0.1.0"
+abi = 1
+summary = "Apply one uniform number format — decimals, rounding, grouping, sign — to chosen CSV columns."

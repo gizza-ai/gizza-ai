@@ -1,0 +1,114 @@
+{
+  "name": "gizza-ai/docstring-stub-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate docstring, JSDoc and Javadoc stubs from a pasted function signature",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a pasted function signature into a ready-to-fill documentation stub with parameter, return and raises slots. Covers Python (Google, NumPy, Sphinx/reST, Epytext and PEP 257 conventions), JavaScript/TypeScript (JSDoc), PHP (PHPDoc), Java (Javadoc), C# (XML doc comments), Go (godoc), Rust (rustdoc) and Ruby (YARD), with 'auto' language detection. Parameter types come from annotations, or are inferred from default values (timeout=30 -> int), or fall back to a placeholder; 'types' can restrict this to declared annotations only or drop type slots entirely. Handles *args/**kwargs, ...rest, params/varargs, optional and defaulted parameters, decorators and annotations, generics, Go grouped parameters and receivers, and Rust lifetimes. Options: language, style, output (annotated source, stub only, or a JSON parse of the signature), types, placeholder text, raises, quote_style, extended_summary, examples, align_tags, indent_size. Descriptions are placeholders, never invented prose: this is a stub generator, not a summarizer. It reads signatures only, so raised errors are declared via 'raises' (Java `throws` is read automatically); input is capped at 200000 bytes and 200 signatures per run.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align_tags": {
+          "default": false,
+          "description": "Pad the type and name columns of tag-style blocks so every description starts at the same column (JSDoc, PHPDoc, Javadoc). Default false, which leaves the tags ragged. Has no effect on Python, godoc, rustdoc or XML doc comments.",
+          "type": "boolean"
+        },
+        "examples": {
+          "default": false,
+          "description": "Add an examples section in the language's convention — 'Examples:' with a >>> line for Python, '@example' for JSDoc/PHPDoc/YARD, a '# Examples' fenced block for rustdoc, '<example>' for XML doc, 'Example:' for godoc. Default false.",
+          "type": "boolean"
+        },
+        "extended_summary": {
+          "default": false,
+          "description": "Add a second placeholder paragraph under the summary line for a longer description. Default false.",
+          "type": "boolean"
+        },
+        "indent_size": {
+          "default": 4,
+          "description": "Spaces used for indentation inside the generated stub, and for the Python docstring's offset from the `def` line. Default 4; use 2 for 2-space codebases. Range 0-8.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Signature syntax and documentation convention. 'auto' (default) guesses from the code's shape. Named values: python (docstring), javascript/typescript (JSDoc), php (PHPDoc), java (Javadoc), csharp (XML doc comments), go (godoc), rust (rustdoc), ruby (YARD). Set it explicitly when auto-detection guesses wrong — e.g. force 'ruby' so `def f(a)` is not read as Python.",
+          "enum": [
+            "auto",
+            "python",
+            "javascript",
+            "typescript",
+            "php",
+            "java",
+            "csharp",
+            "go",
+            "rust",
+            "ruby"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "annotated",
+          "description": "What to return. 'annotated' (default) = the pasted input with each stub inserted in place (inside the def for Python, above the signature otherwise) — copy-paste ready. 'docstring' = only the generated stub blocks, blank-line separated. 'json' = the parsed signatures as {name, async, params:[{name,type,default,optional,variadic}], returns, raises}.",
+          "enum": [
+            "annotated",
+            "docstring",
+            "json"
+          ],
+          "type": "string"
+        },
+        "placeholder": {
+          "default": "_description_",
+          "description": "Filler text written into every description slot for you to replace. Default '_description_' (the editor-extension convention). Try 'FIXME' to make unfilled stubs easy to grep for. Blank falls back to the default.",
+          "type": "string"
+        },
+        "quote_style": {
+          "default": "double",
+          "description": "Python docstring quotes: 'double' (default) = \"\"\", 'single' = '''. Ignored for every other language, which use comment blocks rather than string literals.",
+          "enum": [
+            "double",
+            "single"
+          ],
+          "type": "string"
+        },
+        "raises": {
+          "default": "",
+          "description": "Exception/error names to document, comma- or space-separated — e.g. 'ValueError, KeyError'. Default empty (no raises section). A signature alone does not say what it throws, so these are declared by you; Java `throws` clauses are picked up automatically and merged in. Capped at 20 names.",
+          "type": "string"
+        },
+        "signature": {
+          "description": "The function signature(s) to document, pasted as text. One per run or several at once; a signature may span multiple lines. Pasting a whole function works too — the body is passed through untouched. Example: 'def fetch(url: str, timeout: int = 30) -> dict:'.",
+          "type": "string"
+        },
+        "style": {
+          "default": "auto",
+          "description": "Python docstring convention: 'auto' (default) = google. 'google' = 'Args:'/'Returns:' sections; 'numpy' = underlined 'Parameters'/'Returns' sections; 'sphinx' = ':param x:'/':type x:'/':rtype:' fields; 'epytext' = '@param'/'@type'/'@rtype' fields; 'pep257' = plain 'Arguments:' with 'name -- description'. Ignored for the other languages, which each have exactly one native convention (JSDoc, PHPDoc, Javadoc, XML doc, godoc, rustdoc, YARD).",
+          "enum": [
+            "auto",
+            "google",
+            "numpy",
+            "sphinx",
+            "epytext",
+            "pep257"
+          ],
+          "type": "string"
+        },
+        "types": {
+          "default": "guess",
+          "description": "Where parameter and return types come from. 'guess' (default) = the declared annotation, else inferred from the default value (timeout=30 → int, name=\"x\" → str), else a placeholder such as _type_. 'annotated' = only types actually declared in the signature; nothing is written when there is none. 'none' = omit type slots entirely (the '-notypes' shape).",
+          "enum": [
+            "guess",
+            "annotated",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "signature"
+      ],
+      "type": "object"
+    }
+  }
+}

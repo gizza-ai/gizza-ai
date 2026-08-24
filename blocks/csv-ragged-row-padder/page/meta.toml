@@ -1,0 +1,86 @@
+slug          = "csv-ragged-row-padder"
+title         = "CSV Ragged Row Padder — Repair Uneven Rows"
+description   = "Pad short CSV rows, truncate or flag long rows, and normalize every record to a uniform field count. Paste ragged CSV or TSV and export clean text in your browser."
+tags          = ["csv", "data", "table", "ragged rows", "padding", "delimiter", "cleanup"]
+h1            = "CSV Ragged Row Padder"
+hero_subtitle = "Repair rows with inconsistent column counts: pad short records, handle over-long records, preserve CSV quoting, and get a report of every fix."
+wasm          = "gizza_ai_csv_ragged_row_padder_web"
+export        = "run"
+live          = true
+output_label  = "Repaired CSV"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Ragged CSV or TSV"
+placeholder = "name,email,age\nAda,ada@example.com,37\nGrace,grace@example.com\nLinus,linus@example.com,54,extra"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "width"
+label       = "Target width (0 = infer)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "width_from"
+label  = "Infer width from"
+source = "field"
+labels = { header = "Header row", max = "Widest row", mode = "Most common width" }
+
+[[input]]
+name   = "long_rows"
+label  = "Long rows"
+source = "field"
+labels = { truncate = "Truncate extras", merge = "Merge extras into last field", flag = "Flag only", drop = "Drop row" }
+
+[[input]]
+name        = "pad_value"
+label       = "Pad value"
+placeholder = "NULL"
+source      = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+labels = { auto = "Auto", comma = "Comma", tab = "Tab", semicolon = "Semicolon", pipe = "Pipe" }
+
+[[input]]
+name   = "drop_empty_rows"
+label  = "Drop empty rows"
+source = "field"
+
+[[input]]
+name   = "line_ending"
+label  = "Line endings"
+source = "field"
+labels = { lf = "LF", crlf = "CRLF" }
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { csv = "Repaired CSV", report = "Repair report" }
+
+[[example]]
+label  = "Pad missing cells"
+params = { input = "name,email,age\nAda,ada@example.com,37\nGrace,grace@example.com\nLinus,linus@example.com,54,extra", width = "0", width_from = "header", long_rows = "truncate", pad_value = "", header = "true", delimiter = "auto", drop_empty_rows = "true", line_ending = "lf", output = "csv" }
+
+[[example]]
+label  = "Merge long rows"
+params = { input = "a,b,c\n1,2,3,4,5\n6,7", width = "0", width_from = "header", long_rows = "merge", pad_value = "", header = "true", delimiter = "comma", drop_empty_rows = "true", line_ending = "lf", output = "csv" }
+
+[[example]]
+label  = "Report problems"
+params = { input = "a,b,c\n1,2\n3,4,5,6", width = "0", width_from = "header", long_rows = "flag", pad_value = "", header = "true", delimiter = "auto", drop_empty_rows = "true", line_ending = "lf", output = "report" }
+
+[[example]]
+label  = "Pad TSV with NULL"
+params = { input = "a\tb\tc\n1\t2", width = "0", width_from = "header", long_rows = "truncate", pad_value = "NULL", header = "true", delimiter = "tab", drop_empty_rows = "true", line_ending = "lf", output = "csv" }

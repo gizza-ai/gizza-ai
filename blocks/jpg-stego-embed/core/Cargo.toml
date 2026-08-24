@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-jpg-stego-embed-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Deflate for the optional payload compression, plus its CRC-32 implementation
+# for the integrity check stored in the container header. Pure Rust (miniz_oxide
+# backend), already proven wasm-safe by create-zip / file-compressor.
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+# AES-256-GCM + PBKDF2-HMAC-SHA256, reused verbatim from the encrypt-file block
+# so a payload hidden here decrypts with the same self-describing blob format.
+gizza-ai-encrypt-file-core = { path = "../../encrypt-file/core" }

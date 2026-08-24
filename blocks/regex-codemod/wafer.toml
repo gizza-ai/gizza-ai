@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-codemod"
+version = "0.1.0"
+abi = 1
+summary = "Run a regex find-and-replace across a pasted multi-file bundle and preview the diff"

@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/text-file-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report a text file's encoding, BOM, line endings, line count and longest lines",
+  "role": "skill",
+  "tool": {
+    "description": "Inspect a text file and report what an editor's status bar shows plus what a linter would complain about: detected character encoding (BOM, ASCII, valid UTF-8, BOM-less UTF-16 heuristic, or a chardetng guess for legacy bytes), BOM presence and its bytes, line-ending style with separate CRLF/LF/CR counts and percentages (flagging MIXED), line count split into terminated and unterminated, whether the file ends with a final newline, the longest lines with their numbers, average line length, empty and whitespace-only lines, lines with trailing whitespace, tab vs space indentation (flagging lines that mix both), character counts (total, non-ASCII, control, NUL) and U+2028/U+2029 separators. Pass the file's bytes in 'input' — base64 for a real file (`base64 -w0 file.txt`), or literal text. Set max_line_length to flag over-long lines and preview_lines to see the first N lines with visible ␍/␊ markers. output=json returns the same facts as an object. Diagnoses only; it never rewrites the file (use text-encoding-converter to convert charsets). Up to 8 MiB. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "The file's bytes. Read according to input_format: literal text (default), a base64 string, or a hex string. Base64 is how you pass a real file, e.g. `--input \"$(base64 -w0 notes.txt)\" --input-format base64`; pasting text instead measures the pasted text's UTF-8 bytes, which cannot carry a BOM or CRLF endings.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "text",
+          "description": "How to read 'input' into bytes: 'text' (default, its UTF-8 bytes), 'base64' (standard or URL-safe, whitespace and padding tolerated), or 'hex' (whitespace, ':' '-' '_' ',' and 0x / \\x prefixes ignored).",
+          "enum": [
+            "text",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "longest_lines": {
+          "default": 3,
+          "description": "How many of the longest lines to list with their line numbers and text (truncated to 120 chars). Default 3; 1 lists none separately and only summarises the single longest line. Clamped to 0-50.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_line_length": {
+          "default": 0,
+          "description": "Flag every line longer than this many characters and list its line number — the linter check (80, 100, 120 are common). Default 0 = off.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output format: 'report' (default) is an aligned human-readable summary; 'json' is a machine-readable object with the same facts (bytes, encoding, detection, bom, line_endings, lines, indentation, characters, max_line_length, preview, notes).",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "preview_lines": {
+          "default": 0,
+          "description": "Show the first N lines with visible markers: ␍ = CR, ␊ = LF, → = tab, ⏎̸ = no terminator. Default 0 = off. Clamped to 0-200.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

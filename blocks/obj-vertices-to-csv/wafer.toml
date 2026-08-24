@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "obj-vertices-to-csv"
+version = "0.1.0"
+abi = 1
+summary = "Extract Wavefront OBJ vertex coordinates into an x,y,z CSV"

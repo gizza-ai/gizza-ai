@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "weblog-attack-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Flag web attack attempts and noisy offenders in access logs"

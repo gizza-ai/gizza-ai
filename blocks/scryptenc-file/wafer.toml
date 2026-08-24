@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "scryptenc-file"
+version = "0.1.0"
+abi = 1
+summary = "Encrypt, decrypt and inspect files in the scrypt encrypted data format."

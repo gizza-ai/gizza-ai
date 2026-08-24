@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "eth-address-from-key"
+version = "0.1.0"
+abi = 1
+summary = "Derive Ethereum address and EIP-55 checksum forms from secp256k1 keys."

@@ -1,0 +1,177 @@
+slug          = "stl-vertices-to-csv"
+title         = "STL Vertices to CSV — Triangle Coordinates Extractor"
+description   = "Extract triangle vertex coordinates from ASCII or binary STL into CSV or plain XYZ text — with triangle rows, normals, axis conversion, scale, rounding and dedupe."
+tags          = ["stl to csv", "stl vertices", "triangle vertices", "stl to xyz", "point cloud", "3d mesh csv", "binary stl", "ascii stl"]
+h1            = "STL Vertices to CSV"
+hero_subtitle = "Paste ASCII STL text or binary STL bytes as base64 or hex and get the triangle coordinates as CSV. Output one row per corner or one row per facet, include triangle/corner indexes and normals, convert Z-up/Y-up axes, scale units, round values, dedupe repeated corners, thin dense meshes, or export plain space-separated XYZ text. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_stl_vertices_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "Vertex CSV"
+format        = "text"
+
+[[input]]
+name        = "stl"
+label       = "STL mesh"
+placeholder = "solid tri\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid tri"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect text/base64/hex"
+ascii = "ASCII STL text"
+base64 = "Binary STL as base64"
+hex = "Binary STL as hex"
+
+[[input]]
+name   = "rows"
+label  = "Rows"
+source = "field"
+
+[input.labels]
+vertex = "One row per triangle corner"
+triangle = "One row per triangle/facet"
+
+[[input]]
+name   = "columns"
+label  = "Columns"
+source = "field"
+
+[input.labels]
+xyz = "Coordinates only"
+indexed = "Triangle/corner indexes + coordinates"
+normals = "Coordinates + facet normals"
+full = "Indexes, coordinates and normals"
+
+[[input]]
+name   = "normal_source"
+label  = "Normals"
+source = "field"
+
+[input.labels]
+stored = "Use normals stored in the STL"
+computed = "Compute normals from triangle winding"
+
+[[input]]
+name   = "up_axis"
+label  = "Up axis"
+source = "field"
+
+[input.labels]
+keep = "Keep as stored (STL is usually Z-up)"
+"z-to-y" = "Z-up to Y-up (glTF/web 3D)"
+"y-to-z" = "Y-up to Z-up"
+
+[[input]]
+name        = "scale"
+label       = "Scale"
+placeholder = "1 keeps the size; 25.4 = inches to millimetres"
+source      = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "-1 keeps shortest round-trip text; 0-15 rounds"
+source      = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Repeated rows"
+source = "field"
+
+[input.labels]
+none = "Keep every stored corner"
+adjacent = "Drop consecutive duplicate rows"
+all = "Unique coordinates/facets only"
+
+[[input]]
+name        = "every_nth"
+label       = "Keep every Nth row"
+placeholder = "1 keeps all rows; 10 keeps every tenth"
+source      = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma = "Comma (,)"
+semicolon = "Semicolon (;)"
+tab = "Tab"
+pipe = "Pipe (|)"
+space = "Space"
+
+[[input]]
+name   = "header"
+label  = "Include header row"
+source = "field"
+
+[[example]]
+label = "ASCII triangle vertices"
+[example.params]
+stl = "solid tri\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid tri"
+input_format = "auto"
+rows = "vertex"
+columns = "xyz"
+normal_source = "stored"
+up_axis = "keep"
+scale = "1"
+precision = "-1"
+dedupe = "none"
+every_nth = "1"
+delimiter = "comma"
+header = "true"
+
+[[example]]
+label = "One row per triangle with normals"
+[example.params]
+stl = "facet normal 0 0 -1\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendfacet"
+input_format = "ascii"
+rows = "triangle"
+columns = "normals"
+normal_source = "computed"
+up_axis = "keep"
+scale = "1"
+precision = "-1"
+dedupe = "none"
+every_nth = "1"
+delimiter = "comma"
+header = "true"
+
+[[example]]
+label = "Plain XYZ point cloud"
+[example.params]
+stl = "facet normal 0 0 1\nvertex 0 0 0\nvertex 1 0 0\nvertex 1 1 0\nendfacet\nfacet normal 0 0 1\nvertex 0 0 0\nvertex 1 1 0\nvertex 0 1 0\nendfacet"
+input_format = "ascii"
+rows = "vertex"
+columns = "xyz"
+normal_source = "stored"
+up_axis = "keep"
+scale = "1"
+precision = "2"
+dedupe = "all"
+every_nth = "1"
+delimiter = "space"
+header = "false"
+
+[[example]]
+label = "Binary STL as hex"
+[example.params]
+stl = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000803f0000000000000000000000000000803f0000000000000000000000000000803f000000000000"
+input_format = "hex"
+rows = "vertex"
+columns = "indexed"
+normal_source = "stored"
+up_axis = "keep"
+scale = "1"
+precision = "-1"
+dedupe = "none"
+every_nth = "1"
+delimiter = "comma"
+header = "true"

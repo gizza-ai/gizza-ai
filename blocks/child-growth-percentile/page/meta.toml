@@ -1,0 +1,118 @@
+slug          = "child-growth-percentile"
+title         = "Child Growth Percentile Calculator — CDC height, weight, BMI and head charts"
+description   = "Compute CDC child growth-chart percentiles and z-scores from age, sex, height, weight and head circumference. Supports metric or US units."
+tags          = ["child growth percentile", "cdc growth chart", "height percentile", "weight percentile", "bmi percentile", "head circumference", "pediatric calculator"]
+h1            = "Child Growth Percentile Calculator"
+hero_subtitle = "Enter age, sex and any measured height, weight or head circumference to compute CDC growth-chart percentiles and z-scores locally. Supports infant and 2–20 year references, metric or US units, and clear notes when a measurement is outside a chart's range."
+wasm          = "gizza_ai_child_growth_percentile_web"
+export        = "run"
+live          = false
+output_label  = "Growth percentile report"
+format        = "text"
+
+[[input]]
+name        = "sex"
+label       = "Sex"
+placeholder = "boy"
+source      = "field"
+
+[input.labels]
+boy  = "Boy"
+girl = "Girl"
+
+[[input]]
+name        = "age"
+label       = "Age"
+placeholder = "3y 0m"
+source      = "field"
+
+[[input]]
+name        = "height"
+label       = "Height / length"
+placeholder = "95"
+source      = "field"
+
+[[input]]
+name        = "weight"
+label       = "Weight"
+placeholder = "14"
+source      = "field"
+
+[[input]]
+name        = "head_circumference"
+label       = "Head circumference"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "units"
+label  = "Units"
+source = "field"
+
+[input.labels]
+metric = "Metric — cm and kg"
+us     = "US — inches and pounds"
+
+[[input]]
+name   = "chart"
+label  = "Reference chart"
+source = "field"
+
+[input.labels]
+auto   = "Auto — infant before 24 months, child after"
+infant = "CDC infant charts (birth–36 months)"
+child  = "CDC 2–20 years charts"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "3-year-old growth report"
+[example.params]
+sex = "girl"
+age = "3y"
+height = "95"
+weight = "14"
+head_circumference = "0"
+units = "metric"
+chart = "auto"
+decimals = "2"
+
+[[example]]
+label = "Newborn with head circumference"
+[example.params]
+sex = "boy"
+age = "0 months"
+height = "49.99"
+weight = "3.53"
+head_circumference = "35.8"
+units = "metric"
+chart = "infant"
+decimals = "1"
+
+[[example]]
+label = "US units"
+[example.params]
+sex = "boy"
+age = "10y 6m"
+height = "55"
+weight = "72"
+head_circumference = "0"
+units = "us"
+chart = "child"
+decimals = "2"
+
+[[example]]
+label = "Age from dates"
+[example.params]
+sex = "girl"
+age = "2023-04-15 to 2026-08-23"
+height = "97"
+weight = "15"
+head_circumference = "0"
+units = "metric"
+chart = "auto"
+decimals = "2"

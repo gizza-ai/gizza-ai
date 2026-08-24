@@ -1,0 +1,103 @@
+{
+  "name": "gizza-ai/irc-log-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse raw IRC, WeeChat or irssi logs into a structured, readable timeline",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a raw IRC client log into a structured, readable timeline or a machine-readable export. It reads the timestamp grammars of the common clients — WeeChat (date TAB nick TAB text), irssi (bare '21:07'), mIRC/ZNC/EnergyMech ('[21:07:33]'), HexChat/XChat ('Jan 05 21:07:33'), plain ISO datetimes, and logs with no timestamps at all — auto-detecting by default, and understands each client's event wording regardless of which grammar was used: '-!- alice [~a@host] has joined #chan', '*** Joins: alice (~a@host)', '* Parts: alice (~a@host) (Leaving)', 'alice was kicked from #chan by bob', 'alice is now known as bobby', 'mode/#chan [+o bob] by alice' and the topic phrasings. Every line becomes a typed record — message, action, notice, join, part, quit, kick, nick, mode, topic, meta or unknown — with the same eight fields: line, time, type, nick, host, channel, arg (the new nick, the kicker, or the mode string) and text. Render them as a readable timeline, a JSON array, NDJSON, CSV or a Markdown table; normalize timestamps to ISO, 24-hour, 12-hour, the original text or nothing; supply a base date for time-only logs (irssi day-change markers roll it forward automatically); attach a channel name to lines that lack one; keep only messages or only events; filter to particular nicks with a trailing * for prefix matching; strip mIRC colour and formatting codes; optionally keep the original raw line; and cap the number of records. Fully local and deterministic — no AI model, no network, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "default": "",
+          "description": "Channel name to record on lines that do not name one themselves, e.g. '#gizza'. Must start with # & or !. Empty by default, which leaves the channel column blank on those lines.",
+          "type": "string"
+        },
+        "date": {
+          "default": "",
+          "description": "Base calendar date as YYYY-MM-DD for logs that only record a time of day, e.g. '2024-01-05'. Irssi '--- Log opened' and '--- Day changed' markers in the log override it from that point on. Empty by default, which leaves such records with a time only.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "Timestamp grammar of the log: auto (detect it from the first 200 lines), weechat (date TAB nick TAB text), irssi (bare '21:07' or '21:07:33'), bracket ('[21:07:33]' — mIRC, ZNC, EnergyMech, Textual), hexchat ('Jan 05 21:07:33'), iso ('2024-01-05 21:07:33'), or plain (no timestamps). Event wording from every client is understood in all modes. Default auto.",
+          "enum": [
+            "auto",
+            "weechat",
+            "irssi",
+            "bracket",
+            "hexchat",
+            "iso",
+            "plain"
+          ],
+          "type": "string"
+        },
+        "include": {
+          "default": "all",
+          "description": "Which lines to keep: all, messages (message, action and notice lines only), or events (join, part, quit, kick, nick change, mode and topic only). Default all.",
+          "enum": [
+            "all",
+            "messages",
+            "events"
+          ],
+          "type": "string"
+        },
+        "include_raw": {
+          "default": false,
+          "description": "Add the original untouched log line as a 'raw' field (json, ndjson) or column (csv). Off by default to keep the output compact.",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 0,
+          "description": "Maximum number of records to return, applied after the include and nicks filters. 0 (the default) means no limit; the ceiling is 200000.",
+          "maximum": 200000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "log": {
+          "description": "The raw IRC log text. Paste the lines straight out of the client, e.g. '21:07 <alice> hey' (irssi), '2024-01-05 21:07:33<TAB>alice<TAB>hey' (WeeChat), '[21:07:33] *** Joins: alice (~a@host)' (ZNC/mIRC) or 'Jan 05 21:07:33 <alice> hey' (HexChat). Maximum 5000000 bytes.",
+          "type": "string"
+        },
+        "nicks": {
+          "default": "",
+          "description": "Comma-separated nicks to keep, matched case-insensitively — e.g. 'alice, bob*'. A trailing * matches by prefix, so 'bob*' keeps bob and bobby. Lines with no nick (server notices, log markers) are dropped when this is set. Empty by default, which keeps everyone.",
+          "type": "string"
+        },
+        "output": {
+          "default": "timeline",
+          "description": "Result shape: timeline (readable one line per event), json (array of records), ndjson (one compact record per line for jq or streaming), csv (spreadsheet columns line,time,type,nick,host,channel,arg,text), or markdown (a table). Default timeline.",
+          "enum": [
+            "timeline",
+            "json",
+            "ndjson",
+            "csv",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "strip_formatting": {
+          "default": true,
+          "description": "When true (default), remove mIRC formatting codes (bold, italic, underline, reverse, reset and ^C colour pairs) and ANSI escape sequences from the text. Turn it off to keep the control characters byte-for-byte.",
+          "type": "boolean"
+        },
+        "time_format": {
+          "default": "iso",
+          "description": "How each timestamp is written out: iso ('2024-01-05T21:07:33', falling back to '21:07:33' when no date is known), 24h ('21:07:33'), 12h ('9:07:33 PM'), original (exactly as it appeared in the log), or none (drop timestamps). Default iso.",
+          "enum": [
+            "iso",
+            "24h",
+            "12h",
+            "original",
+            "none"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "log"
+      ],
+      "type": "object"
+    }
+  }
+}

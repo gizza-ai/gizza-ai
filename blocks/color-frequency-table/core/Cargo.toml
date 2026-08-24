@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-color-frequency-table-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode (the PNG encoder is only used by the unit tests to
+# build fixtures); default-features off keeps the wasm small. Common web formats.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp", "tiff"] }
+serde = { version = "1", features = ["derive"] }

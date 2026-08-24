@@ -1,0 +1,121 @@
+{
+  "name": "gizza-ai/stl-vertices-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flatten an ASCII or binary STL mesh into a CSV of triangle vertex coordinates",
+  "role": "skill",
+  "tool": {
+    "description": "Parse an ASCII or binary STL mesh into a CSV of its triangle vertex coordinates. Pass the mesh as `stl`: ASCII STL as text, or a binary STL's bytes as base64 or hex (`input_format` = auto/ascii/base64/hex). `rows`='vertex' (default) writes ONE ROW PER TRIANGLE CORNER — three rows per facet, `x,y,z`, in file order, nothing welded or resampled; `rows`='triangle' writes one row per facet with all nine coordinates (`v1x`…`v3z`). `columns` adds context: 'indexed' prepends `triangle` and `corner` numbers, 'normals' appends `nx,ny,nz`, 'full' adds both; `normal_source`='computed' replaces STL's often-zero stored normal with a right-hand-rule unit normal. `up_axis` converts Z-up STL to Y-up glTF ('z-to-y' maps (x,y,z) to (x,z,-y)) and back; `scale` multiplies coordinates for unit changes; `precision` rounds to 0-15 decimals (-1 prints the shortest round-tripping text); `dedupe`='all' welds repeated corners into a point cloud; `every_nth` thins the surviving rows; `delimiter` picks comma/semicolon/tab/pipe/space and `header`=false drops the header row (space + no header = a plain XYZ point-cloud file). Up to 100000 triangles and 32 MiB of input. For mesh metrics use stl-inspector, for repairs stl-repair. Runs locally on the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "xyz",
+          "description": "Extra columns around the coordinates: 'xyz' (default) coordinates only; 'indexed' prepends `triangle` (1-based facet number) and, for `rows=vertex`, `corner` (1, 2 or 3) so flattened rows can be regrouped into facets; 'normals' appends the facet normal as `nx,ny,nz`; 'full' adds both.",
+          "enum": [
+            "xyz",
+            "indexed",
+            "normals",
+            "full"
+          ],
+          "type": "string"
+        },
+        "dedupe": {
+          "default": "none",
+          "description": "Drop repeated rows, compared on the coordinate columns after up-axis, scale and rounding: 'none' (default) keeps every row; 'adjacent' drops a row identical to the one just before it; 'all' keeps each distinct position (or facet, for `rows=triangle`) once. STL repeats every shared corner in each facet that touches it, so 'all' turns a mesh into a welded point cloud.",
+          "enum": [
+            "none",
+            "adjacent",
+            "all"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Output field separator: 'comma' (default), 'semicolon', 'tab', 'pipe' or 'space' ('space' plus header=false gives a plain XYZ/ASC point-cloud file). Every field is a number, so nothing is ever quoted or escaped.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "every_nth": {
+          "default": 1,
+          "description": "Keep one row out of every N that survives dedupe — 1 (default) keeps them all, 10 keeps every tenth. Thins a dense scan or mesh down to a manageable point sample without changing any coordinate.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit a header row of column names. Default true.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How the pasted value is encoded. 'auto' (default) detects ASCII STL text, hex bytes or base64 bytes; binary STL is recognised by its 84 + 50 x triangle-count byte layout rather than the leading 'solid' keyword, which many exporters also write into a binary header. Set 'ascii', 'base64' or 'hex' to force one.",
+          "enum": [
+            "auto",
+            "ascii",
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "normal_source": {
+          "default": "stored",
+          "description": "Which normal the `nx,ny,nz` columns carry when `columns` includes them. 'stored' (default) copies the normal recorded in the file — many exporters write 0 0 0 there. 'computed' derives a unit right-hand-rule normal from the corner order instead, which is 0 0 0 only for degenerate facets.",
+          "enum": [
+            "stored",
+            "computed"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": -1,
+          "description": "Decimal places for the coordinate and normal columns. -1 (default) prints the shortest text that round-trips the stored value — binary STL stores 32-bit floats, so those print at 32-bit width instead of a 17-digit tail; 0-15 rounds and pads to that many places, which is usually what a CAD or spreadsheet import wants.",
+          "maximum": 15,
+          "minimum": -1,
+          "type": "integer"
+        },
+        "rows": {
+          "default": "vertex",
+          "description": "What one CSV row holds. 'vertex' (default) writes one row per triangle corner — three rows per facet, columns `x,y,z` — which is the point-cloud / XYZ shape. 'triangle' writes one row per facet with all nine coordinates (`v1x,v1y,v1z,v2x,v2y,v2z,v3x,v3y,v3z`), which keeps facets intact for CAD and spreadsheet imports.",
+          "enum": [
+            "vertex",
+            "triangle"
+          ],
+          "type": "string"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Multiplier applied to every coordinate after the up-axis conversion — use it for unit changes (0.1 = millimetres to centimetres, 25.4 = inches to millimetres, 0.0393701 = millimetres to inches). Normals are directions and are never scaled. Default 1 leaves the size unchanged.",
+          "maximum": 1000000,
+          "minimum": -1000000,
+          "type": "number"
+        },
+        "stl": {
+          "description": "The mesh to flatten. Paste either an ASCII STL as text (solid / facet normal / vertex lines), or a BINARY STL's bytes encoded as base64 or hex (hex may include spaces, colons or dashes). Every facet stores its three corners explicitly, so a 5000-facet mesh gives 15000 vertex rows in file order — nothing is welded or resampled. Up to 100000 triangles and 32 MiB of pasted input.",
+          "type": "string"
+        },
+        "up_axis": {
+          "default": "keep",
+          "description": "Up-axis conversion, applied before scaling and to normals as well as positions. 'keep' (default) leaves the coordinates as stored (STL is conventionally Z-up); 'z-to-y' rotates -90° about X so Z-up data lands in the Y-up convention used by glTF and most web 3D viewers, mapping (x,y,z) to (x,z,-y); 'y-to-z' is the inverse, mapping (x,y,z) to (x,-z,y).",
+          "enum": [
+            "keep",
+            "z-to-y",
+            "y-to-z"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "stl"
+      ],
+      "type": "object"
+    }
+  }
+}

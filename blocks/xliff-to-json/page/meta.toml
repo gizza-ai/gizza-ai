@@ -1,0 +1,211 @@
+slug          = "xliff-to-json"
+title         = "XLIFF to JSON — Convert XLF Translation Files to JSON"
+description   = "Convert XLIFF 1.2 and 2.x files to JSON in your browser. Source/target pairs, flat or nested i18n bundles, placeholders preserved. Free, private, no upload."
+tags          = ["xliff to json", "xlf to json", "xliff converter", "localization", "i18n", "translation file converter", "xliff 2.0", "trans-unit"]
+h1            = "XLIFF to JSON"
+hero_subtitle = "Turn an .xlf/.xliff localization file into clean JSON — source/target pairs keyed by unit id, a flat translation bundle, or a nested i18n tree. XLIFF 1.2 and 2.x are both read automatically, groups are walked, and inline placeholders survive. Runs entirely in your browser, no upload."
+wasm          = "gizza_ai_xliff_to_json_web"
+export        = "run"
+live          = false
+output_label  = "JSON"
+format        = "text"
+
+[[input]]
+name        = "xliff"
+label       = "XLIFF document"
+placeholder = '''<xliff version="1.2">
+  <file original="app.ts" source-language="en" target-language="de">
+    <body>
+      <trans-unit id="home.title">
+        <source>Welcome</source>
+        <target>Willkommen</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>'''
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output shape"
+source = "field"
+
+[input.labels]
+pairs  = "Source + target pairs by id (default)"
+target = "Translations only — { id: target }"
+source = "Source text only — { id: source }"
+array  = "Array of records — keeps order and duplicate ids"
+
+[[input]]
+name   = "key"
+label  = "Key each entry by"
+source = "field"
+
+[input.labels]
+id      = "Unit id (default)"
+resname = "resname / name attribute, falling back to id"
+source  = "Source text, falling back to id"
+
+[[input]]
+name   = "inline_tags"
+label  = "Inline placeholders and tags"
+source = "field"
+
+[input.labels]
+placeholder = "Replace with equiv-text or {id} (default)"
+strip       = "Strip — keep translatable text only"
+keep        = "Keep the inline XML verbatim"
+
+[[input]]
+name   = "include_empty_targets"
+label  = "Include untranslated units"
+source = "field"
+
+[[input]]
+name   = "fallback_to_source"
+label  = "Fall back to source when a target is empty"
+source = "field"
+
+[[input]]
+name   = "nested"
+label  = "Nest keys into an object tree"
+source = "field"
+
+[[input]]
+name        = "separator"
+label       = "Key separator for nesting"
+placeholder = "."
+source      = "field"
+
+[[input]]
+name   = "include_metadata"
+label  = "Include notes, state, file and group"
+source = "field"
+
+[[example]]
+label = "XLIFF 1.2 file"
+[example.params]
+xliff = '''<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file original="app.ts" source-language="en" target-language="de" datatype="plaintext">
+    <body>
+      <trans-unit id="home.title" resname="HomeTitle" approved="yes">
+        <source>Welcome back</source>
+        <target state="translated">Willkommen zurück</target>
+        <note>Shown above the dashboard</note>
+      </trans-unit>
+      <trans-unit id="home.cta">
+        <source>Get started</source>
+        <target state="new"></target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>'''
+output = "pairs"
+key = "id"
+inline_tags = "placeholder"
+include_empty_targets = "true"
+fallback_to_source = "false"
+nested = "false"
+separator = "."
+include_metadata = "false"
+
+[[example]]
+label = "XLIFF 2.x file"
+[example.params]
+xliff = '''<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="fr">
+  <file id="f1" original="app.ts">
+    <group id="checkout">
+      <unit id="cart.title" name="CartTitle">
+        <notes><note>Cart page heading</note></notes>
+        <segment state="translated">
+          <source>Your cart</source>
+          <target>Votre panier</target>
+        </segment>
+      </unit>
+      <unit id="cart.empty">
+        <segment>
+          <source>Your cart is empty.</source>
+        </segment>
+      </unit>
+    </group>
+  </file>
+</xliff>'''
+output = "pairs"
+key = "id"
+inline_tags = "placeholder"
+include_empty_targets = "true"
+fallback_to_source = "false"
+nested = "false"
+separator = "."
+include_metadata = "true"
+
+[[example]]
+label = "Angular file with placeholders"
+[example.params]
+xliff = '''<xliff version="1.2">
+  <file original="messages.xlf" source-language="en" target-language="es">
+    <body>
+      <trans-unit id="greeting">
+        <source>Hello <x id="INTERPOLATION" equiv-text="{{name}}"/>, you have <x id="INTERPOLATION_1" equiv-text="{{count}}"/> messages.</source>
+        <target>Hola <x id="INTERPOLATION" equiv-text="{{name}}"/>, tienes <x id="INTERPOLATION_1" equiv-text="{{count}}"/> mensajes.</target>
+      </trans-unit>
+      <trans-unit id="terms">
+        <source>Read the <bpt id="1">&lt;a&gt;</bpt>terms<ept id="1">&lt;/a&gt;</ept>.</source>
+        <target>Lee los <bpt id="1">&lt;a&gt;</bpt>términos<ept id="1">&lt;/a&gt;</ept>.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>'''
+output = "target"
+key = "id"
+inline_tags = "placeholder"
+include_empty_targets = "true"
+fallback_to_source = "false"
+nested = "false"
+separator = "."
+include_metadata = "false"
+
+[[example]]
+label = "Nested i18next bundle"
+[example.params]
+xliff = '''<xliff version="1.2">
+  <file original="app.ts" source-language="en" target-language="nl">
+    <body>
+      <trans-unit id="home.hero.title"><source>Ship faster</source><target>Lever sneller</target></trans-unit>
+      <trans-unit id="home.hero.subtitle"><source>Without the busywork</source><target>Zonder het geregel</target></trans-unit>
+      <trans-unit id="nav.pricing"><source>Pricing</source><target>Prijzen</target></trans-unit>
+    </body>
+  </file>
+</xliff>'''
+output = "target"
+key = "id"
+inline_tags = "placeholder"
+include_empty_targets = "true"
+fallback_to_source = "false"
+nested = "true"
+separator = "."
+include_metadata = "false"
+
+[[example]]
+label = "Translated strings only"
+[example.params]
+xliff = '''<xliff version="1.2">
+  <file original="app.ts" source-language="en" target-language="it">
+    <body>
+      <trans-unit id="save"><source>Save</source><target state="translated">Salva</target></trans-unit>
+      <trans-unit id="discard"><source>Discard</source><target state="needs-translation"></target></trans-unit>
+      <trans-unit id="cancel"><source>Cancel</source><target state="translated">Annulla</target></trans-unit>
+    </body>
+  </file>
+</xliff>'''
+output = "target"
+key = "id"
+inline_tags = "placeholder"
+include_empty_targets = "false"
+fallback_to_source = "false"
+nested = "false"
+separator = "."
+include_metadata = "false"

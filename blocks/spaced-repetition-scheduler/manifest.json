@@ -1,0 +1,174 @@
+{
+  "name": "gizza-ai/spaced-repetition-scheduler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute next review dates from a card review log with SM-2 or FSRS",
+  "role": "skill",
+  "tool": {
+    "description": "Replay a batch flashcard review log (one row per review: card, date, grade) and report every card's scheduler state and next review date. Two engines: sm2 (SuperMemo-2 repetitions, ease factor and interval, with configurable starting ease, ease floor, first/second interval, easy bonus, hard multiplier, interval modifier, lapse multiplier and interval cap) and fsrs (an FSRS-style difficulty/stability/retrievability memory model scheduled to a desired retention, with an optional custom 21-weight vector). Grades accept again/hard/good/easy words and aliases as well as the SuperMemo 0-5 and four-button 1-4 numeric scales. Output is an aligned table, CSV, JSON, a per-review explain trace, or a forecast of upcoming reviews; rows can be sorted and filtered to what is due.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "sm2",
+          "description": "Scheduling engine: sm2 is the classic SuperMemo-2 ease/interval state machine; fsrs is an FSRS-style difficulty/stability/retrievability memory model driven by desired_retention.",
+          "enum": [
+            "sm2",
+            "fsrs"
+          ],
+          "type": "string"
+        },
+        "desired_retention": {
+          "default": 0.9,
+          "description": "FSRS only: probability of recall to schedule for. Higher means shorter intervals and more reviews.",
+          "maximum": 0.99,
+          "minimum": 0.7,
+          "type": "number"
+        },
+        "ease_start": {
+          "default": 2.5,
+          "description": "SM-2 only: starting ease factor for a card with no history.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "number"
+        },
+        "easy_bonus": {
+          "default": 1.3,
+          "description": "SM-2 only: extra multiplier applied when the top grade is used.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "number"
+        },
+        "first_interval": {
+          "default": 1.0,
+          "description": "SM-2 only: days scheduled after the first successful review.",
+          "maximum": 365,
+          "minimum": 1,
+          "type": "number"
+        },
+        "forecast_grade": {
+          "default": "good",
+          "description": "Grade assumed on every projected review when output is forecast.",
+          "enum": [
+            "again",
+            "hard",
+            "good",
+            "easy"
+          ],
+          "type": "string"
+        },
+        "forecast_reviews": {
+          "default": 6,
+          "description": "Number of future reviews to project when output is forecast.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "fsrs_weights": {
+          "description": "FSRS only: 21 comma or space separated weights from your own optimiser. Blank uses the built-in default vector.",
+          "type": "string"
+        },
+        "grade_scale": {
+          "default": "auto",
+          "description": "How numeric grades are read: sm2 is the 0-5 recall-quality scale, anki is the four-button 1-4 scale, auto picks sm2 when any 0 or 5 appears and anki otherwise. Words (again/hard/good/easy and aliases) work in every scale.",
+          "enum": [
+            "auto",
+            "sm2",
+            "anki"
+          ],
+          "type": "string"
+        },
+        "hard_multiplier": {
+          "default": 1.2,
+          "description": "SM-2 only: multiplier used instead of the ease factor when the card is passed with the hard grade.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "interval_modifier": {
+          "default": 1.0,
+          "description": "Global multiplier applied to every computed interval before rounding, in both engines. Below 1 compresses the schedule, above 1 stretches it.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "lapse_multiplier": {
+          "default": 0.0,
+          "description": "SM-2 only: share of the old interval kept after a lapse. 0 restarts at first_interval, the classic SM-2 behaviour.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "leech_threshold": {
+          "default": 8,
+          "description": "Lapse count at which a card is reported with status leech. 0 turns leech flagging off.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_interval": {
+          "default": 36500.0,
+          "description": "Cap, in days, on any scheduled interval in both engines.",
+          "maximum": 36500,
+          "minimum": 1,
+          "type": "number"
+        },
+        "min_ease": {
+          "default": 1.3,
+          "description": "SM-2 only: floor the ease factor is never allowed to fall below.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "number"
+        },
+        "only_due": {
+          "default": false,
+          "description": "Keep only cards whose due date is on or before today.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "table",
+          "description": "Result format: table is an aligned schedule, csv the same columns as CSV, json a structured document, explain a per-review state trace, forecast a projection of the next forecast_reviews reviews.",
+          "enum": [
+            "table",
+            "csv",
+            "json",
+            "explain",
+            "forecast"
+          ],
+          "type": "string"
+        },
+        "reviews": {
+          "description": "Review log, one row per review: card, date (YYYY-MM-DD), grade. Rows may be comma, tab, semicolon, pipe or space separated, may carry optional trailing state fields (reps=, ease=, interval=, lapses=, difficulty=, stability=, last=), and a row holding only a card name declares a new, unreviewed card. A leading header row and lines starting with # are ignored.",
+          "type": "string"
+        },
+        "second_interval": {
+          "default": 6.0,
+          "description": "SM-2 only: days scheduled after the second successful review.",
+          "maximum": 3650,
+          "minimum": 1,
+          "type": "number"
+        },
+        "sort": {
+          "default": "due",
+          "description": "Row order: due date ascending, card name, interval ascending, lapses descending, or the order cards first appear in the log. Ties break on card name.",
+          "enum": [
+            "due",
+            "card",
+            "interval",
+            "lapses",
+            "input"
+          ],
+          "type": "string"
+        },
+        "today": {
+          "description": "Reference date (YYYY-MM-DD) used for due/overdue status and days_until. Blank uses the latest review date in the log, which keeps runs reproducible.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reviews"
+      ],
+      "type": "object"
+    }
+  }
+}

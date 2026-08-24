@@ -1,0 +1,120 @@
+slug          = "focus-picker"
+title         = "Focus Picker — Choose One Task by Priority, Due Date and Effort"
+description   = "Pick the single task to focus on next from a pasted to-do list. Scores priority, due dates, effort, overdue work and Eisenhower or WSJF methods locally."
+tags          = ["tasks", "priority", "focus", "todo", "productivity", "eisenhower", "wsjf", "quick wins", "deadline", "planning"]
+h1            = "Pick the one task to do next"
+hero_subtitle = "Paste a messy to-do list with priorities, due dates and effort estimates, then get one focus pick with an auditable score and ranking."
+wasm          = "gizza_ai_focus_picker_web"
+export        = "run"
+live          = false
+output_label  = "Focus recommendation"
+format        = "text"
+
+[[input]]
+name        = "tasks"
+label       = "Tasks"
+placeholder = "Fix login redirect !p1 due:tomorrow est:90m\nWrite release notes !p2 due:+3d est:2h\nRefactor settings page !p3 est:1d\nBook retro room !p4 due:friday est:15m"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "method"
+label  = "Scoring method"
+source = "field"
+[input.labels]
+balanced = "Balanced priority + urgency + ease"
+deadline = "Deadline-first"
+wsjf = "WSJF value ÷ effort"
+quick-wins = "Quick wins"
+eisenhower = "Eisenhower quadrant"
+
+[[input]]
+name        = "today"
+label       = "Today date"
+placeholder = "2026-08-21"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "default_priority"
+label  = "Default priority"
+source = "field"
+[input.labels]
+p0 = "p0 — emergency"
+p1 = "p1 — high"
+p2 = "p2 — medium-high"
+p3 = "p3 — normal"
+p4 = "p4 — low"
+
+[[input]]
+name        = "default_effort"
+label       = "Default effort (hours)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "overdue_boost"
+label  = "Pin overdue tasks above non-overdue work"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+[input.labels]
+text = "Text"
+markdown = "Markdown table"
+json = "JSON"
+
+[[input]]
+name   = "show_ranking"
+label  = "Show full ranking"
+source = "field"
+
+[[example]]
+label = "Launch triage"
+[example.params]
+tasks = "Fix login redirect !p1 due:tomorrow est:90m\nWrite release notes !p2 due:+3d est:2h\nRefactor settings page !p3 est:1d\nBook retro room !p4 due:friday est:15m"
+method = "balanced"
+today = "2026-08-21"
+default_priority = "p3"
+default_effort = "2"
+overdue_boost = "true"
+format = "text"
+show_ranking = "true"
+
+[[example]]
+label = "Deadline mode"
+[example.params]
+tasks = "Submit tax documents !p2 due:today est:3h\nRenew parking permit !p3 due:tomorrow est:20m\nUpdate portfolio !p1 due:+10d est:5h"
+method = "deadline"
+today = "2026-08-21"
+default_priority = "p3"
+default_effort = "2"
+overdue_boost = "true"
+format = "markdown"
+show_ranking = "true"
+
+[[example]]
+label = "WSJF backlog"
+[example.params]
+tasks = "Improve onboarding | p1 | +7d | 2d\nFix billing copy | p2 | +2d | 1h\nRebuild import flow | p0 | +14d | 5d\nAdd keyboard shortcuts | p3 | | 3h"
+method = "wsjf"
+today = "2026-08-21"
+default_priority = "p3"
+default_effort = "2"
+overdue_boost = "false"
+format = "text"
+show_ranking = "true"
+
+[[example]]
+label = "Eisenhower clean-up"
+[example.params]
+tasks = "Reply to CEO escalation !p1 due:today est:30m\nPlan Q4 architecture !p1 due:+21d est:6h\nApprove lunch menu !p4 due:today est:10m\nArchive old screenshots !p4 est:1h"
+method = "eisenhower"
+today = "2026-08-21"
+default_priority = "p3"
+default_effort = "2"
+overdue_boost = "true"
+format = "text"
+show_ranking = "true"

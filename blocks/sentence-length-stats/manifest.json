@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/sentence-length-stats",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Sentence count, average/median/max length and length distribution",
+  "role": "skill",
+  "tool": {
+    "description": "Measure how long the sentences in a block of text are. Returns the sentence count, total words and characters, average words and characters per sentence, median length, the shortest and longest sentence (with their positions), the standard deviation, a 0-100 variety score with a plain-language band, how many sentences reach a configurable long-sentence threshold, how often adjacent sentences have near-identical lengths, the distribution across five bands (very short 1-9, short 10-14, medium 15-24, long 25-34, very long 35+), and the N longest sentences. Sentence boundaries use a rule-based detector that keeps abbreviations (Dr., e.g.), initials, decimals and list enumerators intact. Options: newlines (paragraph/never/always), long_threshold, list_longest, extra_abbreviations. Deterministic, no AI model, runs locally — the text never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "extra_abbreviations": {
+          "default": "",
+          "description": "Comma-separated extra abbreviations that must never end a sentence, without the trailing period, e.g. \"approx, ing, dept\". Common titles and Latin abbreviations (Dr., e.g., i.e.) are already handled.",
+          "type": "string"
+        },
+        "list_longest": {
+          "default": 3,
+          "description": "How many of the longest sentences to list, longest first, with their position in the text. 0 lists none. Default 3.",
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "long_threshold": {
+          "default": 25,
+          "description": "Word count at or above which a sentence is reported as long, e.g. 25 (default) for web copy, 20 for plain-language writing.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "newlines": {
+          "default": "paragraph",
+          "description": "How line breaks end a sentence: \"paragraph\" (default) breaks only on a blank line, \"never\" treats every line break as ordinary whitespace, \"always\" ends a sentence at every line break (use for subtitles, bullet lists, one-line-per-row text).",
+          "enum": [
+            "paragraph",
+            "never",
+            "always"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text whose sentence lengths to measure. Plain prose; up to 500000 characters.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

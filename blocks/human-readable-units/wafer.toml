@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "human-readable-units"
+version = "0.1.0"
+abi = 1
+summary = "Format raw byte counts, durations and large numbers as readable units."

@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/ics-timezone-shifter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Shift every timed event in an .ics calendar from one timezone to another.",
+  "role": "skill",
+  "tool": {
+    "description": "Rewrite an iCalendar (.ics) file so every timed event, task, journal, and free/busy date-time is expressed in a target timezone. The tool preserves all-day events, metadata timestamps, alarms, attendees and unknown properties; converts DTSTART, DTEND, DUE, RECURRENCE-ID, EXDATE, RDATE and RRULE UNTIL; removes stale VTIMEZONE blocks; and can emit target TZID values with a fresh VTIMEZONE, UTC Z values, or floating local values. Use convert mode to preserve instants, or relabel mode to fix an export that used the wrong timezone label.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "default": "",
+          "description": "Fallback source timezone for floating date-times that do not already carry a TZID or trailing Z. Use an IANA name such as America/New_York, Europe/Berlin, Asia/Tokyo, or UTC. Blank means UTC. Existing TZID values in the calendar override this in convert mode.",
+          "type": "string"
+        },
+        "include_vtimezone": {
+          "default": true,
+          "description": "When write_as is tzid, include a generated VTIMEZONE for the target zone using chrono-tz DST transitions for the calendar's year span. Turn off only if your downstream system already supplies matching timezone definitions.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The iCalendar (.ics) text to rewrite. Paste a full VCALENDAR or one or more bare VEVENT blocks. Timed DTSTART, DTEND, DUE, RECURRENCE-ID, EXDATE, RDATE, and RRULE UNTIL values are shifted; all-day VALUE=DATE entries, DTSTAMP, CREATED, LAST-MODIFIED, alarms, summaries, attendees, and unknown properties pass through. Max 5,000 VEVENT blocks per run.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "convert",
+          "description": "How to interpret the input times: convert preserves the same instant and expresses it in the target zone; relabel keeps the wall-clock digits and declares them to be in the target zone, which repairs calendars exported with the wrong timezone stamped on them.",
+          "enum": [
+            "convert",
+            "relabel"
+          ],
+          "type": "string"
+        },
+        "to": {
+          "default": "UTC",
+          "description": "Target timezone to write into, as an IANA timezone name such as UTC, Europe/Berlin, America/Los_Angeles, or Asia/Tokyo. Matching is case-insensitive for known zone names.",
+          "type": "string"
+        },
+        "write_as": {
+          "default": "tzid",
+          "description": "How converted timed values are written: tzid emits local values with TZID=<target> and, by default, a fresh VTIMEZONE; utc writes UTC Z values; floating writes zone-less local values. All-day VALUE=DATE fields stay unchanged in every mode.",
+          "enum": [
+            "tzid",
+            "utc",
+            "floating"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

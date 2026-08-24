@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wav-to-numpy-npy"
+version = "0.1.0"
+abi = 1
+summary = "Export decoded WAV PCM samples as a NumPy .npy array file."

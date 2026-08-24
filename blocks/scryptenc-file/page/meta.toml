@@ -1,0 +1,141 @@
+slug          = "scryptenc-file"
+title         = "scrypt file encrypt & decrypt — scryptenc container tool"
+description   = "Encrypt, decrypt and inspect files in the scrypt encrypted data format the scrypt CLI reads, with tunable logN, r and p cost parameters."
+tags          = ["scrypt", "scrypt enc", "encrypt file", "decrypt file", "scryptenc", "aes-256-ctr", "hmac-sha256", "kdf"]
+h1            = "scrypt encrypted file tool"
+hero_subtitle = "Seal text or bytes into the scrypt encrypted data format that scrypt enc produces, open an existing container, or read a container's cost parameters without a password. Runs locally in your browser."
+wasm          = "gizza_ai_scryptenc_file_web"
+export        = "run"
+live          = false
+output_label  = "scrypt container, plaintext, or header report"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "attack at dawn"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "password"
+label       = "Passphrase"
+placeholder = "correct horse battery staple"
+source      = "field"
+
+[[input]]
+name        = "operation"
+label       = "Operation"
+source      = "field"
+
+[input.labels]
+encrypt = "Encrypt to a scrypt container"
+decrypt = "Decrypt / verify a container"
+info    = "Inspect header (no password)"
+
+[[input]]
+name        = "data_encoding"
+label       = "Input encoding"
+source      = "field"
+
+[input.labels]
+text   = "Text / auto-detect on decrypt"
+hex    = "Hex bytes"
+base64 = "Base64 bytes"
+
+[[input]]
+name        = "output_encoding"
+label       = "Output encoding"
+source      = "field"
+
+[input.labels]
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "log_n"
+label       = "logN (CPU/memory cost)"
+placeholder = "14"
+source      = "field"
+
+[[input]]
+name        = "r"
+label       = "r (block size)"
+placeholder = "8"
+source      = "field"
+
+[[input]]
+name        = "p"
+label       = "p (parallelization)"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "salt"
+label       = "Salt (optional, 64 hex chars)"
+placeholder = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+source      = "field"
+
+[[input]]
+name        = "max_memory_mib"
+label       = "Memory limit (MiB)"
+placeholder = "32"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label = "Encrypt text with a fresh random salt"
+[example.params]
+operation       = "encrypt"
+data            = "attack at dawn"
+password        = "correct horse battery staple"
+data_encoding   = "text"
+output_encoding = "base64"
+log_n           = "14"
+r               = "8"
+p               = "1"
+salt            = ""
+max_memory_mib  = "32"
+
+[[example]]
+label = "Reproducible vector (fixed salt, hex out)"
+[example.params]
+operation       = "encrypt"
+data            = "hello"
+password        = "pleaseletmein"
+data_encoding   = "text"
+output_encoding = "hex"
+log_n           = "10"
+r               = "8"
+p               = "1"
+salt            = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+max_memory_mib  = "32"
+
+[[example]]
+label = "Decrypt that container back to text"
+[example.params]
+operation       = "decrypt"
+data            = "c2NyeXB0AAoAAAAIAAAAAQABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f2kbOtdVzi2/IZeE31Wq1iY85ws9sd/vIqVD4C1inwi47kM2WY8Zs1frbZVehfKDMXQqudneJ8P4/Th62KYtA7FwStFZm5MC8sZV4LEHqy8PrzOSNrQ=="
+password        = "pleaseletmein"
+data_encoding   = "base64"
+output_encoding = "base64"
+log_n           = "14"
+r               = "8"
+p               = "1"
+salt            = ""
+max_memory_mib  = "32"
+
+[[example]]
+label = "Inspect a container without a passphrase"
+[example.params]
+operation       = "info"
+data            = "c2NyeXB0AAoAAAAIAAAAAQABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f2kbOtdVzi2/IZeE31Wq1iY85ws9sd/vIqVD4C1inwi47kM2WY8Zs1frbZVehfKDMXQqudneJ8P4/Th62KYtA7FwStFZm5MC8sZV4LEHqy8PrzOSNrQ=="
+password        = ""
+data_encoding   = "base64"
+output_encoding = "base64"
+log_n           = "14"
+r               = "8"
+p               = "1"
+salt            = ""
+max_memory_mib  = "32"

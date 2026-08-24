@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/cmyk-jpeg-to-rgb",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a CMYK (often Adobe/print) JPEG into a standard RGB PNG, JPEG or WebP.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a CMYK or YCCK JPEG — the four-ink kind Photoshop and print workflows export, which many apps refuse to open or render with wrong colours — into a standard RGB image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call). Optional format (png default, jpeg, webp), quality 1-100 for jpeg/webp (default 90), and chroma subsampling 4:2:0 (default) or 4:4:4 for jpeg. The four ink channels are collapsed to true three-channel RGB, so the black/K channel is not left behind as a stray alpha channel. Output is untagged sRGB, which is what browsers assume; the conversion is arithmetic, not an ICC-profiled press proof. Already-RGB images are accepted and simply re-encoded, and the result says which happened.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "chroma": {
+          "default": "4:2:0",
+          "description": "Chroma subsampling for jpeg output. 4:2:0 (default) stores colour at half resolution for the smallest file; 4:4:4 keeps full-resolution colour, which matters for the coloured text, logos and flat fills typical of CMYK print files. Ignored for png (always full RGB) and webp (always 4:2:0).",
+          "enum": [
+            "4:2:0",
+            "4:4:4"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Output image format. png (default) is lossless and the safest for print artwork, logos and type; jpeg gives a small file for photographs; webp is the smallest for the web. quality applies to jpeg and webp only.",
+          "enum": [
+            "png",
+            "jpeg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 90,
+          "description": "Quality 1-100 for jpeg and webp output (default 90; ignored for png, which is lossless). Higher keeps more detail but makes a bigger file; 100 is near-lossless, 70-85 is a good size/quality trade.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

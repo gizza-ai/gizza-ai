@@ -1,0 +1,75 @@
+slug          = "url-trailing-slash-normalizer"
+title         = "Trailing Slash URL Normalizer — Add or Remove in Bulk"
+description   = "Paste a list of URLs and make every trailing slash consistent — add one, or strip them all. File paths like /sitemap.xml are left alone. Runs in your browser."
+tags          = ["trailing slash", "url normalizer", "add trailing slash", "remove trailing slash", "canonical url", "bulk url cleaner", "seo urls", "duplicate content", "url list"]
+h1            = "Trailing Slash URL Normalizer"
+hero_subtitle = "Make a whole list of URLs agree on the trailing slash — add one to every directory URL, or take them all off. Queries, fragments and file paths survive untouched."
+wasm          = "gizza_ai_url_trailing_slash_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized URLs"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "urls"
+label       = "URLs (one per line)"
+placeholder = "https://example.com/blog\nhttps://example.com/blog/about/\nhttps://example.com/sitemap.xml\nhttps://example.com"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "mode"
+label   = "Trailing slash style"
+default = "add"
+source  = "field"
+labels  = { add = "Add — every directory URL ends in / (default)", remove = "Remove — no URL ends in /" }
+
+[[input]]
+name   = "skip_file_paths"
+label  = "Leave file paths alone (/sitemap.xml, /report.pdf)"
+source = "field"
+
+[[input]]
+name   = "normalize_root"
+label  = "Always write the site root as a single /"
+source = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Drop duplicates after normalizing"
+source = "field"
+
+[[input]]
+name    = "on_invalid"
+label   = "Lines that aren't URLs"
+default = "keep"
+source  = "field"
+labels  = { keep = "Keep them as-is (default)", drop = "Leave them out", error = "Stop and report the line" }
+
+[[input]]
+name    = "output"
+label   = "Result"
+default = "urls"
+source  = "field"
+labels  = { urls = "All URLs, normalized (default)", changed = "Only the URLs that changed", report = "Per-line CSV report", summary = "CSV summary of the totals" }
+
+[[example]]
+label  = "Add trailing slashes (default)"
+params = { urls = "https://example.com/blog\nhttps://example.com/blog/about/\nhttps://example.com/sitemap.xml\nhttps://example.com", mode = "add", skip_file_paths = "true", normalize_root = "true", dedupe = "false", on_invalid = "keep", output = "urls" }
+
+[[example]]
+label  = "Remove trailing slashes"
+params = { urls = "https://example.com/blog/\nhttps://example.com/blog/about/\nhttps://example.com/sitemap.xml\nhttps://example.com/", mode = "remove", skip_file_paths = "true", normalize_root = "true", dedupe = "false", on_invalid = "keep", output = "urls" }
+
+[[example]]
+label  = "Only the URLs that changed"
+params = { urls = "https://example.com/blog\nhttps://example.com/blog/about/\nhttps://example.com/sitemap.xml\nhttps://example.com", mode = "add", skip_file_paths = "true", normalize_root = "true", dedupe = "false", on_invalid = "keep", output = "changed" }
+
+[[example]]
+label  = "Per-line CSV report"
+params = { urls = "https://example.com/blog\nhttps://example.com/blog/about/\nhttps://example.com/sitemap.xml\nhttps://example.com", mode = "add", skip_file_paths = "true", normalize_root = "true", dedupe = "false", on_invalid = "keep", output = "report" }
+
+[[example]]
+label  = "Deduplicate a mixed list"
+params = { urls = "https://example.com/blog\nhttps://example.com/blog/\nhttps://example.com/news\nhttps://example.com/news/", mode = "add", skip_file_paths = "true", normalize_root = "true", dedupe = "true", on_invalid = "keep", output = "summary" }

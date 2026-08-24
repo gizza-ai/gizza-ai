@@ -1,0 +1,198 @@
+slug          = "bibtex-to-csv"
+title         = "BibTeX to CSV Converter — Turn a .bib Bibliography into a Spreadsheet"
+description   = "Paste BibTeX and get CSV, one row per entry. Choose columns, delimiter and header, decode LaTeX accents, reformat author names, sort rows and add an Excel BOM."
+tags          = ["bibtex", "csv", "bibliography", "citations", "latex", "references", "spreadsheet", "converter"]
+h1            = "Convert BibTeX to CSV"
+hero_subtitle = "Paste the contents of a .bib file and get a clean CSV table, one row per entry. Pick the standard bibliographic columns, every field in the file, or your own ordered list; LaTeX accents and protective braces are decoded to real UTF-8 text, @string macros are resolved, and author names can be normalised for a spreadsheet or a citation manager."
+wasm          = "gizza_ai_bibtex_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "CSV"
+format        = "text"
+
+[[input]]
+name        = "bibtex"
+label       = "BibTeX source"
+placeholder = "@article{curie1898,\n  title   = {Sur une substance nouvelle radio-active},\n  author  = {Curie, Marie and Curie, Pierre},\n  journal = {Comptes Rendus},\n  year    = {1898}\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "columns"
+label  = "Columns"
+source = "field"
+
+[input.labels]
+standard = "Standard bibliographic set (default)"
+all      = "All fields found in the file"
+custom   = "Custom — the list below"
+
+[[input]]
+name        = "custom_columns"
+label       = "Custom column names"
+placeholder = "key,title,author,year,doi"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma     = "Comma , (default, .csv)"
+semicolon = "Semicolon ; (Excel in comma-decimal locales)"
+tab       = "Tab (.tsv)"
+pipe      = "Pipe |"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[[input]]
+name   = "decode_latex"
+label  = "Decode LaTeX accents and braces"
+source = "field"
+
+[[input]]
+name   = "author_format"
+label  = "Author name format"
+source = "field"
+
+[input.labels]
+bibtex       = "As written in the file (default)"
+last-first   = "Last, First"
+first-last   = "First Last"
+
+[[input]]
+name   = "author_separator"
+label  = "Author separator"
+source = "field"
+
+[input.labels]
+and       = "and — the BibTeX spelling (default)"
+semicolon = "Semicolon ;"
+comma     = "Comma ,"
+pipe      = "Pipe |"
+
+[[input]]
+name   = "expand_strings"
+label  = "Expand @string macros"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Row order"
+source = "field"
+
+[input.labels]
+source = "As in the file (default)"
+key    = "By cite key"
+year   = "By year"
+type   = "By entry type"
+
+[[input]]
+name   = "bom"
+label  = "Add UTF-8 BOM for Excel"
+source = "field"
+
+[[example]]
+label = "Journal article"
+[example.params]
+bibtex = '''
+@article{curie1898,
+  title   = {Sur une substance nouvelle radio-active},
+  author  = {Curie, Marie and Curie, Pierre},
+  journal = {Comptes Rendus},
+  year    = {1898},
+  volume  = {127},
+  pages   = {175--178}
+}
+'''
+columns = "standard"
+custom_columns = ""
+delimiter = "comma"
+header = "true"
+decode_latex = "true"
+author_format = "bibtex"
+author_separator = "and"
+expand_strings = "true"
+sort = "source"
+bom = "false"
+
+[[example]]
+label = "Every field in the file"
+[example.params]
+bibtex = '''
+@book{knuth1984,
+  title     = {The {TeX}book},
+  author    = {Knuth, Donald E.},
+  publisher = {Addison-Wesley},
+  year      = {1984},
+  isbn      = {0-201-13447-0}
+}
+@inproceedings{erdos1959,
+  title     = {On random graphs},
+  author    = {Erd{\H o}s, P\'al and R\'enyi, Alfr\'ed},
+  booktitle = {Publicationes Mathematicae},
+  year      = {1959},
+  note      = {Reprinted 1976}
+}
+'''
+columns = "all"
+custom_columns = ""
+delimiter = "comma"
+header = "true"
+decode_latex = "true"
+author_format = "bibtex"
+author_separator = "and"
+expand_strings = "true"
+sort = "key"
+bom = "false"
+
+[[example]]
+label = "Excel-ready (semicolon + BOM)"
+[example.params]
+bibtex = '''
+@article{munoz2021,
+  title   = {Mesures de la r\'esistivit\'e},
+  author  = {Mu\~noz, Jos\'e and M\"uller, Anna},
+  journal = {Revue de Physique},
+  year    = {2021},
+  doi     = {10.1000/demo.2021}
+}
+'''
+columns = "standard"
+custom_columns = ""
+delimiter = "semicolon"
+header = "true"
+decode_latex = "true"
+author_format = "bibtex"
+author_separator = "and"
+expand_strings = "true"
+sort = "source"
+bom = "true"
+
+[[example]]
+label = "Pick columns, Last, First names"
+[example.params]
+bibtex = '''
+@string{jcp = "J. Chem. Phys."}
+@article{smith2020,
+  title   = {A study of solvents},
+  author  = {John Smith and Ludwig van Beethoven},
+  journal = jcp # { (Letters)},
+  year    = {2020}
+}
+'''
+columns = "custom"
+custom_columns = "key,author,year,journal,title"
+delimiter = "comma"
+header = "true"
+decode_latex = "true"
+author_format = "last-first"
+author_separator = "semicolon"
+expand_strings = "true"
+sort = "source"
+bom = "false"

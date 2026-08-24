@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/random-projection-reducer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reduce a wide numeric table to fewer dimensions with a Johnson–Lindenstrauss random projection",
+  "role": "skill",
+  "tool": {
+    "description": "Reduce a high-dimensional numeric table to fewer columns with a fast Johnson–Lindenstrauss random projection. Paste a matrix — one observation per line, one variable per column, split on commas, tabs, semicolons, pipes or spaces (a non-numeric first row is read as column names) — and it is multiplied by a randomly drawn matrix scaled so pairwise distances are preserved in expectation. Choose the matrix family with method: gaussian (dense N(0, 1/k)), sparse (±sqrt(1/(density·k)) at density 1/sqrt(columns)), achlioptas (density 1/3) or rademacher (dense ±1 signs). Set components to a number, to a percentage of the input width like '25%', or leave it 'auto' to derive k from the Johnson–Lindenstrauss bound at eps. The report states the settings used, measures how much pairwise row distances actually moved (mean, median and maximum distortion, the mean ratio, and how many sampled pairs stayed inside ±eps), tabulates the JL minimum dimension for several eps values, and prints the projected rows. Use format='csv' for every projected row, 'json' for the full result, or 'matrix' to get the projection matrix itself. Unlike PCA it needs no eigen-decomposition, so it scales to very wide data, but it optimises distances rather than variance. Handles up to 2000 rows, 1000 columns and 200000 cells, with k up to 256; the seed makes every run reproducible. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "default": "auto",
+          "description": "Target number of dimensions k. 'auto' (the default) derives it from the Johnson–Lindenstrauss bound at the given eps, clamped to the number of input columns. A whole number sets k directly (e.g. 3). A percentage keeps that share of the input width (e.g. '25%' of 8 columns is 2). Maximum 256.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The data matrix: one observation per line, one variable per column, columns separated by commas, tabs, semicolons, pipes or spaces. Every row must have the same number of columns, and there must be at least 2 rows and 2 columns, e.g. '1,2,3,4\\n8,7,6,5\\n2,4,6,8'. A first row whose values are not all numbers is read as a header of column names. Up to 2000 rows, 1000 columns and 200000 cells.",
+          "type": "string"
+        },
+        "density": {
+          "default": 0.0,
+          "description": "Fraction of non-zero entries in the random matrix, for method 'sparse' or 'achlioptas' only. 0 (the default) uses each method's own default: 1/sqrt(columns) for 'sparse' and 1/3 for 'achlioptas'. Lower values are sparser and faster but noisier. Setting it for a dense method ('gaussian', 'rademacher') is an error.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "eps": {
+          "default": 0.1,
+          "description": "Distance-distortion tolerance, as a fraction — 0.1 (the default) means ±10%. It sets the target dimension when components='auto' (k = 4·ln(rows) / (eps²/2 − eps³/3)) and is the threshold the report counts row pairs against. Smaller eps means a tighter embedding and more dimensions.",
+          "maximum": 0.99,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: 'text' (default) = a report with the settings, the distance-preservation diagnostics, Johnson–Lindenstrauss guidance and the first 20 projected rows; 'json' = the full structured result including every projected row and the projection matrix; 'csv' = just the projected rows as 'row,RP1,RP2,…', ready to plot; 'matrix' = the k × columns projection matrix itself as CSV, so the same projection can be reapplied to new rows.",
+          "enum": [
+            "text",
+            "json",
+            "csv",
+            "matrix"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "gaussian",
+          "description": "Which random matrix to project with. 'gaussian' (default) is dense with entries drawn from N(0, 1/k) — the classic choice. 'sparse' draws ±sqrt(1/(density·k)) with the rest zero, at density 1/sqrt(columns) by default, which is much faster on wide data. 'achlioptas' is the same family at the fixed density 1/3, i.e. sqrt(3/k)·{-1, 0, +1}. 'rademacher' is a dense ±sqrt(1/k) sign matrix. All four are scaled so distances are preserved in expectation.",
+          "enum": [
+            "gaussian",
+            "sparse",
+            "achlioptas",
+            "rademacher"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the random matrix, 0 to 4294967295 (default 42). The generator is a fixed portable integer stream, so the same seed reproduces exactly the same projection here, in the CLI and in the browser. Change it to draw a different projection of the same data.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

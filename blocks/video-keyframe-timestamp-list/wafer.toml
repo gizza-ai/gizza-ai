@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-keyframe-timestamp-list"
+version = "0.1.0"
+abi = 1
+summary = "List every keyframe (I-frame) timestamp in a video as text, CSV, or JSON"

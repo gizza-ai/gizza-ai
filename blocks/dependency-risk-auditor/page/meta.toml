@@ -1,0 +1,161 @@
+slug          = "dependency-risk-auditor"
+title         = "Dependency Risk Auditor — package.json & lockfile risk report"
+description   = "Audit a package.json, package-lock.json, yarn.lock or pnpm-lock.yaml for wildcard versions, git/URL deps, install scripts and missing integrity hashes."
+tags          = ["dependency risk auditor", "package.json audit", "lockfile audit", "npm supply chain", "wildcard version check", "install script check", "package-lock audit", "yarn.lock audit"]
+h1            = "Dependency Risk Auditor"
+hero_subtitle = "Paste a package.json or lockfile and get a graded risk report: wildcard and dist-tag versions, git and URL dependencies, install scripts, missing or weak integrity hashes, and manifest-versus-lockfile drift. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_dependency_risk_auditor_web"
+export        = "run"
+live          = false
+output_label  = "Audit report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "manifest"
+label       = "package.json or lockfile"
+placeholder = "{\n  \"name\": \"demo-app\",\n  \"dependencies\": { \"axios\": \"*\" }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "lockfile"
+label       = "Lockfile (optional, for cross-checks)"
+placeholder = "{\n  \"lockfileVersion\": 3,\n  \"packages\": { }\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name  = "manifest_format"
+label = "Input format"
+source = "field"
+
+[input.labels]
+auto           = "Auto-detect"
+package-json   = "package.json"
+package-lock   = "package-lock.json"
+yarn-lock      = "yarn.lock"
+pnpm-lock      = "pnpm-lock.yaml"
+
+[[input]]
+name  = "strictness"
+label = "Strictness"
+source = "field"
+
+[input.labels]
+lenient  = "Lenient — high severity only"
+standard = "Standard — high + medium"
+strict   = "Strict — everything, including style-level risks"
+
+[[input]]
+name  = "include_dev"
+label = "Include devDependencies"
+source = "field"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule IDs"
+placeholder = "range-prefix, third-party-registry"
+source      = "field"
+
+[[input]]
+name  = "fail_on"
+label = "Fail the audit on"
+source = "field"
+
+[input.labels]
+high   = "High severity"
+medium = "Medium and above"
+low    = "Low and above"
+info   = "Any finding"
+never  = "Never — report only"
+
+[[input]]
+name  = "output"
+label = "Report format"
+source = "field"
+
+[input.labels]
+text     = "Text report"
+markdown = "Markdown table"
+json     = "JSON"
+
+[[example]]
+label = "Messy package.json"
+[example.params]
+manifest = '''
+{
+  "name": "demo-app",
+  "version": "1.0.0",
+  "scripts": { "postinstall": "node scripts/setup.js" },
+  "dependencies": {
+    "axios": "*",
+    "chalk": "^4.1.2",
+    "internal-tool": "git+ssh://git@github.com/acme/internal-tool.git#main"
+  },
+  "devDependencies": { "chalk": "^5.3.0" }
+}'''
+lockfile        = ""
+manifest_format = "auto"
+strictness      = "standard"
+include_dev     = "true"
+ignore          = ""
+fail_on         = "high"
+output          = "text"
+
+[[example]]
+label = "Lockfile integrity scan"
+[example.params]
+manifest = '''
+{
+  "name": "demo-app",
+  "lockfileVersion": 3,
+  "packages": {
+    "": { "name": "demo-app", "version": "1.0.0" },
+    "node_modules/sharp": {
+      "version": "0.32.6",
+      "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.32.6.tgz",
+      "integrity": "sha512-KyLTWwgcR9Oe4d9HwCwNM2l7",
+      "hasInstallScript": true
+    },
+    "node_modules/mirror-pkg": {
+      "version": "2.0.0",
+      "resolved": "http://npm.internal.example.com/mirror-pkg/-/mirror-pkg-2.0.0.tgz"
+    }
+  }
+}'''
+lockfile        = ""
+manifest_format = "auto"
+strictness      = "standard"
+include_dev     = "true"
+ignore          = ""
+fail_on         = "high"
+output          = "text"
+
+[[example]]
+label = "Manifest + lockfile cross-check (Markdown)"
+[example.params]
+manifest = '''
+{
+  "name": "demo-app",
+  "engines": { "node": ">=20" },
+  "dependencies": { "chalk": "4.1.1", "missing-dep": "1.0.0" }
+}'''
+lockfile = '''
+{
+  "lockfileVersion": 3,
+  "packages": {
+    "": { "name": "demo-app" },
+    "node_modules/chalk": {
+      "version": "4.1.2",
+      "resolved": "https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz",
+      "integrity": "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc"
+    }
+  }
+}'''
+manifest_format = "auto"
+strictness      = "standard"
+include_dev     = "true"
+ignore          = ""
+fail_on         = "medium"
+output          = "markdown"

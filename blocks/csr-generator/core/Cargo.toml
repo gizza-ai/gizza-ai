@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-csr-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+p256 = { version = "0.13", default-features = false, features = ["arithmetic", "ecdsa", "pkcs8", "pem"] }
+p384 = { version = "0.13", default-features = false, features = ["arithmetic", "ecdsa", "pkcs8", "pem"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+serde = { version = "1", features = ["derive"] }
+yasna = "0.5"

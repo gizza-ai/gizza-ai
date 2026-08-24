@@ -1,0 +1,95 @@
+{
+  "name": "gizza-ai/password-vault-audit",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Audit a password list or vault export for reused, duplicate and weak passwords.",
+  "role": "skill",
+  "tool": {
+    "description": "Audit a whole password vault at once and report every reused, duplicated, empty, common, short, weak, stale and insecurely-stored credential. Pass the vault in `data` as either a plain list with one password per line or a password-manager export — Bitwarden JSON, or any CSV whose header names a password column (Bitwarden, LastPass, KeePass/KeePassXC, Chrome, 1Password, Dashlane, generic); `format` forces a reader when the auto-sniff guesses wrong. Cross-entry checks: `reused-password` (entries sharing one identical password, grouped), `duplicate-entry` (the same item saved twice) and `similar-password` (variants of one base such as Summer2024!/Summer2025?). Per-entry checks: `common-password` (matched against a bundled offline list of well-known breached passwords, including capitalisation and leetspeak variants — not a live breach lookup), `weak-password` (a 0-100 strength score from length, character-class pool and pattern penalties, banded weak/fair/medium/strong, flagged below `min_score`), `short-password` (below `min_length`), `password-contains-username`, `low-character-variety`, `stale-password` (older than `max_age_days`, where the export carries a date), `insecure-url` (an http:// login) and `missing-2fa` (a login with no stored TOTP secret, off by default). Every check has its own on/off switch. The result carries a 0-100 vault score discounted by how much of the vault is reused, a strength breakdown, and findings sorted by severity then by how actionable they are. Passwords are masked by default — shown as a short non-reversible fingerprint plus a length so reuse groups stay correlatable without exposing secrets; set `mask_passwords` false to show them. `output` selects 'report' (readable), 'json' (structured) or 'csv' (one row per finding). Up to 5000 entries per run. Everything runs locally in the sandbox: no network, no storage, nothing uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "check_common": {
+          "default": true,
+          "description": "Match every password against a bundled list of the best-known common and breached passwords, including capitalisation and leetspeak variants (P@ssw0rd matches password). Runs offline against a fixed list — it is not a live breach-database lookup. Default true.",
+          "type": "boolean"
+        },
+        "check_insecure_urls": {
+          "default": true,
+          "description": "Report saved logins whose URL uses unencrypted http:// rather than https://. Needs a URL/URI column, so it only applies to exports. Default true.",
+          "type": "boolean"
+        },
+        "check_missing_2fa": {
+          "default": false,
+          "description": "Report saved logins that have a URL but no stored authenticator (TOTP) secret. Default false, because most people keep their second factor in a separate app and would otherwise see one finding per login.",
+          "type": "boolean"
+        },
+        "check_reuse": {
+          "default": true,
+          "description": "Report groups of entries that share one identical password, the single highest-value finding in a vault audit. Default true.",
+          "type": "boolean"
+        },
+        "check_similar": {
+          "default": true,
+          "description": "Report entries whose passwords are variants of the same base once a trailing counter or symbol is stripped (Summer2024! / Summer2025?). Default true.",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "The vault to audit: either a plain list with one password per line, or a password-manager export. Supported exports are Bitwarden JSON and any CSV whose header names a password column (Bitwarden, LastPass, KeePass/KeePassXC, Chrome, 1Password, Dashlane, generic). Up to 5000 entries per run. The text is only read — nothing is uploaded, stored or rewritten.",
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read the input. 'auto' (default) sniffs it: a leading '{' or '[' is Bitwarden JSON, a multi-column header row naming a password column is CSV, anything else is a one-per-line list. Force 'list', 'csv' or 'bitwarden-json' when the sniff guesses wrong.",
+          "enum": [
+            "auto",
+            "list",
+            "csv",
+            "bitwarden-json"
+          ],
+          "type": "string"
+        },
+        "mask_passwords": {
+          "default": true,
+          "description": "Keep plaintext passwords out of the output. Each password is shown as a short non-reversible fingerprint plus its length (#a3f1 (14 chars)), which is enough to correlate a reuse group without putting secrets into a report you might paste elsewhere. Set false to show the passwords themselves. Default true.",
+          "type": "boolean"
+        },
+        "max_age_days": {
+          "default": 365,
+          "description": "Flag passwords last changed more than this many days ago. Only applies to entries whose export carries a modified/revision date (Bitwarden JSON always does; most CSVs do not). Default 365; set 0 to switch the age check off.",
+          "maximum": 3650,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_length": {
+          "default": 12,
+          "description": "Flag any password shorter than this many characters. Default 12.",
+          "maximum": 256,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_score": {
+          "default": 40,
+          "description": "Flag any password whose strength score falls below this. Scores run 0-100 with the usual bands: under 40 weak, 40-59 fair, 60-79 medium, 80+ strong. Default 40 (flag everything weak); set 60 to also flag fair passwords, or 0 to switch the strength check off.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output form: 'report' (default) a readable summary with a vault score, strength breakdown and findings grouped by severity; 'json' a structured {ok, entries, with_password, unique_passwords, vault_score, vault_band, error_count, warning_count, strength, findings[]} object; 'csv' one severity,rule,entry,detail row per finding for a spreadsheet.",
+          "enum": [
+            "report",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "gizza-ai/html-outline-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract an HTML heading outline and element tag counts from pasted markup.",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze pasted HTML markup. Extracts an h1-h6 heading outline with text, id, line/column and hidden-state metadata; flags structure issues such as missing h1, multiple h1s, skipped levels, empty or duplicate headings, and hidden headings; and reports literal element/tag counts from the source. format='tree' (default) is a readable report; 'markdown', 'json', and 'csv' are available for docs and automation. min_level/max_level filter the rendered outline; include_issues/include_counts toggle report sections; top_tags caps the tag-count list.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "tree",
+          "description": "Output format. 'tree' is a readable outline with issues and tag counts; 'markdown' is a Markdown report; 'json' returns structured headings/issues/counts; 'csv' returns one row per heading.",
+          "enum": [
+            "tree",
+            "markdown",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "html": {
+          "description": "The HTML document or fragment to analyze. Paste the literal markup; the scanner reports headings from h1 through h6 plus counts of the element tags written in the source.",
+          "type": "string"
+        },
+        "include_counts": {
+          "default": true,
+          "description": "When true, include element/tag counts: total element tags, distinct tags, and the most common tag names.",
+          "type": "boolean"
+        },
+        "include_issues": {
+          "default": true,
+          "description": "When true, include outline-quality issues such as no h1, multiple h1s, skipped heading levels, empty headings, duplicate heading text, and hidden headings.",
+          "type": "boolean"
+        },
+        "max_level": {
+          "default": 6,
+          "description": "Highest heading level to include in the rendered outline, from 1 to 6. Must be greater than or equal to min_level.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_level": {
+          "default": 1,
+          "description": "Lowest heading level to include in the rendered outline, from 1 to 6. Use with max_level to focus on part of a large document.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "top_tags": {
+          "default": 20,
+          "description": "How many distinct tag names to list in the tag-count section, from 1 to 500. Counts are sorted by frequency, then tag name.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "html"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,337 @@
+slug          = "itunes-library-parser"
+title         = "iTunes Library XML Parser"
+description   = "Parse an iTunes or Music Library.xml in your browser and export playlists and track metadata as CSV, TSV, JSON, M3U or a library summary."
+tags          = ["itunes", "music", "playlist", "m3u", "csv", "xml", "plist", "library"]
+h1            = "iTunes Library XML Parser"
+hero_subtitle = "Paste an exported Library.xml to list playlists, export track metadata as CSV, TSV or JSON, or build an M3U playlist with paths re-rooted for another drive."
+wasm          = "gizza_ai_itunes_library_parser_web"
+export        = "run"
+live          = false
+output_label  = "Export"
+format        = "text"
+
+[[input]]
+name        = "library"
+label       = "Library.xml contents"
+placeholder = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<plist version=\"1.0\">\n<dict>\n  <key>Tracks</key>\n  <dict>...</dict>\n  <key>Playlists</key>\n  <array>...</array>\n</dict>\n</plist>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Export as"
+source = "field"
+
+[input.labels]
+csv = "CSV (one row per track)"
+tsv = "TSV (one row per track)"
+json = "JSON (array of tracks)"
+m3u = "M3U (paths only)"
+m3u8 = "M3U extended (#EXTINF lines)"
+playlists = "Playlist index"
+summary = "Library summary"
+
+[[input]]
+name        = "playlist"
+label       = "Playlist name"
+placeholder = "Late Night (leave empty for every track)"
+source      = "field"
+
+[[input]]
+name        = "fields"
+label       = "Columns"
+placeholder = "name,artist,album,genre,year,duration,location"
+source      = "field"
+
+[[input]]
+name        = "path_prefix"
+label       = "Replace music folder with"
+placeholder = "D:\\Music"
+source      = "field"
+
+[[input]]
+name   = "path_style"
+label  = "Path style"
+source = "field"
+
+[input.labels]
+original = "Keep as recorded"
+unix = "Forward slashes"
+windows = "Backslashes"
+filename = "File name only"
+
+[[input]]
+name   = "include_builtin"
+label  = "Include built-in playlists"
+source = "field"
+
+[[input]]
+name   = "sort_by"
+label  = "Sort rows by"
+source = "field"
+
+[input.labels]
+original = "Library / playlist order"
+name = "Title"
+artist = "Artist"
+album = "Album"
+year = "Year"
+duration = "Duration"
+play_count = "Play count"
+date_added = "Date added"
+
+[[input]]
+name        = "limit"
+label       = "Row limit"
+placeholder = "0 for no limit"
+source      = "field"
+
+[[example]]
+label = "Track metadata CSV"
+[example.params]
+library = '''<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+  <key>Application Version</key><string>12.12.4.1</string>
+  <key>Music Folder</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/</string>
+  <key>Tracks</key>
+  <dict>
+    <key>101</key>
+    <dict>
+      <key>Track ID</key><integer>101</integer>
+      <key>Name</key><string>Let It Happen</string>
+      <key>Artist</key><string>Tame Impala</string>
+      <key>Album</key><string>Currents</string>
+      <key>Genre</key><string>Electronic</string>
+      <key>Year</key><integer>2015</integer>
+      <key>Total Time</key><integer>467000</integer>
+      <key>Size</key><integer>11200000</integer>
+      <key>Play Count</key><integer>12</integer>
+      <key>Rating</key><integer>100</integer>
+      <key>Date Added</key><date>2016-02-03T10:00:00Z</date>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Tame%20Impala/Currents/01%20Let%20It%20Happen.m4a</string>
+    </dict>
+    <key>102</key>
+    <dict>
+      <key>Track ID</key><integer>102</integer>
+      <key>Name</key><string>All I Need</string>
+      <key>Artist</key><string>Air</string>
+      <key>Album</key><string>Moon Safari</string>
+      <key>Genre</key><string>Electronic</string>
+      <key>Year</key><integer>1998</integer>
+      <key>Total Time</key><integer>268000</integer>
+      <key>Size</key><integer>6400000</integer>
+      <key>Play Count</key><integer>30</integer>
+      <key>Date Added</key><date>2014-07-01T09:30:00Z</date>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Air/Moon%20Safari/03%20All%20I%20Need.m4a</string>
+    </dict>
+  </dict>
+  <key>Playlists</key>
+  <array>
+    <dict>
+      <key>Name</key><string>Library</string>
+      <key>Master</key><true/>
+      <key>Playlist Persistent ID</key><string>AAAA0001</string>
+      <key>Playlist Items</key>
+      <array><dict><key>Track ID</key><integer>101</integer></dict></array>
+    </dict>
+    <dict>
+      <key>Name</key><string>Late Night</string>
+      <key>Playlist Persistent ID</key><string>AAAA0002</string>
+      <key>Playlist Items</key>
+      <array>
+        <dict><key>Track ID</key><integer>102</integer></dict>
+        <dict><key>Track ID</key><integer>101</integer></dict>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>
+'''
+output = "csv"
+playlist = ""
+fields = "name,artist,album,genre,year,duration,location"
+path_prefix = ""
+path_style = "original"
+include_builtin = "false"
+sort_by = "original"
+limit = "0"
+
+[[example]]
+label = "Playlist to extended M3U"
+[example.params]
+library = '''<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+  <key>Music Folder</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/</string>
+  <key>Tracks</key>
+  <dict>
+    <key>101</key>
+    <dict>
+      <key>Track ID</key><integer>101</integer>
+      <key>Name</key><string>Let It Happen</string>
+      <key>Artist</key><string>Tame Impala</string>
+      <key>Total Time</key><integer>467000</integer>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Tame%20Impala/Currents/01%20Let%20It%20Happen.m4a</string>
+    </dict>
+    <key>102</key>
+    <dict>
+      <key>Track ID</key><integer>102</integer>
+      <key>Name</key><string>All I Need</string>
+      <key>Artist</key><string>Air</string>
+      <key>Total Time</key><integer>268000</integer>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Air/Moon%20Safari/03%20All%20I%20Need.m4a</string>
+    </dict>
+  </dict>
+  <key>Playlists</key>
+  <array>
+    <dict>
+      <key>Name</key><string>Late Night</string>
+      <key>Playlist Persistent ID</key><string>AAAA0002</string>
+      <key>Playlist Items</key>
+      <array>
+        <dict><key>Track ID</key><integer>102</integer></dict>
+        <dict><key>Track ID</key><integer>101</integer></dict>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>
+'''
+output = "m3u8"
+playlist = "Late Night"
+fields = "name,artist,album,genre,year,duration,location"
+path_prefix = ""
+path_style = "unix"
+include_builtin = "false"
+sort_by = "original"
+limit = "0"
+
+[[example]]
+label = "Re-root paths onto D:\\Music"
+[example.params]
+library = '''<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+  <key>Music Folder</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/</string>
+  <key>Tracks</key>
+  <dict>
+    <key>101</key>
+    <dict>
+      <key>Track ID</key><integer>101</integer>
+      <key>Name</key><string>Let It Happen</string>
+      <key>Artist</key><string>Tame Impala</string>
+      <key>Total Time</key><integer>467000</integer>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Tame%20Impala/Currents/01%20Let%20It%20Happen.m4a</string>
+    </dict>
+  </dict>
+  <key>Playlists</key>
+  <array>
+    <dict>
+      <key>Name</key><string>Late Night</string>
+      <key>Playlist Items</key>
+      <array><dict><key>Track ID</key><integer>101</integer></dict></array>
+    </dict>
+  </array>
+</dict>
+</plist>
+'''
+output = "m3u"
+playlist = "Late Night"
+fields = "name,artist,album,genre,year,duration,location"
+path_prefix = "D:\\Music"
+path_style = "windows"
+include_builtin = "false"
+sort_by = "original"
+limit = "0"
+
+[[example]]
+label = "Playlist index"
+[example.params]
+library = '''<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+  <key>Tracks</key>
+  <dict>
+    <key>101</key>
+    <dict><key>Track ID</key><integer>101</integer><key>Name</key><string>Let It Happen</string></dict>
+  </dict>
+  <key>Playlists</key>
+  <array>
+    <dict>
+      <key>Name</key><string>Library</string>
+      <key>Master</key><true/>
+      <key>Playlist Persistent ID</key><string>AAAA0001</string>
+      <key>Playlist Items</key>
+      <array><dict><key>Track ID</key><integer>101</integer></dict></array>
+    </dict>
+    <dict>
+      <key>Name</key><string>Late Night</string>
+      <key>Playlist Persistent ID</key><string>AAAA0002</string>
+      <key>Playlist Items</key>
+      <array><dict><key>Track ID</key><integer>101</integer></dict></array>
+    </dict>
+  </array>
+</dict>
+</plist>
+'''
+output = "playlists"
+playlist = ""
+fields = "name,artist,album,genre,year,duration,location"
+path_prefix = ""
+path_style = "original"
+include_builtin = "true"
+sort_by = "original"
+limit = "0"
+
+[[example]]
+label = "Library summary"
+[example.params]
+library = '''<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+  <key>Application Version</key><string>12.12.4.1</string>
+  <key>Music Folder</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/</string>
+  <key>Tracks</key>
+  <dict>
+    <key>101</key>
+    <dict>
+      <key>Track ID</key><integer>101</integer>
+      <key>Name</key><string>Let It Happen</string>
+      <key>Artist</key><string>Tame Impala</string>
+      <key>Genre</key><string>Electronic</string>
+      <key>Total Time</key><integer>467000</integer>
+      <key>Size</key><integer>11200000</integer>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Tame%20Impala/Currents/01%20Let%20It%20Happen.m4a</string>
+    </dict>
+    <key>102</key>
+    <dict>
+      <key>Track ID</key><integer>102</integer>
+      <key>Name</key><string>All I Need</string>
+      <key>Artist</key><string>Air</string>
+      <key>Genre</key><string>Electronic</string>
+      <key>Total Time</key><integer>268000</integer>
+      <key>Size</key><integer>6400000</integer>
+      <key>Location</key><string>file://localhost/Users/me/Music/iTunes/iTunes%20Media/Music/Air/Moon%20Safari/03%20All%20I%20Need.m4a</string>
+    </dict>
+  </dict>
+  <key>Playlists</key>
+  <array>
+    <dict>
+      <key>Name</key><string>Late Night</string>
+      <key>Playlist Persistent ID</key><string>AAAA0002</string>
+      <key>Playlist Items</key>
+      <array><dict><key>Track ID</key><integer>101</integer></dict></array>
+    </dict>
+  </array>
+</dict>
+</plist>
+'''
+output = "summary"
+playlist = ""
+fields = "name,artist,album,genre,year,duration,location"
+path_prefix = ""
+path_style = "original"
+include_builtin = "false"
+sort_by = "original"
+limit = "0"

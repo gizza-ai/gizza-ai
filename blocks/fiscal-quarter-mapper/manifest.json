@@ -1,0 +1,148 @@
+{
+  "name": "gizza-ai/fiscal-quarter-mapper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Label a CSV date column with fiscal quarters and fiscal years",
+  "role": "skill",
+  "tool": {
+    "description": "Append fiscal-quarter and fiscal-year label columns to a CSV/TSV table whose date column can start its fiscal year in any month (january = calendar, april = UK/India, july = Australia, october = US federal). The fiscal year can be named by the calendar year it ends in (US federal / pandas) or the one it begins in (the common spreadsheet recipe), and labels render as Q1 FY2026, FY2026-Q1, 2026-Q1, 2026Q1, Q1, or 1. Optional columns add the quarter's start and end dates, the fiscal month 1-12, and the row's day-of-quarter out of days-in-quarter. It reads ISO, US, European, written-month, compact YYYYMMDD, month-precision and timestamped values, settles ambiguous DD/MM vs MM/DD column-wide from rows that can only be read one way, and can blank, drop, or raise on unreadable cells. Output is the rewritten CSV, a plain-text audit report, or JSON carrying both.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "add_fiscal_month": {
+          "default": false,
+          "description": "Append a fiscal_month column numbered 1-12 from the fiscal start month (october start: October = 1). Default false.",
+          "type": "boolean"
+        },
+        "add_fiscal_year": {
+          "default": true,
+          "description": "Append a fiscal_year column next to fiscal_quarter. Default true.",
+          "type": "boolean"
+        },
+        "add_quarter_dates": {
+          "default": false,
+          "description": "Append fiscal_quarter_start and fiscal_quarter_end columns as ISO YYYY-MM-DD dates. Default false.",
+          "type": "boolean"
+        },
+        "add_quarter_position": {
+          "default": false,
+          "description": "Append day_of_quarter and days_in_quarter columns, measured from the row's own date (quarters run 90-92 days). Default false.",
+          "type": "boolean"
+        },
+        "column": {
+          "default": "auto",
+          "description": "Which column holds the dates: a header name (\"closed\"), a 0-based index (\"1\"), or \"auto\" (default) to pick the first column where at least 60% of non-blank cells parse as a date. With header=false only an index works.",
+          "type": "string"
+        },
+        "date_order": {
+          "default": "auto",
+          "description": "How to read an all-numeric value like 03/04/2024. \"auto\" (default) settles the whole column from rows that can only be read one way (a day above 12) and falls back to month-first; day-first forces DD/MM/YYYY; month-first forces MM/DD/YYYY. ISO YYYY-MM-DD is unaffected.",
+          "enum": [
+            "auto",
+            "day-first",
+            "month-first"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Input/output delimiter. auto (default) sniffs comma, tab, semicolon, or pipe from the first non-blank line; choose one to force it. The output uses the same delimiter as the input.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "fiscal_start_month": {
+          "default": "january",
+          "description": "Calendar month the fiscal year starts in. january = calendar year (default), april = UK/India, july = Australia/NZ, october = US federal.",
+          "enum": [
+            "january",
+            "february",
+            "march",
+            "april",
+            "may",
+            "june",
+            "july",
+            "august",
+            "september",
+            "october",
+            "november",
+            "december"
+          ],
+          "type": "string"
+        },
+        "fiscal_year_label": {
+          "default": "fy-yyyy",
+          "description": "Format of the fiscal_year column (and of the year embedded in q-fy/fy-q quarter labels): fy-yyyy = \"FY2026\" (default), yyyy = \"2026\", fy-yy = \"FY26\", range = \"2025-2026\", range-short = \"2025-26\". Ranges collapse to one year when the fiscal year starts in january.",
+          "enum": [
+            "fy-yyyy",
+            "yyyy",
+            "fy-yy",
+            "range",
+            "range-short"
+          ],
+          "type": "string"
+        },
+        "fiscal_year_naming": {
+          "default": "end",
+          "description": "Which calendar year names the fiscal year. \"end\" (default) matches the US federal government and pandas: Oct 2025 is FY2026. \"start\" matches the common spreadsheet recipe: Oct 2025 is FY2025. The two conventions differ by one, so pick deliberately.",
+          "enum": [
+            "end",
+            "start"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": true,
+          "description": "Treat the first row as column names. Default true. Turn off for a bare list of dates with no header row.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "CSV/TSV text with a date column, e.g. \"invoice,closed\\nA-1,2025-10-14\". Include the header row when header=true. Capped at 5,000,000 bytes.",
+          "type": "string"
+        },
+        "on_error": {
+          "default": "blank",
+          "description": "What to do with a cell that cannot be read as a date: blank (default) leaves the added columns empty, drop removes the row, error stops and names the offending row and line.",
+          "enum": [
+            "blank",
+            "drop",
+            "error"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "csv (default) returns the input with the fiscal columns appended; report returns a plain-text audit (column picked, date order and the evidence for it, rows per quarter, unreadable values); json returns that audit plus the CSV as a JSON object.",
+          "enum": [
+            "csv",
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "quarter_label": {
+          "default": "q-fy",
+          "description": "Format of the fiscal_quarter column: q-fy = \"Q1 FY2026\" (default), fy-q = \"FY2026-Q1\", yyyy-qn = \"2026-Q1\", yyyyqn = \"2026Q1\" (pandas style), qn = \"Q1\", n = \"1\".",
+          "enum": [
+            "q-fy",
+            "fy-q",
+            "yyyy-qn",
+            "yyyyqn",
+            "qn",
+            "n"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/human-readable-units",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Format raw byte counts, durations and large numbers as readable units.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a raw magnitude into the string a person reads: 1500000000 bytes into '1.5 GB', 123 seconds into '2m 3s', 1200000 into '1.2M'. Set kind='bytes' (default), 'duration' or 'number'. input_unit converts first, so a millisecond timing or a megabyte figure can be passed as-is (input_unit='millisecond', 'megabyte', 'bit', …). base picks the byte scale: 'decimal' (1000, kB/MB/GB — the default), 'binary-iec' (1024, KiB/MiB/GiB) or 'binary-jedec' (1024, KB/MB/GB). style is 'short' (1.5 GB), 'long' (1.5 gigabytes) or 'narrow' (1.5GB). precision sets the decimals (0-6, default 1) and trim_zeros=false keeps them fixed for aligned columns. max_units caps compound duration segments (default 2, so 3661 seconds is '1h 1m'). detail='breakdown' also returns the exact amount, the decimal/binary/bits equivalents for a size, or the clock and ISO 8601 forms for a duration. Example: value='123', kind='duration' returns '2m 3s'.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "default": "decimal",
+          "description": "Which power and suffix family the byte scale uses (kind='bytes' only, ignored otherwise). 'decimal' (default) divides by 1000 and labels kB/MB/GB — what drive vendors and macOS report. 'binary-iec' divides by 1024 and labels KiB/MiB/GiB. 'binary-jedec' divides by 1024 but keeps the KB/MB/GB labels — what Windows and 'ls -h' show.",
+          "enum": [
+            "decimal",
+            "binary-iec",
+            "binary-jedec"
+          ],
+          "type": "string"
+        },
+        "detail": {
+          "default": "value",
+          "description": "How much to return. 'value' (default) returns just the formatted string. 'breakdown' returns labelled lines with the exact amount and every alternate form: decimal/binary/bits for a size; short, long, HH:MM:SS clock and ISO 8601 for a duration; short, long, grouped and scientific for a count.",
+          "enum": [
+            "value",
+            "breakdown"
+          ],
+          "type": "string"
+        },
+        "input_unit": {
+          "default": "auto",
+          "description": "The unit the value is already expressed in, converted before formatting. 'auto' (default) means bytes for kind='bytes' and seconds for kind='duration'. Data units (byte, bit, kilobyte=1000 B, megabyte=1e6 B, gigabyte=1e9 B) are only valid with kind='bytes'; time units (nanosecond … day) only with kind='duration'; kind='number' accepts only 'auto'. Example: value='11722000' with kind='duration' and input_unit='millisecond' returns '3h 15m'.",
+          "enum": [
+            "auto",
+            "byte",
+            "bit",
+            "kilobyte",
+            "megabyte",
+            "gigabyte",
+            "nanosecond",
+            "microsecond",
+            "millisecond",
+            "second",
+            "minute",
+            "hour",
+            "day"
+          ],
+          "type": "string"
+        },
+        "kind": {
+          "default": "bytes",
+          "description": "What the value counts. 'bytes' (default) renders a data size as B/kB/MB/GB…; 'duration' renders a length of time as a compound like '2m 3s'; 'number' renders a plain count with a K/M/B/T suffix like '1.2M'.",
+          "enum": [
+            "bytes",
+            "duration",
+            "number"
+          ],
+          "type": "string"
+        },
+        "max_units": {
+          "default": 2,
+          "description": "Maximum number of segments in a compound duration, 1-7 (default 2); ignored for the other kinds. Segments run d, h, m, s, ms, us, ns, are truncated rather than rounded up, and empty ones are skipped — 3661 seconds is '1h 1m' at 2 units and '1h 1m 1s' at 3.",
+          "maximum": 7,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "precision": {
+          "default": 1,
+          "description": "Decimal places on the scaled value, 0-6 (default 1). Applies to kind='bytes' and kind='number'; compound durations are always whole segments. precision=0 gives '2 GB', precision=2 gives '1.47 GiB'.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "style": {
+          "default": "short",
+          "description": "How much of the unit name to spell out. 'short' (default) uses symbols with conventional spacing: '1.5 GB', '2m 3s', '1.2M'. 'long' spells them out: '1.5 gigabytes', '2 minutes 3 seconds', '1.2 million'. 'narrow' removes every space: '1.5GB', '2m3s', '1.2M'.",
+          "enum": [
+            "short",
+            "long",
+            "narrow"
+          ],
+          "type": "string"
+        },
+        "trim_zeros": {
+          "default": true,
+          "description": "When true (default) trailing zeros are dropped from the scaled value, so 1000000000 bytes reads '1 GB'. Set false to keep the fixed number of decimals given by 'precision', which reads '1.0 GB' — useful for aligning a column of sizes.",
+          "type": "boolean"
+        },
+        "value": {
+          "description": "The raw magnitude to format, as a number. Digit-group separators are ignored, so 1500000000, 1,500,000,000 and 1_500_000_000 are the same input; scientific notation (1.5e9) and negative values are also accepted. What it counts is set by 'kind' and 'input_unit'. Example: '1500000000' with kind='bytes' returns '1.5 GB'. The converted magnitude must be at most 1e21 base units.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "type": "object"
+    }
+  }
+}

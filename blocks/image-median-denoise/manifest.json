@@ -1,0 +1,93 @@
+{
+  "name": "gizza-ai/image-median-denoise",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove salt-and-pepper, dust and speckle noise from an image with an edge-preserving median filter.",
+  "role": "skill",
+  "tool": {
+    "description": "Remove salt-and-pepper, dust and speckle noise from an image with a median filter, which keeps edges sharp instead of blurring them. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional radius 1-20 (default 1, window 2*radius+1), target both|bright|dark (default both), channels all|luma|chroma (default all), passes 1-3 (default 1), format keep|png|jpg|webp (default keep), quality 1-100 for jpg/webp (default 92), and strip_metadata (default false).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "channels": {
+          "default": "all",
+          "description": "Which channels to filter. all (default) filters the whole image; luma smooths brightness noise but keeps color detail; chroma removes blotchy color noise while leaving luminance detail sharp (best for high-ISO photos).",
+          "enum": [
+            "all",
+            "luma",
+            "chroma"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "keep",
+          "description": "Output format: keep (default) preserves the input format and any animation; png is lossless (best for scans and line art); jpg and webp are smaller. Converting an animated GIF keeps only its first frame.",
+          "enum": [
+            "keep",
+            "png",
+            "jpg",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "passes": {
+          "default": 1.0,
+          "description": "How many times to run the filter, 1-3 (default 1). Two mild passes at radius 1 remove dense noise more gently than one pass at radius 3.",
+          "maximum": 3,
+          "minimum": 1,
+          "type": "number"
+        },
+        "quality": {
+          "default": 92.0,
+          "description": "Encoder quality 1-100 for jpg and webp output (default 92). Ignored for png, which is lossless. Example: 80 for a smaller web-sized jpg.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "radius": {
+          "default": 1.0,
+          "description": "Median window radius in pixels, 1-20. The window is 2*radius+1 square: 1 (the default) is a 3x3 window that wipes single-pixel salt-and-pepper dots while keeping detail, 2-3 clears scanner dust and speckle, 5+ smooths heavy noise but starts looking painted. Example: 2 for a noisy phone photo.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "strip_metadata": {
+          "default": false,
+          "description": "false (default) carries the input's metadata (EXIF, camera info, comments) into the output; true drops all of it, e.g. before publishing a scan.",
+          "type": "boolean"
+        },
+        "target": {
+          "default": "both",
+          "description": "Which specks to remove. both (default) is the true median and clears bright and dark specks alike; bright removes white dust/salt harder (and darkens the image slightly); dark removes black specks/pepper on light paper.",
+          "enum": [
+            "both",
+            "bright",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "password-vault-audit"
+version = "0.1.0"
+abi = 1
+summary = "Audit a password list or vault export for reused, duplicate and weak passwords."

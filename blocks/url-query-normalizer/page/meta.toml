@@ -1,0 +1,96 @@
+slug          = "url-query-normalizer"
+title         = "URL Query Normalizer — Sort, Dedupe and Canonicalize Parameters"
+description   = "Canonicalize URL query strings: sort parameters, collapse duplicates, fix percent-encoding, and optionally strip utm_* tracking. Bulk, free, in your browser."
+tags          = ["url query normalizer", "sort query parameters", "canonical url", "deduplicate query params", "percent encoding", "url canonicalizer", "cache key", "strip utm", "query string"]
+h1            = "URL Query Normalizer"
+hero_subtitle = "Make two spellings of the same URL become one string — parameters sorted, duplicates collapsed, percent-encoding canonical. Paste a whole list; the path and fragment are never touched."
+wasm          = "gizza_ai_url_query_normalizer_web"
+export        = "run"
+live          = false
+output_label  = "Normalized URLs"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "URLs or query strings (one per line)"
+placeholder = "https://example.com/p?utm_source=news&b=hello+world&a=1&b=hello%20world\nhttps://example.com/search?q=caf%c3%a9&page=2&page=2\nb=2&a=1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "sort"
+label   = "Parameter order"
+default = "key"
+source  = "field"
+labels  = { key = "Sort by name (default)", key-value = "Sort by name, then value", none = "Keep the original order" }
+
+[[input]]
+name    = "dedupe"
+label   = "Duplicate parameters"
+default = "exact"
+source  = "field"
+labels  = { exact = "Drop identical name=value repeats (default)", first = "Keep the first value per name", last = "Keep the last value per name", none = "Keep every repeat" }
+
+[[input]]
+name    = "encoding"
+label   = "Percent-encoding"
+default = "normalize"
+source  = "field"
+labels  = { normalize = "Normalize to the RFC 3986 form (default)", preserve = "Leave names and values as written" }
+
+[[input]]
+name    = "space"
+label   = "Spaces are written as"
+default = "percent"
+source  = "field"
+labels  = { percent = "%20 (default)", plus = "+" }
+
+[[input]]
+name   = "drop_tracking"
+label  = "Strip tracking parameters (utm_*, fbclid, gclid…)"
+source = "field"
+
+[[input]]
+name        = "drop_params"
+label       = "Also drop these names (comma-separated, x_* allowed)"
+placeholder = "sid,ref,session_id"
+source      = "field"
+
+[[input]]
+name        = "keep_params"
+label       = "Keep only these names (blank = keep everything)"
+placeholder = "page,sort"
+source      = "field"
+
+[[input]]
+name   = "drop_empty"
+label  = "Drop parameters with no value (a=, bare flags)"
+source = "field"
+
+[[input]]
+name    = "output"
+label   = "Result"
+default = "urls"
+source  = "field"
+labels  = { urls = "All lines, normalized (default)", changed = "Only the lines that changed", report = "Per-line CSV report", summary = "CSV summary of the totals" }
+
+[[example]]
+label  = "Canonical form (default)"
+params = { input = "https://example.com/p?utm_source=news&b=hello+world&a=1&b=hello%20world\nhttps://example.com/search?q=caf%c3%a9&page=2&page=2", sort = "key", dedupe = "exact", encoding = "normalize", space = "percent", drop_tracking = "false", drop_params = "", keep_params = "", drop_empty = "false", output = "urls" }
+
+[[example]]
+label  = "Clean shareable link (strip tracking)"
+params = { input = "https://example.com/article?utm_source=newsletter&utm_medium=email&id=42&fbclid=abc123&gclid=xyz", sort = "key", dedupe = "exact", encoding = "normalize", space = "percent", drop_tracking = "true", drop_params = "", keep_params = "", drop_empty = "false", output = "urls" }
+
+[[example]]
+label  = "Cache key from an allowlist"
+params = { input = "https://shop.example.com/list?page=2&sort=price&session=9f3&utm_source=ads&ref=home", sort = "key", dedupe = "exact", encoding = "normalize", space = "percent", drop_tracking = "false", drop_params = "", keep_params = "page,sort", drop_empty = "false", output = "urls" }
+
+[[example]]
+label  = "Keep the last value per name"
+params = { input = "https://example.com/p?b=2&a=1&b=3", sort = "key", dedupe = "last", encoding = "normalize", space = "percent", drop_tracking = "false", drop_params = "", keep_params = "", drop_empty = "false", output = "urls" }
+
+[[example]]
+label  = "Before/after CSV report"
+params = { input = "https://example.com/p?b=2&a=1&b=3\nhttps://example.com/q?a=1&b=2", sort = "key", dedupe = "exact", encoding = "normalize", space = "percent", drop_tracking = "false", drop_params = "", keep_params = "", drop_empty = "false", output = "report" }

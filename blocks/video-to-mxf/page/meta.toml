@@ -1,0 +1,85 @@
+slug          = "video-to-mxf"
+title         = "Convert Video to Broadcast MXF Online"
+description   = "Wrap or transcode a video into broadcast MXF. Choose XDCAM HD422, XDCAM HD, IMX 50/D-10, or rewrap; set raster, frame rate, and PCM audio locally."
+tags          = ["mxf", "video", "broadcast", "xdcam", "imx", "d-10", "mpeg-2", "op1a", "transcode", "delivery", "pcm"]
+h1            = "Convert Video to Broadcast MXF"
+hero_subtitle = "Create OP1a or D-10 MXF deliverables locally — XDCAM HD422, XDCAM HD, IMX 50, or a picture rewrap with 48 kHz PCM audio. Nothing is uploaded."
+wasm          = "gizza_ai_video_to_mxf_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "MXF download"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "video/*"
+label  = "Video file"
+
+[[input]]
+name        = "profile"
+source      = "field"
+label       = "MXF profile"
+placeholder = "xdcam_hd422"
+
+[input.labels]
+"xdcam_hd422" = "XDCAM HD422 — MPEG-2 4:2:2, 50 Mbps CBR (default)"
+"xdcam_hd"    = "XDCAM HD — MPEG-2 4:2:0, 35 Mbps CBR"
+"imx50"       = "IMX 50 / D-10 — SD 720×576 at 25 fps"
+"copy"        = "Rewrap video — copy picture stream, PCM audio"
+
+[[input]]
+name        = "resolution"
+source      = "field"
+label       = "Resolution"
+placeholder = "auto"
+
+[input.labels]
+"auto"      = "Auto — profile delivery raster"
+"source"    = "Source size — best-effort, not strict CBR"
+"1920x1080" = "1920×1080 — Full HD delivery raster"
+"1280x720"  = "1280×720 — HD delivery raster"
+
+[[input]]
+name        = "frame_rate"
+source      = "field"
+label       = "Frame rate"
+placeholder = "source"
+
+[input.labels]
+"source" = "Source rate — relax MXF edit-rate check"
+"23.976" = "23.976 fps — 24000/1001"
+"24"     = "24 fps"
+"25"     = "25 fps — PAL / 625/50"
+"29.97"  = "29.97 fps — 30000/1001"
+"30"     = "30 fps"
+"50"     = "50 fps"
+"59.94"  = "59.94 fps — 60000/1001"
+"60"     = "60 fps"
+
+[[input]]
+name        = "audio"
+source      = "field"
+label       = "Audio"
+placeholder = "pcm16"
+
+[input.labels]
+"pcm16" = "16-bit PCM at 48 kHz — default"
+"pcm24" = "24-bit PCM at 48 kHz"
+"none"  = "No audio — picture-only MXF"
+
+[[example]]
+label  = "HD422 1080/25"
+params = { profile = "xdcam_hd422", resolution = "auto", frame_rate = "25", audio = "pcm16" }
+
+[[example]]
+label  = "XDCAM HD 720/29.97"
+params = { profile = "xdcam_hd", resolution = "1280x720", frame_rate = "29.97", audio = "pcm16" }
+
+[[example]]
+label  = "IMX 50 SD"
+params = { profile = "imx50", resolution = "auto", frame_rate = "25", audio = "pcm16" }
+
+[[example]]
+label  = "Rewrap picture"
+params = { profile = "copy", resolution = "auto", frame_rate = "source", audio = "pcm16" }

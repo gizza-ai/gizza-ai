@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/openapi-to-fetch-client",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a self-contained typed TypeScript fetch client from an OpenAPI paths spec.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn an OpenAPI 3.x or Swagger 2.0 JSON/YAML document into a dependency-free TypeScript fetch client. It walks paths and operations, emits exported functions or a client class, substitutes path params, serializes query/header params, wires request bodies and response types from local schema refs, and supports throw-style ApiError or result-union error handling. It does not generate model files or fetch remote refs; point types_module at a sibling schema-types file or leave it blank for placeholder aliases.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "base_url": {
+          "default": "",
+          "description": "Base URL baked into the generated client. Blank uses servers[0].url for OpenAPI 3.x or scheme/host/basePath for Swagger 2.0, then an empty string.",
+          "type": "string"
+        },
+        "client_name": {
+          "default": "ApiClient",
+          "description": "Class name when style=class. Ignored for function output. Default ApiClient.",
+          "type": "string"
+        },
+        "error_handling": {
+          "default": "throw",
+          "description": "Non-2xx handling: throw emits an ApiError class and throws; result resolves to an ApiResult<T> union with data or error.",
+          "enum": [
+            "throw",
+            "result"
+          ],
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces per indentation level in the generated TypeScript (0-8). Default 2.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse spec: auto (try JSON then YAML), json, or yaml. Default auto.",
+          "enum": [
+            "auto",
+            "json",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "jsdoc": {
+          "default": true,
+          "description": "Include JSDoc comments from operation summaries/descriptions and parameter descriptions. Default true.",
+          "type": "boolean"
+        },
+        "naming": {
+          "default": "operation_id",
+          "description": "Function naming: operation_id uses operationId when present and falls back to method+path; path always derives names from method+path.",
+          "enum": [
+            "operation_id",
+            "path"
+          ],
+          "type": "string"
+        },
+        "param_style": {
+          "default": "object",
+          "description": "Call signature style: object emits one typed request object per operation; positional emits path params, then body, then a query/header object.",
+          "enum": [
+            "object",
+            "positional"
+          ],
+          "type": "string"
+        },
+        "spec": {
+          "description": "OpenAPI 3.x or Swagger 2.0 document as JSON or YAML. The tool reads the paths object and emits one typed fetch call per operation.",
+          "type": "string"
+        },
+        "style": {
+          "default": "functions",
+          "description": "Output shape: exported functions (default) or one exported client class.",
+          "enum": [
+            "functions",
+            "class"
+          ],
+          "type": "string"
+        },
+        "tags": {
+          "default": "",
+          "description": "Optional comma-separated tag filter. Blank generates every operation; a non-empty filter keeps operations whose tags match.",
+          "type": "string"
+        },
+        "types_module": {
+          "default": "./types",
+          "description": "Module to import local schema types from, e.g. ./types. Blank emits placeholder type aliases so the file stays standalone.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec"
+      ],
+      "type": "object"
+    }
+  }
+}

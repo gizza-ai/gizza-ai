@@ -1,0 +1,124 @@
+{
+  "name": "gizza-ai/line-protocol-csv-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert between InfluxDB line protocol and CSV in both directions.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert between InfluxDB line protocol and CSV, in both directions. Line protocol in gives a CSV table you can open in a spreadsheet -- either wide (one row per point, one column per tag/field key) or long (one row per field value) -- with timestamps as RFC3339 or Unix integers, and an optional #datatype annotation row so the CSV writes straight back with `influx write --format csv`. CSV in gives line protocol ready to import: column roles come from #datatype/#constant/#default annotation rows, the inline `name|datatype|default` header syntax, or the measurement/tag_columns/field_columns/time_column parameters. Escaping and typing follow the line protocol spec (1i integers, 1u unsigned, quoted strings, bare booleans). Pure and offline: it never contacts an InfluxDB server.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "csv_layout": {
+          "default": "wide",
+          "description": "Shape of the CSV when converting line protocol to CSV. 'wide' (default) writes one row per point with a column for every distinct tag and field key -- best for spreadsheets. 'long' writes one row per field value with `field` and `value` columns -- best for heterogeneous data. Ignored for csv-to-lp.",
+          "enum": [
+            "wide",
+            "long"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "The text to convert: either InfluxDB line protocol (e.g. `cpu,host=host1 usage=64.23 1577836800000000000`) or CSV with a header row. Blank lines and `#` comment lines in line protocol are skipped.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "CSV field delimiter, used for reading and writing CSV. Default 'comma'. A `sep=;` first line in the input overrides this, matching InfluxDB's csv2lp.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "direction": {
+          "default": "auto",
+          "description": "Which way to convert. 'auto' (default) detects the input: a `#datatype`/`#constant` annotation row or a header row that does not parse as line protocol means CSV, otherwise line protocol. Force it with 'lp-to-csv' or 'csv-to-lp'.",
+          "enum": [
+            "auto",
+            "lp-to-csv",
+            "csv-to-lp"
+          ],
+          "type": "string"
+        },
+        "emit_annotations": {
+          "default": false,
+          "description": "Prefix the CSV with an InfluxDB `#datatype` annotation row (types inferred from the data) so the result can be written straight back with `influx write --format csv`. Default false. Requires csv_layout=wide.",
+          "type": "boolean"
+        },
+        "field_columns": {
+          "default": "",
+          "description": "CSV to line protocol only: comma-separated column names to emit as fields, e.g. `usage,free`. Leave blank to treat every column that is not the measurement, a tag or the time column as a field. When set, unlisted columns are ignored.",
+          "type": "string"
+        },
+        "measurement": {
+          "default": "",
+          "description": "CSV to line protocol only: the measurement name. If it matches a CSV column name, that column supplies the measurement per row; otherwise it is used as a literal name for every row. Leave blank to use a `measurement` column, a `#constant measurement,<name>` row, or a `#datatype` measurement column. Example: cpu.",
+          "type": "string"
+        },
+        "number_type": {
+          "default": "float",
+          "description": "CSV to line protocol only: how a cell that looks like a whole number is typed when no datatype is declared for its column. 'float' (default) emits `7`, a line protocol float; 'integer' emits `7i`. Cells with a decimal point or exponent are always floats. A `#datatype long` column always wins.",
+          "enum": [
+            "float",
+            "integer"
+          ],
+          "type": "string"
+        },
+        "on_error": {
+          "default": "stop",
+          "description": "What to do with a row or line that cannot be parsed. 'stop' (default) fails with the 1-based line number and what was expected. 'skip' drops the bad rows and converts the rest -- useful for dirty exports, but the dropped rows are not reported.",
+          "enum": [
+            "stop",
+            "skip"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": "ns",
+          "description": "Unit of NUMERIC timestamps on the line protocol side, both read and written. Default 'ns' (nanoseconds), which is what InfluxDB assumes. Set 's' if your line protocol carries Unix seconds. Also the unit used to read bare numeric timestamps out of CSV.",
+          "enum": [
+            "ns",
+            "us",
+            "ms",
+            "s"
+          ],
+          "type": "string"
+        },
+        "sort_keys": {
+          "default": true,
+          "description": "Sort tag keys alphabetically in the output (and sort the tag/field columns in the CSV). Default true -- InfluxDB recommends sorted tag keys for write performance. Turn off to keep the order the input used.",
+          "type": "boolean"
+        },
+        "tag_columns": {
+          "default": "",
+          "description": "CSV to line protocol only: comma-separated column names to emit as tags, e.g. `host,region`. Ignored for columns whose type is already set by a `#datatype` row or an inline `name|datatype` header. Rows with an empty tag value omit that tag.",
+          "type": "string"
+        },
+        "time_column": {
+          "default": "",
+          "description": "CSV to line protocol only: the column holding the timestamp, e.g. `time`. Values may be RFC3339 (2020-01-01T00:00:00Z), `YYYY-MM-DD[ T]HH:MM:SS`, `YYYY-MM-DD`, or a Unix integer in the chosen precision. Leave blank to auto-detect a column named time, _time, timestamp, date or datetime; with no time column the points carry no timestamp and InfluxDB stamps them on write.",
+          "type": "string"
+        },
+        "timestamp_format": {
+          "default": "rfc3339",
+          "description": "How the `time` column is written when converting line protocol to CSV. 'rfc3339' (default) writes 2020-01-01T00:00:00Z; the unix_* choices write a Unix integer in nanoseconds/microseconds/milliseconds/seconds. Ignored for csv-to-lp, which always accepts both forms.",
+          "enum": [
+            "rfc3339",
+            "unix_ns",
+            "unix_us",
+            "unix_ms",
+            "unix_s"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

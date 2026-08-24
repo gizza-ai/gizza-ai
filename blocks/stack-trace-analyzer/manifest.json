@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/stack-trace-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a stack trace into frames, find the root cause, and mark your code vs framework code.",
+  "role": "skill",
+  "tool": {
+    "description": "Analyse a raw stack trace from Java/Kotlin, Python, JavaScript/TypeScript, Go, Ruby, C#/.NET, Rust, or PHP. language='auto' (default) detects it. Returns the reported exception, the ROOT CAUSE at the end of the Caused-by / __cause__ / inner-exception chain, the FIRST FRAME of the user's own code, and every frame split into function, file, line and column with a user/framework classification. Order is normalised across languages: frames innermost (throw site) first, the chain reported-exception first. output='report' (default) is readable prose, 'table' a Markdown table, 'json' the full structure. Set user_packages to a comma-separated prefix list to override which frames count as the caller's code; hide_framework=true drops library frames; reverse=true lists frames in call order; limit caps frames per exception (default 100).",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "hide_framework": {
+          "default": false,
+          "description": "When true, omit framework/standard-library frames from the output and report how many were hidden. Default false (all frames are shown, marked user or framework).",
+          "type": "boolean"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Trace language. 'auto' (default) scores marker lines and picks the best match; or force 'java' (also Kotlin/Scala/Groovy), 'python', 'javascript' (also TypeScript/Node), 'go', 'ruby', 'csharp' (.NET), 'rust', or 'php'. Set it explicitly for short or truncated traces.",
+          "enum": [
+            "auto",
+            "java",
+            "python",
+            "javascript",
+            "go",
+            "ruby",
+            "csharp",
+            "rust",
+            "php"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 100,
+          "description": "Maximum frames to show per exception (1-2000, default 100). Applied after hide_framework; anything beyond it is reported as a count. Raise it for deep recursion traces.",
+          "maximum": 2000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "report",
+          "description": "Output shape. 'report' (default) is a readable analysis: language, reported exception, root cause, first user frame, then each exception with its frames ('*' marks your code). 'table' is a Markdown table per exception. 'json' is the full structured result (chain, frames, counts).",
+          "enum": [
+            "report",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "reverse": {
+          "default": false,
+          "description": "Frame order. Default false lists frames innermost first (the throw/panic site first) for every language — Python tracebacks are reversed to match. Set true to list them outermost first, i.e. in call order from the entry point.",
+          "type": "boolean"
+        },
+        "trace": {
+          "description": "The raw stack trace text, exactly as printed. Include the error/exception header line and the frame lines, e.g. a Java \"Exception in thread ...\" block, a Python \"Traceback (most recent call last):\" block, or a Node.js \"TypeError: ...\" block.",
+          "type": "string"
+        },
+        "user_packages": {
+          "default": "",
+          "description": "Comma-separated prefixes that identify your own code, e.g. 'com.example,myapp' or 'src/'. Matched against each frame's function and file path. When set this becomes an allow-list: only matching frames count as user code. Blank (default) uses the built-in per-language framework rules (java.*, node_modules, site-packages, /gems/, /vendor/, /rustc/, System.*, ...).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trace"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,150 @@
+slug          = "obj-vertices-to-csv"
+title         = "OBJ Vertices to CSV — Extract x,y,z Coordinates"
+description   = "Extract every vertex of a Wavefront OBJ mesh into an x,y,z CSV or plain XYZ point cloud — with unit scaling, Y-up/Z-up conversion, rounding, dedupe and object filters."
+tags          = ["obj to csv", "obj vertices", "wavefront obj", "vertex coordinates", "obj to xyz", "point cloud", "3d mesh to csv", "extract vertices"]
+h1            = "OBJ Vertices to CSV"
+hero_subtitle = "Paste a Wavefront OBJ file and get one CSV row per vertex — x, y and z, plus per-vertex colour when the file carries it. Convert Y-up to Z-up, rescale units, round coordinates, drop repeated positions, keep only chosen objects, or switch to space-separated XYZ point-cloud output. Runs entirely in your browser; nothing is uploaded."
+wasm          = "gizza_ai_obj_vertices_to_csv_web"
+export        = "run"
+live          = false
+output_label  = "Vertex CSV"
+format        = "text"
+
+[[input]]
+name        = "obj"
+label       = "Wavefront OBJ"
+placeholder = "# cube corner\nv 0.0 0.0 0.0\nv 1.0 0.0 0.0\nv 0.0 1.0 0.0\nf 1 2 3"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "columns"
+label  = "Columns"
+source = "field"
+
+[input.labels]
+xyz = "Coordinates only"
+indexed = "Vertex index + coordinates"
+object = "Index, object and group"
+full = "Everything — material too"
+
+[[input]]
+name   = "color"
+label  = "Vertex colour columns"
+source = "field"
+
+[input.labels]
+auto = "Only when the file has colours"
+always = "Always (blank when absent)"
+never = "Never"
+
+[[input]]
+name   = "up_axis"
+label  = "Up axis"
+source = "field"
+
+[input.labels]
+keep = "Keep as stored (OBJ is Y-up)"
+"y-to-z" = "Y-up to Z-up (CAD/GIS)"
+"z-to-y" = "Z-up to Y-up (OBJ)"
+
+[[input]]
+name        = "scale"
+label       = "Scale"
+placeholder = "1 keeps the size; 1000 = metres to millimetres"
+source      = "field"
+
+[[input]]
+name        = "precision"
+label       = "Decimal places"
+placeholder = "-1 keeps the source value; 0-15 rounds"
+source      = "field"
+
+[[input]]
+name   = "dedupe"
+label  = "Repeated positions"
+source = "field"
+
+[input.labels]
+none = "Keep every vertex"
+adjacent = "Drop consecutive repeats"
+all = "Unique positions only"
+
+[[input]]
+name        = "objects"
+label       = "Only these objects/groups"
+placeholder = "wheels,chassis — blank keeps every vertex"
+source      = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+comma = "Comma (,)"
+semicolon = "Semicolon (;)"
+tab = "Tab"
+pipe = "Pipe (|)"
+space = "Space"
+
+[[input]]
+name   = "header"
+label  = "Include header row"
+source = "field"
+
+[[example]]
+label = "Triangle vertices"
+[example.params]
+obj = "# corner\nv 0.0 0.0 0.0\nv 1.0 0.0 0.0\nv 0.0 1.0 0.0\nvt 0.0 0.0\nvn 0.0 0.0 1.0\nf 1/1/1 2/1/1 3/1/1"
+columns = "xyz"
+color = "auto"
+up_axis = "keep"
+scale = "1"
+precision = "-1"
+dedupe = "none"
+objects = ""
+delimiter = "comma"
+header = "true"
+
+[[example]]
+label = "Plain XYZ point cloud"
+[example.params]
+obj = "v 0.12 0.45 1.98\nv 0.13 0.46 1.97\nv 0.13 0.46 1.97\nf 1 2 3"
+columns = "xyz"
+color = "auto"
+up_axis = "keep"
+scale = "1"
+precision = "3"
+dedupe = "all"
+objects = ""
+delimiter = "space"
+header = "false"
+
+[[example]]
+label = "Metres to millimetres, Z-up"
+[example.params]
+obj = "o bracket\nv 0.05 0.02 0.0\nv 0.05 0.02 0.01\nf 1 2 1"
+columns = "indexed"
+color = "auto"
+up_axis = "y-to-z"
+scale = "1000"
+precision = "2"
+dedupe = "none"
+objects = ""
+delimiter = "comma"
+header = "true"
+
+[[example]]
+label = "One part of a multi-object file"
+[example.params]
+obj = "o chassis\nv 0 0 0\nv 1 0 0\no wheels\nv 2 0 0\nv 3 0 0\nf 1 2 3"
+columns = "object"
+color = "auto"
+up_axis = "keep"
+scale = "1"
+precision = "-1"
+dedupe = "none"
+objects = "wheels"
+delimiter = "comma"
+header = "true"

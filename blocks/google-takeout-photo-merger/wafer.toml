@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "google-takeout-photo-merger"
+version = "0.1.0"
+abi = 1
+summary = "Merge Google Takeout JSON sidecar metadata back into your photos' EXIF"

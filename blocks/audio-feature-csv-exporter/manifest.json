@@ -1,0 +1,166 @@
+{
+  "name": "gizza-ai/audio-feature-csv-exporter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Export per-frame audio features (RMS, centroid, ZCR, rolloff, flatness) as CSV.",
+  "role": "skill",
+  "tool": {
+    "description": "Export frame-level audio features from an audio file as a CSV, TSV or JSON table, one row per analysis frame. Paste the file bytes as base64 or hex. The tool decodes WAV, AIFF, CAF, FLAC, MP3, OGG, MP4/M4A, MKV/WebM and AAC-ADTS with a pure-Rust decoder, picks or downmixes a channel, optionally resamples, then frames the signal every hop_ms into frame_ms windows and computes RMS level (linear or dBFS), spectral centroid, zero-crossing rate, spectral rolloff at a chosen energy percentage, spectral flatness (ratio or dB), and optionally spectral bandwidth and spectral flux. Column definitions follow librosa's feature family, with an optional librosa-style centred framing mode. Output as CSV (default), TSV, or JSON with the resolved sample rate, frame/hop/FFT sizes and settings alongside the table.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bandwidth": {
+          "default": false,
+          "description": "Emit 'bandwidth_hz', the magnitude-weighted spread of the spectrum around the centroid (librosa's order-2 spectral bandwidth). Off by default; turn it on for timbre work where brightness alone is not enough.",
+          "type": "boolean"
+        },
+        "center": {
+          "default": false,
+          "description": "Pad half a frame of zeros at both ends so frame t is centred on t * hop_ms (librosa's center=True). Default false, which takes complete frames from sample 0. Centring adds two partly-silent edge frames but makes timestamps line up with librosa output.",
+          "type": "boolean"
+        },
+        "centroid": {
+          "default": true,
+          "description": "Emit 'centroid_hz', the magnitude spectrum's centre of mass — the standard correlate of perceived brightness, and a staple feature for timbre and instrument classification.",
+          "type": "boolean"
+        },
+        "channel": {
+          "default": "mix",
+          "description": "Which channel feeds the analysis: 'mix' (default) averages every channel to mono, 'left' and 'right' read one side of a stereo file. A mono file falls back to its only channel.",
+          "enum": [
+            "mix",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places used when printing the feature values (0-8, default 6). Lower values make a much smaller CSV; timestamps always keep at least 3.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "flatness": {
+          "default": true,
+          "description": "Emit the spectral flatness column ('flatness' or 'flatness_db'): the geometric mean of the power spectrum over its arithmetic mean. Near 1 for noise-like frames, near 0 for tonal ones — the usual noise-vs-tone discriminator.",
+          "type": "boolean"
+        },
+        "flatness_scale": {
+          "default": "ratio",
+          "description": "Units for the flatness column: 'ratio' (default) prints the raw 0-1 value as 'flatness'; 'db' prints 10*log10(ratio) as 'flatness_db', which spreads out the tonal end of the range.",
+          "enum": [
+            "ratio",
+            "db"
+          ],
+          "type": "string"
+        },
+        "flux": {
+          "default": false,
+          "description": "Emit 'flux', the L2 norm of the positive frame-to-frame change in the L1-normalised magnitude spectrum. Off by default; it is the classic onset-detection function, and the first row is 0 because it has no predecessor.",
+          "type": "boolean"
+        },
+        "frame_ms": {
+          "default": 25.0,
+          "description": "Analysis frame (window) length in milliseconds (1-500, default 25). The FFT size is the next power of two at or above this many samples. Short frames track transients; long frames resolve low frequencies more finely.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "number"
+        },
+        "hop_ms": {
+          "default": 10.0,
+          "description": "Step between consecutive frames in milliseconds (1-500, default 10, i.e. 100 rows per second of audio). Smaller values overlap more and produce more rows.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "number"
+        },
+        "include_frame": {
+          "default": false,
+          "description": "Prepend a 'frame' column holding the zero-based frame index (default false). Useful when you need to join the table back to another frame-indexed export such as an MFCC matrix.",
+          "type": "boolean"
+        },
+        "include_time": {
+          "default": true,
+          "description": "Prepend a 'time_s' column holding each frame's start time in seconds (default true) so the table plots straight against a time axis. Timestamps always keep at least 3 decimals.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Audio file bytes encoded as base64 or hex, e.g. 'UklGRi...' for a WAV. Decodes WAV, AIFF, CAF, FLAC, MP3, OGG/Vorbis, MP4/M4A (AAC-LC, ALAC), MKV/WebM and AAC-ADTS; the first decodable audio track is analysed. Limit 24 MiB of decoded bytes, 4,000,000 analysed samples and 200,000 output rows.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "base64",
+          "description": "Encoding used for the pasted audio bytes: 'base64' (default) or 'hex'. Base64 may be standard or URL-safe and padding is optional; hex may include whitespace, ':' or '-' separators.",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Output format. 'csv' (default) is one header row plus one row per analysis frame, ready for pandas, R or a spreadsheet; 'tsv' is the same table tab-separated; 'json' wraps the table in an object that also reports the resolved sample rate, frame/hop/FFT sizes, column names and every setting actually used.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "resample_hz": {
+          "default": 0,
+          "description": "Resample the audio to this rate in Hz before analysis (0 = keep the file's own rate, otherwise 4000-48000). Set 16000 or 22050 so files recorded at different rates produce comparable feature tables.",
+          "maximum": 48000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "rms": {
+          "default": true,
+          "description": "Emit the frame loudness column: the root-mean-square of the raw frame, printed as 'rms_dbfs' or 'rms' depending on rms_scale. The workhorse column for silence detection, level plots and gating.",
+          "type": "boolean"
+        },
+        "rms_scale": {
+          "default": "dbfs",
+          "description": "Units for the loudness column: 'dbfs' (default) prints 20*log10(rms) with a -200 dBFS floor, so digital silence stays a finite number; 'linear' prints the raw 0-1 amplitude and names the column 'rms'.",
+          "enum": [
+            "dbfs",
+            "linear"
+          ],
+          "type": "string"
+        },
+        "rolloff": {
+          "default": true,
+          "description": "Emit 'rolloff_hz', the lowest frequency below which rolloff_percent of the frame's spectral magnitude sits. Summarises where a frame's energy stops, so it separates bright from dark or band-limited material.",
+          "type": "boolean"
+        },
+        "rolloff_percent": {
+          "default": 85.0,
+          "description": "Share of the frame's spectral magnitude that must fall below rolloff_hz (1-99, default 85, the usual MIR value). 95 is the other common choice; low values such as 15 approximate a spectral-minimum contour instead.",
+          "maximum": 99,
+          "minimum": 1,
+          "type": "number"
+        },
+        "window": {
+          "default": "hann",
+          "description": "Analysis window applied to each frame before the FFT: 'hann' (default, the librosa standard), 'hamming', 'blackman' (lowest spectral leakage) or 'rectangular' (no window). Time-domain columns (rms, zcr) always read the raw, unwindowed frame.",
+          "enum": [
+            "hann",
+            "hamming",
+            "blackman",
+            "rectangular"
+          ],
+          "type": "string"
+        },
+        "zcr": {
+          "default": true,
+          "description": "Emit 'zcr', the fraction of neighbouring sample pairs in the frame that change sign (0-1). Cheap and effective for separating voiced speech from unvoiced fricatives, and for percussive-onset heuristics.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

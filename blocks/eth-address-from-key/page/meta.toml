@@ -1,0 +1,61 @@
+slug          = "eth-address-from-key"
+title         = "Ethereum address from private or public key"
+description   = "Derive Ethereum 0x addresses and EIP-55 checksum casing from secp256k1 private-key or public-key hex, fully locally."
+tags          = ["ethereum", "eth address", "eip-55", "secp256k1", "keccak-256", "public key", "private key", "wallet"]
+h1            = "Ethereum address from key"
+hero_subtitle = "Paste a secp256k1 private key or public key and derive the Ethereum address, lowercase form, no-prefix form, and EIP-55 checksum casing locally in your browser."
+wasm          = "gizza_ai_eth_address_from_key_web"
+export        = "run"
+live          = false
+output_label  = "Ethereum address"
+format        = "text"
+
+[[input]]
+name        = "key"
+label       = "Private or public key hex"
+placeholder = "0000000000000000000000000000000000000000000000000000000000000001"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "key_type"
+label       = "Key type"
+source      = "field"
+
+[input.labels]
+auto    = "Auto-detect by length"
+private = "Private key (32 bytes)"
+public  = "Public key (33/64/65 bytes)"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+all        = "All fields"
+checksum   = "EIP-55 checksum address"
+lowercase  = "Lowercase 0x address"
+no-prefix  = "Bare 40 hex chars"
+json       = "JSON"
+
+[[example]]
+label = "Private key 1 → EIP-55 address"
+[example.params]
+key           = "0000000000000000000000000000000000000000000000000000000000000001"
+key_type      = "private"
+output_format = "checksum"
+
+[[example]]
+label = "Compressed public key → all fields"
+[example.params]
+key           = "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+key_type      = "public"
+output_format = "all"
+
+[[example]]
+label = "Raw x||y public key → JSON"
+[example.params]
+key           = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8"
+key_type      = "public"
+output_format = "json"

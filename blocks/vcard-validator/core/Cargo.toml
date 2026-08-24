@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-vcard-validator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+phonenumber = { version = "0.3", default-features = false }
+
+[dev-dependencies]
+serde_json = "1"

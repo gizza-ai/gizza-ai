@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/rust-module-map",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Map Rust modules, types, traits, impls and functions from pasted source",
+  "role": "skill",
+  "tool": {
+    "description": "Parse pasted Rust source with syn and render the module/item hierarchy as an indented tree, Mermaid flowchart, JSON tree, or flat crate::path list. Supports nested inline modules, 'mod foo;' declarations resolved from multi-file pastes with '=== src/foo.rs ===' headers, visibility annotations, impl methods, optional test items, kind filters, sorting, max-depth truncation, and focusing on a module path. It does not run cargo metadata or resolve cfg/features from disk; it maps exactly the Rust text you paste.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "crate_name": {
+          "default": "",
+          "description": "Optional label for the crate root. Empty (default) renders the root as 'crate'; set this to your package name for prettier paths/graphs.",
+          "type": "string"
+        },
+        "focus_on": {
+          "default": "",
+          "description": "Optional module path to render instead of the whole crate, e.g. 'crate::config' or 'config::loader'. Empty (default) renders the whole pasted source.",
+          "type": "string"
+        },
+        "format": {
+          "default": "tree",
+          "description": "Output shape: 'tree' for an indented module/item tree, 'mermaid' for a Mermaid flowchart, 'json' for a structured tree with counts, or 'paths' for a flat crate::module::Item list.",
+          "enum": [
+            "tree",
+            "mermaid",
+            "json",
+            "paths"
+          ],
+          "type": "string"
+        },
+        "include_tests": {
+          "default": false,
+          "description": "Include #[cfg(test)] modules and #[test]/#[bench] functions. Default false, matching normal cargo-modules output.",
+          "type": "boolean"
+        },
+        "max_depth": {
+          "default": 0,
+          "description": "Maximum depth below the crate root to render. 0 (default) means unlimited; 1 shows only top-level items; max 64.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "show_consts": {
+          "default": false,
+          "description": "Include const and static items. Default false to keep large modules focused on structure.",
+          "type": "boolean"
+        },
+        "show_fns": {
+          "default": true,
+          "description": "Include free functions and methods inside impl blocks. Default true.",
+          "type": "boolean"
+        },
+        "show_impls": {
+          "default": true,
+          "description": "Include impl blocks and their associated items. Default true.",
+          "type": "boolean"
+        },
+        "show_traits": {
+          "default": true,
+          "description": "Include trait and trait-alias declarations. Default true.",
+          "type": "boolean"
+        },
+        "show_types": {
+          "default": true,
+          "description": "Include type declarations: structs, enums, unions and type aliases. Default true.",
+          "type": "boolean"
+        },
+        "show_visibility": {
+          "default": true,
+          "description": "Annotate each item with visibility such as pub, pub(crate), pub(super), pub(in path), or pub(self). Default true.",
+          "type": "boolean"
+        },
+        "sort_by": {
+          "default": "source",
+          "description": "Sibling ordering. 'source' preserves declaration order; 'name' sorts alphabetically; 'kind' groups modules/types/functions; 'visibility' puts public items first.",
+          "enum": [
+            "source",
+            "name",
+            "kind",
+            "visibility"
+          ],
+          "type": "string"
+        },
+        "source": {
+          "description": "Rust source to map. Paste a lib.rs/main.rs/module file, or paste multiple files separated by header lines like '=== src/lib.rs ===' and '=== src/foo.rs ==='. Max 512 KiB.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    }
+  }
+}

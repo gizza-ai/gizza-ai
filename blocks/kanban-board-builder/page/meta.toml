@@ -1,0 +1,122 @@
+slug          = "kanban-board-builder"
+title         = "Kanban Board Builder — Task List or Notes to a Markdown or JSON Board"
+description   = "Paste a task list or messy notes and get a kanban board: columns, cards, assignees, priorities, due dates and WIP limits, as Markdown sections, a table, or JSON."
+tags          = ["kanban board builder", "task list to kanban", "markdown kanban board", "kanban board generator", "notes to kanban", "kanban json export", "wip limit", "sprint board generator", "todo list to board"]
+h1            = "Build a kanban board from a task list"
+hero_subtitle = "Paste a task list or a page of messy notes and get a proper board: cards sorted into To Do / In Progress / Done (or any columns you name), with @assignees, #tags, priorities and due dates read straight off each line. Export as Markdown sections, a side-by-side table, or a JSON board object. Runs entirely in your browser — nothing is uploaded."
+wasm          = "gizza_ai_kanban_board_builder_web"
+export        = "run"
+live          = false
+output_label  = "Kanban board"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "tasks"
+label       = "Tasks or notes (one per line)"
+placeholder = "Draft the launch email @alice due:2026-09-01\nFix the login redirect — blocked\nRewrite the parser (wip) !high\n- [x] Ship the v1 changelog\nMigrate the staging database #infra"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns (comma-separated, in board order)"
+placeholder = "To Do, In Progress, Done"
+source      = "field"
+default     = "To Do, In Progress, Done"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+markdown = "Markdown sections (## column)"
+table    = "Markdown table (columns side by side)"
+json     = "JSON board object"
+
+[[input]]
+name        = "title"
+label       = "Board title"
+placeholder = "Sprint 12"
+source      = "field"
+default     = "Kanban Board"
+
+[[input]]
+name        = "default_column"
+label       = "Fallback column for unrouted cards"
+placeholder = "To Do"
+source      = "field"
+
+[[input]]
+name        = "wip_limit"
+label       = "WIP limit per column (0 = none)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+default     = "0"
+
+[[input]]
+name        = "sort_by"
+label       = "Card order within a column"
+source      = "field"
+
+[input.labels]
+none     = "As written"
+priority = "Priority first"
+due      = "Due date first"
+text     = "Alphabetical"
+
+[[input]]
+name        = "show_counts"
+label       = "Show card counts in headings"
+source      = "field"
+
+[[example]]
+label = "Standup notes"
+[example.params]
+tasks = "Draft the launch email @alice due:2026-09-01\nFix the login redirect — blocked\nRewrite the parser (wip) !high\n- [x] Ship the v1 changelog\nMigrate the staging database #infra"
+columns = "To Do, In Progress, Done"
+format = "markdown"
+title = "Kanban Board"
+default_column = ""
+wip_limit = "0"
+sort_by = "none"
+show_counts = "true"
+
+[[example]]
+label = "Sprint board with a WIP limit"
+[example.params]
+tasks = "## Backlog\nAudit the billing webhooks\nRetire the legacy exporter\n\n## In Progress\nRewrite the parser @bob !high\nMigrate the staging database @alice\nUpdate the SDK docs @cara\n\n## Review\nAdd retry to the queue worker @dan\n\n## Done\nShip the v1 changelog"
+columns = "Backlog, In Progress, Review, Done"
+format = "markdown"
+title = "Sprint 12"
+default_column = "Backlog"
+wip_limit = "2"
+sort_by = "none"
+show_counts = "true"
+
+[[example]]
+label = "Side-by-side table"
+[example.params]
+tasks = "Draft the launch email @alice\nFix the login redirect — blocked\nRewrite the parser (wip)\n- [x] Ship the v1 changelog"
+columns = "To Do, In Progress, Done"
+format = "table"
+title = "Sprint 12"
+default_column = ""
+wip_limit = "0"
+sort_by = "none"
+show_counts = "true"
+
+[[example]]
+label = "JSON board, priority order"
+[example.params]
+tasks = "Draft the launch email @alice due:2026-09-01 !medium\nRewrite the parser (wip) !high\nAudit the billing webhooks !low\n- [x] Ship the v1 changelog"
+columns = "To Do, In Progress, Done"
+format = "json"
+title = "Sprint 12"
+default_column = ""
+wip_limit = "0"
+sort_by = "priority"
+show_counts = "true"

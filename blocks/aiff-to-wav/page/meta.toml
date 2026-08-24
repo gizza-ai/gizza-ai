@@ -1,0 +1,103 @@
+slug          = "aiff-to-wav"
+title         = "Convert AIFF to WAV Online"
+description   = "Free AIFF to WAV converter that runs in your browser. Choose the PCM bit depth, sample rate and channel layout — at a matching depth the samples are identical."
+tags          = ["aiff", "aif", "aifc", "wav", "convert", "audio", "pcm", "lossless"]
+h1            = "Convert AIFF to WAV"
+hero_subtitle = "Pick an .aiff/.aif file and get a .wav. Both containers hold uncompressed PCM, so at a matching bit depth the samples come out identical. Converted in your browser — nothing is uploaded."
+wasm          = "gizza_ai_aiff_to_wav_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "WAV audio"
+format        = "audio"
+
+[[input]]
+name   = "bit_depth"
+source = "field"
+label  = "Output PCM encoding"
+
+[input.labels]
+16      = "16-bit integer PCM"
+24      = "24-bit integer PCM (default)"
+32      = "32-bit integer PCM"
+float32 = "32-bit float PCM"
+alaw    = "A-law 8-bit (G.711)"
+mulaw   = "mu-law 8-bit (G.711)"
+
+[[input]]
+name   = "sample_rate"
+source = "field"
+label  = "Sample rate"
+
+[input.labels]
+keep   = "Keep source rate"
+8000   = "8000 Hz"
+16000  = "16000 Hz"
+22050  = "22050 Hz"
+44100  = "44100 Hz (CD)"
+48000  = "48000 Hz (video)"
+88200  = "88200 Hz"
+96000  = "96000 Hz"
+192000 = "192000 Hz"
+
+[[input]]
+name   = "channels"
+source = "field"
+label  = "Channel layout"
+
+[input.labels]
+keep   = "Keep source layout"
+mono   = "Mono (downmix to 1)"
+stereo = "Stereo (force 2)"
+
+[[input]]
+name   = "keep_metadata"
+source = "field"
+label  = "Keep textual tags (title, artist, album)"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "audio/*,.aif,.aiff,.aifc"
+label  = "AIFF audio"
+
+[[example]]
+label = "Defaults — 24-bit, keep rate and layout"
+[example.params]
+bit_depth     = "24"
+sample_rate   = "keep"
+channels      = "keep"
+keep_metadata = "true"
+
+[[example]]
+label = "CD standard — 16-bit 44100 Hz stereo"
+[example.params]
+bit_depth   = "16"
+sample_rate = "44100"
+channels    = "stereo"
+
+[[example]]
+label = "Video edit — 24-bit 48000 Hz"
+[example.params]
+bit_depth   = "24"
+sample_rate = "48000"
+channels    = "keep"
+
+[[example]]
+label = "32-bit float mixdown"
+[example.params]
+bit_depth   = "float32"
+sample_rate = "keep"
+channels    = "keep"
+
+[[example]]
+label = "Telephony — mu-law 8000 Hz mono"
+[example.params]
+bit_depth   = "mulaw"
+sample_rate = "8000"
+channels    = "mono"
+
+[[example]]
+label = "Strip tags for delivery"
+[example.params]
+bit_depth     = "24"
+keep_metadata = "false"

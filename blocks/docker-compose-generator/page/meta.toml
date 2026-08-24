@@ -1,0 +1,97 @@
+slug          = "docker-compose-generator"
+title         = "Docker Compose Generator — build docker-compose.yml from a short spec"
+description   = "Write one line per service and get a validated docker-compose.yml with ports, volumes, env, networks, depends_on and healthchecks wired up."
+tags          = ["docker compose generator", "docker-compose.yml builder", "compose file generator", "docker compose yaml", "generate docker compose from spec", "docker compose ports volumes env", "compose depends_on healthcheck"]
+h1            = "Docker Compose Generator"
+hero_subtitle = "One line per service in, a complete docker-compose.yml out — ports quoted correctly, named volumes and networks declared for you, and every dependency checked before a byte of YAML is written. Nothing is uploaded."
+wasm          = "gizza_ai_docker_compose_generator_web"
+export        = "run"
+live          = false
+output_label  = "docker-compose.yml"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "services"
+label       = "Services (one per line: name: image [key=value ...])"
+placeholder = "web: nginx:alpine ports=8080:80 depends=api\napi: ghcr.io/acme/api:v1 ports=3000 env=PORT=3000\ndb: postgres:16-alpine volumes=dbdata:/var/lib/postgresql/data"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "project_name"
+label       = "Project name (optional)"
+placeholder = "shop"
+source      = "field"
+
+# compose_version renders as a <select>; options derive from the descriptor schema.
+[[input]]
+name   = "compose_version"
+label  = "version: key"
+source = "field"
+
+[input.labels]
+"none" = "Omit (current Compose spec)"
+"3.9"  = "3.9 (legacy)"
+"3.8"  = "3.8 (legacy)"
+"3.7"  = "3.7 (legacy)"
+"2.4"  = "2.4 (legacy)"
+
+[[input]]
+name        = "network"
+label       = "Shared network name (optional)"
+placeholder = "appnet"
+source      = "field"
+
+[[input]]
+name   = "network_driver"
+label  = "Network driver"
+source = "field"
+
+[input.labels]
+"bridge"  = "bridge (single host)"
+"host"    = "host"
+"overlay" = "overlay (Swarm)"
+"macvlan" = "macvlan"
+"ipvlan"  = "ipvlan"
+
+[[input]]
+name   = "restart"
+label  = "Default restart policy"
+source = "field"
+
+[input.labels]
+"none"           = "None (omit the key)"
+"no"             = "no"
+"always"         = "always"
+"on-failure"     = "on-failure"
+"unless-stopped" = "unless-stopped"
+
+[[input]]
+name        = "env"
+label       = "Shared environment (KEY=value per line)"
+placeholder = "TZ=UTC\nLOG_LEVEL=info"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "env_file"
+label       = "Shared env_file paths (optional)"
+placeholder = ".env"
+source      = "field"
+
+[[example]]
+label  = "Nginx + API + Postgres"
+params = { services = "web: nginx:alpine ports=8080:80 volumes=./site:/usr/share/nginx/html:ro depends=api\napi: ghcr.io/acme/api:v1 ports=3000 env=PORT=3000,LOG_LEVEL=info depends=db\ndb: postgres:16-alpine volumes=dbdata:/var/lib/postgresql/data env=POSTGRES_PASSWORD=secret healthcheck=\"pg_isready -U postgres\"", project_name = "shop", network = "appnet", restart = "unless-stopped" }
+
+[[example]]
+label  = "WordPress + MySQL"
+params = { services = "wordpress: wordpress:6-php8.3-apache ports=8080:80 volumes=wp:/var/www/html env=WORDPRESS_DB_HOST=db,WORDPRESS_DB_USER=wp,WORDPRESS_DB_PASSWORD=wp,WORDPRESS_DB_NAME=wp depends=db\ndb: mysql:8 volumes=dbdata:/var/lib/mysql env=MYSQL_DATABASE=wp,MYSQL_USER=wp,MYSQL_PASSWORD=wp,MYSQL_ROOT_PASSWORD=root", project_name = "blog", restart = "unless-stopped" }
+
+[[example]]
+label  = "Local dev: build context + Redis"
+params = { services = "app: build=./app ports=3000 command=\"npm run dev\" working_dir=/app volumes=./app:/app env=NODE_ENV=development depends=cache\ncache: redis:7-alpine ports=6379 volumes=cache:/data", project_name = "dev" }
+
+[[example]]
+label  = "Monitoring: Prometheus + Grafana"
+params = { services = "prometheus: prom/prometheus:v2.53.0 ports=9090:9090 volumes=./prometheus.yml:/etc/prometheus/prometheus.yml:ro,promdata:/prometheus\ngrafana: grafana/grafana:11.1.0 ports=3000:3000 volumes=grafana:/var/lib/grafana env=GF_SECURITY_ADMIN_PASSWORD=admin depends=prometheus", project_name = "observability", network = "monitoring", restart = "unless-stopped" }

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dependency-risk-auditor"
+version = "0.1.0"
+abi = 1
+summary = "Audit a package.json or lockfile for risky dependency patterns and get a graded report."

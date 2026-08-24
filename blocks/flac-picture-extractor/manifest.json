@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/flac-picture-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract embedded artwork from a native FLAC file",
+  "role": "skill",
+  "tool": {
+    "description": "Extract embedded artwork from a native FLAC file and return the selected image bytes plus a full metadata report. Reads native FLAC PICTURE metadata blocks, base64 METADATA_BLOCK_PICTURE entries in VORBIS_COMMENT, and the deprecated COVERART/COVERARTMIME pair. Reports picture type number/name/slug, MIME, description, declared dimensions/depth/colors, actual image-header dimensions for PNG/JPEG/GIF/WebP/BMP, byte size, source block, and an inventory of every embedded picture. Params: picture_type (any or a FLAC/ID3 APIC role such as front-cover, back-cover, artist, band-logo; default any) and picture_index (1-based, default 1). Native FLAC only: MP3 APIC, MP4 covr, WMA and Ogg-FLAC are named in clear errors. Provide the file as either url (HTTP/HTTPS) or ref.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "picture_index": {
+          "default": 1,
+          "description": "1-based index within the selected picture_type. With picture_type=any this is the file-order picture number; with picture_type=front-cover it is the Nth front-cover picture. Default: 1.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "picture_type": {
+          "default": "any",
+          "description": "Which embedded FLAC picture role to extract. Use any for the first picture of any role, or choose one of the FLAC/ID3 APIC roles such as front-cover, back-cover, artist, band-logo or publisher-logo. Default: any.",
+          "enum": [
+            "any",
+            "other",
+            "file-icon",
+            "other-file-icon",
+            "front-cover",
+            "back-cover",
+            "leaflet-page",
+            "media",
+            "lead-artist",
+            "artist",
+            "conductor",
+            "band",
+            "composer",
+            "lyricist",
+            "recording-location",
+            "during-recording",
+            "during-performance",
+            "video-screen-capture",
+            "bright-colored-fish",
+            "illustration",
+            "band-logo",
+            "publisher-logo"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

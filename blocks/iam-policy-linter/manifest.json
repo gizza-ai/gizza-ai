@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/iam-policy-linter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint AWS IAM policy JSON for risky wildcards and policy syntax issues",
+  "role": "skill",
+  "tool": {
+    "description": "Validate an AWS IAM policy JSON document locally and flag grammar errors plus risky permissions such as Action/Resource wildcards, Allow + NotAction/NotResource/NotPrincipal, public principals, iam:PassRole on Resource *, and sensitive action families on unconstrained resources. Choose identity, resource, trust or SCP policy semantics; render text, JSON or CSV; filter display by severity; and suppress reviewed rule codes explicitly.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "text",
+          "description": "Output format: text for a readable verdict and findings, json for CI or automation, or csv for spreadsheet/ticket exports. Default text.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "ignore": {
+          "default": "",
+          "description": "Comma-separated rule codes to suppress from the report and verdict after review, e.g. MISSING-VERSION,RESOURCE-STAR. Unknown codes are errors so typos cannot silently hide nothing.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "low",
+          "description": "Display threshold for findings. The verdict still counts all non-ignored findings; this only hides lower-severity rows from the rendered output. Default low.",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "type": "string"
+        },
+        "policy": {
+          "description": "AWS IAM policy JSON to lint. Paste one identity policy, resource policy, trust policy, or service control policy document. JSON only; maximum 200000 characters.",
+          "type": "string"
+        },
+        "policy_type": {
+          "default": "identity",
+          "description": "How AWS will attach this document: identity (user/group/role permissions, no Principal), resource (bucket/key/queue-style policy, Principal required), trust (role AssumeRolePolicyDocument, Principal required and Resource forbidden), or scp (Organizations service control policy rules). Default identity.",
+          "enum": [
+            "identity",
+            "resource",
+            "trust",
+            "scp"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy"
+      ],
+      "type": "object"
+    }
+  }
+}

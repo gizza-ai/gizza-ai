@@ -1,0 +1,119 @@
+slug          = "fiscal-quarter-mapper"
+title         = "Fiscal Quarter Mapper — Label a CSV Date Column"
+description   = "Append fiscal quarter and fiscal year columns to a CSV date column for a fiscal year starting in any month. Paste a table and map every row in your browser."
+tags          = ["fiscal quarter", "fiscal year", "csv", "date", "finance", "accounting", "reporting"]
+h1            = "Fiscal Quarter Mapper"
+hero_subtitle = "Paste a CSV and add fiscal_quarter / fiscal_year columns for a fiscal year that starts in any month — calendar, April, July, or October — with the year-naming convention you actually use."
+wasm          = "gizza_ai_fiscal_quarter_mapper_web"
+export        = "run"
+live          = true
+output_label  = "Mapped CSV"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "CSV or TSV with a date column"
+placeholder = "invoice,closed,amount\nA-1001,2025-10-14,4200\nA-1002,2026-01-07,1875\nA-1003,2026-04-25,3060"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "column"
+label       = "Date column"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name   = "fiscal_start_month"
+label  = "Fiscal year starts in"
+source = "field"
+labels = { january = "January (calendar year)", february = "February", march = "March", april = "April (UK, India)", may = "May", june = "June", july = "July (Australia, NZ)", august = "August", september = "September", october = "October (US federal)", november = "November", december = "December" }
+
+[[input]]
+name   = "fiscal_year_naming"
+label  = "Fiscal year is named by"
+source = "field"
+labels = { end = "The year it ends in (US federal, pandas)", start = "The year it begins in (spreadsheet recipe)" }
+
+[[input]]
+name   = "quarter_label"
+label  = "Quarter label format"
+source = "field"
+labels = { "q-fy" = "Q1 FY2026", "fy-q" = "FY2026-Q1", "yyyy-qn" = "2026-Q1", "yyyyqn" = "2026Q1", "qn" = "Q1", "n" = "1" }
+
+[[input]]
+name   = "fiscal_year_label"
+label  = "Fiscal year label format"
+source = "field"
+labels = { "fy-yyyy" = "FY2026", "yyyy" = "2026", "fy-yy" = "FY26", "range" = "2025-2026", "range-short" = "2025-26" }
+
+[[input]]
+name   = "add_fiscal_year"
+label  = "Add fiscal_year column"
+source = "field"
+default = "true"
+
+[[input]]
+name   = "add_quarter_dates"
+label  = "Add quarter start + end dates"
+source = "field"
+
+[[input]]
+name   = "add_fiscal_month"
+label  = "Add fiscal month (1-12)"
+source = "field"
+
+[[input]]
+name   = "add_quarter_position"
+label  = "Add day of quarter / days in quarter"
+source = "field"
+
+[[input]]
+name   = "date_order"
+label  = "Ambiguous numeric dates"
+source = "field"
+labels = { auto = "Auto-detect from the column", "day-first" = "Day first (DD/MM/YYYY)", "month-first" = "Month first (MM/DD/YYYY)" }
+
+[[input]]
+name   = "on_error"
+label  = "Unreadable dates"
+source = "field"
+labels = { blank = "Leave the new columns blank", drop = "Drop the row", error = "Stop with an error" }
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+default = "true"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+labels = { auto = "Auto", comma = "Comma", tab = "Tab", semicolon = "Semicolon", pipe = "Pipe" }
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { csv = "Mapped CSV", report = "Mapping report", json = "JSON (audit + CSV)" }
+
+[[example]]
+label  = "US federal (October start)"
+params = { input = "invoice,closed,amount\nA-1001,2025-10-14,4200\nA-1002,2026-01-07,1875\nA-1003,2026-04-25,3060", column = "closed", fiscal_start_month = "october", fiscal_year_naming = "end", quarter_label = "q-fy", fiscal_year_label = "fy-yyyy", add_fiscal_year = "true", add_quarter_dates = "false", add_fiscal_month = "false", add_quarter_position = "false", date_order = "auto", on_error = "blank", header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "UK / India (April start)"
+params = { input = "invoice,closed,amount\nA-1001,2025-10-14,4200\nA-1002,2026-01-07,1875\nA-1003,2026-04-25,3060", column = "closed", fiscal_start_month = "april", fiscal_year_naming = "end", quarter_label = "q-fy", fiscal_year_label = "range", add_fiscal_year = "true", add_quarter_dates = "false", add_fiscal_month = "false", add_quarter_position = "false", date_order = "auto", on_error = "blank", header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "Australia (July start), pandas labels"
+params = { input = "invoice,closed,amount\nA-1001,2025-10-14,4200\nA-1002,2026-01-07,1875\nA-1003,2026-04-25,3060", column = "closed", fiscal_start_month = "july", fiscal_year_naming = "end", quarter_label = "yyyyqn", fiscal_year_label = "fy-yyyy", add_fiscal_year = "false", add_quarter_dates = "false", add_fiscal_month = "false", add_quarter_position = "false", date_order = "auto", on_error = "blank", header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "Quarter dates + fiscal month"
+params = { input = "invoice,closed,amount\nA-1001,2025-10-14,4200\nA-1002,2026-01-07,1875\nA-1003,2026-04-25,3060", column = "closed", fiscal_start_month = "october", fiscal_year_naming = "end", quarter_label = "q-fy", fiscal_year_label = "fy-yyyy", add_fiscal_year = "false", add_quarter_dates = "true", add_fiscal_month = "true", add_quarter_position = "true", date_order = "auto", on_error = "blank", header = "true", delimiter = "auto", output = "csv" }
+
+[[example]]
+label  = "Audit report (day-first dates)"
+params = { input = "closed,amount\n03/04/2024,120\n25/12/2024,340\nnot a date,55", column = "closed", fiscal_start_month = "april", fiscal_year_naming = "end", quarter_label = "q-fy", fiscal_year_label = "fy-yyyy", add_fiscal_year = "true", add_quarter_dates = "false", add_fiscal_month = "false", add_quarter_position = "false", date_order = "auto", on_error = "blank", header = "true", delimiter = "auto", output = "report" }

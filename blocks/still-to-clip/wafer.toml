@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "still-to-clip"
+version = "0.1.0"
+abi = 1
+summary = "Turn a single still image into a fixed-duration static video clip at a chosen size, frame rate and format."

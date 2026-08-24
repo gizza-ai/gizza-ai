@@ -1,0 +1,68 @@
+{
+  "name": "gizza-ai/csr-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate an ECDSA private key and PKCS#10 CSR",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fresh ECDSA private key and PKCS#10 Certificate Signing Request (CSR) locally. Choose p256 (default) or p384, fill subject fields (CN plus optional O/OU/C/ST/L), and add DNS, IP, email, or URI Subject Alternative Names. The output includes PKCS#8 private key PEM, public key PEM, CSR PEM, and a subject/SAN summary. RSA is listed as out-of-model for this wasm-safe RustCrypto implementation; use an external OpenSSL flow if a CA specifically requires RSA.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "p256",
+          "description": "ECDSA signing key for the CSR: p256 (secp256r1, broad TLS support, default) or p384 (larger curve, SHA-384 signature). RSA CSR generation is intentionally not exposed in this wasm-safe RustCrypto implementation.",
+          "enum": [
+            "p256",
+            "p384"
+          ],
+          "type": "string"
+        },
+        "common_name": {
+          "description": "Subject common name (CN), usually the primary DNS name such as example.com. If no SANs are supplied and this looks like a DNS name, it is also added as a DNS SAN.",
+          "type": "string"
+        },
+        "country": {
+          "description": "Optional two-letter subject country code (C), for example US or GB.",
+          "type": "string"
+        },
+        "locality": {
+          "description": "Optional subject locality/city (L), for example San Francisco.",
+          "type": "string"
+        },
+        "organization": {
+          "description": "Optional subject organization (O), for example Example Ltd.",
+          "type": "string"
+        },
+        "organizational_unit": {
+          "description": "Optional subject organizational unit (OU), for example Platform or IT.",
+          "type": "string"
+        },
+        "san_dns": {
+          "description": "Optional DNS Subject Alternative Names, separated by commas, semicolons, or new lines. Prefixes like DNS:api.example.com are accepted.",
+          "type": "string"
+        },
+        "san_emails": {
+          "description": "Optional email/rfc822Name Subject Alternative Names, separated by commas, semicolons, or new lines. email: prefixes are optional.",
+          "type": "string"
+        },
+        "san_ips": {
+          "description": "Optional IP address Subject Alternative Names, separated by commas, semicolons, or new lines. IPv4 and IPv6 are accepted; IP: prefixes are optional.",
+          "type": "string"
+        },
+        "san_uris": {
+          "description": "Optional URI Subject Alternative Names, separated by commas, semicolons, or new lines. URI: prefixes are optional.",
+          "type": "string"
+        },
+        "state": {
+          "description": "Optional subject state or province (ST), for example California.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "common_name"
+      ],
+      "type": "object"
+    }
+  }
+}

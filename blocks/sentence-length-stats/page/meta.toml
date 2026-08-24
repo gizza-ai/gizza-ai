@@ -1,0 +1,67 @@
+slug          = "sentence-length-stats"
+title         = "Sentence Length Stats — count, average and distribution"
+description   = "Analyze sentence length in prose: sentence count, average and max words, variety score, long-sentence rate and a length distribution. Runs locally."
+tags          = ["sentence length", "writing statistics", "readability", "sentence count", "prose analysis", "text statistics"]
+h1            = "Sentence Length Stats"
+hero_subtitle = "Paste prose and see how long the sentences are: count, average, median, shortest, longest, variety, repeated-length patterns and a distribution by word-count band."
+wasm          = "gizza_ai_sentence_length_stats_web"
+export        = "run"
+live          = false
+output_label  = "Sentence length report"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Short sentences land fast. Longer sentences can carry nuance, context, and rhythm when they are placed carefully. Mix both."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "newlines"
+label       = "Line break handling"
+source      = "field"
+
+[input.labels]
+paragraph = "Blank line ends a sentence"
+never     = "Newlines are spaces"
+always    = "Every line is a sentence"
+
+[[input]]
+name        = "long_threshold"
+label       = "Long sentence threshold (words)"
+placeholder = "25"
+source      = "field"
+
+[[input]]
+name        = "list_longest"
+label       = "Longest sentences to list"
+placeholder = "3"
+source      = "field"
+
+[[input]]
+name        = "extra_abbreviations"
+label       = "Extra abbreviations"
+placeholder = "approx, dept, ing"
+source      = "field"
+
+[[example]]
+label = "Blog intro"
+[example.params]
+text = "Short sentences land fast. Longer sentences can carry nuance, context, and rhythm when they are placed carefully. Mix both."
+long_threshold = "12"
+list_longest = "2"
+
+[[example]]
+label = "One line per subtitle"
+[example.params]
+text = "First caption line\nSecond caption line with more words\nThird"
+newlines = "always"
+long_threshold = "5"
+list_longest = "3"
+
+[[example]]
+label = "Custom abbreviation"
+[example.params]
+text = "Approx. ten people came. Then it rained."
+extra_abbreviations = "approx"

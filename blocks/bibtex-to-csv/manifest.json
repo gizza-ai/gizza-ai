@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/bibtex-to-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a BibTeX bibliography to a CSV table, one row per entry.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert BibTeX (.bib) source into CSV, one row per @type{key, ...} entry. Choose the standard bibliographic column set, the union of every field present, or your own ordered column list; pick the delimiter (comma, semicolon, tab, pipe) and whether to emit a header row. LaTeX accent macros and protective braces are decoded to UTF-8 by default ({DNA} stays DNA, \\'e becomes é), @string macros and # concatenation are resolved, author names can be normalised to 'Last, First' or 'First Last' with a chosen separator, rows can be sorted by key, year or type, and a UTF-8 BOM can be added for Excel. Output is RFC-4180 quoted. Runs locally in the sandbox; nothing is uploaded. Max 1,000,000 bytes of input.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "author_format": {
+          "default": "bibtex",
+          "description": "How each name in the author, editor and translator fields is written: 'bibtex' (default) keeps the source spelling; 'last-first' normalises to 'Curie, Marie'; 'first-last' normalises to 'Marie Curie'. Lowercase particles (van, von, de) stay with the last name and a brace-protected corporate name such as {The MIT Press} is left whole.",
+          "enum": [
+            "bibtex",
+            "last-first",
+            "first-last"
+          ],
+          "type": "string"
+        },
+        "author_separator": {
+          "default": "and",
+          "description": "What joins two names inside one author/editor cell: 'and' (default) keeps the BibTeX ' and ' spelling, 'semicolon' uses '; ', 'comma' uses ', ' and 'pipe' uses ' | '. Use semicolon or pipe when the names are written last-first, so the comma inside each name stays unambiguous.",
+          "enum": [
+            "and",
+            "semicolon",
+            "comma",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "bibtex": {
+          "description": "The BibTeX source to convert, i.e. the contents of a .bib file. Every @type{key, field = value, ...} entry becomes one CSV row; @string, @comment and @preamble items and any free text between entries are handled but never emitted as rows. Values in {braces}, \"quotes\", bare numbers and # concatenation are all accepted. Max 1,000,000 bytes.",
+          "type": "string"
+        },
+        "bom": {
+          "default": false,
+          "description": "Prepend a UTF-8 byte-order mark so Excel opens the file as UTF-8 instead of mangling accented characters. Default false, because a BOM confuses parsers that do not strip it. Turn it on only when the CSV is headed straight for Excel.",
+          "type": "boolean"
+        },
+        "columns": {
+          "default": "standard",
+          "description": "Which columns the CSV carries: 'standard' (default) emits the fixed bibliographic set type,key,title,author,year,journal,booktitle,volume,number,pages,publisher,doi,isbn,issn,url with empty cells for fields an entry lacks; 'all' emits type,key then every field name that appears anywhere in the file, alphabetically; 'custom' emits exactly the columns named in custom_columns, in that order.",
+          "enum": [
+            "standard",
+            "all",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "custom_columns": {
+          "default": "",
+          "description": "Comma-separated column names used only when columns=custom, e.g. 'key,title,author,year,doi'. Names are matched case-insensitively against BibTeX field names; 'type' (the entry type) and 'key' (the cite key) are accepted as virtual columns. A name no entry has becomes an empty column. Max 200 columns. Ignored unless columns=custom.",
+          "type": "string"
+        },
+        "decode_latex": {
+          "default": true,
+          "description": "Decode LaTeX markup to plain UTF-8 text: accent macros (\\\"a becomes ä, \\'e becomes é, \\c{c} becomes ç), ligatures and symbols (\\ss, \\ae, \\o, \\ldots), escaped literals (\\& \\% \\#), en/em dashes (-- and ---) and `` '' quotes, and protective braces are dropped so {DNA} becomes DNA. Default true. Turn it off to keep the source spelling verbatim.",
+          "type": "boolean"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Field separator for the output: 'comma' (default, plain .csv), 'semicolon' (what Excel expects in comma-decimal locales), 'tab' (.tsv) or 'pipe'. Cells containing the separator, a double quote, CR or LF are quoted and internal quotes doubled, per RFC 4180.",
+          "enum": [
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "expand_strings": {
+          "default": true,
+          "description": "Resolve @string macros and # concatenation before emitting, so @string{jcp = \"J. Chem. Phys.\"} plus journal = jcp # \" (Letters)\" yields 'J. Chem. Phys. (Letters)'. Default true. Turn it off to keep the unresolved macro name in the cell.",
+          "type": "boolean"
+        },
+        "header": {
+          "default": true,
+          "description": "Emit the column-name header row as the first line. Default true. Turn it off when appending the result to an existing CSV that already has a header.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "source",
+          "description": "Row order: 'source' (default) keeps the order of the .bib file; 'key' sorts case-insensitively by cite key; 'year' sorts ascending by year with entries lacking a parseable year last; 'type' groups by entry type then cite key.",
+          "enum": [
+            "source",
+            "key",
+            "year",
+            "type"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "bibtex"
+      ],
+      "type": "object"
+    }
+  }
+}

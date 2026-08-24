@@ -1,0 +1,138 @@
+slug          = "repeated-word-remover"
+title         = "Repeated Word Remover — Delete Accidental Doubled Words"
+description   = "Paste text and delete accidentally doubled words like \"the the\". Keeps real English repeats such as \"had had\", with a marked-up diff and an audit report."
+tags          = ["repeated words", "duplicate words", "doubled words", "proofreading", "typo", "text cleanup", "ocr", "editing"]
+h1            = "Remove accidentally repeated words from text"
+hero_subtitle = "Catch the doubled words a spell-checker walks straight past — \"the the\", \"is is\", a word repeated across a line wrap in scanned or hard-wrapped text. Legitimate English repeats like \"had had\" and \"that that\" are protected by an editable keep list, and you can preview every deletion struck through before you accept it."
+wasm          = "gizza_ai_repeated_word_remover_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text"
+placeholder = "I think the the cat sat on on the mat."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Result view"
+source = "field"
+
+[input.labels]
+clean  = "Cleaned text (default)"
+marked = "Marked-up changes — deletions struck through"
+report = "Audit report — counts and positions"
+
+[[input]]
+name        = "keep_words"
+label       = "Never collapse these words"
+placeholder = "had, that, is"
+source      = "field"
+kind        = "tag-list"
+default     = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+
+[[input]]
+name   = "case_sensitive"
+label  = "Match case exactly"
+source = "field"
+
+[[input]]
+name   = "across_line_breaks"
+label  = "Catch repeats split by a line break"
+source = "field"
+
+[[input]]
+name   = "ignore_punctuation"
+label  = "Allow commas and brackets between the words"
+source = "field"
+
+[[input]]
+name   = "include_numbers"
+label  = "Also collapse repeated numbers"
+source = "field"
+
+[[input]]
+name        = "min_length"
+label       = "Minimum word length"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "20"
+step        = "1"
+
+[[example]]
+label = "Typo cleanup"
+[example.params]
+input = "I think the the cat sat on on the mat, and he had had enough."
+output = "clean"
+keep_words = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+case_sensitive = "false"
+across_line_breaks = "true"
+ignore_punctuation = "false"
+include_numbers = "false"
+min_length = "1"
+
+[[example]]
+label = "OCR line-wrap repeat"
+[example.params]
+input = "The committee reviewed the\nthe proposal and returned it to the\nthe author for revision."
+output = "clean"
+keep_words = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+case_sensitive = "false"
+across_line_breaks = "true"
+ignore_punctuation = "false"
+include_numbers = "false"
+min_length = "1"
+
+[[example]]
+label = "Review changes first"
+[example.params]
+input = "I think the the cat sat on on the mat."
+output = "marked"
+keep_words = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+case_sensitive = "false"
+across_line_breaks = "true"
+ignore_punctuation = "false"
+include_numbers = "false"
+min_length = "1"
+
+[[example]]
+label = "Punctuation between the words"
+[example.params]
+input = "Well, well now — that is a surprise, surprise."
+output = "clean"
+keep_words = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+case_sensitive = "false"
+across_line_breaks = "true"
+ignore_punctuation = "true"
+include_numbers = "false"
+min_length = "1"
+
+[[example]]
+label = "Audit report"
+[example.params]
+input = "the the cat\nsat on on the mat"
+output = "report"
+keep_words = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+case_sensitive = "false"
+across_line_breaks = "true"
+ignore_punctuation = "false"
+include_numbers = "false"
+min_length = "1"
+
+[[example]]
+label = "Leave short words alone"
+[example.params]
+input = "I I saw the the sign in in 2024 2024."
+output = "clean"
+keep_words = "had, that, is, do, no, very, long, many, far, ha, blah, bye, night, so, chop, tut, yum"
+case_sensitive = "false"
+across_line_breaks = "true"
+ignore_punctuation = "false"
+include_numbers = "false"
+min_length = "3"

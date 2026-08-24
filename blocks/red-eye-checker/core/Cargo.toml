@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-red-eye-checker-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust PNG/JPEG codecs. This tool only ever DECODES (it reports
+# regions, it never rewrites pixels); the encoders come along with the same
+# features and are used by the unit tests to build synthetic fixtures. Pure Rust
+# means the block runs in the wasmi sandbox and the chat Service Worker alike.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

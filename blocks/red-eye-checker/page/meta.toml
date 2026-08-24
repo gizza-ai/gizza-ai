@@ -1,0 +1,99 @@
+slug          = "red-eye-checker"
+title         = "Red-Eye Checker — Find Red-Eye in a Flash Photo"
+description   = "Check a flash photo for red-eye before you print or post it. Get the pixel position, radius and confidence of every red pupil, entirely in your browser."
+tags          = ["image", "red-eye", "photo", "flash", "portrait", "detection", "retouch"]
+h1            = "Check a Photo for Red-Eye"
+hero_subtitle = "Upload a flash photo — every red pupil is listed with its centre, radius and confidence, so you know exactly what to retouch. Nothing is uploaded; the check runs in your browser."
+wasm          = "gizza_ai_red_eye_checker_web"
+export        = "run"
+live          = false
+output_label  = "Red-eye report (JSON)"
+format        = "json"
+
+# Field order MUST equal web/src/lib.rs run() param order:
+# image, sensitivity, min_radius, max_radius, max_regions.
+[[input]]
+name   = "image"
+label  = "Photo (PNG or JPEG)"
+source = "file"
+accept = "image/png,image/jpeg"
+
+[[input]]
+name        = "sensitivity"
+label       = "Sensitivity"
+source      = "field"
+placeholder = "medium"
+[input.labels]
+low    = "Low — only bright, unmistakable red"
+medium = "Medium — typical flash red-eye (default)"
+high   = "High — also dim or amber eye (more false positives)"
+
+[[input]]
+name        = "min_radius"
+label       = "Smallest radius to report (px)"
+source      = "field"
+placeholder = "3"
+kind        = "slider"
+min         = 1
+max         = 80
+step        = "1"
+
+[[input]]
+name        = "max_radius"
+label       = "Largest radius to report (px)"
+source      = "field"
+placeholder = "80"
+kind        = "slider"
+min         = 1
+max         = 300
+step        = "1"
+
+[[input]]
+name        = "max_regions"
+label       = "Maximum regions listed"
+source      = "field"
+placeholder = "20"
+kind        = "slider"
+min         = 1
+max         = 100
+step        = "1"
+
+[[example]]
+label = "Typical flash portrait"
+[example.params]
+sensitivity = "medium"
+min_radius  = "3"
+max_radius  = "80"
+max_regions = "20"
+
+[[example]]
+label = "Strict — only obvious red pupils"
+[example.params]
+sensitivity = "low"
+min_radius  = "4"
+max_radius  = "60"
+max_regions = "10"
+
+[[example]]
+label = "Catch faint or amber eye"
+[example.params]
+sensitivity = "high"
+min_radius  = "2"
+max_radius  = "80"
+max_regions = "40"
+
+[[example]]
+label = "Large photo — ignore red speckle"
+[example.params]
+sensitivity = "medium"
+min_radius  = "8"
+max_radius  = "200"
+max_regions = "20"
+
+[[example]]
+label = "Group shot — list every pupil"
+[example.params]
+sensitivity = "medium"
+min_radius  = "2"
+max_radius  = "40"
+max_regions = "100"

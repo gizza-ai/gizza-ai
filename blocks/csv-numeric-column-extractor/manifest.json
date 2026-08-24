@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/csv-numeric-column-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find a CSV's numeric columns and return them as typed arrays with headers.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse CSV/TSV text, detect which columns are numeric, and return those columns as typed arrays with their headers (plus a 'skipped' list saying why every other column was rejected). delimiter='auto' (default) sniffs comma/tab/semicolon/pipe; header='auto' (default) detects the header row; output='columns' (default) emits JSON typed arrays, 'records' JSON row objects, 'csv' the numeric columns as CSV, 'names' just the column names; null_tokens lists strings treated as missing (default 'NA,N/A,NULL,null,None,nan'); allow_blanks=true (default) keeps columns with gaps; min_numeric_ratio=1.0 (default) requires every value to parse; normalize=true (default) accepts '1,234.50', '$99', '45%', '(500)' and '250-'. Zero-padded codes like '007' stay non-numeric. Input is capped at 1 MB.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_blanks": {
+          "default": true,
+          "description": "Keep a column that is numeric apart from blank/null cells (default true; the gaps become null). Set false to require every cell to hold a value.",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "The CSV/TSV text to scan (paste the file contents, including the header row if there is one), e.g. 'id,name,score\\n1,Alice,9.5'.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Field delimiter. 'auto' (default) sniffs it by parsing the data with comma, tab, semicolon and pipe and keeping the one with the most consistent column count; otherwise force comma, tab, semicolon or pipe.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row holds column names. 'auto' (default) treats it as a header unless one of its cells is a number; 'present' forces it; 'absent' treats every row as data and names the columns column_1, column_2, ...",
+          "enum": [
+            "auto",
+            "present",
+            "absent"
+          ],
+          "type": "string"
+        },
+        "min_numeric_ratio": {
+          "default": 1.0,
+          "description": "Fraction of a column's non-missing cells that must parse as numbers for it to count as numeric. 1.0 (default) = every value; 0.9 tolerates a stray label like 'n/a-ish', which is then emitted as null.",
+          "maximum": 1,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "normalize": {
+          "default": true,
+          "description": "Accept accounting-formatted numbers: thousands separators ('1,234.50'), currency symbols ($ € £ ¥ ₹), trailing percent ('45%'), parentheses negatives ('(500)' = -500) and trailing minus ('250-'). Default true; set false to require plain numbers.",
+          "type": "boolean"
+        },
+        "null_tokens": {
+          "default": "NA,N/A,NULL,null,None,nan",
+          "description": "Comma-separated tokens (in addition to the empty cell) treated as missing, e.g. 'NA,N/A,NULL'. Matching is exact and case-sensitive; missing cells become null in the output.",
+          "type": "string"
+        },
+        "output": {
+          "default": "columns",
+          "description": "Result shape. 'columns' (default) = JSON with one typed array per numeric column plus a 'skipped' list explaining every rejected column; 'records' = JSON row objects holding only the numeric fields; 'csv' = the numeric columns as CSV; 'names' = just the numeric column names, one per line.",
+          "enum": [
+            "columns",
+            "records",
+            "csv",
+            "names"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

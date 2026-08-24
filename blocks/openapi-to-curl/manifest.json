@@ -1,0 +1,108 @@
+{
+  "name": "gizza-ai/openapi-to-curl",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a ready-to-run curl command for every endpoint in an OpenAPI or Swagger spec.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn an OpenAPI 3.x or Swagger 2.0 JSON/YAML document into runnable curl examples — one per operation. It resolves the server URL, substitutes path parameters, appends query parameters, adds header and cookie parameters, builds a sample JSON/form/multipart request body from the schema (example, default, enum, and format values), and attaches bearer, basic, or api-key credentials from the spec's security schemes. Output as a bash script with variables, bare commands, markdown docs, or JSON. Filters by method, tag, or path. Nothing is sent and remote $refs are never fetched: local refs expand, external ones collapse to null.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "auth": {
+          "default": "auto",
+          "description": "Credentials to add: auto follows the spec's security schemes, none omits credentials, bearer sends an Authorization: Bearer header, basic sends curl -u, api_key sends the spec's apiKey header/query/cookie (X-API-Key when the spec declares none). Default auto.",
+          "enum": [
+            "auto",
+            "none",
+            "bearer",
+            "basic",
+            "api_key"
+          ],
+          "type": "string"
+        },
+        "auth_value": {
+          "default": "",
+          "description": "Literal credential to embed, e.g. an actual token or user:password for basic. Blank emits shell placeholders ($TOKEN, $API_USER:$API_PASSWORD, $API_KEY) that the shell script declares up top.",
+          "type": "string"
+        },
+        "base_url": {
+          "default": "",
+          "description": "Base URL for the generated commands, e.g. https://api.example.com/v1. Blank uses servers[0].url (OpenAPI 3.x) or scheme/host/basePath (Swagger 2.0), then https://api.example.com as a last resort.",
+          "type": "string"
+        },
+        "include_comments": {
+          "default": true,
+          "description": "Add a comment line above each command with the method, path, and summary (shell and commands output only). Default true.",
+          "type": "boolean"
+        },
+        "include_optional": {
+          "default": false,
+          "description": "Include optional query parameters, optional headers, and optional body fields as well as the required ones. Default false, which keeps each command minimal.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse spec: auto (try JSON then YAML), json, or yaml. Default auto.",
+          "enum": [
+            "auto",
+            "json",
+            "yaml"
+          ],
+          "type": "string"
+        },
+        "max_depth": {
+          "default": 4,
+          "description": "How deep nested schemas are expanded when building sample bodies (1-8). Deeper levels collapse to null. Default 4.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "methods": {
+          "default": "",
+          "description": "Optional comma-separated HTTP method filter, e.g. get,post. Blank generates every method (get, put, post, delete, options, head, patch, trace).",
+          "type": "string"
+        },
+        "multiline": {
+          "default": true,
+          "description": "Wrap each command over several lines with trailing backslashes. Uncheck for one command per line, easier to pipe or grep. Default true.",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "shell",
+          "description": "shell writes a runnable bash script with BASE_URL and credential variables; commands writes bare curl lines with absolute URLs; markdown writes a heading plus fenced block per endpoint; json writes a machine-readable array of operations. Default shell.",
+          "enum": [
+            "shell",
+            "commands",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "path_filter": {
+          "default": "",
+          "description": "Optional case-insensitive substring the path must contain, e.g. /pets. Blank generates every path.",
+          "type": "string"
+        },
+        "pretty_body": {
+          "default": false,
+          "description": "Pretty-print JSON request bodies across multiple lines instead of one compact line. Default false.",
+          "type": "boolean"
+        },
+        "spec": {
+          "description": "OpenAPI 3.x or Swagger 2.0 document as JSON or YAML. Every operation under paths becomes one curl command with sample path, query, header, and body values.",
+          "type": "string"
+        },
+        "tags": {
+          "default": "",
+          "description": "Optional comma-separated tag filter, e.g. pets,admin. Blank generates every operation; a non-empty filter keeps operations carrying any of those tags.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spec"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,135 @@
+slug          = "xml-diff"
+title         = "XML Diff — compare two XML documents semantically"
+description   = "Compare two XML documents structurally and see exactly what was added, removed or changed, with full element paths — in your browser. Nothing is uploaded."
+tags          = ["xml diff", "compare xml", "xml compare", "xml difference", "diff xml online", "semantic xml diff"]
+h1            = "XML Diff"
+hero_subtitle = "Compare two XML documents by structure, not by text lines. Attribute order and indentation are ignored, and every difference is reported with its element path — added, removed or changed. Runs in your browser; nothing is uploaded."
+wasm          = "gizza_ai_xml_diff_web"
+export        = "run"
+live          = false
+output_label  = "Diff report"
+format        = "text"
+
+[[input]]
+name        = "left"
+label       = "First XML (left / old)"
+placeholder = "<catalog><book id=\"1\"><title>Rust</title></book></catalog>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "right"
+label       = "Second XML (right / new)"
+placeholder = "<catalog><book id=\"2\"><title>Rust 2</title></book></catalog>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "strategy"
+label  = "Sibling matching"
+source = "field"
+
+[input.labels]
+lcs       = "Smart alignment — detect insertions (default)"
+index     = "By position — first child vs first child"
+unordered = "Ignore order — treat siblings as a set"
+
+[[input]]
+name   = "ignore_whitespace"
+label  = "Ignore insignificant whitespace"
+source = "field"
+
+[[input]]
+name   = "ignore_comments"
+label  = "Ignore comments"
+source = "field"
+
+[[input]]
+name   = "ignore_namespaces"
+label  = "Ignore namespace prefixes"
+source = "field"
+
+[[input]]
+name   = "numeric_text"
+label  = "Compare numbers numerically (1 = 1.0)"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Report format"
+source = "field"
+
+[input.labels]
+json = "JSON report (default)"
+text = "Compact text summary"
+
+[[input]]
+name        = "indent"
+label       = "JSON indent (spaces; 0 = minify)"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "Attribute and text changed"
+[example.params]
+left = "<catalog><book id=\"1\"><title>Rust</title></book></catalog>"
+right = "<catalog><book id=\"2\"><title>Rust 2</title></book></catalog>"
+strategy = "lcs"
+ignore_whitespace = "true"
+ignore_comments = "true"
+ignore_namespaces = "false"
+numeric_text = "false"
+format = "text"
+indent = "2"
+
+[[example]]
+label = "Element inserted in the middle"
+[example.params]
+left = "<list><item>a</item><item>c</item></list>"
+right = "<list><item>a</item><item>b</item><item>c</item></list>"
+strategy = "lcs"
+ignore_whitespace = "true"
+ignore_comments = "true"
+ignore_namespaces = "false"
+numeric_text = "false"
+format = "text"
+indent = "2"
+
+[[example]]
+label = "Reordered siblings are equal"
+[example.params]
+left = "<config><host>a</host><port>80</port></config>"
+right = "<config><port>80</port><host>a</host></config>"
+strategy = "unordered"
+ignore_whitespace = "true"
+ignore_comments = "true"
+ignore_namespaces = "false"
+numeric_text = "false"
+format = "text"
+indent = "2"
+
+[[example]]
+label = "Namespace prefix renamed"
+[example.params]
+left = "<ns:a xmlns:ns=\"urn:x\"><ns:b>1</ns:b></ns:a>"
+right = "<p:a xmlns:p=\"urn:x\"><p:b>1</p:b></p:a>"
+strategy = "lcs"
+ignore_whitespace = "true"
+ignore_comments = "true"
+ignore_namespaces = "true"
+numeric_text = "false"
+format = "text"
+indent = "2"
+
+[[example]]
+label = "Numbers compared numerically"
+[example.params]
+left = "<price v=\"1.0\">2.50</price>"
+right = "<price v=\"1\">2.5</price>"
+strategy = "lcs"
+ignore_whitespace = "true"
+ignore_comments = "true"
+ignore_namespaces = "false"
+numeric_text = "true"
+format = "text"
+indent = "2"

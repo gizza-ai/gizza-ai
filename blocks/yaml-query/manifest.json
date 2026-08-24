@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/yaml-query",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Query and transform YAML with jq-style expressions",
+  "role": "skill",
+  "tool": {
+    "description": "Read, filter and transform a YAML document with a jq-style filter — the expression language yq uses — and get the result back as YAML or JSON. Pass the document in `yaml` and the filter in `query`: '.services.web.ports' pulls a value out of a docker-compose file, '.services | keys' lists the service names, '[.spec.template.spec.containers[].image]' collects every container image in a Kubernetes manifest, 'to_entries | map(.key)' turns a mapping into its key list. The whole jq standard library (map, select, sort_by, group_by, to_entries, add, length, unique, with_entries) is available, and a filter yields a stream of zero, one, or many values — all of them are returned, joined as a '---' YAML document stream when there is more than one. JSON input is accepted as well (input_format=auto sniffs, or force yaml/json). Multi-document YAML streams are supported: documents=each (default) runs the filter per document like yq, documents=slurp feeds all documents to the filter as one array like jq -s. output_format=json returns JSON instead of YAML (pretty=false makes it compact), and raw_output=true emits string results unquoted like jq -r. Anchors, aliases and '<<' merge keys are resolved on read and custom tags are unwrapped. Everything is computed locally; nothing is fetched or uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "documents": {
+          "default": "each",
+          "description": "How a multi-document YAML stream ('---' separated, the Kubernetes shape) is fed to the filter. 'each' (default) runs the filter once per document and concatenates the outputs, matching yq. 'slurp' collects every document into a single array and runs the filter once over that, matching jq's --slurp/-s — use it to filter or count across documents.",
+          "enum": [
+            "each",
+            "slurp"
+          ],
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to parse the input. 'auto' (default) sniffs: a document starting with '{' or '[' is tried as JSON first and falls back to YAML, anything else is parsed as YAML. 'yaml' or 'json' force one parser, so a mis-typed document is reported as a parse error instead of guessed at.",
+          "enum": [
+            "auto",
+            "yaml",
+            "json"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "yaml",
+          "description": "How to serialize each result value. 'yaml' (default) emits block-style YAML; 'json' emits JSON. Use 'json' to pipe the result into a JSON tool, 'yaml' to paste it back into a config file.",
+          "enum": [
+            "yaml",
+            "json"
+          ],
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Indent JSON output by 2 spaces. Default true; set false for compact single-line JSON. Ignored when output_format is yaml, which is always block style.",
+          "type": "boolean"
+        },
+        "query": {
+          "description": "The jq-style filter to run — the same expression language yq uses. Examples: '.' (the whole document), '.services.web.ports', '.services | keys', '[.spec.template.spec.containers[].image]', 'to_entries | map(.key)', '.jobs | with_entries(select(.value.needs))'. The jq standard library (map, select, sort_by, group_by, to_entries, add, length, unique, …) is available. A filter yields a stream of zero, one, or many values and every value is emitted.",
+          "type": "string"
+        },
+        "raw_output": {
+          "default": false,
+          "description": "Emit string results without quotes or escaping, like jq -r / yq -r. Handy for feeding an image name or a port into a shell. Non-string results (objects, arrays, numbers, booleans, null) are unaffected. Default false.",
+          "type": "boolean"
+        },
+        "yaml": {
+          "description": "The YAML document to query, pasted as text. JSON is accepted too (YAML is a superset of it). Multi-document streams separated by '---' are supported, anchors/aliases and '<<' merge keys are resolved on read, and custom tags such as !Ref or !!str are unwrapped to their value.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "yaml",
+        "query"
+      ],
+      "type": "object"
+    }
+  }
+}

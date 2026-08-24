@@ -1,0 +1,104 @@
+{
+  "name": "gizza-ai/regex-codemod",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run a regex find-and-replace across a pasted multi-file bundle and preview the diff",
+  "role": "skill",
+  "tool": {
+    "description": "Apply one regex (or literal) find-and-replace across a pasted multi-file bundle and preview the result. Files are split at header markers (=== path ===, --- path ---, ==> path <==, # file: path, a custom marker_regex, or none for a single file) and each file is rewritten independently. Replacements support $1/${name} capture references, and the i/m/s flags, whole-word matching and first-match-only are all available. Returns a git-apply-able unified diff (default), the fully rewritten bundle, or a JSON report with per-file replacement counts.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "default": 3,
+          "description": "Unchanged context lines shown around each hunk in the unified diff. Default 3.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "dot_matches_newline": {
+          "default": false,
+          "description": "Let `.` also match newlines, so a pattern can span lines (the regex `s` flag). Default false.",
+          "type": "boolean"
+        },
+        "file_marker": {
+          "default": "auto",
+          "description": "How file boundaries are detected in the bundle: auto (any of the four below), equals (=== path ===), dashes (--- path ---), arrow (==> path <==), comment (# file: path or // file: path), custom (use marker_regex), or none (treat the whole input as one file). Default auto.",
+          "enum": [
+            "auto",
+            "equals",
+            "dashes",
+            "arrow",
+            "comment",
+            "custom",
+            "none"
+          ],
+          "type": "string"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Match case-insensitively (the regex `i` flag). Default false.",
+          "type": "boolean"
+        },
+        "include_unchanged": {
+          "default": false,
+          "description": "Also report files the pattern did not change — as \"# unchanged: path\" comment lines in diff output, or as entries in json output. Default false.",
+          "type": "boolean"
+        },
+        "literal": {
+          "default": false,
+          "description": "Match `pattern` as plain text instead of a regular expression, and insert `replacement` verbatim. Default false.",
+          "type": "boolean"
+        },
+        "marker_regex": {
+          "default": "",
+          "description": "Custom file-marker pattern, matched against each line, with one capture group for the path, e.g. ^@@@ (\\S+)$. Only used when file_marker=custom.",
+          "type": "string"
+        },
+        "multiline": {
+          "default": false,
+          "description": "Make ^ and $ match at the start and end of every line (the regex `m` flag). Default false.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "diff",
+          "description": "What to return: diff (a git-apply-able unified diff of the changes), full (the whole rewritten bundle) or json (a per-file report with counts and diffs). Default diff.",
+          "enum": [
+            "diff",
+            "full",
+            "json"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "The regular expression to find (Rust regex syntax, e.g. \\boldName\\b). With literal=true it is matched as plain text instead.",
+          "type": "string"
+        },
+        "replace_all": {
+          "default": true,
+          "description": "Replace every match (the regex `g` flag). When false, only the first match in each file is replaced. Default true.",
+          "type": "boolean"
+        },
+        "replacement": {
+          "default": "",
+          "description": "Replacement text. $1/${name} insert capture groups; $$ is a literal dollar. With literal=true it is inserted verbatim. Default empty, which deletes each match.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The pasted bundle: one or more files concatenated behind header markers, e.g. \"=== src/a.js ===\" followed by that file's contents.",
+          "type": "string"
+        },
+        "whole_word": {
+          "default": false,
+          "description": "Require a word boundary on both sides of the match, so \"id\" does not match inside \"idx\". Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "text",
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

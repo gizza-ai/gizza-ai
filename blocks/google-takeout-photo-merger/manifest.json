@@ -1,0 +1,86 @@
+{
+  "name": "gizza-ai/google-takeout-photo-merger",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Merge Google Takeout JSON sidecar metadata back into your photos' EXIF",
+  "role": "skill",
+  "tool": {
+    "description": "Merge Google Takeout's JSON sidecar metadata back into each photo's EXIF. Upload one Takeout album as a ZIP (url or ref); every photo is paired with its .json sidecar and the date taken, GPS position and caption are written into the image, and the merged album comes back as a single ZIP. Pairing handles every naming form Google uses: NAME.jpg.supplemental-metadata.json, the legacy NAME.jpg.json and NAME.json, sidecar names Google truncated, duplicate counters (NAME(1).jpg pairs with NAME.jpg(1).json) and -edited copies, which reuse the original's sidecar. By default only fields the photo is MISSING are filled in, so real camera metadata is never clobbered (set overwrite=true to replace). EXIF can only be written into JPEG and PNG; HEIC, MP4, MOV, GIF and other containers are copied through unchanged and listed in the report, and their file timestamps are still corrected. Sidecar timestamps are Unix epochs and are written as UTC. Use dry_run=true to preview the plan without producing a ZIP. Input cap 64 MiB — upload one album at a time; if an export is split across several ZIPs, extract them into one folder and re-zip so each photo sits beside its sidecar.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "date_source": {
+          "default": "auto",
+          "description": "Which sidecar timestamp becomes the date taken. auto = photoTakenTime, falling back to creationTime; photo_taken = only photoTakenTime (when the shot was taken); creation = only creationTime (when it was uploaded to Google Photos). Sidecar timestamps are Unix epochs, so they are written as UTC.",
+          "enum": [
+            "auto",
+            "photo_taken",
+            "creation"
+          ],
+          "type": "string"
+        },
+        "dry_run": {
+          "default": false,
+          "description": "Preview only: report what would be written to each photo and return no ZIP. Useful for checking the sidecar pairing on a big album before committing.",
+          "type": "boolean"
+        },
+        "fields": {
+          "default": "date,gps,description",
+          "description": "Comma-separated metadata groups to merge: date (writes DateTimeOriginal, DateTimeDigitized and DateTime from the sidecar's photoTakenTime), gps (latitude, longitude and altitude), description (the caption you typed in Google Photos, written to ImageDescription). Pass 'all' for every group. Example: date,gps.",
+          "type": "string"
+        },
+        "fix_extension": {
+          "default": true,
+          "description": "Rename files whose contents do not match their extension — Takeout exports PNGs named .jpg, which trips up other importers. The new name is chosen from the file's magic bytes. Set false to keep Google's original names.",
+          "type": "boolean"
+        },
+        "gps_source": {
+          "default": "auto",
+          "description": "Which block of the sidecar the position comes from. auto = prefer geoData (what Google Photos shows, including a location you edited) and fall back to geoDataExif; geo_data = only geoData; geo_data_exif = only geoDataExif (the position the camera originally recorded). An all-zero block counts as 'no location' and is never written.",
+          "enum": [
+            "auto",
+            "geo_data",
+            "geo_data_exif"
+          ],
+          "type": "string"
+        },
+        "keep_sidecars": {
+          "default": false,
+          "description": "Keep the .json sidecars in the result. By default a sidecar whose data was merged is dropped (it is now redundant); a .json that was never paired with a photo is always kept, since it may be album metadata rather than a sidecar.",
+          "type": "boolean"
+        },
+        "overwrite": {
+          "default": false,
+          "description": "Replace EXIF fields the photo already carries. Off by default: a real camera timestamp or GPS fix is more trustworthy than Google's copy, so only missing fields are filled in. Turn it on when Google Photos holds a location or date you corrected by hand.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "set_file_times": {
+          "default": true,
+          "description": "Stamp each file's timestamp in the result ZIP with its capture time, so the photos sort correctly after extraction even in apps that ignore EXIF. Also applied to videos, whose containers cannot take EXIF. Dates before 1980 keep the default stamp (a ZIP cannot store them).",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

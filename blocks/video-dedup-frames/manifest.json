@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/video-dedup-frames",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Drop consecutive duplicate frames from a video",
+  "role": "skill",
+  "tool": {
+    "description": "Drop consecutive duplicate frames from a video (screen recordings, slideshow exports, animation renders) with ffmpeg's mpdecimate filter, shrinking the file and cleaning up the timing. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call), plus sensitivity (1-100, how eagerly frames count as duplicates; default 50 = ffmpeg's native thresholds), timing (keep = same timing, variable frame rate, default; constant = even frame rate for editors; compact = close the gaps so the clip gets shorter, audio dropped), max_fps (optional cap applied before the scan, e.g. 30 to halve a 60 fps capture), format (auto|mp4|webm) and frac (advanced mpdecimate changed-block fraction, default 0.33). The picture is re-encoded (H.264 crf 20, or VP9 for webm); audio is stream-copied when the container allows it. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "format": {
+          "default": "auto",
+          "description": "Output container: auto (default) keeps the input container when it can hold H.264/AAC (mp4/mov/m4v/mkv) and converts anything else (e.g. webm) to MP4; mp4 forces H.264/AAC; webm forces VP9/Opus. Filtering always forces a re-encode, so the output is never byte-identical to the source.",
+          "enum": [
+            "auto",
+            "mp4",
+            "webm"
+          ],
+          "type": "string"
+        },
+        "frac": {
+          "description": "Advanced: mpdecimate's frac — the fraction of a frame's 8x8 blocks that must change for the frame to be kept (0.01–1, default 0.33). Lower keeps more frames (a small changing region like a cursor or subtitle counts as motion); higher drops more (only a big change keeps a frame).",
+          "maximum": 1,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "max_fps": {
+          "description": "Optional frame-rate cap applied BEFORE the duplicate scan, e.g. 30 to halve a 60 fps screen capture (1–240; omit to keep the source rate). Capping first is safe: if the source is slower than the cap, the frames it inserts are removed again by the duplicate scan.",
+          "maximum": 240,
+          "minimum": 1,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sensitivity": {
+          "description": "How eagerly frames count as duplicates, 1–100 (default 50). It scales ffmpeg mpdecimate's thresholds linearly around their native values at 50 (hi=768, lo=320): 25 → hi=384/lo=160 (only near-identical frames go), 100 → hi=1536/lo=640 (frames that merely look the same — cursor blinks, dithering, compression shimmer — go too). Clamped to 1–100.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "timing": {
+          "default": "keep",
+          "description": "What happens to the time the dropped frames occupied: keep (default) leaves every remaining frame at its original timestamp, so the clip plays with identical timing as a variable-frame-rate file; constant re-holds the kept frames on an even grid (constant frame rate, editor-friendly, still shrinks because near-duplicates become exact repeats); compact closes the gaps so the clip shortens to just the frames that changed — audio is dropped in that mode because it cannot follow the re-timing.",
+          "enum": [
+            "keep",
+            "constant",
+            "compact"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

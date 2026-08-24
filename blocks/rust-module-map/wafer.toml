@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "rust-module-map"
+version = "0.1.0"
+abi = 1
+summary = "Map Rust modules, types, traits, impls and functions from pasted source"

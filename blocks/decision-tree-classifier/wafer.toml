@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "decision-tree-classifier"
+version = "0.1.0"
+abi = 1
+summary = "Build a decision tree from a pasted table and print if/then rules, importance, and predictions."

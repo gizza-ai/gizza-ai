@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "images-to-animated-webp"
+version = "0.1.0"
+abi = 1
+summary = "Combine images into an animated WebP"

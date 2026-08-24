@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/k8s-manifest-splitter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Split a multi-document Kubernetes YAML into individual resource files",
+  "role": "skill",
+  "tool": {
+    "description": "Split a multi-document Kubernetes YAML stream (helm template / kustomize build / kubectl get -o yaml output) into its individual resources, indexed by kind and name. Each resource gets a filename from a template (default '<kind>-<name>.yaml', with {namespace}/{group}/{index} placeholders and '/' for directories). Render the split as a file bundle, an index table, JSON, a kustomization.yaml, or a shell script that writes the files. Filter with Kind/name wildcard selectors, sort by kind, name or dependency-safe apply order, expand 'kind: List' wrappers, and drop non-Kubernetes documents. Document bodies stay byte-verbatim, so comments survive. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "exclude": {
+          "default": "",
+          "description": "Drop resources matching these comma-separated 'Kind' or 'Kind/name' selectors (same wildcard syntax as include; applied after include). Blank (default) drops nothing.",
+          "type": "string"
+        },
+        "expand_lists": {
+          "default": true,
+          "description": "Split a 'kind: List' / '*List' wrapper (what 'kubectl get -o yaml' returns) into its items, one resource per item. Expanded items are re-serialized, so their comments are lost; every other document is kept byte-verbatim. Default true.",
+          "type": "boolean"
+        },
+        "filename_template": {
+          "default": "{kind}-{name}.yaml",
+          "description": "Filename pattern for each resource. Placeholders: {kind} (lowercased), {Kind}, {name}, {namespace} ('default' when unset), {apiVersion}, {group} ('core' for the core group), {version}, {index} (1-based, zero-padded), plus any dotted field path read straight from the document, e.g. {metadata.labels.app} or {spec.replicas}. A '/' makes directories, e.g. '{kind}/{name}.yaml'. Default '{kind}-{name}.yaml'.",
+          "type": "string"
+        },
+        "include": {
+          "default": "",
+          "description": "Keep only resources matching these comma-separated selectors. A selector is 'Kind' or 'Kind/name', case-insensitive, with * and ? wildcards, e.g. 'Deployment,Service/web-*'. Blank (default) keeps everything.",
+          "type": "string"
+        },
+        "include_triple_dash": {
+          "default": false,
+          "description": "Start each document in the 'files' output with a '---' line, so the bundle stays a valid multi-document YAML stream. Default false.",
+          "type": "boolean"
+        },
+        "manifest": {
+          "description": "The multi-document Kubernetes YAML to split, e.g. the output of 'helm template', 'kustomize build' or 'kubectl get -o yaml'. Documents are separated by a '---' line. Up to 2,000,000 bytes and 1000 documents.",
+          "type": "string"
+        },
+        "output": {
+          "default": "files",
+          "description": "What to render: 'files' (default) every document under a '# ===== <filename> =====' header; 'index' an aligned table of kind/name/namespace/apiVersion/lines/filename; 'json' one object per resource including its YAML; 'kustomization' a kustomization.yaml listing the filenames; 'shell' a POSIX sh script that writes every file.",
+          "enum": [
+            "files",
+            "index",
+            "json",
+            "kustomization",
+            "shell"
+          ],
+          "type": "string"
+        },
+        "skip_non_k8s": {
+          "default": false,
+          "description": "Drop documents that are missing apiVersion, kind or metadata.name instead of naming them 'unknown-unnamed.yaml'. Default false.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "document",
+          "description": "Output order: 'document' (default) keeps the input order; 'kind' sorts alphabetically by kind then name; 'name' by name then kind; 'apply' uses the dependency-safe install order (Namespace, ServiceAccount, Secret, ConfigMap, CRD, RBAC, Service, workloads, Ingress).",
+          "enum": [
+            "document",
+            "kind",
+            "name",
+            "apply"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "manifest"
+      ],
+      "type": "object"
+    }
+  }
+}

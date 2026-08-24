@@ -1,0 +1,87 @@
+slug          = "config-file-validator"
+title         = "Config File Validator — JSON, YAML, TOML, INI, XML"
+description   = "Validate pasted JSON, YAML, TOML, INI or XML config files in your browser with line/column diagnostics, context, hints and JSON reports."
+tags          = ["config validator", "json validator", "yaml validator", "toml validator", "ini validator", "xml validator", "syntax checker"]
+h1            = "Validate config files with line and column errors"
+hero_subtitle = "Paste JSON, YAML, TOML, INI or XML and get parser diagnostics with source context and targeted hints. Runs locally, no upload."
+wasm          = "gizza_ai_config_file_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Config file"
+placeholder = "server:\n  host: localhost\n  port: 8080"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Format"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+json = "JSON"
+yaml = "YAML"
+toml = "TOML"
+ini  = "INI"
+xml  = "XML"
+
+[[input]]
+name   = "strict"
+label  = "Strict warnings"
+source = "field"
+
+[[input]]
+name   = "report_format"
+label  = "Report format"
+source = "field"
+
+[input.labels]
+report = "Human report"
+json   = "JSON diagnostics"
+
+[[input]]
+name        = "context_lines"
+label       = "Context lines"
+placeholder = "2"
+source      = "field"
+
+[[example]]
+label = "YAML indentation error"
+[example.params]
+input = "server:\n  host: localhost\n   port: 8080"
+format = "yaml"
+strict = "false"
+report_format = "report"
+context_lines = "1"
+
+[[example]]
+label = "JSON trailing comma"
+[example.params]
+input = "{\n  \"a\": 1,\n}"
+format = "json"
+strict = "false"
+report_format = "report"
+context_lines = "2"
+
+[[example]]
+label = "TOML valid"
+[example.params]
+input = "[server]\nhost = \"localhost\"\nport = 8080"
+format = "toml"
+strict = "true"
+report_format = "json"
+context_lines = "0"
+
+[[example]]
+label = "XML unclosed tag"
+[example.params]
+input = "<config><server>web</config>"
+format = "xml"
+strict = "false"
+report_format = "report"
+context_lines = "1"

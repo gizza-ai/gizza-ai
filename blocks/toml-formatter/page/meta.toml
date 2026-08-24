@@ -1,0 +1,134 @@
+slug          = "toml-formatter"
+title         = "TOML Formatter — Validate, Sort and Preserve Comments"
+description   = "Format TOML in your browser with validation, key sorting, indentation, array layout controls and comment preservation."
+tags          = ["toml formatter", "toml beautifier", "toml validator", "config formatter", "developer tools"]
+h1            = "Format TOML without losing comments"
+hero_subtitle = "Paste TOML, validate it, then normalize spacing, sorting, arrays and blank lines while preserving comments and literal values where possible."
+wasm          = "gizza_ai_toml_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted TOML"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "TOML input"
+placeholder = "# Package metadata\n[package]\nname='demo'\nversion = \"0.1.0\"\nfeatures=[\"cli\", \"web\"]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[input]]
+name   = "sort_keys"
+label  = "Key order"
+source = "field"
+
+[input.labels]
+preserve = "Preserve source order"
+asc      = "Sort A to Z"
+desc     = "Sort Z to A"
+
+[[input]]
+name   = "spacing"
+label  = "Equals spacing"
+source = "field"
+
+[input.labels]
+standard = "Standard: key = value"
+compact  = "Compact: key=value"
+
+[[input]]
+name   = "array_style"
+label  = "Array layout"
+source = "field"
+
+[input.labels]
+auto     = "Auto by width/comments"
+expand   = "Expand one item per line"
+collapse = "Collapse to one line"
+
+[[input]]
+name        = "column_width"
+label       = "Array width budget"
+placeholder = "80"
+source      = "field"
+kind        = "slider"
+min         = "20"
+max         = "200"
+step        = "5"
+
+[[input]]
+name   = "align_values"
+label  = "Align equals signs"
+source = "field"
+
+[[input]]
+name   = "blank_line_before_tables"
+label  = "Blank line before tables"
+source = "field"
+
+[[input]]
+name   = "keep_comments"
+label  = "Keep comments"
+source = "field"
+
+[[example]]
+label = "Messy package file"
+[example.params]
+input = "# Package metadata\n[package]\nversion=\"0.1.0\"\nname='demo' # literal spelling kept\nfeatures=[\"cli\",\"web\",\"docs\"]\n\n[dependencies]\nserde={ version=\"1\", features=[\"derive\"] }"
+indent = "0"
+sort_keys = "preserve"
+spacing = "standard"
+array_style = "auto"
+column_width = "80"
+align_values = "false"
+blank_line_before_tables = "true"
+keep_comments = "true"
+
+[[example]]
+label = "Sort keys"
+[example.params]
+input = "z = 3\na = 1\nm = { beta = 2, alpha = 1 }"
+indent = "0"
+sort_keys = "asc"
+spacing = "standard"
+array_style = "auto"
+column_width = "80"
+align_values = "false"
+blank_line_before_tables = "true"
+keep_comments = "true"
+
+[[example]]
+label = "Expand arrays"
+[example.params]
+input = "features = [\"alpha\", \"bravo\", \"charlie\", \"delta\"]"
+indent = "2"
+sort_keys = "preserve"
+spacing = "standard"
+array_style = "expand"
+column_width = "60"
+align_values = "false"
+blank_line_before_tables = "true"
+keep_comments = "true"
+
+[[example]]
+label = "Strip comments + compact"
+[example.params]
+input = "# remove this\nname = \"demo\" # and this\nversion = \"0.1.0\""
+indent = "0"
+sort_keys = "preserve"
+spacing = "compact"
+array_style = "auto"
+column_width = "80"
+align_values = "false"
+blank_line_before_tables = "true"
+keep_comments = "false"

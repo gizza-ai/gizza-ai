@@ -1,0 +1,63 @@
+{
+  "name": "gizza-ai/unified-diff-reverse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Invert a pasted unified diff into the reverse patch that undoes the change.",
+  "role": "skill",
+  "tool": {
+    "description": "Reverse a pasted unified / git diff: every + line becomes -, every - becomes +, each `@@ -a,b +c,d @@` header becomes `@@ -c,d +a,b @@`, and git's extended headers are inverted the way `git diff -R` inverts them — `new file mode` becomes `deleted file mode`, old/new modes swap, rename/copy from/to swap, the two `index` blob hashes swap, and the `---`/`+++` path lines swap. output='patch' (default) returns the reverse patch text; 'summary' reports per-file hunk counts with each reversed header next to its original; 'json' returns that report plus the patch as data. file restricts a multi-file patch to one path; index_lines chooses swap (default) / keep / drop for `index` lines; swap_paths (default true) controls the path-line swap; on_binary chooses fail (default) / skip / keep for binary sections, which carry no reverse delta. CRLF line endings, the final-newline state and `\\ No newline at end of file` markers are preserved; input cap 1 MB. This emits a patch and applies nothing — use apply-patch to apply one (its reverse flag does the reverse-apply) and diff-hunk-selector to pick hunks. Combined merge diffs with @@@ headers are rejected.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "diff": {
+          "description": "The unified diff / patch text to invert — the output of `git diff`, `git show`, `git format-patch`, `diff -u` or `svn diff`. Commit messages and mail headers around the patch are ignored. Max 1000000 bytes (1 MB).",
+          "type": "string"
+        },
+        "file": {
+          "default": "",
+          "description": "Restrict a multi-file patch to one file, matched against the path as it appears after `+++ b/`. An exact path, a path suffix on a '/' boundary, or a bare basename all match. Blank (default) reverses every file in the patch.",
+          "type": "string"
+        },
+        "index_lines": {
+          "default": "swap",
+          "description": "What to do with git's `index <old>..<new>` blob-hash lines. 'swap' (default) exchanges the two hashes the way `git diff -R` does. 'keep' leaves the line untouched. 'drop' removes it entirely — the safe choice when the hashes no longer exist in the target repository, since `git apply` then cannot try a blob-hash fallback.",
+          "enum": [
+            "swap",
+            "keep",
+            "drop"
+          ],
+          "type": "string"
+        },
+        "on_binary": {
+          "default": "fail",
+          "description": "What to do with a `GIT binary patch` / `Binary files … differ` file section, which carries no reverse delta and therefore cannot be inverted. 'fail' (default) refuses and names the file. 'skip' drops those file sections and warns. 'keep' passes them through UNCHANGED and warns — the result will not revert those files.",
+          "enum": [
+            "fail",
+            "skip",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "patch",
+          "description": "What to return. 'patch' (default) is the reversed patch text itself, ready to save or pipe into `git apply`. 'summary' is a human-readable report — per-file hunk counts and each reversed @@ header next to the original one. 'json' is the same report as data, with the reversed patch under the 'patch' key.",
+          "enum": [
+            "patch",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "swap_paths": {
+          "default": true,
+          "description": "When true (default), the `--- a/…` and `+++ b/…` path lines swap sides (and so do the two halves of the `diff --git` line), which is what makes a rename or a new-file patch revert correctly. Set false to keep the original header paths verbatim — only useful when a downstream consumer keys off the forward path.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "diff"
+      ],
+      "type": "object"
+    }
+  }
+}

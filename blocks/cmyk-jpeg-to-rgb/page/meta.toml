@@ -1,0 +1,57 @@
+slug          = "cmyk-jpeg-to-rgb"
+title         = "CMYK JPEG to RGB Converter — Fix Print JPEGs for the Web"
+description   = "Convert a CMYK or Adobe YCCK JPEG to a standard RGB PNG, JPEG or WebP in your browser. Choose format, quality and chroma. No upload."
+tags          = ["cmyk to rgb", "cmyk jpeg", "ycck", "adobe cmyk", "convert cmyk", "print to web", "image converter", "srgb", "png", "color space"]
+h1            = "CMYK JPEG to RGB Converter"
+hero_subtitle = "Turn a four-ink CMYK or Adobe YCCK JPEG — the kind print workflows export — into a standard RGB PNG, JPEG or WebP. Conversion runs in your browser; the file never leaves your device."
+wasm          = "gizza_ai_cmyk_jpeg_to_rgb_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "RGB image"
+format        = "image"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "image/*"
+label  = "CMYK JPEG (any image format works)"
+
+# Field order MUST equal web/src/lib.rs build_argv param order: format, quality, chroma.
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+png  = "PNG — lossless (default)"
+jpeg = "JPEG — smaller file"
+webp = "WebP — smallest for the web"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Quality (JPEG/WebP only, 1–100)"
+placeholder = "90"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "chroma"
+source = "field"
+label  = "Chroma subsampling (JPEG only)"
+
+[input.labels]
+"4:2:0" = "4:2:0 — smaller file (default)"
+"4:4:4" = "4:4:4 — full colour detail for type & logos"
+
+[[example]]
+label  = "Lossless PNG for the web"
+params = { format = "png", quality = "90", chroma = "4:2:0" }
+
+[[example]]
+label  = "Smaller JPEG (quality 75)"
+params = { format = "jpeg", quality = "75", chroma = "4:2:0" }
+
+[[example]]
+label  = "Print artwork — JPEG 4:4:4"
+params = { format = "jpeg", quality = "95", chroma = "4:4:4" }

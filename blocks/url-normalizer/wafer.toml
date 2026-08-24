@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "url-normalizer"
+version = "0.1.0"
+abi = 1
+summary = "Canonicalize URLs: lowercase the host, drop default ports, resolve dot-segments and sort the query."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "vcard-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate vCard/.vcf files and flag bad phones, emails and missing fields."

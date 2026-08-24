@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/json-assertion-runner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run JSONPath assertions against a JSON payload",
+  "role": "skill",
+  "tool": {
+    "description": "Run declarative JSONPath assertions against a JSON payload and return a pass/fail report. Rules can be written as a compact line DSL (`$.status equals ok`, `$.items[*].price lte 100`, `$.user.id matches ^u-\\d+$`) or as a JSON array of rule objects. Operators include exists/not_exists, equals/not_equals, type, gt/gte/lt/lte, range, contains/not_contains, matches, count, length, empty, and not_empty; `count` asserts how many nodes a path selected, `length` the size of each matched node. Value comparisons must hold for every matched node, and a path matching nothing fails. The runner reports the failing JSONPath location and actual value where possible, can stop after the first failure, supports case-sensitive or case-insensitive string checks, and can render either human-readable text or machine-readable JSON. Up to 200 assertions per run; nothing is fetched, the payload is passed in.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "assertions": {
+          "description": "Assertion rules, one per line: `<jsonpath> <operator> [expected]` — e.g. `$.status equals ok`, `$.items[*].price lte 100`, `$.user.id matches ^u-\\d+$`, `$.items length 2`. Blank lines and `#` comments are ignored. `count` asserts how many nodes the path selected; `length` asserts the size of each matched array, object, or string. A JSON array of `{path, op, expected}` objects (optional `name`) is accepted too; use it for paths containing spaces. Maximum 200 assertions.",
+          "type": "string"
+        },
+        "case_sensitive": {
+          "default": true,
+          "description": "Make string equals/contains/matches checks case-sensitive. Turn off for case-insensitive comparisons.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "text",
+          "description": "Report format: text for a human-readable pass/fail summary, or json for a machine-readable report object.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "payload": {
+          "description": "JSON payload to test. Objects, arrays, and scalar JSON values are accepted.",
+          "type": "string"
+        },
+        "rules_format": {
+          "default": "auto",
+          "description": "How to parse assertions: auto detects JSON arrays vs the line DSL; dsl forces one assertion per line; json expects an array of rule objects.",
+          "enum": [
+            "auto",
+            "dsl",
+            "json"
+          ],
+          "type": "string"
+        },
+        "stop_on_first_failure": {
+          "default": false,
+          "description": "Stop evaluating after the first failed assertion and mark the remaining rules skipped.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "payload",
+        "assertions"
+      ],
+      "type": "object"
+    }
+  }
+}

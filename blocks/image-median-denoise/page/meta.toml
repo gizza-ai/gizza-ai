@@ -1,0 +1,109 @@
+slug          = "image-median-denoise"
+title         = "Median Filter Denoise — Remove Salt-and-Pepper Noise from an Image"
+description   = "Clean salt-and-pepper dots, scanner dust and speckle out of a photo with a median filter that keeps edges sharp. Adjustable window, channels and passes, in your browser."
+tags          = ["image", "denoise", "median filter", "salt and pepper", "despeckle", "noise reduction", "dust removal", "speckle", "scan cleanup", "edge preserving", "png", "jpg", "webp"]
+h1            = "Remove Image Noise with a Median Filter"
+hero_subtitle = "Pick an image and the median filter replaces every pixel with the middle value of its neighbours — isolated dots and dust disappear, edges stay crisp. Nothing is uploaded."
+wasm          = "gizza_ai_image_median_denoise_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Denoised image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# radius, target, channels, passes, format, quality, strip_metadata.
+[[input]]
+name        = "radius"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 20
+step        = "1"
+label       = "Window radius (px) — window is 2×radius+1"
+placeholder = "1"
+
+[[input]]
+name   = "target"
+source = "field"
+label  = "Specks to remove"
+
+[input.labels]
+"both"   = "Both — true median, bright and dark specks"
+"bright" = "Bright only — white dust and salt"
+"dark"   = "Dark only — black specks and pepper"
+
+[[input]]
+name   = "channels"
+source = "field"
+label  = "Channels to filter"
+
+[input.labels]
+"all"    = "All — the whole image"
+"luma"   = "Luma only — brightness noise, keeps colour detail"
+"chroma" = "Chroma only — colour blotches, keeps detail sharp"
+
+[[input]]
+name        = "passes"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 3
+step        = "1"
+label       = "Passes"
+placeholder = "1"
+
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"keep" = "Keep — same format as the upload"
+"png"  = "PNG — lossless, best for scans"
+"jpg"  = "JPG — smaller, lossy"
+"webp" = "WebP — modern, small"
+
+[[input]]
+name        = "quality"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 100
+step        = "1"
+label       = "Quality (jpg/webp only)"
+placeholder = "92"
+
+[[input]]
+name   = "strip_metadata"
+source = "field"
+label  = "Strip metadata (EXIF, camera info)"
+
+[[example]]
+label  = "Salt-and-pepper (3×3)"
+params = { radius = "1", target = "both", channels = "all", passes = "1", format = "keep", quality = "92" }
+
+[[example]]
+label  = "Scanner dust (5×5)"
+params = { radius = "2", target = "both", channels = "all", passes = "1", format = "png", quality = "92" }
+
+[[example]]
+label  = "White dust on a dark photo"
+params = { radius = "2", target = "bright", channels = "all", passes = "1", format = "keep", quality = "92" }
+
+[[example]]
+label  = "High-ISO colour noise"
+params = { radius = "2", target = "both", channels = "chroma", passes = "1", format = "keep", quality = "92" }
+
+[[example]]
+label  = "Heavy noise, two gentle passes"
+params = { radius = "1", target = "both", channels = "all", passes = "2", format = "keep", quality = "92" }
+
+[[example]]
+label  = "Web-sized clean JPG"
+params = { radius = "2", target = "both", channels = "all", passes = "1", format = "jpg", quality = "80" }

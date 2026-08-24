@@ -1,0 +1,21 @@
+[package]
+name = "gizza-ai-xlsx-inspector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Pure-Rust spreadsheet reader (.xlsx/.xlsm/.xlsb/.xls/.ods). default-features keeps
+# `dates` (chrono) off — we only CLASSIFY cells, never render a date, and calamine
+# still yields `Data::DateTime` for date-formatted cells without that feature.
+# Compiles to wasm32-unknown-unknown / wasm32-wasip1 (no C or system deps).
+calamine = { version = "0.26", default-features = false }
+# Lists the OPC package parts (xl/tables/…, xl/charts/…, xl/media/…) so the report
+# can count tables/pivot tables/charts/images the way desktop workbook statistics
+# does. Only the central directory is read — no entry is ever decompressed.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+serde_json = "1"
+
+[dev-dependencies]
+# Builds the in-memory .xlsx fixtures the unit tests inspect.
+rust_xlsxwriter = "0.79"

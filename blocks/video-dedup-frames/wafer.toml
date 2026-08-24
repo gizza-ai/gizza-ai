@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-dedup-frames"
+version = "0.1.0"
+abi = 1
+summary = "Drop consecutive duplicate frames from a video"

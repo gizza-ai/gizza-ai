@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "audio-feature-csv-exporter"
+version = "0.1.0"
+abi = 1
+summary = "Export per-frame audio features (RMS, centroid, ZCR, rolloff, flatness) as CSV."

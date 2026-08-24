@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "stack-trace-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Parse a stack trace into frames, find the root cause, and mark your code vs framework code."

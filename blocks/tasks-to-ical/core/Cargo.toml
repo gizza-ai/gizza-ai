@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-tasks-to-ical-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# chrono for date arithmetic + calendar validation; alloc-only and clock-free
+# (DTSTAMP is a fixed constant), so it builds for wasm32-unknown-unknown.
+chrono = { version = "0.4", default-features = false, features = ["alloc"] }

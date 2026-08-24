@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/ip-address-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate, canonicalize and classify IPv4 and IPv6 addresses",
+  "role": "skill",
+  "tool": {
+    "description": "Validate IPv4 and IPv6 addresses, rewrite them in canonical form, and classify what each one is. Takes one address per line (up to 5000) and, for every line, reports: valid or invalid with a SPECIFIC reason ('octet 4 (256) is out of range 0-255', \"'::' may appear only once\", 'prefix length 33 is out of range for IPv4 (0-32)'); the canonical text — IPv4 with leading zeros stripped, IPv6 in the RFC 5952 lowercase compressed form or fully expanded on request; the category from the IANA special-purpose registries (private, loopback, link-local, multicast, documentation, shared/CGNAT, unique-local, teredo, 6to4, nat64, ipv4-mapped, benchmarking, reserved, broadcast, unspecified, global) with the exact block and RFC that decided it; whether it is globally routable; the legacy IPv4 class letter; the integer, hex and dotted-binary values; the in-addr.arpa / ip6.arpa reverse-DNS pointer name; and any embedded IPv4 inside a mapped, 6to4 or NAT64 address. Each line may carry a '/prefix' length, a ':port' (including the bracketed '[2001:db8::1]:443' authority form) and a '%zone' id, each individually acceptable or refusable via allow_prefix / allow_port. family='ipv4'|'ipv6' asserts a single-family list. dedupe collapses addresses that share a canonical form. output selects the shape: 'report' (default, labelled text), 'table' (CSV), 'json', 'valid' (canonical addresses only), 'invalid' (rejects and reasons), or 'summary' (CSV of the totals and a count per category). Syntax and classification only — nothing is pinged, resolved or geolocated, and it runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "addresses": {
+          "description": "The IP addresses to check, one per line. Blank lines are ignored. Each line may carry an optional '/prefix' length, ':port' (or '[v6]:port'), and '%zone' id — e.g. '192.168.1.1', '2001:0db8::1', '10.0.0.0/8', '[2001:db8::1]:443', 'fe80::1%eth0'. Up to 5000 lines / 500000 bytes per run.",
+          "type": "string"
+        },
+        "allow_leading_zeros": {
+          "default": false,
+          "description": "Accept IPv4 octets written with leading zeros, e.g. 192.168.01.1, and read them as DECIMAL. Default false, which rejects them — they are ambiguous because some C-derived parsers (inet_aton, ping) read a leading zero as octal, so 010 means 8 there and 10 here. Turn this on only for input you know is decimal.",
+          "type": "boolean"
+        },
+        "allow_port": {
+          "default": true,
+          "description": "Accept a trailing ':port' such as 192.0.2.7:8080, or the bracketed IPv6 authority form [2001:db8::1]:443, and validate the port is 0-65535. Default true. Set false to reject any port suffix.",
+          "type": "boolean"
+        },
+        "allow_prefix": {
+          "default": true,
+          "description": "Accept a trailing '/prefix' length such as 10.0.0.0/8 or 2001:db8::/32, validating it against the family's range (0-32 for IPv4, 0-128 for IPv6). Default true. Set false to reject CIDR suffixes, for a field that must hold a bare host address.",
+          "type": "boolean"
+        },
+        "dedupe": {
+          "default": false,
+          "description": "Drop repeat addresses instead of listing them. Duplicates are matched on the CANONICAL form, so 2001:DB8::1 and 2001:0db8:0000:0000:0000:0000:0000:0001 count as the same address. Default false, which keeps every line and marks the later ones 'duplicate'. The 'summary' counts always cover every input line regardless of this setting.",
+          "type": "boolean"
+        },
+        "family": {
+          "default": "any",
+          "description": "Which address family to accept. 'any' (default) accepts both. 'ipv4' or 'ipv6' turns an address of the other family into an invalid result with the reason 'family filter is set to …', which is how you assert that a list is single-family.",
+          "enum": [
+            "any",
+            "ipv4",
+            "ipv6"
+          ],
+          "type": "string"
+        },
+        "ipv6_form": {
+          "default": "compressed",
+          "description": "The canonical IPv6 spelling to emit. 'compressed' (default) is the RFC 5952 form — lowercase hex, no leading zeros in a group, and the longest run of zero groups collapsed to '::'. 'expanded' is the full eight groups of four hex digits, e.g. 2001:0db8:0000:0000:0000:0000:0000:0001. Ignored for IPv4.",
+          "enum": [
+            "compressed",
+            "expanded"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "The shape of the result. 'report' (default) is a human-readable labelled block per address. 'table' is CSV with the header line,input,status,version,canonical,expanded,type,scope,routable,prefix,port,zone,embedded_ipv4,integer,hex,reverse_dns,error. 'json' is an array of objects with the same fields. 'valid' is just the canonical addresses, one per line, with zone/prefix/port put back on — the form to paste into a config. 'invalid' is 'line N: input — reason' for the rejected lines only. 'summary' is a CSV of the totals (total, valid, invalid, duplicates, ipv4, ipv6, globally_routable, and a type:<kind> count per category).",
+          "enum": [
+            "report",
+            "table",
+            "json",
+            "valid",
+            "invalid",
+            "summary"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "addresses"
+      ],
+      "type": "object"
+    }
+  }
+}

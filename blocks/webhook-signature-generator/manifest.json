@@ -1,0 +1,116 @@
+{
+  "name": "gizza-ai/webhook-signature-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute the signing header (HMAC + timestamp) for a webhook payload so you can replay or test it",
+  "role": "skill",
+  "tool": {
+    "description": "Compute the signing header(s) a webhook provider would send for a raw request body, so you can replay or test a delivery against your own receiver. Pick the provider scheme — stripe, github, slack, shopify, standard-webhooks, svix, square, twilio, paddle, or custom — paste the exact body and the endpoint's signing secret, and it returns the signed byte string, the HMAC, the finished header lines, and a ready-to-run cURL command (choose with the `output` param). Timestamped schemes (stripe, slack, standard-webhooks, svix, paddle) take a `timestamp` in Unix seconds or ISO-8601, or use the current time when it is blank; square and twilio also need the destination `url` because they sign it with the body. `custom` exposes the raw knobs: a {payload}/{timestamp}/{id}/{url} template, algorithm (md5/sha1/sha256/sha384/sha512), output encoding (hex/hex-upper/base64/base64url), header name and prefix. All HMAC runs locally — the secret is never transmitted. This GENERATES signatures for testing your own endpoints; it does not verify an incoming signature and does not send the request for you. Asymmetric schemes (SendGrid ECDSA, PayPal certificates, Discord Ed25519) are not covered.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "sha256",
+          "description": "Hash underlying the HMAC. Only applies when provider is 'custom' — every named provider's algorithm is fixed by its spec (a mismatched choice is ignored and reported in the notes). Default sha256.",
+          "enum": [
+            "md5",
+            "sha1",
+            "sha256",
+            "sha384",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "encoding": {
+          "default": "hex",
+          "description": "How the HMAC bytes are rendered in the header. Only applies when provider is 'custom'; named providers use the encoding their spec mandates. Default hex (lowercase).",
+          "enum": [
+            "hex",
+            "hex-upper",
+            "base64",
+            "base64url"
+          ],
+          "type": "string"
+        },
+        "header_name": {
+          "description": "Header name to emit for provider=custom, e.g. X-Signature or X-Webhook-Signature. Default X-Signature. Ignored by named providers, which use their own header names.",
+          "type": "string"
+        },
+        "message_id": {
+          "description": "Message id signed by the standard-webhooks and svix schemes and sent as the webhook-id / svix-id header, e.g. msg_2KWPBgLlAfxdpx2AI54pPJ85f4W. Leave blank to derive a stable id from the payload so repeated runs stay reproducible. Ignored by other providers unless a custom template uses {id}.",
+          "type": "string"
+        },
+        "output": {
+          "default": "all",
+          "description": "Which artifact to return. 'all' (default) is a labelled report with the signed bytes, signature, headers, cURL command and any notes; 'headers' is every header line to send; 'header' is just the primary signature header's value; 'signature' is the bare encoded HMAC; 'signed-payload' is the exact byte string that was HMAC'd (the fastest way to debug a mismatch); 'curl' is a ready-to-run replay command.",
+          "enum": [
+            "all",
+            "headers",
+            "header",
+            "signature",
+            "signed-payload",
+            "curl"
+          ],
+          "type": "string"
+        },
+        "payload": {
+          "description": "The raw request body to sign, byte for byte, e.g. {\"id\":\"evt_1\",\"type\":\"payment_intent.succeeded\"}. Every provider signs the exact bytes it sent, so re-serializing or pretty-printing the JSON changes the signature. Maximum 2 MiB.",
+          "type": "string"
+        },
+        "provider": {
+          "default": "stripe",
+          "description": "Which provider's signing scheme to reproduce. Each one fixes what gets signed, the hash, and the header layout: stripe (Stripe-Signature: t=…,v1=hex over '<timestamp>.<body>'), github (X-Hub-Signature-256: sha256=hex over the body, plus the legacy sha1 header), slack (X-Slack-Signature: v0=hex over 'v0:<timestamp>:<body>'), shopify (X-Shopify-Hmac-SHA256: base64 over the body), standard-webhooks / svix (v1,base64 over '<id>.<timestamp>.<body>' with a base64-decoded whsec_ secret), square (base64 over '<url><body>'), twilio (X-Twilio-Signature: base64 HMAC-SHA1 over the URL plus alphabetically sorted form fields), paddle (Paddle-Signature: ts=…;h1=hex over '<timestamp>:<body>'), or custom for your own template. Default stripe.",
+          "enum": [
+            "stripe",
+            "github",
+            "slack",
+            "shopify",
+            "standard-webhooks",
+            "svix",
+            "square",
+            "twilio",
+            "paddle",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "secret": {
+          "description": "The endpoint's signing secret, e.g. whsec_… (Stripe/Standard Webhooks), a GitHub webhook secret, a Slack signing secret, or a Twilio auth token. Used only as the local HMAC key — it is never transmitted and never appears in the output.",
+          "type": "string"
+        },
+        "secret_encoding": {
+          "default": "auto",
+          "description": "How to turn the secret string into key bytes. 'auto' (default) follows the provider: standard-webhooks and svix secrets are base64 with the whsec_ prefix stripped, everything else is used as literal UTF-8 text (Stripe's whsec_ secret is text, NOT base64 — a common cause of signatures that never match). Use hex or base64 when your secret is stored encoded.",
+          "enum": [
+            "auto",
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "signature_prefix": {
+          "description": "Literal text placed before the encoded signature in the custom header value, e.g. 'sha256=' or 'v1='. Default empty (bare signature). Ignored by named providers.",
+          "type": "string"
+        },
+        "template": {
+          "description": "Signed-string template for provider=custom. Placeholders: {payload}, {timestamp}, {id}, {url}; \\n and \\t become real newline/tab. Default {payload} (sign the body alone). Example: v0:{timestamp}:{payload}. Ignored by named providers.",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "Signing timestamp for the schemes that use one (stripe, slack, standard-webhooks, svix, paddle). Accepts Unix SECONDS (e.g. 1700000000) or ISO-8601 (e.g. 2023-11-14T22:13:20Z, with optional offset). Leave blank to use the current time. Receivers reject stale timestamps, so use 'now' to replay live and a fixed value to reproduce a known signature. Ignored by schemes that sign the body alone.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Destination endpoint URL, e.g. https://example.com/webhook. REQUIRED for square and twilio, which sign the URL together with the body (include the query string exactly as the provider would call it). For every other provider it is optional and is used only as the target of the generated cURL command.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "payload",
+        "secret"
+      ],
+      "type": "object"
+    }
+  }
+}
