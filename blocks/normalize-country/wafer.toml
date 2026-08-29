@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "normalize-country"
+version = "0.1.0"
+abi = 1
+summary = "Normalize messy country names and codes to canonical ISO 3166-1 forms."
