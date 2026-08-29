@@ -1,0 +1,119 @@
+slug          = "normalize-country"
+title         = "Country Name Normalizer — ISO 3166 Alpha-2, Alpha-3 & Numeric"
+description   = "Clean up messy country names and codes into canonical ISO 3166-1 name, alpha-2, alpha-3, numeric and flag. Batch, in your browser. Free, no sign-up."
+tags          = ["country name normalizer", "iso 3166", "country code converter", "alpha-2", "alpha-3", "numeric country code", "country name to code", "bulk country codes", "clean country data", "country name lookup"]
+h1            = "Country Name Normalizer"
+hero_subtitle = "Turn a messy column of country names, codes and typos into canonical ISO 3166-1 values — name, alpha-2, alpha-3, numeric and flag. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_normalize_country_web"
+export        = "run"
+live          = false
+output_label  = "Normalized countries"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Countries (one per line, or comma-separated)"
+placeholder = "usa\nDeutschland\nKorea, Republic of\n826\nSwizerland"
+source      = "field"
+multiline   = true
+
+# output/name_style/delimiter/on_unmatched/sort render as <select> and
+# dedupe/fuzzy as checkboxes — the control type and the option lists are derived
+# from the descriptor's schema (manifest.json), so they are not duplicated here.
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+table   = "Table — every form"
+name    = "Name only"
+alpha2  = "Alpha-2 only (US)"
+alpha3  = "Alpha-3 only (USA)"
+numeric = "Numeric only (840)"
+flag    = "Flag emoji only"
+csv     = "CSV — every field"
+json    = "JSON — every field"
+
+[[input]]
+name   = "name_style"
+label  = "Name style"
+source = "field"
+
+[input.labels]
+iso    = "ISO short name — Korea (Republic of)"
+common = "Everyday name — South Korea"
+
+[[input]]
+name   = "delimiter"
+label  = "Split input on"
+source = "field"
+
+[input.labels]
+auto      = "Auto — lines, else commas"
+newline   = "New line"
+comma     = "Comma"
+semicolon = "Semicolon"
+pipe      = "Pipe |"
+tab       = "Tab"
+
+[[input]]
+name   = "on_unmatched"
+label  = "Rows that don't resolve"
+source = "field"
+
+[input.labels]
+keep  = "Keep the original text"
+blank = "Leave blank"
+omit  = "Drop the row"
+only  = "Show only these (audit)"
+
+[[input]]
+name   = "dedupe"
+label  = "Remove duplicate countries"
+source = "field"
+
+[[input]]
+name   = "sort"
+label  = "Order"
+source = "field"
+
+[input.labels]
+input = "As entered"
+asc   = "A → Z"
+desc  = "Z → A"
+
+[[input]]
+name   = "fuzzy"
+label  = "Correct near-miss spellings"
+source = "field"
+
+[[example]]
+label = "Messy list"
+
+[example.params]
+input  = "usa\nDeutschland\nKorea, Republic of\n826\nSwizerland\nAtlantis"
+output = "table"
+
+[[example]]
+label = "Names → alpha-2"
+
+[example.params]
+input  = "United States, United Kingdom, Japan, Brazil, Côte d'Ivoire"
+output = "alpha2"
+
+[[example]]
+label = "Codes → everyday names"
+
+[example.params]
+input      = "KR\nCZ\nTR\nCD\nNL"
+output     = "name"
+name_style = "common"
+
+[[example]]
+label = "Audit what won't import"
+
+[example.params]
+input        = "Kosovo\nUSA\nSoviet Union\nJapan\nAtlantis"
+on_unmatched = "only"
