@@ -1,0 +1,293 @@
+slug          = "radar-chart"
+title         = "Radar Chart Generator — Spider Chart SVG Maker"
+description   = "Paste wide, long, or axis/value data and render a local SVG radar/spider chart with scale, grid, colour, legend, summary, and JSON outputs."
+tags          = ["radar chart", "spider chart", "web chart", "radar chart generator", "svg chart", "multi-axis comparison", "scorecard chart", "comparison chart"]
+h1            = "Radar Chart Generator"
+hero_subtitle = "Compare products, teams, candidates, or scorecards across three or more numeric axes with a local SVG radar chart. Paste wide, long, or single-series data; choose shared, per-axis, or percent scaling; then tune rings, grid, labels, colours, legend, and canvas size."
+wasm          = "gizza_ai_radar_chart_web"
+export        = "run"
+live          = false
+output_label  = "Radar chart output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "product,Camera,Battery,Speed,Price\nPhone A,8,7,9,6\nPhone B,6,9,7,8"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layout"
+label       = "Input layout"
+placeholder = "auto"
+source      = "field"
+[input.labels]
+auto = "Auto-detect"
+wide = "Wide table"
+long = "Long series/axis/value"
+single = "Single series axis/value"
+
+[[input]]
+name        = "scale"
+label       = "Scale mode"
+placeholder = "shared"
+source      = "field"
+[input.labels]
+shared = "Shared scale"
+per_axis = "Normalize per axis"
+percent = "0–100 percent"
+
+[[input]]
+name        = "scale_min"
+label       = "Scale minimum"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-100"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "scale_max"
+label       = "Scale maximum (0 = auto)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "100"
+step        = "1"
+
+[[input]]
+name        = "rings"
+label       = "Grid rings"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "grid_shape"
+label       = "Grid shape"
+placeholder = "polygon"
+source      = "field"
+[input.labels]
+polygon = "Polygon web"
+circle = "Concentric circles"
+
+[[input]]
+name        = "show_spokes"
+label       = "Show spokes"
+source      = "field"
+
+[[input]]
+name        = "show_axis_labels"
+label       = "Show axis labels"
+source      = "field"
+
+[[input]]
+name        = "show_ticks"
+label       = "Show tick labels"
+source      = "field"
+
+[[input]]
+name        = "show_values"
+label       = "Show values at points"
+source      = "field"
+
+[[input]]
+name        = "fill_opacity"
+label       = "Fill opacity"
+placeholder = "0.25"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "1"
+step        = "0.05"
+
+[[input]]
+name        = "line_width"
+label       = "Line width"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "0.5"
+
+[[input]]
+name        = "point_radius"
+label       = "Point radius"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name        = "start_angle"
+label       = "Start angle"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "-360"
+max         = "360"
+step        = "15"
+
+[[input]]
+name        = "direction"
+label       = "Axis direction"
+placeholder = "clockwise"
+source      = "field"
+[input.labels]
+clockwise = "Clockwise"
+counterclockwise = "Counterclockwise"
+
+[[input]]
+name        = "palette"
+label       = "Palette"
+placeholder = "default"
+source      = "field"
+[input.labels]
+default = "Default"
+pastel = "Pastel"
+dusk = "Dusk"
+earth = "Earth"
+ocean = "Ocean"
+mono = "Mono"
+
+[[input]]
+name        = "colors"
+label       = "Series colours"
+placeholder = "#2563eb,#f97316"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "background"
+label       = "Background colour"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "title"
+label       = "Chart title"
+placeholder = "Phone comparison"
+source      = "field"
+
+[[input]]
+name        = "legend"
+label       = "Show legend"
+source      = "field"
+
+[[input]]
+name        = "font_size"
+label       = "Font size"
+placeholder = "13"
+source      = "field"
+kind        = "slider"
+min         = "6"
+max         = "48"
+step        = "1"
+
+[[input]]
+name        = "width"
+label       = "SVG width"
+placeholder = "700"
+source      = "field"
+kind        = "slider"
+min         = "320"
+max         = "2400"
+step        = "20"
+
+[[input]]
+name        = "height"
+label       = "SVG height"
+placeholder = "560"
+source      = "field"
+kind        = "slider"
+min         = "240"
+max         = "1800"
+step        = "20"
+
+[[input]]
+name        = "theme"
+label       = "Theme"
+placeholder = "light"
+source      = "field"
+[input.labels]
+light = "Light"
+dark = "Dark"
+
+[[input]]
+name        = "output"
+label       = "Output"
+placeholder = "svg"
+source      = "field"
+[input.labels]
+svg = "SVG chart"
+summary = "Summary table"
+json = "JSON geometry"
+
+[[example]]
+label = "Phone scorecard"
+[example.params]
+data = "product,Camera,Battery,Speed,Price\nPhone A,8,7,9,6\nPhone B,6,9,7,8"
+layout = "auto"
+scale = "shared"
+rings = "5"
+grid_shape = "polygon"
+show_spokes = "true"
+show_axis_labels = "true"
+show_ticks = "true"
+show_values = "false"
+fill_opacity = "0.25"
+line_width = "2"
+point_radius = "3"
+start_angle = "0"
+direction = "clockwise"
+palette = "default"
+colors = ""
+background = ""
+title = "Phone comparison"
+legend = "true"
+font_size = "13"
+width = "700"
+height = "560"
+theme = "light"
+output = "svg"
+
+[[example]]
+label = "Candidate skills, percent scale"
+[example.params]
+data = "skill,value\nCommunication,85\nDelivery,70\nSystems,90\nMentoring,65\nReliability,95"
+layout = "single"
+scale = "percent"
+show_values = "true"
+colors = "#22c55e"
+title = "Candidate scorecard"
+output = "svg"
+
+[[example]]
+label = "Mixed-unit comparison"
+[example.params]
+data = "series,axis,value\nPlan A,Revenue,50000\nPlan A,Rating,4\nPlan A,Uptime,99\nPlan B,Revenue,30000\nPlan B,Rating,5\nPlan B,Uptime,95"
+layout = "long"
+scale = "per_axis"
+grid_shape = "circle"
+palette = "ocean"
+output = "summary"
+
+[[example]]
+label = "Dark mono JSON"
+[example.params]
+data = "Team,Quality,Speed,Cost\nAlpha,8,6,7\nBeta,6,9,5"
+theme = "dark"
+palette = "mono"
+colors = "#38bdf8"
+output = "json"
