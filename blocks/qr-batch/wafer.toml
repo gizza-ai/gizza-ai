@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "qr-batch"
+version = "0.1.0"
+abi = 1
+summary = "Generate a ZIP of QR codes from a pasted list or CSV"
