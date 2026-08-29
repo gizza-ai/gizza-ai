@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-dkim-generate-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-dkim-generate-core = { path = "../core" }
+# RSA/Ed25519 key generation draws from getrandom 0.2; on wasm32-unknown-unknown
+# it needs the `js` feature to bind to crypto.getRandomValues (same fix as
+# blocks/age-keygen). The wafer/CLI build (wasm32-wasip1) is unaffected.
+getrandom = { version = "0.2", features = ["js"] }
