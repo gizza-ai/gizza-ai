@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-email-validate-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+gizza-ai-email-validator-core = { path = "../../email-validator/core" }
+serde_json = "1"
