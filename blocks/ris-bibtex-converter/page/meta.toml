@@ -1,0 +1,175 @@
+slug          = "ris-bibtex-converter"
+title         = "RIS to BibTeX Converter — Convert Citations Both Ways"
+description   = "Paste RIS or BibTeX and get the other format back. Direction is auto-detected, reference types and fields map both ways, and cite keys are generated for you."
+tags          = ["ris", "bibtex", "citations", "bibliography", "references", "endnote", "zotero", "latex", "converter"]
+h1            = "Convert between RIS and BibTeX"
+hero_subtitle = "Paste a RIS export from EndNote, Zotero, Mendeley, Scopus or PubMed and get BibTeX for LaTeX — or paste a .bib file and get RIS back. The direction is sniffed from the input, reference types and the common fields map both ways, LaTeX accents are decoded coming in and escaped going out, and because RIS carries no cite key, one is generated in the style you pick."
+wasm          = "gizza_ai_ris_bibtex_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted bibliography"
+format        = "text"
+
+# Field order is load-bearing: the page driver calls the wasm `run` export with
+# these values positionally, so it must match `web/src/lib.rs`.
+[[input]]
+name        = "input"
+label       = "RIS or BibTeX source"
+placeholder = "TY  - JOUR\nAU  - Shannon, C. E.\nTI  - A Mathematical Theory of Communication\nJO  - Bell System Technical Journal\nPY  - 1948\nVL  - 27\nIS  - 3\nSP  - 379\nEP  - 423\nER  - "
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+
+[input.labels]
+auto          = "Auto-detect from the input (default)"
+ris-to-bibtex = "RIS → BibTeX"
+bibtex-to-ris = "BibTeX → RIS"
+
+[[input]]
+name   = "key_style"
+label  = "Cite key style (RIS → BibTeX)"
+source = "field"
+
+[input.labels]
+author-year-word = "author + year + title word — shannon1948mathematical (default)"
+author-year      = "author + year — shannon1948"
+ris-id           = "Reuse the RIS ID tag when present"
+numeric          = "Numbered — ref1, ref2, ref3"
+
+[[input]]
+name   = "include_abstract"
+label  = "Keep the abstract"
+source = "field"
+
+[[input]]
+name   = "include_keywords"
+label  = "Keep the keywords"
+source = "field"
+
+[[input]]
+name   = "translate_latex"
+label  = "Translate LaTeX markup (decode accents in, escape specials out)"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "BibTeX field indent (spaces)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "sort"
+label  = "Record order"
+source = "field"
+
+[input.labels]
+source = "As in the input (default)"
+key    = "By cite key"
+year   = "By year"
+type   = "By reference type"
+
+[[example]]
+label = "RIS → BibTeX (journal article)"
+[example.params]
+input = '''
+TY  - JOUR
+AU  - Shannon, C. E.
+TI  - A Mathematical Theory of Communication
+JO  - Bell System Technical Journal
+PY  - 1948
+VL  - 27
+IS  - 3
+SP  - 379
+EP  - 423
+DO  - 10.1002/j.1538-7305.1948.tb01338.x
+ER  -
+'''
+direction = "auto"
+key_style = "author-year-word"
+include_abstract = "true"
+include_keywords = "true"
+translate_latex = "true"
+indent = "2"
+sort = "source"
+
+[[example]]
+label = "BibTeX → RIS (book)"
+[example.params]
+input = '''
+@book{knuth1984,
+  author    = {Knuth, Donald E.},
+  title     = {The {TeX}book},
+  publisher = {Addison-Wesley},
+  address   = {Reading, MA},
+  year      = {1984},
+  isbn      = {0-201-13447-0}
+}
+'''
+direction = "auto"
+key_style = "author-year-word"
+include_abstract = "true"
+include_keywords = "true"
+translate_latex = "true"
+indent = "2"
+sort = "source"
+
+[[example]]
+label = "Reference-manager export, numbered keys, no abstract"
+[example.params]
+input = '''
+TY  - JOUR
+ID  - Zotero:8KJ2QW
+AU  - Curie, Marie
+AU  - Curie, Pierre
+TI  - Sur une substance nouvelle radio-active
+JO  - Comptes Rendus
+PY  - 1898/07//
+VL  - 127
+SP  - 175
+EP  - 178
+AB  - A note on a new strongly radio-active substance found in pitchblende.
+KW  - radioactivity
+KW  - polonium
+ER  -
+'''
+direction = "ris-to-bibtex"
+key_style = "numeric"
+include_abstract = "false"
+include_keywords = "true"
+translate_latex = "true"
+indent = "2"
+sort = "source"
+
+[[example]]
+label = "Conference paper, wide indent, sorted by year"
+[example.params]
+input = '''
+TY  - CONF
+AU  - Erdős, Pál
+AU  - Rényi, Alfréd
+TI  - On Random Graphs
+T2  - Publicationes Mathematicae
+PY  - 1959
+SP  - 290
+EP  - 297
+ER  -
+TY  - CHAP
+AU  - Lovelace, Ada
+TI  - Notes on the Analytical Engine
+T2  - Scientific Memoirs
+PY  - 1843
+ER  -
+'''
+direction = "auto"
+key_style = "author-year-word"
+include_abstract = "true"
+include_keywords = "true"
+translate_latex = "true"
+indent = "4"
+sort = "year"
