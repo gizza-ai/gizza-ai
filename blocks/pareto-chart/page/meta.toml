@@ -1,0 +1,261 @@
+slug          = "pareto-chart"
+title         = "Pareto Chart Generator — 80/20 SVG Maker"
+description   = "Paste category/value rows and render a local Pareto chart with sorted bars, cumulative line, 80% threshold, SVG, summary, and JSON outputs."
+tags          = ["pareto chart", "80 20 chart", "cumulative percentage", "sorted bar chart", "quality analysis", "root cause analysis", "svg chart", "vital few"]
+h1            = "Pareto Chart Generator"
+hero_subtitle = "Rank categories by impact, draw sorted bars plus a cumulative-percentage line, and highlight the vital few crossing your threshold. Paste label/value rows, bucket long tails into Other, and export deterministic SVG, summary, or JSON."
+wasm          = "gizza_ai_pareto_chart_web"
+export        = "run"
+live          = false
+output_label  = "Pareto output"
+format        = "text"
+wide          = true
+
+[[input]]
+name = "data"
+label = "Data"
+placeholder = "Reason,Count\nLate delivery,45\nWrong item,30\nDamaged,15\nBilling error,7\nRude staff,3"
+source = "field"
+multiline = true
+
+[[input]]
+name = "delimiter"
+label = "Delimiter"
+placeholder = "auto"
+source = "field"
+labels = { auto = "Auto-detect", comma = "Comma", tab = "Tab", semicolon = "Semicolon", pipe = "Pipe", whitespace = "Whitespace" }
+
+[[input]]
+name = "header"
+label = "Header row"
+placeholder = "auto"
+source = "field"
+labels = { auto = "Auto-detect", yes = "Yes", no = "No" }
+
+[[input]]
+name = "sort"
+label = "Sort order"
+placeholder = "desc"
+source = "field"
+labels = { desc = "Largest first", asc = "Smallest first", input = "Input order" }
+
+[[input]]
+name = "max_categories"
+label = "Max categories (0 = all)"
+placeholder = "0"
+source = "field"
+kind = "slider"
+min = "0"
+max = "200"
+step = "1"
+
+[[input]]
+name = "other_label"
+label = "Other bucket label"
+placeholder = "Other"
+source = "field"
+
+[[input]]
+name = "threshold"
+label = "Threshold percent"
+placeholder = "80"
+source = "field"
+kind = "slider"
+min = "0"
+max = "100"
+step = "1"
+
+[[input]]
+name = "highlight_vital_few"
+label = "Highlight vital few"
+source = "field"
+
+[[input]]
+name = "show_cumulative"
+label = "Show cumulative line"
+source = "field"
+
+[[input]]
+name = "show_values"
+label = "Show bar values"
+source = "field"
+
+[[input]]
+name = "show_cumulative_labels"
+label = "Show cumulative labels"
+source = "field"
+
+[[input]]
+name = "decimals"
+label = "Decimal places"
+placeholder = "1"
+source = "field"
+kind = "slider"
+min = "0"
+max = "6"
+step = "1"
+
+[[input]]
+name = "title"
+label = "Chart title"
+placeholder = "Q3 customer complaints"
+source = "field"
+
+[[input]]
+name = "category_label"
+label = "Category axis label"
+placeholder = "Complaint reason"
+source = "field"
+
+[[input]]
+name = "value_label"
+label = "Value axis label"
+placeholder = "Complaints"
+source = "field"
+
+[[input]]
+name = "percent_label"
+label = "Percent axis label"
+placeholder = "Cumulative %"
+source = "field"
+
+[[input]]
+name = "label_angle"
+label = "Category label angle"
+placeholder = "0"
+source = "field"
+kind = "slider"
+min = "0"
+max = "90"
+step = "5"
+
+[[input]]
+name = "color"
+label = "Bar colour"
+placeholder = "#2563eb"
+source = "field"
+kind = "color"
+
+[[input]]
+name = "vital_color"
+label = "Vital-few colour"
+placeholder = "#f97316"
+source = "field"
+kind = "color"
+
+[[input]]
+name = "line_color"
+label = "Cumulative line colour"
+placeholder = "#dc2626"
+source = "field"
+kind = "color"
+
+[[input]]
+name = "threshold_color"
+label = "Threshold line colour"
+placeholder = "#94a3b8"
+source = "field"
+kind = "color"
+
+[[input]]
+name = "background"
+label = "Background colour"
+placeholder = "#ffffff"
+source = "field"
+kind = "color"
+
+[[input]]
+name = "bar_width"
+label = "Bar width"
+placeholder = "0.8"
+source = "field"
+kind = "slider"
+min = "0.05"
+max = "1"
+step = "0.05"
+
+[[input]]
+name = "line_width"
+label = "Line width"
+placeholder = "2"
+source = "field"
+kind = "slider"
+min = "0"
+max = "8"
+step = "0.5"
+
+[[input]]
+name = "point_radius"
+label = "Point radius"
+placeholder = "3.5"
+source = "field"
+kind = "slider"
+min = "0"
+max = "12"
+step = "0.5"
+
+[[input]]
+name = "grid"
+label = "Show grid"
+source = "field"
+
+[[input]]
+name = "legend"
+label = "Show legend"
+source = "field"
+
+[[input]]
+name = "font_size"
+label = "Font size"
+placeholder = "13"
+source = "field"
+kind = "slider"
+min = "6"
+max = "48"
+step = "1"
+
+[[input]]
+name = "width"
+label = "SVG width"
+placeholder = "820"
+source = "field"
+kind = "slider"
+min = "320"
+max = "2400"
+step = "20"
+
+[[input]]
+name = "height"
+label = "SVG height"
+placeholder = "520"
+source = "field"
+kind = "slider"
+min = "240"
+max = "1800"
+step = "20"
+
+[[input]]
+name = "theme"
+label = "Theme"
+placeholder = "light"
+source = "field"
+labels = { light = "Light", dark = "Dark" }
+
+[[input]]
+name = "output"
+label = "Output"
+placeholder = "svg"
+source = "field"
+labels = { svg = "SVG chart", summary = "Summary table", json = "JSON analysis" }
+
+[[example]]
+label = "Customer complaints 80/20"
+params = { data = "Reason,Count\nLate delivery,45\nWrong item,30\nDamaged,15\nBilling error,7\nRude staff,3", threshold = "80", title = "Q3 customer complaints", show_values = "true", output = "svg" }
+
+[[example]]
+label = "Bucket a long tail"
+params = { data = "A,50\nB,30\nC,15\nD,7\nE,4\nF,2", max_categories = "3", other_label = "All other causes", output = "summary" }
+
+[[example]]
+label = "Dark export with labels"
+params = { data = "Bug type|Count\nCrash|120\nUI|45\nDocs|20\nPerformance|15", delimiter = "pipe", theme = "dark", color = "#38bdf8", vital_color = "#f97316", show_cumulative_labels = "true", label_angle = "30", output = "svg" }
