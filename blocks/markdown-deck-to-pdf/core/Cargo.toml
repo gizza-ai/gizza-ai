@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-markdown-deck-to-pdf-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Both are pure-Rust with no clock / filesystem / random dependency, so the same
+# code instantiates under wafer's wasm32-wasip1 AND the browser's
+# wasm32-unknown-unknown build (proven by blocks/markdown-to-pdf).
+lopdf = { version = "0.36", default-features = false }
+pulldown-cmark = { version = "0.12", default-features = false }
