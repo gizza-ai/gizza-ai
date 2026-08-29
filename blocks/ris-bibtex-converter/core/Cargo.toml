@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-ris-bibtex-converter-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# The BibTeX reader (tokenizer, @string expander, LaTeX decoder, name splitter)
+# is shared with the sibling tool rather than duplicated, so both agree on what
+# a .bib file means.
+gizza-ai-bibtex-to-csv-core = { path = "../../bibtex-to-csv/core" }

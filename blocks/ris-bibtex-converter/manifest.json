@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/ris-bibtex-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert bibliographic records between RIS and BibTeX in both directions.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a bibliography between RIS (the EndNote/Zotero/Mendeley/PubMed export format: 'TY  - JOUR' … 'ER  - ') and BibTeX (@article{key, ...}), in either direction. Leave direction='auto' (default) to sniff the input and emit the other format, or force 'ris-to-bibtex'/'bibtex-to-ris'. Reference types map both ways (JOUR↔article, BOOK↔book, CHAP↔incollection, CONF↔inproceedings, THES↔phdthesis/mastersthesis, RPRT↔techreport, UNPB↔unpublished, ELEC/GEN↔misc), as do the common fields: authors and editors, title, journal or booktitle, series, volume, issue, SP/EP↔pages, publisher (school for a thesis, institution for a report), place, edition, DOI, URL, access date, ISBN/ISSN, language, keywords, abstract and notes. Because RIS has no cite key, key_style picks how one is invented ('author-year-word' default, 'author-year', 'ris-id', 'numeric'; duplicates get a trailing letter). translate_latex decodes LaTeX accents and braces on the way into RIS and escapes LaTeX-special characters on the way into BibTeX. include_abstract and include_keywords drop those fields, indent sets BibTeX field padding (0-16), and sort reorders records by key, year or type. Runs locally in the sandbox; nothing is uploaded. Max 1,000,000 bytes of input.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "auto",
+          "description": "Which way to convert: 'auto' (default) sniffs the input — a 'TY  - ' line means RIS, an '@article{' line means BibTeX — and emits the other format; 'ris-to-bibtex' and 'bibtex-to-ris' force the direction, which is useful when the input is unusual or you want a parse error instead of a guess.",
+          "enum": [
+            "auto",
+            "ris-to-bibtex",
+            "bibtex-to-ris"
+          ],
+          "type": "string"
+        },
+        "include_abstract": {
+          "default": true,
+          "description": "Carry the abstract across ('AB'/'N2' becomes 'abstract' and back). Default true. Turn it off for a compact bibliography — abstracts are long and most citation styles never print them.",
+          "type": "boolean"
+        },
+        "include_keywords": {
+          "default": true,
+          "description": "Carry keywords across: every RIS 'KW' tag joins into one comma-separated BibTeX 'keywords' field, and a BibTeX 'keywords' field splits back into one 'KW' tag per term. Default true.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces before each field line in the generated BibTeX, 0-16. Default 2. Ignored when converting BibTeX to RIS, which has a fixed 'TAG  - value' line format.",
+          "maximum": 16,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "The bibliography to convert: either RIS records (each one a 'TY  - JOUR' line, tag lines such as 'AU  - Shannon, C. E.', and a closing 'ER  - ') or BibTeX entries (@article{key, field = {value}, ...}). Wrapped RIS continuation lines, @string macros and # concatenation are all handled. Max 1,000,000 bytes.",
+          "type": "string"
+        },
+        "key_style": {
+          "default": "author-year-word",
+          "description": "How the BibTeX cite key is invented when converting RIS to BibTeX (RIS carries no cite key): 'author-year-word' (default) gives shannon1948mathematical — first author's family name, year, first significant title word; 'author-year' gives shannon1948; 'ris-id' reuses the record's 'ID' tag when it has one and falls back to author-year-word; 'numeric' gives ref1, ref2, ... A repeated key gets a trailing a, b, c. Ignored when converting BibTeX to RIS, where the existing cite key becomes the 'ID' tag.",
+          "enum": [
+            "author-year-word",
+            "author-year",
+            "ris-id",
+            "numeric"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "source",
+          "description": "Order of the emitted records: 'source' (default) keeps the input order; 'key' sorts case-insensitively by cite key; 'year' sorts ascending by publication year with undated records last; 'type' groups by entry type then key.",
+          "enum": [
+            "source",
+            "key",
+            "year",
+            "type"
+          ],
+          "type": "string"
+        },
+        "translate_latex": {
+          "default": true,
+          "description": "Translate markup between the two conventions. Converting BibTeX to RIS, decode LaTeX accents and protective braces to plain UTF-8 (\\\"a becomes ä, {DNA} becomes DNA). Converting RIS to BibTeX, escape the characters that are special to LaTeX (& % $ # _ { } ~ ^ \\\\) so the .bib compiles; 'url' and 'doi' values are left alone so they stay clickable. Default true. Turn it off to pass every value through verbatim.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
