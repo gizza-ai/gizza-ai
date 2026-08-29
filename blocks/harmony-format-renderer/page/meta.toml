@@ -1,0 +1,106 @@
+slug          = "harmony-format-renderer"
+title         = "Harmony format renderer"
+description   = "Render a system, developer, user, assistant and tool conversation into the Harmony response format that the gpt-oss open-weight models are trained on."
+tags          = ["harmony", "gpt-oss", "prompt", "chat template", "llm", "tool calling", "openai"]
+h1            = "Harmony format renderer"
+hero_subtitle = "Build the exact Harmony prompt string — control tokens, channels, developer instructions and the function-tool namespace — from a JSON message array or plain `role: content` lines."
+wasm          = "gizza_ai_harmony_format_renderer_web"
+export        = "run"
+live          = false
+output_label  = "Rendered Harmony prompt"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "messages"
+label       = "Conversation"
+placeholder = "[\n  {\"role\": \"user\", \"content\": \"What is the weather in Oslo?\"},\n  {\"role\": \"assistant\", \"channel\": \"commentary\", \"recipient\": \"get_weather\", \"content\": \"{\\\"city\\\":\\\"Oslo\\\"}\"},\n  {\"role\": \"tool\", \"name\": \"get_weather\", \"content\": \"{\\\"c\\\":21}\"}\n]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Conversation format"
+source = "field"
+labels = { auto = "Auto-detect (default)", json = "JSON message array", lines = "role: content lines" }
+
+[[input]]
+name        = "instructions"
+label       = "Developer instructions"
+placeholder = "Answer in one short sentence. Always give temperatures in Celsius."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "tools"
+label       = "Function tools (JSON)"
+placeholder = "[\n  {\n    \"name\": \"get_weather\",\n    \"description\": \"Get the current weather for a city.\",\n    \"parameters\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"city\": {\"type\": \"string\", \"description\": \"City name.\"},\n        \"unit\": {\"type\": \"string\", \"enum\": [\"celsius\", \"fahrenheit\"], \"default\": \"celsius\"}\n      },\n      \"required\": [\"city\"]\n    }\n  }\n]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "model_identity"
+label       = "Model identity line"
+placeholder = "You are ChatGPT, a large language model trained by OpenAI."
+source      = "field"
+
+[[input]]
+name   = "reasoning_effort"
+label  = "Reasoning effort"
+source = "field"
+labels = { low = "Low", medium = "Medium (default)", high = "High", none = "Omit the Reasoning line" }
+
+[[input]]
+name        = "knowledge_cutoff"
+label       = "Knowledge cutoff"
+placeholder = "2024-06"
+source      = "field"
+
+[[input]]
+name        = "current_date"
+label       = "Current date"
+placeholder = "2025-06-28"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name   = "include_system"
+label  = "Include the system (metadata) message"
+source = "field"
+
+[[input]]
+name   = "render_target"
+label  = "Render target"
+source = "field"
+labels = { completion = "For completion (append the assistant prompt)", conversation = "Conversation only" }
+
+[[input]]
+name   = "auto_drop_analysis"
+label  = "Drop superseded analysis turns"
+source = "field"
+
+[[input]]
+name   = "output_format"
+label  = "Output"
+source = "field"
+labels = { text = "Rendered prompt", json = "JSON report (prompt + counts)" }
+
+[[example]]
+label = "Minimal system + user"
+params = { messages = "[{\"role\": \"user\", \"content\": \"What is 2 + 2?\"}]", input_format = "auto", instructions = "", tools = "", model_identity = "", reasoning_effort = "medium", knowledge_cutoff = "2024-06", current_date = "", include_system = "true", render_target = "completion", auto_drop_analysis = "true", output_format = "text" }
+
+[[example]]
+label = "Developer instructions"
+params = { messages = "[{\"role\": \"system\", \"content\": \"Talk like a pirate.\"}, {\"role\": \"user\", \"content\": \"Introduce yourself.\"}]", input_format = "auto", instructions = "Answer in one short sentence.", tools = "", model_identity = "", reasoning_effort = "low", knowledge_cutoff = "2024-06", current_date = "2025-06-28", include_system = "true", render_target = "completion", auto_drop_analysis = "true", output_format = "text" }
+
+[[example]]
+label = "Tool-calling round trip"
+params = { messages = "user: what is the weather in Oslo?\nassistant[analysis]: the user wants the current weather\nassistant[commentary] to=get_weather: {\"city\":\"Oslo\"}\ntool:get_weather: {\"c\":21}\nassistant: It is 21 C in Oslo.", input_format = "lines", instructions = "Always give temperatures in Celsius.", tools = "[{\"name\": \"get_weather\", \"description\": \"Get the current weather for a city.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\", \"description\": \"City name.\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"celsius\", \"fahrenheit\"], \"default\": \"celsius\"}}, \"required\": [\"city\"]}}]", model_identity = "", reasoning_effort = "medium", knowledge_cutoff = "2024-06", current_date = "", include_system = "true", render_target = "conversation", auto_drop_analysis = "false", output_format = "text" }
+
+[[example]]
+label = "Chain-of-thought drop rule"
+params = { messages = "[{\"role\": \"user\", \"content\": \"a\"}, {\"role\": \"assistant\", \"channel\": \"analysis\", \"content\": \"old thinking\"}, {\"role\": \"assistant\", \"channel\": \"final\", \"content\": \"answer a\"}, {\"role\": \"user\", \"content\": \"b\"}, {\"role\": \"assistant\", \"channel\": \"analysis\", \"content\": \"live thinking\"}]", input_format = "json", instructions = "", tools = "", model_identity = "", reasoning_effort = "medium", knowledge_cutoff = "2024-06", current_date = "", include_system = "false", render_target = "completion", auto_drop_analysis = "true", output_format = "text" }
+
+[[example]]
+label = "JSON report"
+params = { messages = "[{\"role\": \"user\", \"content\": \"Summarise the release notes.\"}]", input_format = "auto", instructions = "Be concise.", tools = "", model_identity = "You are a release-notes assistant.", reasoning_effort = "high", knowledge_cutoff = "2025-01", current_date = "", include_system = "true", render_target = "completion", auto_drop_analysis = "true", output_format = "json" }
