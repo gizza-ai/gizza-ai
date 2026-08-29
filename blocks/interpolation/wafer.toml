@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "interpolation"
+version = "0.1.0"
+abi = 1
+summary = "Interpolate between data points with linear, cubic-spline, monotone, polynomial or nearest methods."

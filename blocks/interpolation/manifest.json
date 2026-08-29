@@ -1,0 +1,106 @@
+{
+  "name": "gizza-ai/interpolation",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Interpolate between data points with linear, cubic-spline, monotone, polynomial or nearest methods.",
+  "role": "skill",
+  "tool": {
+    "description": "Build an interpolant that passes exactly through a set of (x, y) points and evaluate it at new x values. Choose linear, cubic spline (natural, not-a-knot or clamped), shape-preserving monotone PCHIP, a single polynomial through every point, or nearest-neighbour. Evaluate at your own x list, at an evenly spaced resampling grid, or at every interval midpoint; optionally report the first or second derivative, control extrapolation outside the data range, and return the segment equations. Output as plain values, CSV, a JSON report or an SVG chart.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "at": {
+          "description": "The x values to evaluate at, separated by commas, spaces, tabs, semicolons or newlines — e.g. '1.5, 2.5, 3.75'. Values are reported in the order you give them. Leave it blank and set `resample` for an evenly spaced sweep instead; leave BOTH blank and the tool evaluates the midpoint of every interval, which is the plain 'what sits between my points' answer. Max 5,000 values.",
+          "type": "string"
+        },
+        "boundary": {
+          "default": "natural",
+          "description": "End conditions for method = cubic (ignored by the other methods). 'natural' (default) sets the curvature to zero at both ends, which is the textbook spline and keeps the ends straight. 'not-a-knot' instead forces the third derivative to stay continuous across the second and second-to-last points, so a cubic spline through samples of a real cubic reproduces it exactly — this is what MATLAB's spline() does. 'clamped' pins the slope at each end to `start_slope` and `end_slope`.",
+          "enum": [
+            "natural",
+            "not-a-knot",
+            "clamped"
+          ],
+          "type": "string"
+        },
+        "coefficients": {
+          "default": false,
+          "description": "Also return the fitted curve itself, not just the evaluated values: the per-interval cubic coefficients a, b, c, d with their readable equation 'y = a + b(x - x_start) + …' for linear/cubic/monotone/nearest, or the expanded monomial coefficients and 'y = c0 + c1x + …' for polynomial. Default false.",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "The known data points. One 'x,y' pair per line is the usual form (comma, semicolon, tab or space separated) — e.g. '0,0\\n1,1\\n2,8\\n3,27'. A single-column list is read as y values with x = 1, 2, 3 …, a one-line list does the same, and JSON is accepted as [1,2,3], [[x,y],…] or [{\"x\":…,\"y\":…},…]. A non-numeric first row is treated as a header and skipped. Rows may be in any order (they are sorted by x), but every x must be unique. Max 10,000 points / 2,000,000 bytes.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places for every printed number, 0-12 (default 6). Trailing zeros are trimmed, so a computed 2.500000 prints as 2.5. This affects DISPLAY only — the interpolation itself always runs at full 64-bit floating-point precision.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "derivative": {
+          "default": 0,
+          "description": "Report the value (0, the default), the first derivative dy/dx (1) or the second derivative d²y/dx² (2) of the interpolant at each x. Useful for reading a rate of change or curvature straight off the fitted curve. With method = linear the first derivative is the segment slope and the second is 0; with method = nearest both are 0.",
+          "maximum": 2,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "end_slope": {
+          "default": 0.0,
+          "description": "The first derivative dy/dx to impose at the LAST data point when boundary = clamped. Default 0, which ends the curve flat. Ignored for every other boundary and method.",
+          "type": "number"
+        },
+        "extrapolate": {
+          "default": "error",
+          "description": "What to do with an x outside the range covered by your points: 'error' (default) refuses and names the range, because interpolation is only defined between the anchors; 'clamp' returns the nearest endpoint's y (and 0 for a derivative), giving a flat continuation; 'extend' continues the end piece's polynomial, which follows the trend but can run away fast — a polynomial fit especially so.",
+          "enum": [
+            "error",
+            "clamp",
+            "extend"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "linear",
+          "description": "Which interpolant to build through the points: 'linear' (default) joins neighbours with straight lines and needs 2+ points; 'cubic' fits a classical cubic spline with continuous first and second derivatives and needs 3+ points; 'monotone' fits a shape-preserving PCHIP cubic that never overshoots between points, which is what you want for cumulative or physically bounded data; 'polynomial' fits the single degree n-1 curve through every point (2-30 points, and it oscillates badly past about 10 — see Runge's phenomenon); 'nearest' is a step lookup that returns the y of the closest x, rounding a tie up to the point on the right.",
+          "enum": [
+            "linear",
+            "cubic",
+            "monotone",
+            "polynomial",
+            "nearest"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "values",
+          "description": "Result format: 'values' (default) prints one 'x,value' per line, ready to paste into a spreadsheet column; 'csv' adds a header plus per-row source (at/resample/midpoint) and extrapolated columns, and appends the coefficient table when `coefficients` is on; 'json' returns the full report — method, range, evaluations, segments and warnings — for scripting; 'svg' draws a self-contained chart of the data points, the fitted curve and the evaluated x values.",
+          "enum": [
+            "values",
+            "csv",
+            "json",
+            "svg"
+          ],
+          "type": "string"
+        },
+        "resample": {
+          "default": 0,
+          "description": "Sample the interpolant at this many evenly spaced x values from the first point to the last, inclusive — 11 gives you deciles of the range. 0 (default) turns it off; 1 is rejected because an evenly spaced sweep needs at least two ends. Combine with `at` to get both your own x values and a sweep in one run.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "start_slope": {
+          "default": 0.0,
+          "description": "The first derivative dy/dx to impose at the FIRST data point when boundary = clamped. Default 0, which starts the curve flat. Ignored for every other boundary and method.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
