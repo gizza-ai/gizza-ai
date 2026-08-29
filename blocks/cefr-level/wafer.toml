@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "cefr-level"
+version = "0.1.0"
+abi = 1
+summary = "Estimate English text CEFR level with word breakdowns"

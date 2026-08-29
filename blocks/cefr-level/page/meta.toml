@@ -1,0 +1,94 @@
+slug          = "cefr-level"
+title         = "CEFR Level Estimator — English reading difficulty"
+description   = "Estimate an English text's CEFR reading level from A1 to C2 with vocabulary coverage, sentence complexity, and a per-word breakdown. Runs locally in your browser."
+tags          = ["CEFR", "reading level", "text difficulty", "vocabulary profile", "language learning", "English"]
+h1            = "CEFR level estimator"
+hero_subtitle = "Paste English text and get a deterministic A1-C2 difficulty estimate, vocabulary profile, grammar/sentence signal, and words above your target learner level."
+wasm          = "gizza_ai_cefr_level_web"
+export        = "run"
+live          = false
+output_label  = "CEFR estimate"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "English text"
+placeholder = "Paste a reading passage, worksheet text, or draft for learners…"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+placeholder = "summary"
+source      = "field"
+[input.labels]
+summary   = "Summary"
+annotated = "Annotated word list"
+table     = "Table (TSV)"
+json      = "JSON"
+
+[[input]]
+name        = "target"
+label       = "Target learner level"
+placeholder = "B1"
+source      = "field"
+[input.labels]
+A1 = "A1"
+A2 = "A2"
+B1 = "B1"
+B2 = "B2"
+C1 = "C1"
+C2 = "C2"
+
+[[input]]
+name        = "coverage"
+label       = "Vocabulary coverage %"
+placeholder = "90"
+source      = "field"
+
+[[input]]
+name        = "unknown"
+label       = "Unknown words"
+placeholder = "estimate"
+source      = "field"
+[input.labels]
+estimate = "Estimate from word shape"
+c1       = "Count as C1"
+c2       = "Count as C2"
+exclude  = "Exclude from profile"
+
+[[input]]
+name        = "proper_nouns"
+label       = "Count proper nouns"
+source      = "field"
+
+[[example]]
+label = "A1 classroom text"
+[example.params]
+text = "I like my family. We go to school and read a book. The day is good."
+output = "summary"
+target = "A2"
+coverage = "90"
+unknown = "estimate"
+proper_nouns = "false"
+
+[[example]]
+label = "Flag words above B1"
+[example.params]
+text = "Nevertheless, the methodology has significant implications for sustainability."
+output = "annotated"
+target = "B1"
+coverage = "90"
+unknown = "estimate"
+proper_nouns = "true"
+
+[[example]]
+label = "Machine-readable profile"
+[example.params]
+text = "Although the solution is possible, the implementation requires careful analysis."
+output = "json"
+target = "B2"
+coverage = "95"
+unknown = "estimate"
+proper_nouns = "false"
