@@ -1,0 +1,106 @@
+slug          = "interpolation"
+title         = "Interpolation calculator"
+description   = "Interpolate data points with linear, cubic-spline, monotone, polynomial, or nearest methods; evaluate x values, derivatives, CSV, JSON, and SVG charts."
+tags          = ["interpolation", "spline", "polynomial", "data", "calculator", "csv", "chart"]
+h1            = "Interpolation calculator"
+hero_subtitle = "Paste x,y points or a y-only series, choose linear, cubic spline, monotone PCHIP, polynomial, or nearest-neighbour interpolation, then evaluate new x values or resample the whole range."
+wasm          = "gizza_ai_interpolation_web"
+export        = "run"
+live          = false
+output_label  = "Interpolated output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Known points"
+placeholder = "x,y\n0,0\n1,1\n2,8\n3,27\n4,64"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "method"
+label  = "Method"
+source = "field"
+labels = { linear = "Linear", cubic = "Cubic spline", monotone = "Monotone PCHIP", polynomial = "Polynomial", nearest = "Nearest neighbour" }
+
+[[input]]
+name        = "at"
+label       = "Evaluate at x"
+placeholder = "1.5, 2.5, 3.75"
+source      = "field"
+
+[[input]]
+name   = "boundary"
+label  = "Cubic boundary"
+source = "field"
+labels = { natural = "Natural", "not-a-knot" = "Not-a-knot", clamped = "Clamped slopes" }
+
+[[input]]
+name        = "start_slope"
+label       = "Start slope"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "end_slope"
+label       = "End slope"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "extrapolate"
+label  = "Outside range"
+source = "field"
+labels = { error = "Error outside range", clamp = "Clamp to endpoint", extend = "Extend the end segment" }
+
+[[input]]
+name        = "resample"
+label       = "Resample count"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "derivative"
+label       = "Derivative order"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "coefficients"
+label  = "Include fitted equations / coefficients"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+labels = { values = "Values", csv = "CSV", json = "JSON report", svg = "SVG chart" }
+
+[[example]]
+label = "Linear halfway"
+params = { data = "0,0\n10,100", method = "linear", at = "2.5, 5, 7.5", boundary = "natural", start_slope = "0", end_slope = "0", extrapolate = "error", resample = "0", derivative = "0", decimals = "2", coefficients = "false", output = "values" }
+
+[[example]]
+label = "Cubic spline curve"
+params = { data = "0,0\n1,1\n2,8\n3,27\n4,64", method = "cubic", at = "1.5, 2.5", boundary = "not-a-knot", start_slope = "0", end_slope = "0", extrapolate = "error", resample = "0", derivative = "0", decimals = "6", coefficients = "true", output = "values" }
+
+[[example]]
+label = "Monotone resample CSV"
+params = { data = "0,0\n1,0\n2,0\n3,1\n4,1\n5,1", method = "monotone", at = "", boundary = "natural", start_slope = "0", end_slope = "0", extrapolate = "error", resample = "6", derivative = "0", decimals = "4", coefficients = "false", output = "csv" }
+
+[[example]]
+label = "Polynomial JSON"
+params = { data = "1,1\n2,4\n3,9", method = "polynomial", at = "4", boundary = "natural", start_slope = "0", end_slope = "0", extrapolate = "extend", resample = "0", derivative = "0", decimals = "6", coefficients = "true", output = "json" }
