@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "graphql-introspect"
+version = "0.1.0"
+abi = 1
+summary = "Introspect a live GraphQL endpoint and return its SDL schema and type list."
