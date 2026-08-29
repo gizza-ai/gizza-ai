@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-file-hash-dedupe-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# RustCrypto digests — all pure-Rust, wasm32-safe (same set blocks/hash-all and
+# blocks/file-hash already ship). CRC-32 is hand-rolled (no dep).
+md-5 = "0.10"
+sha1 = "0.10"
+sha2 = "0.10"
+blake3 = { version = "1", default-features = false }
+serde = { version = "1", features = ["derive"] }

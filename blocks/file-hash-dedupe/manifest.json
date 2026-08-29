@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/file-hash-dedupe",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find byte-identical duplicate files in a set by content hash",
+  "role": "skill",
+  "requires": [
+    "wafer-run/network"
+  ],
+  "tool": {
+    "description": "Content-address a set of files by hash and report the byte-identical duplicates, regardless of filename. Provide `files` as a list of 2+ sources (each a url or a `ref`; any file type, up to 50 files of 32 MiB each). `algorithm` picks the digest reported per file — sha256 (default), sha1, md5, sha512, blake3 or crc32. `keep` picks which copy in each duplicate group to suggest keeping: first (default), last, or shortest-name. `include_unique` (default false) lists only duplicated files; set true to list every file. The result gives each file (index, source, size, hash, group), the duplicate groups (shared hash and size, member indices, suggested keep, delete list, reclaimable bytes), and a summary with distinct/unique/duplicate counts, total and reclaimable bytes and the wasted percent. Matching is EXACT: two files group only when their size and SHA-256 both agree, so a weak `algorithm` choice never causes a false duplicate — a chosen-digest match that fails that confirmation is reported as `summary.hash_collisions` instead. Similar-but-not-identical files (a re-encoded or resized image) are NOT matched; use duplicate-image-finder for perceptual near-duplicates. The tool only reports — it never deletes or moves anything.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "sha256",
+          "description": "Digest reported for each file: sha256 (default, the safe general choice), sha1, md5, sha512, blake3 (fastest modern hash) or crc32 (short 8-hex checksum, matches zip/gzip). Duplicate detection itself always confirms byte identity with size + SHA-256, so a weak choice like md5 or crc32 changes only the reported hash, never the grouping.",
+          "enum": [
+            "sha256",
+            "sha1",
+            "md5",
+            "sha512",
+            "blake3",
+            "crc32"
+          ],
+          "type": "string"
+        },
+        "files": {
+          "description": "Two or more file sources (any type: documents, archives, images, media, binaries) to content-address and compare. Each item has exactly one of `url` or `ref`. Up to 50 files, 32 MiB each.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "description": "Reference id from a prior tool call. Use either url or ref.",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL (HTTP/HTTPS). Use either url or ref.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "minItems": 2,
+          "type": "array"
+        },
+        "include_unique": {
+          "default": false,
+          "description": "false (default) lists only the files that have at least one duplicate, like a duplicates-only report. true lists every input file, with `group` omitted for files that are unique. Group and summary counts are identical either way.",
+          "type": "boolean"
+        },
+        "keep": {
+          "default": "first",
+          "description": "Which copy in each duplicate group to suggest keeping: first (default, the earliest one listed), last (the latest one listed), or shortest-name (the shortest source label — prefers `photo.jpg` over `photo (copy) (1).jpg`). Every other member is listed under `delete`.",
+          "enum": [
+            "first",
+            "last",
+            "shortest-name"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "type": "object"
+    }
+  }
+}
