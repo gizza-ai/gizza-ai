@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "convert-quotes"
+version = "0.1.0"
+abi = 1
+summary = "Convert quote delimiters in text or code between single, double and curly styles, respecting escapes."
