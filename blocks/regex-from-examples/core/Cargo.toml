@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-regex-from-examples-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# Keep in step with the existing regex-* blocks. Newer 1.13.x builds currently
+# make the embedded CLI hang while registering this block under wasmi.
+regex = "=1.12.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
