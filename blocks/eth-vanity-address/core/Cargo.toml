@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-eth-vanity-address-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+k256 = { version = "0.13", default-features = false, features = ["arithmetic"] }
+sha3 = { version = "0.10", default-features = false }
+getrandom = "0.2"

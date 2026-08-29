@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-eth-vanity-address-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+gizza-ai-eth-vanity-address-core = { path = "../core" }
+# The browser build targets wasm32-unknown-unknown, where getrandom needs the
+# `js` feature to reach crypto.getRandomValues. Feature unification turns it on
+# for the copy of getrandom the core crate uses in this build only; the
+# wasm32-wasip1 block build keeps the plain wasi random_get path.
+getrandom = { version = "0.2", features = ["js"] }
