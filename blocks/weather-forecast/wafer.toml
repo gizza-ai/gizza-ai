@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "weather-forecast"
+version = "0.1.0"
+abi = 1
+summary = "Get current conditions and a multi-day forecast for any place using the free, key-less Open-Meteo API."

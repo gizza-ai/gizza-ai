@@ -1,0 +1,56 @@
+{
+  "name": "gizza-ai/weather-forecast",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Get current conditions and a multi-day forecast for any place using the free, key-less Open-Meteo API.",
+  "role": "skill",
+  "tool": {
+    "description": "Get the current weather and a multi-day forecast for any place on Earth from the free, key-less Open-Meteo API. Pass a city name (\"Berlin\"), a name with a qualifier (\"Springfield, IL\", \"Cambridge, United Kingdom\") or raw coordinates (\"52.52,13.41\"); optionally filter the name lookup by country. Choose a unit group (metric °C/km/h/mm, us °F/mph/inch, uk °C/mph/mm), 1-16 forecast days, and 0-48 hours of hour-by-hour detail counted from the current hour. Returns the resolved location, current conditions with plain-language WMO weather text and a 16-point compass wind direction, a daily forecast with highs/lows, sunrise/sunset, UV index, precipitation totals and probabilities, an optional hourly array, and a one-line summary. No API key is used or required.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "country": {
+          "description": "Optional country filter for the name lookup, as an ISO-3166 alpha-2 code (\"DE\", \"US\") or a country name (\"Germany\"). Use it when the same place name exists in several countries. Ignored when `location` is coordinates.",
+          "type": "string"
+        },
+        "days": {
+          "default": 7,
+          "description": "How many days of daily forecast to return, 1-16. Day 1 is today. Default: 7.",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "hours": {
+          "default": 0,
+          "description": "How many hours of hour-by-hour detail to return, 0-48, counted forward from the current hour. Default: 0 (the `hourly` array is omitted entirely).",
+          "maximum": 48,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "location": {
+          "description": "Place to forecast: a city/town name (\"Berlin\"), a name with a disambiguating qualifier after a comma (\"Berlin, DE\", \"Springfield, IL\", \"Cambridge, United Kingdom\"), or raw coordinates as \"lat,lon\" (\"52.52,13.41\") which skip the geocoding lookup entirely.",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "auto",
+          "description": "Timezone for every returned timestamp: 'auto' (default) uses the location's own zone, or pass an IANA name such as 'Europe/Berlin' or 'UTC'.",
+          "type": "string"
+        },
+        "units": {
+          "default": "metric",
+          "description": "Unit group: 'metric' (default) = °C, km/h, mm; 'us' = °F, mph, inch; 'uk' = °C, mph, mm.",
+          "enum": [
+            "metric",
+            "us",
+            "uk"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "location"
+      ],
+      "type": "object"
+    }
+  }
+}
