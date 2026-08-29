@@ -9,6 +9,17 @@ session because the page generator copies it into `pkg/tools/<slug>/` and rebuil
 browser packages is expensive. If cleanup removes one, rebuild it with `wasm-pack build
 blocks/<slug>/web --target web --release --out-dir pkg` before re-running the generator.
 
+**Single-tool page regeneration when the full generator exceeds the foreground timeout
+(2026-08-29).** On branches with hundreds of pages, `cargo run --manifest-path
+tools/generator/Cargo.toml -- .` can exceed Hermes' 10-minute foreground cap before reaching late
+alphabet slugs. To validate one new page without a background job, create a temp root that symlinks
+only the new block plus `tools/` and `js/`, and render into the real `pkg/tools` cache:
+`rm -rf /tmp/gizza-one && mkdir -p /tmp/gizza-one/blocks && ln -s "$PWD/blocks/<slug>"
+/tmp/gizza-one/blocks/<slug> && ln -s "$PWD/tools" /tmp/gizza-one/tools && ln -s "$PWD/js"
+/tmp/gizza-one/js && cargo run --manifest-path tools/generator/Cargo.toml -- /tmp/gizza-one --out
+"$PWD/pkg/tools"`. This still uses the live generator/runtime assets and is suitable before the
+per-tool Playwright spec; do not commit `pkg/tools` output.
+
 **cwd gotcha:** `cargo build --target wasm32-wasip1 --release` (the block-wasm build; optional
 equivalent shorthand `wafer build` if you have the `wafer` CLI installed from a sibling `wafer-run`
 checkout — not required in this repo) must run from inside `blocks/<slug>/`; `cargo install --path
