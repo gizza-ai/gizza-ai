@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "harmony-format-renderer"
+version = "0.1.0"
+abi = 1
+summary = "Render a conversation into OpenAI's Harmony response format for gpt-oss"
