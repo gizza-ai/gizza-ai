@@ -1,0 +1,104 @@
+{
+  "name": "gizza-ai/regex-from-examples",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Infer a verified regex from positive and negative examples",
+  "role": "skill",
+  "tool": {
+    "description": "Infer a deterministic regular expression from positive examples, optionally rejecting negative examples. Choose separators, inference strategy, quantifier style, regex flavor, anchoring, case sensitivity, capture groups, and output format. The result is compiled and checked against the samples before it is returned; it is not ML and does not promise a globally minimal regex.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "default": true,
+          "description": "Wrap the result so it must match the whole string (recommended for validators).",
+          "type": "boolean"
+        },
+        "capture_groups": {
+          "default": false,
+          "description": "Use capturing groups around variable fields instead of non-capturing groups where the flavor supports them.",
+          "type": "boolean"
+        },
+        "case_insensitive": {
+          "default": false,
+          "description": "Treat ASCII letters case-insensitively and emit the corresponding flag or expanded classes for the chosen flavor.",
+          "type": "boolean"
+        },
+        "examples": {
+          "description": "Positive example strings the inferred regular expression must match. Blank entries are ignored.",
+          "type": "string"
+        },
+        "flavor": {
+          "default": "rust",
+          "description": "Regex syntax flavor to emit. Verification always compiles the equivalent Rust regex.",
+          "enum": [
+            "rust",
+            "pcre",
+            "python",
+            "javascript",
+            "posix"
+          ],
+          "type": "string"
+        },
+        "max_alternatives": {
+          "default": 50.0,
+          "description": "Maximum literal alternatives to emit before failing with a simpler input request (1-500, default 50).",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "number"
+        },
+        "negatives": {
+          "description": "Optional counter-examples the inferred pattern should reject, split with the same separator.",
+          "type": "string"
+        },
+        "output": {
+          "default": "pattern",
+          "description": "Return only the regex, a readable explanation/verification report, or structured JSON.",
+          "enum": [
+            "pattern",
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "quantifiers": {
+          "default": "range",
+          "description": "How observed run lengths become regex quantifiers: exact/range, open-ended minimum, or loose +/*/? tokens.",
+          "enum": [
+            "range",
+            "open",
+            "loose"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "newline",
+          "description": "How to split examples and negatives before inference.",
+          "enum": [
+            "newline",
+            "comma",
+            "tab",
+            "semicolon",
+            "space"
+          ],
+          "type": "string"
+        },
+        "strategy": {
+          "default": "auto",
+          "description": "Inference strategy. Auto tries structural generalization first, then literal alternation when negatives require it.",
+          "enum": [
+            "auto",
+            "generalize",
+            "alternation",
+            "character-class"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "examples"
+      ],
+      "type": "object"
+    }
+  }
+}

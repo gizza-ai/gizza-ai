@@ -1,0 +1,83 @@
+slug          = "regex-from-examples"
+title         = "Regex From Examples"
+description   = "Infer a verified regular expression from positive examples, optional negatives, and deterministic structure rules."
+tags          = ["regex", "text", "developer", "validation"]
+h1            = "Infer a regex from examples"
+hero_subtitle = "Paste strings that should match, add counter-examples if you have them, and get a checked regex with controls for flavor, anchoring, and quantifiers."
+wasm          = "gizza_ai_regex_from_examples_web"
+export        = "run"
+live          = false
+output_label  = "Inferred regex"
+format        = "text"
+
+[[input]]
+name        = "examples"
+label       = "Positive examples"
+placeholder = "2024-01-15\n2023-11-02\n1999-12-31"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "negatives"
+label       = "Negative examples"
+placeholder = "2024/01/15\nnot-a-date"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "separator"
+label       = "Separator"
+source      = "field"
+
+[[input]]
+name        = "strategy"
+label       = "Strategy"
+source      = "field"
+
+[[input]]
+name        = "quantifiers"
+label       = "Quantifiers"
+source      = "field"
+
+[[input]]
+name        = "flavor"
+label       = "Regex flavor"
+source      = "field"
+
+[[input]]
+name        = "anchors"
+label       = "Anchor whole string"
+source      = "field"
+
+[[input]]
+name        = "case_insensitive"
+label       = "Case-insensitive"
+source      = "field"
+
+[[input]]
+name        = "capture_groups"
+label       = "Capture variable fields"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output"
+source      = "field"
+
+[[input]]
+name        = "max_alternatives"
+label       = "Max alternatives"
+placeholder = "50"
+source      = "field"
+
+[[example]]
+label = "ISO dates"
+values = { examples = "2024-01-15\n2023-11-02\n1999-12-31", negatives = "2024/01/15\nnot-a-date", output = "report" }
+
+[[example]]
+label = "Product codes"
+values = { examples = "AB-12\nCD/345\nEF-6", negatives = "ab-12\nABC-12", output = "pattern" }
+
+[[example]]
+label = "Literal alternatives"
+values = { examples = "foobar\nfoobaz\nfooza\nfoozap", strategy = "alternation", output = "report" }
