@@ -1,0 +1,78 @@
+slug          = "c-vuln-pattern-scanner"
+title         = "C/C++ Vulnerability Pattern Scanner — CWE-Tagged Static Checks"
+description   = "Paste C or C++ and flag risky patterns — strcpy, gets, format strings, scanf widths, overflow-prone sizes — with CWE ids and severities. Runs in your browser."
+tags          = ["c vulnerability scanner", "c++ static analysis", "buffer overflow detector", "format string vulnerability", "cwe scanner", "dangerous function checker", "banned api scanner", "secure code review c"]
+h1            = "C/C++ vulnerability pattern scanner"
+hero_subtitle = "Paste C or C++ source and see the vulnerability-shaped lines: banned copies, gets, unbounded scanf, non-literal format strings, provable overruns, overflow-prone allocation math, use-after-free, weak crypto. Every finding carries a severity and a CWE id. Lexical heuristic, runs entirely in your browser — the code is never compiled, executed or uploaded."
+wasm          = "gizza_ai_c_vuln_pattern_scanner_web"
+export        = "run"
+live          = false
+output_label  = "Scan report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "code"
+label       = "C/C++ code"
+placeholder = "void log_user(char *s) {\n  char buf[16];\n  strcpy(buf, s);\n  printf(s);\n  gets(buf);\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "language"
+label  = "Language"
+source = "field"
+labels = { auto = "Auto-detect", c = "C", cpp = "C++" }
+
+[[input]]
+name   = "profile"
+label  = "Rule family"
+source = "field"
+labels = { all = "All rules", memory = "Memory & bounds", injection = "Injection & races", crypto = "Crypto & randomness", banned = "Banned functions" }
+
+[[input]]
+name   = "min_severity"
+label  = "Minimum severity"
+source = "field"
+labels = { all = "All findings", low = "Low and higher", medium = "Medium and higher", high = "High and critical", critical = "Critical only" }
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule codes"
+placeholder = "BOUNDED-COPY, MEM-LEAK"
+source      = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+labels = { text = "Readable report", json = "JSON", csv = "CSV" }
+
+[[input]]
+name   = "include_context"
+label  = "Show the matching source line"
+source = "field"
+
+[[example]]
+label  = "Format string, strcpy and gets"
+params = { code = "void log_user(char *s) {\n  char buf[16];\n  strcpy(buf, s);\n  printf(s);\n  gets(buf);\n}", language = "auto", profile = "all", min_severity = "all", ignore = "", format = "text", include_context = "true" }
+
+[[example]]
+label  = "Critical only"
+params = { code = "void log_user(char *s) {\n  char buf[16];\n  strcpy(buf, s);\n  printf(s);\n  gets(buf);\n}", language = "auto", profile = "all", min_severity = "critical", ignore = "", format = "text", include_context = "false" }
+
+[[example]]
+label  = "CSV for a spreadsheet"
+params = { code = "void handle(char *req) {\n  char path[32];\n  sprintf(path, \"/tmp/%s\", req);\n  system(path);\n}", language = "c", profile = "all", min_severity = "all", ignore = "", format = "csv", include_context = "true" }
+
+[[example]]
+label  = "JSON, injection rules only"
+params = { code = "void handle(char *req) {\n  char *name = tmpnam(NULL);\n  execlp(req, req, NULL);\n  fprintf(stderr, req);\n}", language = "c", profile = "injection", min_severity = "all", ignore = "", format = "json", include_context = "false" }
+
+[[example]]
+label  = "C++ unbounded cin >>"
+params = { code = "#include <iostream>\nint main() {\n  char name[16];\n  std::cin >> name;\n}", language = "auto", profile = "all", min_severity = "all", ignore = "", format = "text", include_context = "true" }
+
+[[example]]
+label  = "Muting a noisy rule"
+params = { code = "void copy(char *d, char *s) {\n  strncpy(d, s, 8);\n  char *p = malloc(16);\n  use(p);\n}", language = "c", profile = "all", min_severity = "all", ignore = "BOUNDED-COPY, MEM-LEAK", format = "text", include_context = "true" }
