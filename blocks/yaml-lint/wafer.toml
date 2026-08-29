@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "yaml-lint"
+version = "0.1.0"
+abi = 1
+summary = "Lint YAML for syntax, duplicate keys and style traps"
