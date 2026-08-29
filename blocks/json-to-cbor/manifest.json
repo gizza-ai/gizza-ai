@@ -1,0 +1,46 @@
+{
+  "name": "gizza-ai/json-to-cbor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode JSON as CBOR bytes in hex or Base64",
+  "role": "skill",
+  "tool": {
+    "description": "Encode a pasted JSON value into RFC 8949 CBOR bytes locally. Supports JSON null, booleans, integers, floating-point numbers, strings, arrays, and objects. Output can be lowercase hex, Base64, a readable summary with JSON-vs-CBOR byte counts, or a JSON wrapper containing both encodings. canonical=true sorts object keys by their encoded CBOR key bytes for reproducible output; group inserts spaces in hex output every N bytes.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical": {
+          "default": true,
+          "description": "Sort object keys by canonical CBOR key bytes for reproducible RFC 8949-style output (default true).",
+          "type": "boolean"
+        },
+        "group": {
+          "default": 0,
+          "description": "For hex output, insert spaces every N bytes for readability. Use 0 for continuous hex (default).",
+          "maximum": 32,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "json": {
+          "description": "JSON value to encode as CBOR: object, array, string, number, boolean, or null.",
+          "type": "string"
+        },
+        "output": {
+          "default": "hex",
+          "description": "Output format: raw lowercase hex, Base64, a readable summary with size comparison, or a JSON wrapper containing both encodings.",
+          "enum": [
+            "hex",
+            "base64",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
