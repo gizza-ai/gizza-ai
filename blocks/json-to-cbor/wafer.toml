@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-cbor"
+version = "0.1.0"
+abi = 1
+summary = "Encode JSON as CBOR bytes in hex or Base64"
