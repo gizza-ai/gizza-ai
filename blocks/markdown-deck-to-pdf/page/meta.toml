@@ -1,0 +1,88 @@
+slug          = "markdown-deck-to-pdf"
+title         = "Markdown Deck to PDF Converter"
+description   = "Turn Markdown slides into a one-slide-per-page PDF with size, theme, header/footer, page numbers and bookmarks. Runs in your browser."
+tags          = ["markdown to pdf slides", "markdown deck to pdf", "slide deck pdf", "markdown presentation pdf", "one slide per page pdf", "markdown slides export"]
+h1            = "Markdown Deck to PDF"
+hero_subtitle = "Paste a Markdown deck and download a PDF with exactly one slide per page. A `---` break always starts a new slide, headings can split too, and body text shrinks to fit. Pick a slide size, a light or dark theme, header/footer text, page numbers and per-slide bookmarks. Built in your browser; nothing is uploaded."
+wasm          = "gizza_ai_markdown_deck_to_pdf_web"
+export        = "run"
+live          = false
+output_label  = "PDF deck"
+format        = "text"
+
+[[input]]
+name        = "markdown"
+label       = "Markdown deck"
+placeholder = "# Quarterly Review\n\n- Revenue up 24%\n- Two new markets\n\n---\n\n# Next Steps\n\n- Hire 3 engineers\n- Ship v2"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "title"
+label       = "Cover slide title (optional)"
+placeholder = "Q3 Business Review"
+source      = "field"
+
+# The fixed-choice params below render as <select>s from the descriptor schema;
+# `labels` only enriches the visible text — values stay canonical for deep-links.
+[[input]]
+name   = "split_level"
+label  = "Also split slides on"
+source = "field"
+labels = { h1 = "# headings (H1)", h2 = "## headings (H2)", both = "# and ## headings", none = "Nothing — only --- breaks" }
+
+[[input]]
+name   = "slide_size"
+label  = "Slide size"
+source = "field"
+labels = { "16:9" = "16:9 widescreen (960x540 pt)", "4:3" = "4:3 standard (720x540 pt)", "a4-landscape" = "A4 landscape (842x595 pt)", "letter-landscape" = "Letter landscape (792x612 pt)" }
+
+[[input]]
+name   = "theme"
+label  = "Theme"
+source = "field"
+labels = { light = "Light — dark text on white", dark = "Dark — light text on near-black" }
+
+[[input]]
+name        = "font_size"
+label       = "Body font size (pt)"
+placeholder = "20"
+source      = "field"
+kind        = "slider"
+min         = 8
+max         = 48
+step        = "1"
+
+[[input]]
+name        = "header"
+label       = "Header text (optional)"
+placeholder = "Acme Corp"
+source      = "field"
+
+[[input]]
+name        = "footer"
+label       = "Footer text (optional)"
+placeholder = "Confidential — internal only"
+source      = "field"
+
+[[input]]
+name   = "page_numbers"
+label  = "Page numbers"
+source = "field"
+
+[[input]]
+name   = "outline"
+label  = "PDF bookmarks (one per slide)"
+source = "field"
+
+[[example]]
+label  = "Team update (16:9, H1 split)"
+params = { markdown = "# Quarterly Review\n\n- Revenue up 24%\n- Two new markets\n- Churn down to 1.8%\n\n# Next Steps\n\n- Hire 3 engineers\n- Ship v2 in March", title = "Q3 Business Review", split_level = "h1", slide_size = "16:9", theme = "light", font_size = "20", header = "", footer = "", page_numbers = "true", outline = "true" }
+
+[[example]]
+label  = "Dark 4:3 deck (H2 split)"
+params = { markdown = "# Launch Plan\n\n## Problem\n\n- Users churn at onboarding\n- Setup takes 40 minutes\n\n## Solution\n\n- Guided setup\n- Ready-made templates\n\n## Timeline\n\n- Beta in March\n- GA in June", title = "", split_level = "h2", slide_size = "4:3", theme = "dark", font_size = "22", header = "", footer = "", page_numbers = "true", outline = "true" }
+
+[[example]]
+label  = "Printable handout (A4, header + footer)"
+params = { markdown = "Welcome to the workshop\n\n---\n\n## Agenda\n\n1. Setup\n2. Hands-on labs\n3. Q&A\n\n---\n\n## Questions?\n\nFind us at the help desk.", title = "Workshop Handout", split_level = "none", slide_size = "a4-landscape", theme = "light", font_size = "18", header = "Acme Corp", footer = "Confidential — internal only", page_numbers = "true", outline = "false" }
