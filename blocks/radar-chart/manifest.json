@@ -1,0 +1,204 @@
+{
+  "name": "gizza-ai/radar-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render radar/spider charts comparing entities across numeric axes as deterministic SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Render a radar (spider) chart from a pasted table: a wide `series,Axis1,Axis2,…` matrix, long `series,axis,value` triples, or a single-series `axis,value` list. Normalizes values onto a shared, per-axis, or 0-100 percentage radial scale and returns self-contained SVG by default, or a summary table / JSON vertex geometry. Options control layout detection, scale mode, scale minimum and maximum, ring count, polygon or circle grid, spokes, axis captions, tick labels, per-vertex value labels, fill opacity, line width, point radius, start angle, direction, colour palette, explicit series colours, background, title, legend, font size, canvas size, and theme. Requires at least 3 axes. Everything runs locally in pure Rust; no plotting service, fonts, or external data are used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "default": "",
+          "description": "Chart background colour, for example #ffffff or transparent. Default empty uses the theme background (white for light, dark slate for dark).",
+          "type": "string"
+        },
+        "colors": {
+          "default": "",
+          "description": "Comma-separated colour overrides, one per series and cycled if short, for example `#2563eb,#f97316` or `tomato,steelblue`. Default empty uses the palette. With palette=mono the first entry is the base hue.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The table to plot, one row per line. Wide form is a header row of axis names then one row of numbers per series, for example `product,Camera,Battery,Speed` then `Phone A,8,7,9`. Long form is `series,axis,value` triples. A plain `axis,value` list draws one series. Comma, tab and semicolon separated rows all work, a space-separated row is read as `axis value`, `#` starts a comment, and values may carry thousands separators, a currency mark, or a trailing %. At least 3 axes are required. Example: `product,Camera,Battery,Speed,Price`\\n`Phone A,8,7,9,6`\\n`Phone B,6,9,7,8`.",
+          "type": "string"
+        },
+        "direction": {
+          "default": "clockwise",
+          "description": "Order the axes are placed around the circle from the starting angle: clockwise (default) or counterclockwise.",
+          "enum": [
+            "clockwise",
+            "counterclockwise"
+          ],
+          "type": "string"
+        },
+        "fill_opacity": {
+          "default": 0.25,
+          "description": "Opacity of each series' filled polygon, 0-1. Default 0.25, which keeps 2-4 overlapping shapes readable. Use 0 for outline-only charts.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "font_size": {
+          "default": 13.0,
+          "description": "Base font size in pixels for axis captions and the legend, 6-48. Default 13. Tick and value labels are drawn slightly smaller.",
+          "maximum": 48,
+          "minimum": 6,
+          "type": "number"
+        },
+        "grid_shape": {
+          "default": "polygon",
+          "description": "Grid style: polygon (default) draws straight-edged web rings through the axis points, circle draws smooth concentric circles.",
+          "enum": [
+            "polygon",
+            "circle"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "default": 560,
+          "description": "SVG height in pixels, 240-1800. Default 560. Radar charts read best close to square.",
+          "maximum": 1800,
+          "minimum": 240,
+          "type": "integer"
+        },
+        "layout": {
+          "default": "auto",
+          "description": "How to read the pasted table: auto (default) detects the shape, wide is a header row of axis names plus one numeric row per series, long is `series,axis,value` triples, single is a two-column `axis,value` list drawn as one series.",
+          "enum": [
+            "auto",
+            "wide",
+            "long",
+            "single"
+          ],
+          "type": "string"
+        },
+        "legend": {
+          "default": true,
+          "description": "Draw a legend strip under the chart naming each series with its colour swatch. Default true because radar charts are comparison charts.",
+          "type": "boolean"
+        },
+        "line_width": {
+          "default": 2.0,
+          "description": "Stroke width of each series outline in pixels, 0-8. Default 2. Use 0 with a higher fill_opacity for a flat filled look.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "svg",
+          "description": "Output format: svg (default, self-contained markup), summary (aligned text table of every series and axis with its value and scaled percentage, plus per-series means), or json (machine-readable axis domains, angles, and vertex coordinates).",
+          "enum": [
+            "svg",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "palette": {
+          "default": "default",
+          "description": "Series colour scheme: default (bright, high contrast), pastel, dusk (deep), earth, ocean, or mono (one hue lightened per series, based on the first entry of colors). Overridden per series by colors.",
+          "enum": [
+            "default",
+            "pastel",
+            "dusk",
+            "earth",
+            "ocean",
+            "mono"
+          ],
+          "type": "string"
+        },
+        "point_radius": {
+          "default": 3.0,
+          "description": "Radius of the marker drawn at each vertex in pixels, 0-12. Default 3; use 0 to hide markers. Markers carry a hover tooltip with the series, axis, and exact value.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "number"
+        },
+        "rings": {
+          "default": 5,
+          "description": "Number of concentric grid rings, 0-10. Default 5. Use 0 for just the outer boundary and no tick labels; 4-5 reads best.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "scale": {
+          "default": "shared",
+          "description": "How values map to the radius: shared (default) puts every axis on one scale so magnitudes stay comparable, per_axis rescales each axis to its own maximum so mixed units such as revenue and a 1-5 rating can share a chart, percent pins the domain to 0-100 for scores that are already percentages.",
+          "enum": [
+            "shared",
+            "per_axis",
+            "percent"
+          ],
+          "type": "string"
+        },
+        "scale_max": {
+          "default": 0.0,
+          "description": "The value at the outer ring. Default 0 means derive it from the data and round up to a clean number such as 10, 25, or 500. Ignored when scale is per_axis (each axis derives its own maximum).",
+          "maximum": 1000000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "scale_min": {
+          "default": 0.0,
+          "description": "The value at the centre of the chart. Default 0, which is what makes radar areas honest; raise it to zoom into a narrow band such as 60-100. Values below it are drawn at the centre.",
+          "maximum": 1000000000,
+          "minimum": -1000000000,
+          "type": "number"
+        },
+        "show_axis_labels": {
+          "default": true,
+          "description": "Draw each axis name around the outside of the chart. Default true. Turning it off frees the reserved margin and grows the plotted radius.",
+          "type": "boolean"
+        },
+        "show_spokes": {
+          "default": true,
+          "description": "Draw the radial line from the centre out to each axis. Default true; turn it off for a cleaner web when you have many axes.",
+          "type": "boolean"
+        },
+        "show_ticks": {
+          "default": true,
+          "description": "Draw the scale value next to each grid ring. Default true. Shows percentages instead of values when scale is per_axis, since each axis then has its own maximum.",
+          "type": "boolean"
+        },
+        "show_values": {
+          "default": false,
+          "description": "Print each series' number just outside its vertex on every axis. Default false; useful for 1-2 series, crowded beyond that.",
+          "type": "boolean"
+        },
+        "start_angle": {
+          "default": 0.0,
+          "description": "Rotate the whole chart, in degrees, -360 to 360. Default 0 puts the first axis straight up; 45 rotates it an eighth-turn clockwise.",
+          "maximum": 360,
+          "minimum": -360,
+          "type": "number"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Chart theme: light (default) or dark. Sets the background, grid, and text colours; override the background alone with the background parameter.",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title centred above the web, for example `Phone comparison`.",
+          "type": "string"
+        },
+        "width": {
+          "default": 700,
+          "description": "SVG width in pixels, 320-2400. Default 700.",
+          "maximum": 2400,
+          "minimum": 320,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
