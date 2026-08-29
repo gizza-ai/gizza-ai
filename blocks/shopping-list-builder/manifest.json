@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/shopping-list-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a merged shopping list from recipe ingredients",
+  "role": "skill",
+  "tool": {
+    "description": "Aggregate one or more pasted recipe ingredient lists into a deduplicated shopping list. It understands recipe headers like `# Tacos x2`, scales quantities globally, sums matching volume, weight and count units, groups by grocery category or recipe, can omit pantry staples, and exports markdown, text, CSV or JSON. It runs locally and does not fetch recipe URLs.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "checkboxes": {
+          "default": false,
+          "description": "When format=markdown, render each item as a GitHub-style checklist line (`- [ ]`). Default false.",
+          "type": "boolean"
+        },
+        "exclude": {
+          "default": "",
+          "description": "Comma- or newline-separated pantry staples to omit, such as salt, pepper, water, olive oil.",
+          "type": "string"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output format: markdown (default), plain text, spreadsheet-friendly CSV, or JSON.",
+          "enum": [
+            "markdown",
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "group_by": {
+          "default": "category",
+          "description": "How to group the result: grocery category (default), source recipe, or no headings.",
+          "enum": [
+            "category",
+            "recipe",
+            "none"
+          ],
+          "type": "string"
+        },
+        "ingredients": {
+          "description": "Recipe ingredient lines to combine. Use one ingredient per line; start recipes with headers like `# Chili x2` and separate recipes with `---`.",
+          "type": "string"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Global multiplier applied to every quantity after any per-recipe `xN` multiplier. Default 1; allowed range 0.1 to 20.",
+          "maximum": 20,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "show_sources": {
+          "default": false,
+          "description": "Append the recipe names that contributed each merged item. Useful when auditing why something is on the list. Default false.",
+          "type": "boolean"
+        },
+        "unit_system": {
+          "default": "keep",
+          "description": "How to render summed quantities: keep the input unit where possible, convert weight/volume families to metric, or convert to US kitchen units. Volume and weight are never cross-converted.",
+          "enum": [
+            "keep",
+            "metric",
+            "us"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "ingredients"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+slug          = "shopping-list-builder"
+title         = "Shopping list builder"
+description   = "Merge ingredient lines from multiple recipes into a scaled, deduplicated, category-grouped grocery list."
+tags          = ["shopping", "recipes", "ingredients", "grocery", "meal planning"]
+h1            = "Shopping list builder"
+hero_subtitle = "Paste ingredients from several recipes, scale the batch, merge duplicates and get a clean grocery list."
+wasm          = "gizza_ai_shopping_list_builder_web"
+export        = "run"
+live          = false
+output_label  = "Shopping list"
+format        = "markdown"
+
+[[input]]
+name        = "ingredients"
+label       = "Ingredient lists"
+placeholder = "# Pancakes x2\n1 cup flour\n1 cup milk\n2 eggs\n---\n# Sauce\n1/2 cup milk\n1 tbsp sugar"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "scale"
+label       = "Scale"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "group_by"
+label       = "Group by"
+source      = "field"
+
+[input.labels]
+category = "Grocery category"
+recipe = "Source recipe"
+none = "No headings"
+
+[[input]]
+name        = "unit_system"
+label       = "Unit system"
+source      = "field"
+
+[input.labels]
+keep = "Keep input units"
+metric = "Metric"
+us = "US kitchen units"
+
+[[input]]
+name        = "exclude"
+label       = "Pantry staples to skip"
+placeholder = "salt, pepper, water, olive oil"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "checkboxes"
+label       = "Markdown checklist"
+source      = "field"
+
+[[input]]
+name        = "show_sources"
+label       = "Show source recipes"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+markdown = "Markdown"
+text = "Plain text"
+csv = "CSV"
+json = "JSON"
+
+[[example]]
+label = "Two recipes"
+ingredients = "# Pancakes x2\n1 cup flour\n1 cup milk\n2 eggs\n---\n# Sauce\n1/2 cup milk\n1 tbsp sugar"
+
+[[example]]
+label = "Printable pantry-skip checklist"
+ingredients = "# Chili\n1 lb beef\n1 can beans\n2 cloves garlic\n1 tsp salt"
+exclude = "salt"
+checkboxes = "true"
+show_sources = "true"
+
+[[example]]
+label = "Metric totals"
+ingredients = "# Chili\n1 lb beef\n8 oz beef\n2 cloves garlic"
+unit_system = "metric"
+format = "text"
+
+[[example]]
+label = "CSV export"
+ingredients = "1 cup flour\n2 tbsp sugar\n1 tsp salt"
+format = "csv"
