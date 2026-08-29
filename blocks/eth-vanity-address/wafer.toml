@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "eth-vanity-address"
+version = "0.1.0"
+abi = 1
+summary = "Grind a vanity Ethereum address matching a hex prefix or suffix, locally."

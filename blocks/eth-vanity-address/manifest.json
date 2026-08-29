@@ -1,0 +1,55 @@
+{
+  "name": "gizza-ai/eth-vanity-address",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Grind a vanity Ethereum address matching a hex prefix or suffix, locally.",
+  "role": "skill",
+  "tool": {
+    "description": "Search for an Ethereum vanity address: test consecutive secp256k1 private keys until one derives an address that starts with a chosen hex prefix and/or ends with a chosen hex suffix, matched either case-insensitively or against the EIP-55 checksum. Returns the EIP-55 address, the private key, the uncompressed public key and the search statistics, or the difficulty and odds when nothing matched. An estimate mode reports pattern difficulty without generating keys. Keys never leave the machine; leave the seed empty for CSPRNG randomness or set it for a reproducible search.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "match_case": {
+          "default": false,
+          "description": "When false (the default) the pattern is matched against the all-lowercase address, so case in the pattern is ignored. When true the pattern must match the EIP-55 checksummed address exactly, which doubles the search cost for every letter (a-f) in the pattern.",
+          "type": "boolean"
+        },
+        "max_attempts": {
+          "default": 100000,
+          "description": "How many consecutive keys to test before giving up, 1 to 5000000 (default 100000). Expect roughly 16^n keys per hit for an n-character case-insensitive pattern: 4096 for 3 characters, 65536 for 4, about 1.05 million for 5. If no key matches, the tool reports the difficulty and the odds instead of returning an address.",
+          "maximum": 5000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output_format": {
+          "default": "all",
+          "description": "What to return. all (default) prints the address, private key, public key and search statistics; address returns only the EIP-55 address; private-key returns only the 0x-prefixed 32-byte key; json returns every field plus difficulty as JSON; estimate skips the search entirely and just reports how hard the pattern is and the odds within max_attempts.",
+          "enum": [
+            "all",
+            "address",
+            "private-key",
+            "json",
+            "estimate"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "Hex characters the address must start with, right after the 0x (for example dead or c0ffee). Use 0-9 and a-f only; a leading 0x is ignored. Each extra character multiplies the search cost by 16, so 4-5 characters is the practical limit here. Leave empty to match on the suffix alone.",
+          "type": "string"
+        },
+        "seed": {
+          "default": "",
+          "description": "Optional text that makes the search reproducible: the same seed with the same pattern always returns the same private key. Leave it empty (the default) to start from a key drawn from the platform's cryptographically secure random generator, which is what you want for a wallet you will actually use — a key derived from guessable seed text can be rediscovered by anyone.",
+          "type": "string"
+        },
+        "suffix": {
+          "default": "",
+          "description": "Hex characters the address must end with (for example 1234). Same 0-9/a-f rules and same 16x cost per character as prefix. Prefix and suffix combined cannot exceed the 40 hex characters of an address; give at least one of the two.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
