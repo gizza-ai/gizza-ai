@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "port-process-mapper"
+version = "0.1.0"
+abi = 1
+summary = "Map listening ports to PIDs and processes from lsof, ss or netstat output."

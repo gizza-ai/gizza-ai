@@ -1,0 +1,128 @@
+slug          = "port-process-mapper"
+title         = "Port Process Mapper — Map Ports to PIDs from lsof, ss or netstat Output"
+description   = "Paste lsof, ss or netstat output and get a port → PID → process table with service names, port-conflict flags and ready-to-run kill commands."
+tags          = ["port process mapper", "lsof parser", "ss parser", "netstat parser", "netstat -ano", "port to PID", "address already in use", "listening ports", "port conflict", "EADDRINUSE", "kill process on port", "socket table"]
+h1            = "Port Process Mapper"
+hero_subtitle = "Paste the output of lsof -i, ss -tulpn, netstat -tulpn or Windows netstat -ano and get one normalised table of port → PID → process, with well-known service names, duplicate-bind conflicts flagged, and copy-paste commands to free a port. Runs entirely in your browser."
+wasm          = "gizza_ai_port_process_mapper_web"
+export        = "run"
+live          = false
+output_label  = "Port map"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Socket listing"
+placeholder = "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\ntcp   LISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=575,fd=3))\ntcp   LISTEN 0      511        127.0.0.1:8080      0.0.0.0:*    users:((\"nginx\",pid=1234,fd=6))"
+source      = "field"
+multiline   = true
+
+# input_format/output_format/sort_by/protocol render as <select> and the three
+# flags as checkboxes — the control type and options are derived from the
+# descriptor's schema (manifest.json), the labels below are cosmetic.
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto              = "Auto-detect"
+lsof              = "lsof -i"
+ss                = "ss -tulpn"
+netstat           = "netstat -tulpn (Linux/macOS)"
+"netstat-windows" = "netstat -ano / -anb (Windows)"
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown table"
+csv      = "CSV"
+json     = "JSON"
+text     = "Aligned text"
+
+[[input]]
+name   = "sort_by"
+label  = "Sort by"
+source = "field"
+
+[input.labels]
+port    = "Port (numeric)"
+pid     = "PID"
+process = "Process name"
+state   = "Socket state"
+address = "Local address"
+
+[[input]]
+name   = "listening_only"
+label  = "Listening sockets only"
+source = "field"
+
+[[input]]
+name   = "protocol"
+label  = "Protocol"
+source = "field"
+
+[input.labels]
+any = "TCP and UDP"
+tcp = "TCP only"
+udp = "UDP only"
+
+[[input]]
+name        = "ports"
+label       = "Ports (optional)"
+placeholder = "80,443,8000-8100"
+source      = "field"
+
+[[input]]
+name        = "process"
+label       = "Process name contains (optional)"
+placeholder = "node"
+source      = "field"
+
+[[input]]
+name   = "conflicts_only"
+label  = "Conflicting ports only"
+source = "field"
+
+[[input]]
+name   = "annotate_services"
+label  = "Name well-known services"
+source = "field"
+
+[[input]]
+name   = "kill_commands"
+label  = "Show commands to free a port"
+source = "field"
+
+[[example]]
+label = "ss -tulpn with a port conflict"
+[example.params]
+input = "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\ntcp   LISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=575,fd=3))\ntcp   LISTEN 0      511        127.0.0.1:8080      0.0.0.0:*    users:((\"nginx\",pid=1234,fd=6))\ntcp   LISTEN 0      511          0.0.0.0:8080      0.0.0.0:*    users:((\"node\",pid=4321,fd=20))\nudp   UNCONN 0      0            0.0.0.0:68        0.0.0.0:*    users:((\"dhclient\",pid=812,fd=6))"
+input_format = "auto"
+output_format = "markdown"
+
+[[example]]
+label = "Windows netstat -ano"
+[example.params]
+input = "Active Connections\n\n  Proto  Local Address          Foreign Address        State           PID\n  TCP    0.0.0.0:3000           0.0.0.0:0              LISTENING       1234\n  TCP    127.0.0.1:3000         0.0.0.0:0              LISTENING       5678\n  TCP    [::]:445               [::]:0                 LISTENING       4\n  UDP    0.0.0.0:5353           *:*                                    2500"
+input_format = "netstat-windows"
+output_format = "markdown"
+
+[[example]]
+label = "lsof -i, all sockets, CSV"
+[example.params]
+input = "COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME\nsshd     575 root    3u  IPv4  19373      0t0  TCP *:22 (LISTEN)\nnginx   1234 www     6u  IPv4  19999      0t0  TCP 127.0.0.1:8080 (LISTEN)\ncurl     999 dev     5u  IPv4 221142      0t0  TCP 10.0.0.5:52344->93.184.216.34:443 (ESTABLISHED)\ncupsd    900 root    7u  IPv6   4242      0t0  TCP [::1]:631 (LISTEN)"
+input_format = "lsof"
+output_format = "csv"
+listening_only = "false"
+
+[[example]]
+label = "Only conflicts, with kill commands"
+[example.params]
+input = "Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\ntcp   LISTEN 0      128          0.0.0.0:22        0.0.0.0:*    users:((\"sshd\",pid=575,fd=3))\ntcp   LISTEN 0      511        127.0.0.1:8080      0.0.0.0:*    users:((\"nginx\",pid=1234,fd=6))\ntcp   LISTEN 0      511          0.0.0.0:8080      0.0.0.0:*    users:((\"node\",pid=4321,fd=20))"
+conflicts_only = "true"
+kill_commands = "true"
