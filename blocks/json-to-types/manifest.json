@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/json-to-types",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Infer TypeScript interfaces, Rust structs, Go structs or Python dataclasses from a JSON sample",
+  "role": "skill",
+  "tool": {
+    "description": "Infer type definitions from a JSON sample and emit them as TypeScript interfaces, Rust structs, Go structs or Python dataclasses. `json` takes one representative record (object, array or array of objects). Nested objects and arrays of objects each get their own named type, key order is preserved, array elements are merged so a key missing from some of them becomes optional, integers and floats are told apart, mixed primitives become a union (TypeScript/Python) or the language's any type (Rust/Go), and structurally identical objects are emitted once and reused. output_language=typescript (default) | rust | go | python. root_name names the top-level type (default Root). optional_strategy=optional (default) | nullable | required controls how nulls and missing keys are typed. json_annotations toggles serde derives/renames (Rust) and json struct tags (Go); export toggles export/pub/exported names. Deterministic — the same JSON always yields the same code. Runs locally, nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "export": {
+          "default": true,
+          "description": "Make the generated types public: 'export interface' in TypeScript, 'pub struct' with pub fields in Rust, capitalised (exported) type names in Go. Default true. No effect on Python.",
+          "type": "boolean"
+        },
+        "json": {
+          "description": "The JSON sample to infer types from — one representative record is enough. Example: '{\"id\":1,\"name\":\"Ada\",\"tags\":[\"admin\"]}'. Objects, arrays, nested objects and arrays of objects all work; array elements are merged so a key missing from some of them becomes optional. Up to 2,000,000 bytes and 64 levels of nesting.",
+          "type": "string"
+        },
+        "json_annotations": {
+          "default": true,
+          "description": "Emit serialization annotations: serde derives plus #[serde(rename)] for Rust, and json:\"…\" struct tags (with ,omitempty on optional fields) for Go. Default true. No effect on TypeScript or Python output.",
+          "type": "boolean"
+        },
+        "optional_strategy": {
+          "default": "optional",
+          "description": "How null and missing keys are typed. optional (default): a null value or a key absent from some array elements becomes optional — 'name?: string', 'Option<String>', '*string', 'Optional[str] = None'. nullable: only absent keys are optional; null widens the type instead — 'string | null'. required: every key required and nulls ignored, giving the narrowest types.",
+          "enum": [
+            "optional",
+            "nullable",
+            "required"
+          ],
+          "type": "string"
+        },
+        "output_language": {
+          "default": "typescript",
+          "description": "Target language: typescript (default) emits interfaces, rust emits structs with serde derives, go emits structs with json tags, python emits @dataclass classes. Aliases ts, rs, golang and py are accepted.",
+          "enum": [
+            "typescript",
+            "rust",
+            "go",
+            "python"
+          ],
+          "type": "string"
+        },
+        "root_name": {
+          "default": "Root",
+          "description": "Name for the top-level type, PascalCased automatically (default Root). Example: 'User' produces 'interface User' / 'struct User' / 'class User'. When the root is an array or a primitive you get a type alias with this name instead.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "json"
+      ],
+      "type": "object"
+    }
+  }
+}
