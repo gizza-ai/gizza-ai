@@ -1,0 +1,124 @@
+slug          = "release-from-commits"
+title         = "Release from commits"
+description   = "Compute a next semantic version and grouped release notes from a pasted Conventional Commits log."
+tags          = ["dev", "release", "semver", "changelog"]
+h1            = "Release from commits"
+hero_subtitle = "Paste a Conventional Commits log and get the next semver plus ready-to-edit release notes."
+wasm          = "gizza_ai_release_from_commits_web"
+export        = "run"
+live          = false
+output_label  = "Release notes"
+format        = "text"
+
+[[input]]
+name        = "current_version"
+label       = "Current version"
+placeholder = "v1.4.2"
+source      = "field"
+
+[[input]]
+name        = "commits"
+label       = "Commit log"
+placeholder = "feat(api): add token refresh\nfix(ui): keep menu open\nperf(cache)!: replace storage layer"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "minor_types"
+label       = "Minor bump types"
+placeholder = "feat,feature"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "patch_types"
+label       = "Patch bump types"
+placeholder = "fix,perf,revert"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "zero_version_policy"
+label       = "0.x policy"
+source      = "field"
+
+[input.labels]
+standard = "Standard semver"
+cautious = "Cautious pre-1.0"
+
+[[input]]
+name        = "prerelease_policy"
+label       = "Prerelease policy"
+source      = "field"
+
+[input.labels]
+finalize = "Finalize matching prerelease"
+increment = "Stay on prerelease line"
+ignore = "Ignore prerelease suffix"
+
+[[input]]
+name        = "prerelease_identifier"
+label       = "Prerelease id"
+placeholder = "rc"
+source      = "field"
+
+[[input]]
+name        = "hidden_types"
+label       = "Hidden note types"
+placeholder = "chore,style,ci,build,test"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "repo_url"
+label       = "Repository URL"
+placeholder = "https://github.com/acme/widget"
+source      = "field"
+
+[[input]]
+name        = "release_date"
+label       = "Release date"
+placeholder = "2026-08-29"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+markdown = "Markdown notes"
+version = "Version only"
+json = "JSON"
+
+[[example]]
+label = "Feature + fix"
+[example.params]
+current_version = "v1.4.2"
+commits = "feat(api): add token refresh\nfix(ui): keep menu open"
+release_date = "2026-08-29"
+output_format = "markdown"
+
+[[example]]
+label = "Breaking change"
+[example.params]
+current_version = "1.4.2"
+commits = "feat(auth)!: replace session format\nfix(auth): migrate legacy cookie"
+output_format = "markdown"
+
+[[example]]
+label = "Pre-1.0 cautious"
+[example.params]
+current_version = "0.4.2"
+commits = "feat(parser): support footers\nfix(parser): keep bang marker"
+zero_version_policy = "cautious"
+output_format = "markdown"
+
+[[example]]
+label = "RC increment"
+[example.params]
+current_version = "v2.0.0-rc.1"
+commits = "fix(release): update generated notes"
+prerelease_policy = "increment"
+output_format = "version"
