@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dkim-generate"
+version = "0.1.0"
+abi = 1
+summary = "Generate a DKIM key pair and its DNS TXT record"

@@ -1,0 +1,136 @@
+slug          = "dkim-generate"
+title         = "DKIM Record Generator — Key Pair and _domainkey TXT Record"
+description   = "Generate a DKIM key pair and the exact _domainkey TXT record to publish for it — RSA 1024/2048/4096 or Ed25519, entirely in your browser."
+tags          = ["dkim", "dkim generator", "dkim key generator", "dkim record", "domainkey", "email authentication", "txt record", "dkim selector", "ed25519", "opendkim"]
+h1            = "DKIM Record Generator"
+hero_subtitle = "Create a DKIM signing key pair and the exact <selector>._domainkey TXT record to publish for it — or rebuild that record for a key your mail server already has. Runs entirely in your browser; the private key never leaves your device."
+wasm          = "gizza_ai_dkim_generate_web"
+export        = "run"
+live          = false
+output_label  = "DKIM key and record"
+format        = "text"
+
+[[input]]
+name        = "domain"
+label       = "Domain you send mail from"
+placeholder = "example.com"
+source      = "field"
+
+[[input]]
+name        = "selector"
+label       = "Selector"
+placeholder = "mail"
+source      = "field"
+
+[[input]]
+name   = "key_type"
+label  = "Key type"
+source = "field"
+
+[input.labels]
+"rsa-1024" = "RSA 1024-bit — legacy only, now considered weak"
+"rsa-2048" = "RSA 2048-bit — recommended, works everywhere"
+"rsa-4096" = "RSA 4096-bit — long record, some DNS panels reject it"
+"ed25519"  = "Ed25519 — short record, not verified by every receiver"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text        = "Full report (record + both keys)"
+dns_value   = "TXT value only (v=DKIM1; …)"
+zone_file   = "BIND zone-file line"
+json        = "JSON"
+public_key  = "Public key PEM only"
+private_key = "Private key only"
+
+[[input]]
+name   = "include_hash"
+label  = "Add h=sha256 (accept SHA-256 signatures only)"
+source = "field"
+
+[[input]]
+name   = "flags"
+label  = "Flag tag (t=)"
+source = "field"
+
+[input.labels]
+none  = "None — normal production selector"
+y     = "t=y — testing, failures must not be enforced"
+s     = "t=s — do not use this key for subdomains"
+"y:s" = "t=y:s — testing and no subdomains"
+
+[[input]]
+name        = "existing_key"
+label       = "Existing key (optional — leave blank to generate a new one)"
+placeholder = "-----BEGIN PRIVATE KEY-----… — paste a key your mail server already uses to rebuild its record"
+source      = "field"
+multiline   = true
+
+[[example]]
+label = "New 2048-bit RSA key"
+[example.params]
+domain = "example.com"
+selector = "mail"
+key_type = "rsa-2048"
+output = "text"
+include_hash = "true"
+flags = "none"
+existing_key = ""
+
+[[example]]
+label = "TXT value only"
+[example.params]
+domain = "example.com"
+selector = "s1"
+key_type = "rsa-2048"
+output = "dns_value"
+include_hash = "true"
+flags = "none"
+existing_key = ""
+
+[[example]]
+label = "Ed25519 selector"
+[example.params]
+domain = "example.com"
+selector = "ed1"
+key_type = "ed25519"
+output = "text"
+include_hash = "true"
+flags = "none"
+existing_key = ""
+
+[[example]]
+label = "Test-mode selector (t=y)"
+[example.params]
+domain = "example.com"
+selector = "test2026"
+key_type = "ed25519"
+output = "dns_value"
+include_hash = "true"
+flags = "y"
+existing_key = ""
+
+[[example]]
+label = "Zone-file line"
+[example.params]
+domain = "example.com"
+selector = "mail"
+key_type = "ed25519"
+output = "zone_file"
+include_hash = "true"
+flags = "none"
+existing_key = ""
+
+[[example]]
+label = "JSON for scripts"
+[example.params]
+domain = "example.com"
+selector = "mail"
+key_type = "ed25519"
+output = "json"
+include_hash = "true"
+flags = "none"
+existing_key = ""
