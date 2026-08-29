@@ -1,0 +1,115 @@
+slug          = "yaml-lint"
+title         = "YAML Linter — syntax, duplicate keys and style checks"
+description   = "Lint YAML for parser errors, duplicate mapping keys, indentation drift, truthy and octal traps, line length and comment spacing. Runs locally in your browser."
+tags          = ["yaml linter", "yaml validator", "yamllint", "duplicate yaml keys", "yaml syntax checker", "yaml style"]
+h1            = "Lint YAML before it reaches CI"
+hero_subtitle = "Paste YAML and catch syntax errors, duplicate keys, tab indentation, spacing issues and risky plain scalars with line-and-column findings. Runs locally; nothing is uploaded."
+wasm          = "gizza_ai_yaml_lint_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "YAML input"
+placeholder = "---\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: demo\ndata:\n  enabled: yes\n"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "preset"
+label       = "Rule preset"
+placeholder = "default"
+source      = "field"
+
+[input.labels]
+relaxed = "Relaxed: syntax, duplicate keys, indentation"
+default = "Default: common style + portability warnings"
+strict  = "Strict: add document start, key order, empty values"
+
+[[input]]
+name        = "indent_spaces"
+label       = "Indent width"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "8"
+step        = "1"
+
+[[input]]
+name        = "max_line_length"
+label       = "Max line length"
+placeholder = "80"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "200"
+step        = "5"
+
+[[input]]
+name        = "disable"
+label       = "Disabled rules"
+placeholder = "truthy, line-length"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "strict_warnings"
+label       = "Treat warnings as errors"
+source      = "field"
+
+[[input]]
+name        = "report_format"
+label       = "Output format"
+placeholder = "report"
+source      = "field"
+
+[input.labels]
+report = "Readable report"
+json   = "JSON for CI"
+
+[[example]]
+label = "Kubernetes ConfigMap"
+[example.params]
+input = "---\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: demo\ndata:\n  enabled: yes\n"
+preset = "default"
+indent_spaces = "2"
+max_line_length = "80"
+disable = ""
+strict_warnings = "false"
+report_format = "report"
+
+[[example]]
+label = "Docker Compose"
+[example.params]
+input = "services:\n  web:\n    image: nginx:1.27\n    ports:\n      - \"8080:80\"\n"
+preset = "relaxed"
+indent_spaces = "2"
+max_line_length = "120"
+disable = ""
+strict_warnings = "false"
+report_format = "report"
+
+[[example]]
+label = "GitHub Actions workflow"
+[example.params]
+input = "name: ci\non: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n"
+preset = "default"
+indent_spaces = "2"
+max_line_length = "100"
+disable = ""
+strict_warnings = "false"
+report_format = "report"
+
+[[example]]
+label = "Broken YAML demo"
+[example.params]
+input = "name: demo\nname: duplicate\ndebug: yes\nlist:\n  -   too many spaces\nmissing:space\n"
+preset = "default"
+indent_spaces = "2"
+max_line_length = "80"
+disable = ""
+strict_warnings = "true"
+report_format = "json"
