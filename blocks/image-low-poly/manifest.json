@@ -1,0 +1,26 @@
+{
+  "name": "gizza-ai/image-low-poly",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn an image into low-poly triangle art",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Turn a photo into low-poly triangle art: a seeded triangle mesh is warped onto the image so its corners follow contours, then every triangle is flat-filled with the colour of the source region beneath it. triangles is the approximate triangle count 50-4000 (default 800; fewer = bolder and more abstract, more = closer to the original); edge_focus 0-100 (default 60) pulls mesh corners onto high-contrast edges and damps the random scatter; color_mode is average (default, smooth) or centroid (punchier); stroke and stroke_width draw an optional wireframe outline (width 0-6, default 0 = none); seed reshuffles the mesh into a different variation. Returns a PNG at the original dimensions. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
+        "triangles": { "type": "integer", "minimum": 50, "maximum": 4000, "default": 800, "description": "Approximate number of triangles, 50-4000 (default 800). Fewer = bolder and more abstract; more = closer to the original photo." },
+        "edge_focus": { "type": "integer", "minimum": 0, "maximum": 100, "default": 60, "description": "How strongly triangle corners snap to high-contrast edges, 0-100 (default 60). Higher follows contours and calms the random scatter; lower gives a looser, more evenly scattered mesh." },
+        "color_mode": { "type": "string", "enum": ["average", "centroid"], "default": "average", "description": "How each triangle picks its flat colour: 'average' (default) averages the source pixels it covers for a smoother result; 'centroid' takes the single pixel at its centre for punchier, higher-contrast facets." },
+        "stroke": { "type": "string", "default": "#1f2937", "description": "Wireframe colour as #rgb or #rrggbb (default #1f2937). Only drawn when stroke_width is above 0." },
+        "stroke_width": { "type": "number", "minimum": 0, "maximum": 6, "default": 0, "description": "Wireframe line width in pixels, 0-6 (default 0 = no wireframe). Try 1-2 for an outlined poly-art look." },
+        "seed": { "type": "integer", "default": 1, "description": "Seed for the mesh scatter (default 1). Change it to reshuffle the triangles into a different variation of the same settings." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
