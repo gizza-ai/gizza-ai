@@ -1,0 +1,55 @@
+slug          = "shell-command-parser"
+title         = "Shell Command Parser — inspect pipes, redirects, quotes & argv"
+description   = "Parse a shell command line into commands, arguments, pipes, redirects, environment assignments, quoting, globs, and expansions without running it."
+tags          = ["shell parser", "bash command explainer", "command line", "pipes", "redirects", "quoting", "argv", "devops"]
+h1            = "Parse a shell command without running it"
+hero_subtitle = "Paste a POSIX/bash-style command and inspect its commands, argv, pipes, redirects, assignments, quoting, globs, and expansions as JSON, a tree, an explanation, or a command table."
+wasm          = "gizza_ai_shell_command_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed command"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Shell command"
+placeholder = "LC_ALL=C grep -rn 'FIXME' src/ 2>/dev/null | sort -u > matches.txt"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+json     = "Structured JSON"
+tree     = "ASCII tree"
+explain  = "Plain-English explanation"
+commands = "Command table"
+
+[[input]]
+name   = "pretty"
+label  = "Pretty-print JSON"
+source = "field"
+
+[[example]]
+label = "Pipeline with redirects"
+[example.params]
+input = "LC_ALL=C grep -rn 'FIXME' src/ 2>/dev/null | sort -u > matches.txt"
+format = "tree"
+pretty = "true"
+
+[[example]]
+label = "Explain quoting and globs"
+[example.params]
+input = "echo \"$HOME/$(date +%F)\" 'raw $x' *.txt"
+format = "explain"
+pretty = "true"
+
+[[example]]
+label = "Command table"
+[example.params]
+input = "tar -czf out.tgz src/ | tee archive.log"
+format = "commands"
+pretty = "true"
