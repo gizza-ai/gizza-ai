@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "json-to-messagepack"
+version = "0.1.0"
+abi = 1
+summary = "Serialize JSON into MessagePack and render the bytes as hex, base64 or diagnostics."
