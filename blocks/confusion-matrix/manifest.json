@@ -1,0 +1,111 @@
+{
+  "name": "gizza-ai/confusion-matrix",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a confusion matrix and classification metrics",
+  "role": "skill",
+  "tool": {
+    "description": "Build a confusion matrix and classification report from true vs predicted labels. Accepts two label columns, an actual/predicted table with optional counts, or a square matrix grid. Reports per-class precision, recall, F-score, specificity, support, macro/weighted/micro averages, accuracy, balanced accuracy, Cohen's kappa, Matthews correlation, and an expanded binary summary with Wilson confidence intervals when a positive class is available. Supports label ordering, row/column/all normalization, F-beta weighting, decimal precision, percentages, and markdown/text/CSV/JSON output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "actual": {
+          "description": "True labels, one per row; or paste a complete actual,predicted[,count] table or a square confusion-matrix count grid when predicted is empty.",
+          "type": "string"
+        },
+        "beta": {
+          "default": 1.0,
+          "description": "F-beta weight for the report. 1 gives F1; values above 1 weight recall more heavily.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for rates and scores.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output format for the matrix and metrics.",
+          "enum": [
+            "markdown",
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row is a header. Auto recognizes common actual/predicted header names.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "Input shape: auto (default), two separate label lists, an actual/predicted table, or a square confusion-matrix grid of counts.",
+          "enum": [
+            "auto",
+            "labels",
+            "table",
+            "matrix"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "description": "Optional class order, separated by commas, newlines, tabs, semicolons, pipes, or spaces. Unseen labels are included with zero support.",
+          "type": "string"
+        },
+        "normalize": {
+          "default": "none",
+          "description": "Normalize matrix cells by row, by prediction column, or by all observations; none returns raw counts.",
+          "enum": [
+            "none",
+            "row",
+            "column",
+            "all"
+          ],
+          "type": "string"
+        },
+        "percent": {
+          "default": false,
+          "description": "Show proportions as percentages in text, markdown, and CSV output.",
+          "type": "boolean"
+        },
+        "positive_label": {
+          "description": "Positive class for the binary summary. When blank and exactly two classes exist, the tool chooses a common positive label or the second class.",
+          "type": "string"
+        },
+        "predicted": {
+          "description": "Predicted labels, one per row. Leave empty when actual contains a paired table or matrix grid.",
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "Separator for labels or table columns. Auto accepts newlines, comma, tab, semicolon, pipe, and falls back to whitespace.",
+          "enum": [
+            "auto",
+            "newline",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "actual"
+      ],
+      "type": "object"
+    }
+  }
+}
