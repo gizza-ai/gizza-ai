@@ -1,0 +1,142 @@
+slug          = "financial-ratio-analyzer"
+title         = "Financial Ratio Analyzer"
+description   = "Compute liquidity, leverage, margin, return, efficiency and market ratios from pasted income-statement and balance-sheet figures."
+tags          = ["financial ratios", "ratio analysis", "liquidity ratios", "leverage ratios", "profit margin", "return on equity", "balance sheet", "income statement"]
+h1            = "Financial Ratio Analyzer"
+hero_subtitle = "Paste statement figures as label-value lines, then calculate current ratio, debt to equity, margins, ROA, ROE, turnovers, Altman Z, market ratios and benchmark flags locally in your browser."
+wasm          = "gizza_ai_financial_ratio_analyzer_web"
+export        = "run"
+live          = false
+output_label  = "Ratio report"
+format        = "text"
+
+[[input]]
+name        = "figures"
+label       = "Current statement figures"
+placeholder = "Revenue: 1,200,000\nCOGS: 720,000\nOperating expenses: 300,000\nNet income: 120,000\nCash: 90,000\nAccounts receivable: 150,000\nInventory: 180,000\nTotal current assets: 420,000\nFixed assets: 580,000\nCurrent liabilities: 170,000\nLong term debt: 330,000\nTotal equity: 500,000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "prior_figures"
+label       = "Prior statement figures (optional)"
+placeholder = "Revenue: 1,000,000\nNet income: 80,000\nTotal assets: 800,000\nTotal equity: 400,000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "groups"
+label   = "Ratio group"
+source  = "field"
+default = "all"
+[input.labels]
+all        = "All ratio groups"
+liquidity  = "Liquidity"
+leverage   = "Leverage and solvency"
+margins    = "Margins"
+returns    = "Returns"
+efficiency = "Efficiency"
+market     = "Market"
+
+[[input]]
+name    = "basis"
+label   = "Balance-sheet basis"
+source  = "field"
+default = "average"
+[input.labels]
+average = "Average current/prior balances when available"
+ending  = "Ending current-period balances"
+
+[[input]]
+name        = "days_in_period"
+label       = "Days in period"
+placeholder = "365"
+source      = "field"
+default     = "365"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "benchmarks"
+label   = "Show benchmark flags"
+source  = "field"
+default = "true"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+default     = "2"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+default     = "$"
+
+[[input]]
+name    = "output"
+label   = "Output format"
+source  = "field"
+default = "summary"
+[input.labels]
+summary = "Readable summary"
+table   = "Grouped table"
+csv     = "CSV"
+json    = "JSON"
+
+[[example]]
+label = "Retail statement summary"
+[example.params]
+figures = "Revenue: 1,200,000\nCOGS: 720,000\nOperating expenses: 300,000\nDepreciation and amortization: 40,000\nInterest expense: 20,000\nTaxes: 40,000\nNet income: 120,000\nCash: 90,000\nAccounts receivable: 150,000\nInventory: 180,000\nTotal current assets: 420,000\nFixed assets: 580,000\nAccounts payable: 110,000\nShort term debt: 60,000\nTotal current liabilities: 170,000\nLong term debt: 330,000\nRetained earnings: 200,000\nTotal equity: 500,000"
+prior_figures = ""
+groups = "all"
+basis = "average"
+days_in_period = "365"
+benchmarks = "true"
+decimals = "2"
+currency = "$"
+output = "summary"
+
+[[example]]
+label = "Returns with prior period"
+[example.params]
+figures = "Revenue: 1,200,000\nNet income: 120,000\nTotal assets: 1,000,000\nTotal equity: 500,000"
+prior_figures = "Revenue: 1,000,000\nNet income: 80,000\nTotal assets: 800,000\nTotal equity: 400,000"
+groups = "returns"
+basis = "average"
+days_in_period = "365"
+benchmarks = "true"
+decimals = "2"
+currency = "$"
+output = "summary"
+
+[[example]]
+label = "CSV liquidity export"
+[example.params]
+figures = "Cash: 90,000\nAccounts receivable: 150,000\nInventory: 180,000\nCurrent assets: 420,000\nCurrent liabilities: 170,000\nRevenue: 1,200,000"
+prior_figures = ""
+groups = "liquidity"
+basis = "ending"
+days_in_period = "365"
+benchmarks = "false"
+decimals = "2"
+currency = "$"
+output = "csv"
+
+[[example]]
+label = "Market ratios as JSON"
+[example.params]
+figures = "Revenue: 1,200,000\nNet income: 120,000\nTotal assets: 1,000,000\nTotal liabilities: 500,000\nTotal equity: 500,000\nShares outstanding: 100,000\nShare price: 24"
+prior_figures = ""
+groups = "market"
+basis = "ending"
+days_in_period = "365"
+benchmarks = "true"
+decimals = "2"
+currency = "$"
+output = "json"

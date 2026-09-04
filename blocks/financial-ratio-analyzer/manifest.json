@@ -1,0 +1,86 @@
+{
+  "name": "gizza-ai/financial-ratio-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute liquidity, leverage, margin, return, efficiency and market ratios from pasted financial statements",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze pasted income-statement and balance-sheet figures and compute standard financial ratios across liquidity, leverage and solvency, margins, returns, efficiency, and market valuation. Paste `label: value` lines using common statement labels; values may include currency symbols, thousands separators, accounting parentheses for negatives, and k/m/bn suffixes. The tool derives omitted subtotals where possible, reports missing inputs as n/a with the exact requirement, checks balance-sheet consistency, can compare a prior period, and can use average balance-sheet denominators for return and turnover ratios. Outputs include readable summaries, grouped tables, CSV, and JSON. Generic benchmark statuses and a health score are available for educational use only; this is not financial, investment, tax, or accounting advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "default": "average",
+          "description": "Balance-sheet denominator basis for turnover and return ratios. average (default) uses average current/prior balances when prior_figures is provided and falls back to ending balances otherwise. ending always uses the current-period balances.",
+          "enum": [
+            "average",
+            "ending"
+          ],
+          "type": "string"
+        },
+        "benchmarks": {
+          "default": true,
+          "description": "Show generic rule-of-thumb benchmark statuses and a simple health score. Default true. These are educational ranges only, not industry-specific financial advice.",
+          "type": "boolean"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency symbol to prefix money values in readable output, such as $, €, £, ¥, R$ or CHF plus a space. Default $. Cosmetic only; no currency conversion is performed.",
+          "type": "string"
+        },
+        "days_in_period": {
+          "default": 365,
+          "description": "Days in the period used for DSO, DIO, DPO and cash conversion cycle calculations. Default 365; use 360 for banker-style years, 90 for a quarter, or 30 for a month. Must be 1 to 366.",
+          "maximum": 366,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for readable summary and table output, from 0 to 6. Default 2. CSV and JSON outputs retain machine-readable numeric precision.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "figures": {
+          "description": "Current-period income-statement and balance-sheet figures as pasted `label: value` lines. Labels can be common statement names such as Revenue, COGS, Current assets, Current liabilities, Total assets, Total liabilities, Total equity, Net income, Cash, Inventory, Accounts receivable, Accounts payable, Long term debt, Shares outstanding, or Share price. Values may include currency symbols, commas, accounting parentheses, and k/m/bn suffixes. Up to 400 non-blank lines.",
+          "type": "string"
+        },
+        "groups": {
+          "default": "all",
+          "description": "Ratio family to show. all (default) reports liquidity, leverage and solvency, margins, returns, efficiency, and market ratios when share data is available. Choose liquidity, leverage, margins, returns, efficiency, or market to narrow the output.",
+          "enum": [
+            "all",
+            "liquidity",
+            "leverage",
+            "margins",
+            "returns",
+            "efficiency",
+            "market"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output shape: summary (default) for a full readable report, table for grouped aligned rows, csv for spreadsheets, or json for a machine-readable analysis object.",
+          "enum": [
+            "summary",
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "prior_figures": {
+          "default": "",
+          "description": "Optional prior-period statement in the same `label: value` format. When supplied, the report adds prior and change columns; with basis=average, balance-sheet denominators such as assets, equity, inventory, receivables and payables use the average of current and prior balances.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "figures"
+      ],
+      "type": "object"
+    }
+  }
+}
