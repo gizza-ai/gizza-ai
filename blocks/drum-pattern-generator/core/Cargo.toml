@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-drum-pattern-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+midly = { version = "0.5", default-features = false, features = ["std"] }
