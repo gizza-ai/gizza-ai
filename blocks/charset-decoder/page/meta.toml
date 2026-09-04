@@ -1,0 +1,101 @@
+slug          = "charset-decoder"
+title         = "Charset Decoder"
+description   = "Decode pasted hex or base64 bytes as UTF-8, UTF-16, Windows code pages, Shift_JIS, GBK, Big5 and other character sets, with compare and diagnostic views."
+tags          = ["charset decoder", "encoding decoder", "hex to text", "base64 to text", "windows-1252", "shift_jis", "utf-16", "mojibake", "text encoding", "hexdump"]
+h1            = "Charset Decoder"
+hero_subtitle = "Paste a hex dump or base64 blob and decode the bytes with auto detection or an explicit charset such as UTF-8, UTF-16LE, Windows-1252, Windows-1251, KOI8-R, Shift_JIS, GBK, Big5 or EUC-KR. Runs locally in your browser."
+wasm          = "gizza_ai_charset_decoder_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Hex or base64 bytes"
+placeholder = "48 65 6c 6c 6f 2c 20 77 6f 72 6c 64 21"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+default     = "auto"
+[input.labels]
+auto   = "Auto-detect hex vs base64"
+hex    = "Hex dump"
+base64 = "Base64"
+
+[[input]]
+name        = "charset"
+label       = "Character set"
+placeholder = "auto"
+default     = "auto"
+source      = "field"
+
+[[input]]
+name        = "output"
+label       = "Output view"
+source      = "field"
+default     = "text"
+[input.labels]
+text    = "Decoded text"
+escaped = "Escaped controls"
+hexdump = "Hexdump"
+compare = "Compare charsets"
+report  = "Diagnostic report"
+
+[[input]]
+name        = "errors"
+label       = "Invalid bytes"
+source      = "field"
+default     = "replace"
+[input.labels]
+replace = "Replace with � and count"
+strict  = "Fail at first invalid offset"
+
+[[input]]
+name        = "strip_bom"
+label       = "Strip matching byte-order mark"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "per_line"
+label       = "Decode each line separately"
+source      = "field"
+default     = "false"
+
+[[example]]
+label = "Hello from hex"
+[example.params]
+input = "48 65 6c 6c 6f 2c 20 77 6f 72 6c 64 21"
+input_format = "hex"
+charset = "utf-8"
+output = "text"
+errors = "replace"
+strip_bom = "true"
+per_line = "false"
+
+[[example]]
+label = "Windows-1251 Cyrillic"
+[example.params]
+input = "cff0e8e2e5f2"
+input_format = "hex"
+charset = "windows-1251"
+output = "text"
+errors = "replace"
+strip_bom = "true"
+per_line = "false"
+
+[[example]]
+label = "Compare candidates"
+[example.params]
+input = "cff0e8e2e5f2"
+input_format = "hex"
+charset = "auto"
+output = "compare"
+errors = "replace"
+strip_bom = "true"
+per_line = "false"
