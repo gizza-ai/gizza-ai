@@ -1,0 +1,146 @@
+slug          = "nps-csat-calculator"
+title         = "NPS, CSAT and CES Calculator"
+description   = "Compute Net Promoter Score, CSAT or CES from pasted survey ratings, with response breakdowns, distributions and confidence bands."
+tags          = ["nps calculator", "csat calculator", "ces calculator", "survey ratings", "customer satisfaction", "net promoter score", "confidence interval"]
+h1            = "NPS, CSAT and CES Calculator"
+hero_subtitle = "Paste raw survey ratings or rating-count tallies, choose NPS, CSAT or CES, and get the headline score, response bands, distribution and confidence band. Runs locally in your browser."
+wasm          = "gizza_ai_nps_csat_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Survey metric report"
+format        = "text"
+
+[[input]]
+name        = "ratings"
+label       = "Ratings"
+placeholder = "score\n10\n9\n8\n7\n6\n10\n0"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "metric"
+label   = "Metric"
+source  = "field"
+default = "nps"
+[input.labels]
+nps  = "NPS — promoter minus detractor share"
+csat = "CSAT — satisfied share"
+ces  = "CES — effort mean and easy share"
+
+[[input]]
+name    = "input"
+label   = "Input shape"
+source  = "field"
+default = "values"
+[input.labels]
+values = "Raw ratings"
+counts = "Rating,count tallies"
+
+[[input]]
+name    = "scale"
+label   = "Rating scale"
+source  = "field"
+default = "auto"
+[input.labels]
+auto   = "Auto for selected metric"
+"0-10" = "0–10"
+"1-5"  = "1–5"
+"1-7"  = "1–7"
+"1-10" = "1–10"
+
+[[input]]
+name        = "threshold"
+label       = "Satisfied/easy threshold"
+placeholder = "-1"
+source      = "field"
+default     = "-1"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "confidence"
+label   = "Confidence band"
+source  = "field"
+default = "95"
+[input.labels]
+"95" = "95%"
+"90" = "90%"
+"99" = "99%"
+none = "None"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "1"
+source      = "field"
+default     = "1"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "distribution"
+label   = "Include rating distribution"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "format"
+label   = "Output format"
+source  = "field"
+default = "report"
+[input.labels]
+report = "Readable report"
+json   = "JSON"
+csv    = "CSV"
+
+[[example]]
+label = "NPS from raw ratings"
+[example.params]
+ratings = "score\n10\n9\n8\n7\n6\n10\n0"
+metric = "nps"
+input = "values"
+scale = "auto"
+threshold = "-1"
+confidence = "95"
+decimals = "1"
+distribution = "true"
+format = "report"
+
+[[example]]
+label = "NPS from tallied counts"
+[example.params]
+ratings = "rating,count\n10,42\n9,28\n8,18\n7,12\n6,9\n5,4\n0,3"
+metric = "nps"
+input = "counts"
+scale = "0-10"
+threshold = "-1"
+confidence = "95"
+decimals = "1"
+distribution = "true"
+format = "report"
+
+[[example]]
+label = "CSAT on a 1–5 scale"
+[example.params]
+ratings = "5,5,4,4,4,3,2,1"
+metric = "csat"
+input = "values"
+scale = "1-5"
+threshold = "4"
+confidence = "90"
+decimals = "1"
+distribution = "true"
+format = "json"
+
+[[example]]
+label = "CES on a 1–7 scale as CSV"
+[example.params]
+ratings = "7 6 6 5 5 4 3 2"
+metric = "ces"
+input = "values"
+scale = "1-7"
+threshold = "5"
+confidence = "none"
+decimals = "2"
+distribution = "false"
+format = "csv"

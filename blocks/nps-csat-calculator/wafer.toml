@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "nps-csat-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compute NPS, CSAT or CES from a column of survey ratings, with breakdown and confidence band."
