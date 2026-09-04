@@ -1,0 +1,82 @@
+{
+  "name": "gizza-ai/vector-similarity",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rank nearest vectors by cosine, dot product and distance metrics.",
+  "role": "skill",
+  "tool": {
+    "description": "Compare a query vector with a list of candidate vectors and return the nearest neighbours. Accepts comma, whitespace or JSON-array-like numeric vectors; candidates may be labelled with `label: values`. metric chooses cosine, cosine_distance, dot, euclidean, manhattan, chebyshev or hamming. top_k limits returned neighbours, normalize optionally scales vectors to unit length, hamming_tolerance treats close numeric coordinates as equal, decimals controls score precision, show_all_metrics includes the companion metric columns, and output selects table, JSON or CSV. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places for floating-point scores in table, CSV and JSON output, from 0 to 12. Hamming counts remain integers.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "hamming_tolerance": {
+          "default": 0.0,
+          "description": "For Hamming distance, coordinates whose absolute difference is at most this tolerance count as equal. Default 0 for exact numeric equality.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "metric": {
+          "default": "cosine",
+          "description": "Ranking metric: cosine similarity, cosine_distance, dot product, Euclidean, Manhattan, Chebyshev or Hamming distance. Similarity metrics rank higher first; distance metrics rank lower first.",
+          "enum": [
+            "cosine",
+            "cosine_distance",
+            "dot",
+            "euclidean",
+            "manhattan",
+            "chebyshev",
+            "hamming"
+          ],
+          "type": "string"
+        },
+        "normalize": {
+          "default": false,
+          "description": "L2-normalize the query and each candidate before scoring. Useful when vector direction matters more than magnitude; zero vectors then fail clearly.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "table",
+          "description": "Output format: aligned text table (default), JSON or CSV.",
+          "enum": [
+            "table",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "query": {
+          "description": "Query vector to compare against, as numbers separated by commas, spaces or JSON-array punctuation. Example: 3, 2, 1.",
+          "type": "string"
+        },
+        "show_all_metrics": {
+          "default": true,
+          "description": "Include cosine, dot, Euclidean, Manhattan, Chebyshev and Hamming columns beside the ranking metric. Turn off for a compact result.",
+          "type": "boolean"
+        },
+        "top_k": {
+          "default": 5,
+          "description": "Maximum number of nearest neighbours to return, from 1 to 2000. Values above the candidate count return every candidate.",
+          "maximum": 2000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "vectors": {
+          "description": "Candidate vectors, one per line. Prefix a label with 'label: values'; otherwise labels v1, v2, ... are assigned. Every vector must have the same number of dimensions as query.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query",
+        "vectors"
+      ],
+      "type": "object"
+    }
+  }
+}
