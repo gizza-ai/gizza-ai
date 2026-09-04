@@ -1,0 +1,134 @@
+slug          = "regex-match-generator"
+title         = "Regex Match Generator"
+description   = "Generate sample strings that match a regular expression. Seeded and repeatable, with shortest, longest and systematic styles, plus JSON or CSV output."
+tags          = ["regex match generator", "reverse regex", "generate string from regex", "regex test data", "regex sample generator", "regex fixtures", "string from pattern"]
+h1            = "Regex Match Generator"
+hero_subtitle = "Paste a regular expression and get strings that match it — test fixtures, fuzzing seeds and values that pass a validated form field. Seeded, so the same pattern always yields the same samples. Runs locally in your browser."
+wasm          = "gizza_ai_regex_match_generator_web"
+export        = "run"
+live          = false
+output_label  = "Generated samples"
+format        = "text"
+
+[[input]]
+name        = "pattern"
+label       = "Regular expression"
+placeholder = '[A-Z]{3}-\d{4}'
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "How many samples"
+placeholder = "5"
+source      = "field"
+default     = "5"
+
+[[input]]
+name    = "style"
+label   = "Generation style"
+source  = "field"
+default = "random"
+[input.labels]
+random     = "Random (seeded)"
+sequential = "Sequential (systematic coverage)"
+shortest   = "Shortest possible match"
+longest    = "Longest allowed match"
+
+[[input]]
+name        = "seed"
+label       = "Seed"
+placeholder = "42"
+source      = "field"
+default     = "42"
+
+[[input]]
+name        = "max_repeat"
+label       = "Repeat cap for * + {n,}"
+placeholder = "4"
+source      = "field"
+default     = "4"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_length"
+label       = "Max characters per sample"
+placeholder = "200"
+source      = "field"
+default     = "200"
+
+[[input]]
+name    = "unique"
+label   = "Only distinct samples"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "output"
+label   = "Output format"
+source  = "field"
+default = "lines"
+[input.labels]
+lines = "One sample per line"
+json  = "JSON"
+csv   = "CSV"
+
+[[example]]
+label = "Order code AAA-1234"
+[example.params]
+pattern = '[A-Z]{3}-\d{4}'
+count = "5"
+style = "random"
+seed = "42"
+max_repeat = "4"
+max_length = "200"
+unique = "true"
+output = "lines"
+
+[[example]]
+label = "SHA-1 style hex digest"
+[example.params]
+pattern = '[a-f0-9]{40}'
+count = "3"
+style = "random"
+seed = "7"
+max_repeat = "4"
+max_length = "200"
+unique = "true"
+output = "lines"
+
+[[example]]
+label = "12-hour clock time"
+[example.params]
+pattern = '(1[0-2]|[1-9]):[0-5]\d (AM|PM)'
+count = "6"
+style = "sequential"
+seed = "42"
+max_repeat = "4"
+max_length = "200"
+unique = "true"
+output = "lines"
+
+[[example]]
+label = "Email addresses as JSON"
+[example.params]
+pattern = '[a-z]{3,8}\.[a-z]{3,8}@(example|test)\.(com|org)'
+count = "4"
+style = "random"
+seed = "12345"
+max_repeat = "8"
+max_length = "200"
+unique = "true"
+output = "json"
+
+[[example]]
+label = "Shortest and longest of a pattern"
+[example.params]
+pattern = 'colou?rs?'
+count = "1"
+style = "longest"
+seed = "42"
+max_repeat = "4"
+max_length = "200"
+unique = "true"
+output = "lines"
