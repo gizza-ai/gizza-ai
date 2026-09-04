@@ -1,0 +1,118 @@
+slug          = "npv-irr-calculator"
+title         = "NPV and IRR Calculator"
+description   = "Calculate net present value, IRR, MIRR, profitability index and payback from a pasted cash-flow series, with table, CSV and JSON output."
+tags          = ["npv calculator", "irr calculator", "net present value", "internal rate of return", "cash flow", "discounted cash flow", "mirr", "payback period"]
+h1            = "NPV and IRR Calculator"
+hero_subtitle = "Paste cash flows, set the discount rate and period timing, then get NPV, IRR, MIRR, profitability index, payback and a discounted cash-flow table. Runs locally in your browser."
+wasm          = "gizza_ai_npv_irr_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Discounted cash-flow report"
+format        = "text"
+
+[[input]]
+name        = "cash_flows"
+label       = "Cash flows"
+placeholder = "-100000, 30000, 30000, 30000, 30000, 30000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "initial_investment"
+label       = "Initial investment"
+placeholder = "0"
+source      = "field"
+default     = "0"
+
+[[input]]
+name        = "discount_rate"
+label       = "Annual discount rate (%)"
+placeholder = "10"
+source      = "field"
+default     = "10"
+kind        = "slider"
+step        = "0.25"
+
+[[input]]
+name    = "period"
+label   = "Cash-flow period"
+source  = "field"
+default = "annual"
+[input.labels]
+annual     = "Annual"
+semiannual = "Semiannual"
+quarterly  = "Quarterly"
+monthly    = "Monthly"
+weekly     = "Weekly"
+
+[[input]]
+name    = "timing"
+label   = "Timing"
+source  = "field"
+default = "end"
+[input.labels]
+end   = "End of period"
+begin = "Beginning of period"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+default     = "2"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol"
+placeholder = "$"
+source      = "field"
+default     = "$"
+
+[[input]]
+name    = "output"
+label   = "Output format"
+source  = "field"
+default = "summary"
+[input.labels]
+summary = "Readable summary"
+table   = "Discounted table"
+csv     = "CSV table"
+json    = "JSON"
+
+[[example]]
+label = "Five-year project"
+[example.params]
+cash_flows = "-100000, 30000, 30000, 30000, 30000, 30000"
+initial_investment = "0"
+discount_rate = "8"
+period = "annual"
+timing = "end"
+decimals = "2"
+currency = "$"
+output = "summary"
+
+[[example]]
+label = "Monthly subscription cash flow"
+[example.params]
+cash_flows = "12x1000"
+initial_investment = "11000"
+discount_rate = "12"
+period = "monthly"
+timing = "end"
+decimals = "2"
+currency = "$"
+output = "summary"
+
+[[example]]
+label = "CSV table with annuity-due timing"
+[example.params]
+cash_flows = "-1000, 600, 600"
+initial_investment = "0"
+discount_rate = "10"
+period = "annual"
+timing = "begin"
+decimals = "2"
+currency = "€"
+output = "csv"

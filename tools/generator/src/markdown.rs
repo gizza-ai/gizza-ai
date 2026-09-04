@@ -154,13 +154,14 @@ pub(crate) fn cli_example(meta: &ToolMeta, schema: &ParamSchema) -> String {
 /// the characters and the copied example breaks. A sample with BOTH quote
 /// kinds keeps double quotes and backslash-escapes the specials.
 fn shell_quote_positional(arg: &str) -> String {
+    let prefix = if arg.starts_with('-') { "-- " } else { "" };
     let needs_escaping =
         arg.contains('"') || arg.contains('$') || arg.contains('`') || arg.contains('\\');
     if !needs_escaping {
-        return format!("\"{arg}\"");
+        return format!("{prefix}\"{arg}\"");
     }
     if !arg.contains('\'') {
-        return format!("'{arg}'");
+        return format!("{prefix}'{arg}'");
     }
     let mut esc = String::with_capacity(arg.len() + 2);
     for c in arg.chars() {
@@ -169,7 +170,7 @@ fn shell_quote_positional(arg: &str) -> String {
         }
         esc.push(c);
     }
-    format!("\"{esc}\"")
+    format!("{prefix}\"{esc}\"")
 }
 
 /// Example deep-link URL for the "Query parameters" docs (markdown + page).
@@ -534,6 +535,8 @@ placeholder = "{\"info\":{\"name\":\"Demo\"},\"item\":[]}"
         // Double quotes / $ / backtick switch to single quotes.
         assert_eq!(shell_quote_positional("{\"a\":1}"), "'{\"a\":1}'");
         assert_eq!(shell_quote_positional("costs $5"), "'costs $5'");
+        // Leading-dash samples need `--` or clap treats them as flags.
+        assert_eq!(shell_quote_positional("-100, 50"), "-- \"-100, 50\"");
         // Both quote kinds: double quotes with escaped specials.
         assert_eq!(shell_quote_positional("it's \"x\""), "\"it's \\\"x\\\"\"");
     }
