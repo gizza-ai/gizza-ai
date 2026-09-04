@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "shadcn-theme-generator"
+version = "0.1.0"
+abi = 1
+summary = "Turn a seed color into a full shadcn/ui light and dark CSS variable theme."
