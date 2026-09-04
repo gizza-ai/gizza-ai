@@ -1,0 +1,124 @@
+{
+  "name": "gizza-ai/open-graph-tags",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate Open Graph and Twitter Card meta tags for rich link previews.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate the <head> meta tags that make a page render as a rich preview card when it is shared on Facebook, X, LinkedIn, Slack or Discord. Pass at least `title`; add `description`, `url` (absolute), `image` (absolute, 1200x630 suits the 1.91:1 crop), `image_alt`, `site_name`, `author`, `locale` and the X handles `twitter_site`/`twitter_creator` to fill out the card. `og_type` picks the Open Graph object type (website/article/product/profile/video.other/music.song/book) and `twitter_card` picks the X layout (summary_large_image/summary/player/app). Toggle the emitted blocks with include_basic, include_twitter, include_schema and group_comments. With warnings=true (default) a trailing '<!-- Checks -->' comment lists advisory issues such as an over-long title or a relative image URL. Values are HTML-escaped; the result is a copy-pasteable block of markup for the page's <head>.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "description": "The author's name, used for <meta name=\"author\">, plus article:author when og_type='article' and profile:username when og_type='profile'. Example: 'Dana Ruiz'.",
+          "type": "string"
+        },
+        "description": {
+          "description": "The one- or two-sentence page summary, used for the meta description, og:description and twitter:description. About 50-160 characters reads best. Omit to leave those tags out.",
+          "type": "string"
+        },
+        "group_comments": {
+          "default": true,
+          "description": "Label each block with an HTML comment header such as '<!-- Open Graph -->' (default true). Set false for bare tags with no comments.",
+          "type": "boolean"
+        },
+        "image": {
+          "description": "Absolute URL of the preview image, used for og:image and twitter:image, e.g. 'https://example.com/og/sourdough.png'. 1200x630 pixels suits the 1.91:1 crop Facebook and LinkedIn use. Omit for a text-only card.",
+          "type": "string"
+        },
+        "image_alt": {
+          "description": "Alt text describing the preview image, used for og:image:alt and twitter:image:alt, e.g. 'A sliced sourdough loaf'. Only emitted when image is set.",
+          "type": "string"
+        },
+        "image_height": {
+          "default": 0,
+          "description": "Preview image height in pixels for og:image:height, e.g. 630. Set it together with image_width. 0 (default) omits the tag.",
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "image_width": {
+          "default": 0,
+          "description": "Preview image width in pixels for og:image:width, e.g. 1200. Set it together with image_height so crawlers can reserve layout space before fetching. 0 (default) omits the tag.",
+          "maximum": 10000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "include_basic": {
+          "default": true,
+          "description": "Include the standard <title>, meta description, meta author and <link rel=\"canonical\"> tags (default true). Set false when the page already has them and you only want the social tags.",
+          "type": "boolean"
+        },
+        "include_schema": {
+          "default": false,
+          "description": "Also emit schema.org itemprop tags (name, description, image) alongside the others. Default false.",
+          "type": "boolean"
+        },
+        "include_twitter": {
+          "default": true,
+          "description": "Include the twitter:* Twitter Card tags for X (default true). Set false to emit Open Graph only — X does fall back to og:title/og:description/og:image.",
+          "type": "boolean"
+        },
+        "locale": {
+          "default": "en_US",
+          "description": "The content's locale for og:locale in language_TERRITORY form, e.g. 'en_US' (default), 'en_GB', 'de_DE', 'ja_JP', 'pt_BR'. Set it empty to omit the tag.",
+          "type": "string"
+        },
+        "og_type": {
+          "default": "website",
+          "description": "The og:type object type. 'website' (default) for ordinary pages; 'article' for posts (also emits article:author when author is set); 'product', 'profile' (also emits profile:username), 'video.other', 'music.song' or 'book'.",
+          "enum": [
+            "website",
+            "article",
+            "product",
+            "profile",
+            "video.other",
+            "music.song",
+            "book"
+          ],
+          "type": "string"
+        },
+        "site_name": {
+          "description": "The site's name for og:site_name, shown above the card as the source, e.g. 'Example Bakery'. Omit to leave the tag out.",
+          "type": "string"
+        },
+        "title": {
+          "description": "The page title, used for <title>, og:title and twitter:title. Keep it to about 60 characters so previews don't truncate it. Example: 'How to bake sourdough'.",
+          "type": "string"
+        },
+        "twitter_card": {
+          "default": "summary_large_image",
+          "description": "The twitter:card layout on X. 'summary_large_image' (default) is the wide image card; 'summary' is a small square thumbnail; 'player' embeds a media player; 'app' promotes a mobile app.",
+          "enum": [
+            "summary_large_image",
+            "summary",
+            "player",
+            "app"
+          ],
+          "type": "string"
+        },
+        "twitter_creator": {
+          "description": "The author's X handle for twitter:creator, e.g. '@some_baker'. A bare name or a profile URL is accepted and normalized to the @ form.",
+          "type": "string"
+        },
+        "twitter_site": {
+          "description": "The site's X handle for twitter:site, e.g. '@examplebakery'. A bare name or a profile URL is accepted and normalized to the @ form.",
+          "type": "string"
+        },
+        "url": {
+          "description": "The page's absolute canonical URL, used for og:url and <link rel=\"canonical\">, e.g. 'https://example.com/sourdough'. Relative paths are not resolved by crawlers. Omit to leave those tags out.",
+          "type": "string"
+        },
+        "warnings": {
+          "default": true,
+          "description": "Append a trailing '<!-- Checks -->' HTML comment listing advisory issues — title/description length, relative or missing URLs, a large-image card with no image (default true). Checks never block generation; set false to omit the block.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    }
+  }
+}
