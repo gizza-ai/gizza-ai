@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "scale-chord-finder"
+version = "0.1.0"
+abi = 1
+summary = "Find the scales and modes that fit a set of notes, or spell any scale and its chords"
