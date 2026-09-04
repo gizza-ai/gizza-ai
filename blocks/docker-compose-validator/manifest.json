@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/docker-compose-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate docker-compose.yml structure, references and port syntax",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a docker-compose.yml beyond its YAML syntax: missing services/image/build keys, invalid short- and long-syntax port mappings, named volumes and networks that are referenced but never declared, depends_on targets that do not exist, dependency cycles, duplicate container names and duplicate published host ports, obsolete version fields, floating image tags, hard-coded secrets in environment, privileged and host-network services, and optional hardening hints. Anchors, aliases and merge keys are resolved first. Every finding carries a line and column, a rule id and what was expected. Choose essential/default/strict presets, disable individual rules, filter by severity, and return a readable report or JSON for CI.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "disable": {
+          "default": "",
+          "description": "Comma, space or newline separated rule ids to switch off, such as image-tag, quote-ports or project-name. An unknown id is rejected rather than ignored.",
+          "type": "string"
+        },
+        "input": {
+          "description": "The docker-compose.yml (or compose.yaml) document to validate. Only the first YAML document is analysed and nothing leaves the local runtime.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "hint",
+          "description": "Lowest severity to include in the output: hint shows everything, warning drops hints, error shows only blocking problems. Applied after strict_warnings.",
+          "enum": [
+            "hint",
+            "warning",
+            "error"
+          ],
+          "type": "string"
+        },
+        "preset": {
+          "default": "default",
+          "description": "Rule set. essential reports only what breaks 'docker compose up' (syntax, undefined services/networks/volumes, port and volume syntax, dependency cycles, duplicate host ports). default adds deprecation, image-pinning and security warnings. strict adds hardening hints such as missing healthchecks, resource limits, logging options and unbound host ports.",
+          "enum": [
+            "essential",
+            "default",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "report_format": {
+          "default": "report",
+          "description": "Output format: report returns a human-readable summary plus line:column findings; json returns a machine-readable object with a valid flag, counts and a problems array for CI.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "strict_warnings": {
+          "default": false,
+          "description": "Promote every warning to an error, matching the warnings-as-errors convention used in CI pipelines. Hints are left alone.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

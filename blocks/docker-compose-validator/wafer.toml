@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "docker-compose-validator"
+version = "0.1.0"
+abi = 1
+summary = "Validate docker-compose.yml structure, references and port syntax"
