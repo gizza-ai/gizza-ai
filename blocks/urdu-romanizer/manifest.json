@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/urdu-romanizer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Transliterate Urdu script into Roman Urdu",
+  "role": "skill",
+  "tool": {
+    "description": "Transliterate Urdu script into Roman (Latin) Urdu locally. Choose informal ASCII Roman Urdu, ALA-LC or ISO 15919 schemes; control short-vowel handling, common-word spellings, digit conversion, punctuation conversion and capitalization. The converter is deterministic and preserves line breaks, emoji and existing Latin text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "capitalization": {
+          "default": "sentence",
+          "description": "Capitalization for Roman output: lowercase/no change, sentence-case after punctuation and line breaks, or title-case each word.",
+          "enum": [
+            "none",
+            "sentence",
+            "title"
+          ],
+          "type": "string"
+        },
+        "common_words": {
+          "default": true,
+          "description": "Use a small built-in list of common Urdu words for conventional informal spellings such as ہے → hai and پاکستان → pakistan. Applies only to the informal scheme.",
+          "type": "boolean"
+        },
+        "digits": {
+          "default": "latin",
+          "description": "Convert Urdu and Arabic-Indic digits to ASCII 0-9, or keep digit characters exactly as typed.",
+          "enum": [
+            "latin",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Urdu script text to transliterate into Roman (Latin) Urdu. Paragraphs, punctuation, emoji and existing Latin text are preserved.",
+          "type": "string"
+        },
+        "punctuation": {
+          "default": "latin",
+          "description": "Convert Urdu punctuation such as ۔ ، ؟ ؛ ٪ to Latin punctuation, or preserve the original punctuation characters.",
+          "enum": [
+            "latin",
+            "keep"
+          ],
+          "type": "string"
+        },
+        "scheme": {
+          "default": "informal",
+          "description": "Romanization scheme. informal is plain ASCII Roman Urdu; ala-lc and iso15919 keep more Arabic-letter distinctions with diacritics.",
+          "enum": [
+            "informal",
+            "ala-lc",
+            "iso15919"
+          ],
+          "type": "string"
+        },
+        "short_vowels": {
+          "default": "insert-a",
+          "description": "How to handle unwritten short vowels: insert-a adds a pronounceable default between consonants, marks-only honours only typed vowel marks, omit drops all short-vowel marks.",
+          "enum": [
+            "insert-a",
+            "marks-only",
+            "omit"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
