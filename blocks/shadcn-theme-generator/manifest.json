@@ -1,0 +1,86 @@
+{
+  "name": "gizza-ai/shadcn-theme-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn a seed color into a full shadcn/ui light and dark CSS variable theme.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a complete shadcn/ui CSS-variable theme from a seed color, locally. Pass primary as a hex, rgb() or hsl() color; light mode keeps it exactly and dark mode lifts it. accent optionally tints the --accent tokens. neutral picks the grey family (slate, gray, zinc, neutral, stone). format writes oklch, hsl or hex values. tailwind=v4 adds the @theme inline map while tailwind=v3 emits @layer base with bare HSL triplets. radius sets --radius in rem (0-2). mode limits output to light or dark. charts and sidebar toggle the --chart-* and --sidebar-* groups. Returns paste-ready CSS plus a measured WCAG contrast table for every foreground/background pair.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "accent": {
+          "default": "",
+          "description": "Optional second seed for the --accent tokens, in the same notations as primary. Leave empty for the neutral accent upstream shadcn ships. Example: #10b981.",
+          "type": "string"
+        },
+        "charts": {
+          "default": true,
+          "description": "Include the --chart-1 … --chart-5 series colors, fanned out in hue from the primary seed. Default true.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "oklch",
+          "description": "Notation for every emitted value: oklch (current shadcn/Tailwind v4 default), hsl, or hex. All three describe the same 8-bit sRGB colors.",
+          "enum": [
+            "oklch",
+            "hsl",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "both",
+          "description": "Which blocks to emit: both light and dark (default), light only (:root), or dark only (.dark).",
+          "enum": [
+            "both",
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "neutral": {
+          "default": "zinc",
+          "description": "Grey family that tints backgrounds, borders and muted surfaces: slate (blue-leaning), gray, zinc (default), neutral (pure grey) or stone (warm).",
+          "enum": [
+            "slate",
+            "gray",
+            "zinc",
+            "neutral",
+            "stone"
+          ],
+          "type": "string"
+        },
+        "primary": {
+          "description": "Brand seed color for --primary, as #rrggbb, #rgb, bare hex, rgb(99, 102, 241) or hsl(239, 84%, 67%). Light mode keeps this color exactly; the dark block lifts its lightness so it still reads. Example: #6366f1.",
+          "type": "string"
+        },
+        "radius": {
+          "default": 0.625,
+          "description": "The --radius token in rem, from 0 (square) to 2 (fully rounded). shadcn's own default is 0.625; 0.5 is the older default.",
+          "maximum": 2,
+          "minimum": 0,
+          "type": "number"
+        },
+        "sidebar": {
+          "default": true,
+          "description": "Include the --sidebar-* token group used by the shadcn sidebar block. Default true.",
+          "type": "boolean"
+        },
+        "tailwind": {
+          "default": "v4",
+          "description": "Output shape: v4 emits plain :root/.dark blocks plus an @theme inline map (default); v3 emits @layer base and writes hsl values as bare H S% L% triplets for hsl(var(--token)).",
+          "enum": [
+            "v4",
+            "v3"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary"
+      ],
+      "type": "object"
+    }
+  }
+}
