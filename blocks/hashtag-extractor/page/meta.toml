@@ -1,0 +1,133 @@
+slug          = "hashtag-extractor"
+title         = "Hashtag Extractor and Generator"
+description   = "Paste a caption or article and get ranked, paste-ready hashtags. Keeps the tags you already wrote, adds keyword tags, caps per platform."
+tags          = ["hashtag extractor", "hashtag generator", "text to hashtags", "instagram hashtags", "tiktok hashtags", "linkedin hashtags", "caption keywords"]
+h1            = "Hashtag Extractor and Generator"
+hero_subtitle = "Paste a caption, post or article. Get the hashtags already written in it plus ranked keyword hashtags, capped for the platform you post on. Runs locally in your browser."
+wasm          = "gizza_ai_hashtag_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Hashtags"
+format        = "text"
+
+[[input]]
+name        = "text"
+label       = "Text"
+placeholder = "Remote work is changing how teams build software. Async communication and clear documentation keep remote teams shipping fast."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "max_tags"
+label       = "Maximum hashtags"
+placeholder = "10"
+source      = "field"
+default     = "10"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "platform"
+label   = "Platform cap"
+source  = "field"
+default = "none"
+[input.labels]
+none      = "No platform cap"
+instagram = "Instagram — 5 tags"
+tiktok    = "TikTok — 5 tags"
+x         = "X — 2 tags"
+linkedin  = "LinkedIn — 5 tags"
+facebook  = "Facebook — 3 tags"
+
+[[input]]
+name    = "style"
+label   = "Casing"
+source  = "field"
+default = "lowercase"
+[input.labels]
+lowercase = "lowercase — #contentmarketing"
+camel     = "camelCase — #contentMarketing"
+pascal    = "PascalCase — #ContentMarketing"
+preserve  = "Preserve the text's spelling"
+
+[[input]]
+name        = "phrase_words"
+label       = "Words per hashtag"
+placeholder = "1"
+source      = "field"
+default     = "1"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "min_word_length"
+label       = "Minimum word length"
+placeholder = "3"
+source      = "field"
+default     = "3"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "include_existing"
+label   = "Keep hashtags already in the text"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "separator"
+label   = "Separator"
+source  = "field"
+default = "space"
+[input.labels]
+space   = "Spaces — #a #b"
+comma   = "Commas — #a, #b"
+newline = "One per line"
+
+[[example]]
+label = "Ranked tags from a post"
+[example.params]
+text = "Remote work is changing how teams build software. Async communication and clear documentation keep remote teams shipping fast."
+max_tags = "10"
+platform = "none"
+style = "lowercase"
+phrase_words = "1"
+min_word_length = "3"
+include_existing = "true"
+separator = "space"
+
+[[example]]
+label = "Instagram set, two-word tags"
+[example.params]
+text = "Remote work is changing how teams build software. Async communication and clear documentation keep remote teams shipping fast."
+max_tags = "0"
+platform = "instagram"
+style = "pascal"
+phrase_words = "2"
+min_word_length = "3"
+include_existing = "true"
+separator = "space"
+
+[[example]]
+label = "Keep the tags I already wrote"
+[example.params]
+text = "Shipping the new release today. #DevLog #BuildInPublic"
+max_tags = "10"
+platform = "none"
+style = "lowercase"
+phrase_words = "1"
+min_word_length = "3"
+include_existing = "true"
+separator = "space"
+
+[[example]]
+label = "Two tags for X, comma separated"
+[example.params]
+text = "Remote work is changing how teams build software. Async communication and clear documentation keep remote teams shipping fast."
+max_tags = "0"
+platform = "x"
+style = "camel"
+phrase_words = "2"
+min_word_length = "4"
+include_existing = "true"
+separator = "comma"

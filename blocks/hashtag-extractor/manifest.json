@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/hashtag-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Turn text into ranked, paste-ready hashtags and keep the ones already written in it.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a caption, post or article into ranked, paste-ready hashtags. Two jobs in one pass: it scores the text's keywords and formats the best ones as hashtags, and it keeps any #tags already written in the text, listed first and verbatim (include_existing, default on). Relevance = how often a word occurs, weighted by how early it appears and how many words the phrase has, so the ordering is explainable rather than alphabetical. Returns the joined hashtag line plus a summary of the tag count, character count and how many candidates were found. Options: max_tags (0-100, default 10), platform to cap the output at the count that performs best on instagram/tiktok/x/linkedin/facebook, style (lowercase/camel/pascal/preserve), phrase_words 1-4 for multi-word tags like #contentmarketing, min_word_length, and separator (space/comma/newline). English stop words and digits-only tokens are dropped; duplicates are removed case-insensitively. Runs offline with no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "include_existing": {
+          "default": true,
+          "description": "Keep the hashtags already written in the text and list them first, verbatim, before the generated ones. false generates from the keywords only. Duplicates are removed case-insensitively either way. Default true.",
+          "type": "boolean"
+        },
+        "max_tags": {
+          "default": 10,
+          "description": "Maximum hashtags to return, highest score first. 0 = no limit of your own (the platform's recommended count still applies if you set one). When both are set the tighter number wins. Default 10.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "min_word_length": {
+          "default": 3,
+          "description": "Shortest word that may become (part of) a hashtag, in characters. Raise it to drop filler like \"new\" or \"top\"; lower it to keep short brand words. English stop words and digits-only tokens are always dropped. Default 3.",
+          "maximum": 20,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "phrase_words": {
+          "default": 1,
+          "description": "Maximum words joined into one hashtag. 1 = single-word tags only; 2-4 also scores consecutive keyword runs, so \"content marketing\" becomes #contentmarketing. A longer phrase suppresses a shorter tag it fully contains when both occur equally often. Default 1.",
+          "maximum": 4,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "platform": {
+          "default": "none",
+          "description": "Cap the output at the count that currently performs best on one network: instagram 5, tiktok 5, linkedin 5, facebook 3, x 2. none applies no platform cap. These are 2026 usage recommendations, not hard platform maxima. Default none.",
+          "enum": [
+            "none",
+            "instagram",
+            "tiktok",
+            "x",
+            "linkedin",
+            "facebook"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "space",
+          "description": "How the paste-ready line joins the hashtags: space = \"#a #b\"; comma = \"#a, #b\"; newline = one tag per line. Default space.",
+          "enum": [
+            "space",
+            "comma",
+            "newline"
+          ],
+          "type": "string"
+        },
+        "style": {
+          "default": "lowercase",
+          "description": "Casing for the generated hashtags: lowercase = #contentmarketing; camel = #contentMarketing; pascal = #ContentMarketing (the accessible choice for multi-word tags — screen readers announce the words separately); preserve keeps the spelling used in the text. Hashtags already written in the text are always emitted verbatim. Default lowercase.",
+          "enum": [
+            "lowercase",
+            "camel",
+            "pascal",
+            "preserve"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to pull hashtags from — a caption, post, article, product blurb or keyword list. Any `#tags` already written in it are kept verbatim (see include_existing); everything else is scored as keywords. Unicode-aware, so non-Latin scripts tokenize, but the built-in stop-word list is English only.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}
