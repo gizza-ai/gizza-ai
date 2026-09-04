@@ -1,0 +1,118 @@
+slug          = "obj-to-gltf"
+title         = "OBJ to glTF / GLB Converter"
+description   = "Convert pasted Wavefront OBJ and optional MTL material text into self-contained glTF JSON or GLB data URLs. Handles UVs, normals, materials, scale and Y-up/Z-up axes."
+tags          = ["obj to gltf", "obj to glb", "wavefront obj", "gltf converter", "glb converter", "3d model", "mtl material", "web 3d"]
+h1            = "OBJ to glTF / GLB Converter"
+hero_subtitle = "Paste Wavefront OBJ text, optionally paste its MTL material file, then export browser-ready glTF JSON or a saveable GLB data URL. Runs locally in your browser."
+wasm          = "gizza_ai_obj_to_gltf_web"
+export        = "run"
+live          = false
+output_label  = "Converted glTF / GLB"
+format        = "text"
+
+[[input]]
+name        = "obj"
+label       = "OBJ text"
+placeholder = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mtl"
+label       = "MTL text (optional)"
+placeholder = "newmtl red\nKd 1 0 0\nd 1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "to"
+label   = "Output format"
+source  = "field"
+default = "gltf"
+[input.labels]
+gltf = "glTF JSON with embedded buffer"
+glb  = "GLB data URL"
+
+[[input]]
+name    = "up_axis"
+label   = "Source up axis"
+source  = "field"
+default = "y"
+[input.labels]
+y = "Y-up (glTF native)"
+z = "Z-up → rotate to glTF Y-up"
+
+[[input]]
+name        = "scale"
+label       = "Scale factor"
+placeholder = "1"
+source      = "field"
+default     = "1"
+
+[[input]]
+name    = "normals"
+label   = "Normals"
+source  = "field"
+default = "auto"
+[input.labels]
+auto = "Auto — use vn or compute flat"
+flat = "Compute flat normals"
+none = "Omit normals"
+
+[[input]]
+name        = "name"
+label       = "Model name"
+placeholder = "model"
+source      = "field"
+default     = "model"
+
+[[input]]
+name    = "unlit"
+label   = "Use unlit materials"
+source  = "field"
+default = "false"
+
+[[input]]
+name    = "double_sided"
+label   = "Double-sided materials"
+source  = "field"
+default = "false"
+
+[[example]]
+label = "Triangle OBJ → glTF"
+[example.params]
+obj = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3"
+mtl = ""
+to = "gltf"
+up_axis = "y"
+scale = "1"
+normals = "auto"
+name = "triangle"
+unlit = "false"
+double_sided = "false"
+
+[[example]]
+label = "Red material cube face → GLB"
+[example.params]
+obj = "v 0 0 0\nv 1 0 0\nv 1 1 0\nv 0 1 0\nusemtl red\nf 1 2 3 4"
+mtl = "newmtl red\nKd 1 0 0\nNs 32"
+to = "glb"
+up_axis = "y"
+scale = "1"
+normals = "flat"
+name = "red_panel"
+unlit = "true"
+double_sided = "true"
+
+[[example]]
+label = "Z-up millimetres → glTF metres"
+[example.params]
+obj = "v 0 0 0\nv 1000 0 0\nv 0 0 1000\nf 1 2 3"
+mtl = ""
+to = "gltf"
+up_axis = "z"
+scale = "0.001"
+normals = "auto"
+name = "z_up_triangle"
+unlit = "false"
+double_sided = "false"
