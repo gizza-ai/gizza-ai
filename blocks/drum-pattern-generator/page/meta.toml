@@ -1,0 +1,127 @@
+slug          = "drum-pattern-generator"
+title         = "Drum Pattern Generator"
+description   = "Generate deterministic drum grooves as General MIDI base64, rendered WAV preview audio and an ASCII step grid."
+tags          = ["drum pattern generator", "midi generator", "drum machine", "beat maker", "wav preview", "step sequencer"]
+h1            = "Drum Pattern Generator"
+hero_subtitle = "Choose a genre, meter and feel to create a reproducible drum pattern with MIDI export, WAV preview audio and a readable step grid."
+wasm          = "gizza_ai_drum_pattern_generator_web"
+export        = "run"
+live          = false
+output_label  = "Pattern"
+format        = "text"
+wide          = true
+
+[[input]]
+name   = "genre"
+label  = "Genre"
+source = "field"
+labels = { rock = "Rock", pop = "Pop", funk = "Funk", disco = "Disco", house = "House", techno = "Techno", dnb = "Drum and bass", breakbeat = "Breakbeat", trap = "Trap", boom-bap = "Boom bap", lofi = "Lo-fi", reggae = "Reggae", reggaeton = "Reggaeton", afrobeat = "Afrobeat", bossa-nova = "Bossa nova", jazz-swing = "Jazz swing", blues-shuffle = "Blues shuffle", metal = "Metal", country = "Country", waltz = "Waltz" }
+
+[[input]]
+name   = "time_signature"
+label  = "Time signature"
+source = "field"
+labels = { "4/4" = "4/4", "3/4" = "3/4", "2/4" = "2/4", "5/4" = "5/4", "6/8" = "6/8", "7/8" = "7/8", "12/8" = "12/8" }
+
+[[input]]
+name        = "bars"
+label       = "Bars"
+placeholder = "2"
+default     = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "tempo"
+label       = "Tempo (BPM, 0 = genre default)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "complexity"
+label  = "Complexity"
+source = "field"
+labels = { basic = "Basic", standard = "Standard", busy = "Busy" }
+
+[[input]]
+name   = "hat_subdivision"
+label  = "Grid / hat subdivision"
+source = "field"
+labels = { auto = "Auto", quarter = "Quarter", eighth = "Eighth", sixteenth = "Sixteenth", triplet-eighth = "Triplet eighth" }
+
+[[input]]
+name        = "swing"
+label       = "Swing (%)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "humanize"
+label       = "Humanize (%)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "fill_every"
+label       = "Fill every N bars (0 = none)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "velocity"
+label       = "Velocity"
+placeholder = "100"
+default     = "100"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "kit"
+label  = "GM drum kit"
+source = "field"
+labels = { standard = "Standard", room = "Room", power = "Power", electronic = "Electronic", tr808 = "TR-808", jazz = "Jazz", brush = "Brush", orchestra = "Orchestra" }
+
+[[input]]
+name        = "seed"
+label       = "Seed (reproducible variation)"
+placeholder = "1"
+default     = "1"
+source      = "field"
+
+[[input]]
+name   = "preview"
+label  = "Audio preview"
+source = "field"
+labels = { drums = "Drums", drums-and-click = "Drums + click", click = "Click only", off = "Off" }
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { report = "Report + grid", grid = "Grid only", midi-base64 = "MIDI base64", wav-base64 = "WAV base64", json = "JSON" }
+
+[[example]]
+label  = "Rock groove"
+params = { genre = "rock", bars = "2", output = "report" }
+
+[[example]]
+label  = "Swinging jazz"
+params = { genre = "jazz-swing", time_signature = "4/4", tempo = "140", swing = "55", kit = "jazz", output = "grid" }
+
+[[example]]
+label  = "Trap MIDI"
+params = { genre = "trap", complexity = "busy", humanize = "15", seed = "42", preview = "off", output = "midi-base64" }

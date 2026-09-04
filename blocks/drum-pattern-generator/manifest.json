@@ -1,0 +1,165 @@
+{
+  "name": "gizza-ai/drum-pattern-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate deterministic drum grooves as MIDI, WAV preview audio and an ASCII step grid",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a deterministic drum pattern from genre, time signature, bar count, tempo, complexity, subdivision, swing, humanize, fill, velocity, kit and seed controls. The tool emits General MIDI drum data on channel 10, a pure-Rust rendered WAV preview when enabled, and an ASCII step grid for text surfaces. The same parameters always produce byte-identical MIDI and WAV output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bars": {
+          "default": 2,
+          "description": "Number of bars to generate, from 1 to 64. MIDI always covers every bar; long WAV previews are truncated to a safe length.",
+          "maximum": 64,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "complexity": {
+          "default": "standard",
+          "description": "Pattern density: basic drops embellishments, standard gives a usable groove, and busy adds extra kicks, ghosts or percussion where the genre supports it.",
+          "enum": [
+            "basic",
+            "standard",
+            "busy"
+          ],
+          "type": "string"
+        },
+        "fill_every": {
+          "default": 0,
+          "description": "Add a tom/snare fill on every Nth bar. Use 0 for no fills; values above the bar count simply produce no fill.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "genre": {
+          "default": "rock",
+          "description": "Genre preset for the groove. Each preset picks a typical tempo, its core voices and its feel — for example rock, funk, house, trap, dnb, boom-bap, reggaeton, bossa-nova, jazz-swing, blues-shuffle, metal, country or waltz.",
+          "enum": [
+            "rock",
+            "pop",
+            "funk",
+            "disco",
+            "house",
+            "techno",
+            "dnb",
+            "breakbeat",
+            "trap",
+            "boom-bap",
+            "lofi",
+            "reggae",
+            "reggaeton",
+            "afrobeat",
+            "bossa-nova",
+            "jazz-swing",
+            "blues-shuffle",
+            "metal",
+            "country",
+            "waltz"
+          ],
+          "type": "string"
+        },
+        "hat_subdivision": {
+          "default": "auto",
+          "description": "Grid used for hats and the ASCII preview. Auto follows the genre/complexity, or force quarter, eighth, sixteenth or triplet-eighth.",
+          "enum": [
+            "auto",
+            "quarter",
+            "eighth",
+            "sixteenth",
+            "triplet-eighth"
+          ],
+          "type": "string"
+        },
+        "humanize": {
+          "default": 0.0,
+          "description": "Deterministic timing and velocity variation, 0 to 100 percent. The seed controls the pseudo-random offsets so repeated runs are byte-identical.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "kit": {
+          "default": "standard",
+          "description": "General MIDI drum kit program: standard, room, power, electronic, tr808, jazz, brush or orchestra. The kit selects the GM program number; notes stay on channel 10 percussion.",
+          "enum": [
+            "standard",
+            "room",
+            "power",
+            "electronic",
+            "tr808",
+            "jazz",
+            "brush",
+            "orchestra"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "Returned shape: full report with grid, grid only, MIDI base64, WAV base64, or JSON containing summary fields and both base64 artifacts.",
+          "enum": [
+            "report",
+            "grid",
+            "midi-base64",
+            "wav-base64",
+            "json"
+          ],
+          "type": "string"
+        },
+        "preview": {
+          "default": "drums",
+          "description": "Rendered audio preview mode: drums only, drums plus metronome click, click only, or off. WAV previews are capped near 30 seconds.",
+          "enum": [
+            "drums",
+            "drums-and-click",
+            "click",
+            "off"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 1,
+          "description": "Reproducible variation seed for humanize and audio noise. The same seed and parameters produce byte-identical MIDI and WAV output.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "swing": {
+          "default": 0.0,
+          "description": "Swing amount in percent, 0 to 75. Off-beat grid hits are delayed deterministically; triplet-eighth grooves keep their natural shuffle.",
+          "maximum": 75,
+          "minimum": 0,
+          "type": "number"
+        },
+        "tempo": {
+          "default": 0.0,
+          "description": "Tempo in BPM. Use 0 to take the genre's typical tempo, or choose an explicit tempo from 20 to 300 BPM.",
+          "maximum": 300,
+          "minimum": 0,
+          "type": "number"
+        },
+        "time_signature": {
+          "default": "4/4",
+          "description": "Meter for each bar. Supports common straight and compound signatures: 4/4, 3/4, 2/4, 5/4, 6/8, 7/8 and 12/8.",
+          "enum": [
+            "4/4",
+            "3/4",
+            "2/4",
+            "5/4",
+            "6/8",
+            "7/8",
+            "12/8"
+          ],
+          "type": "string"
+        },
+        "velocity": {
+          "default": 100,
+          "description": "Base MIDI velocity from 1 to 127. Accents and ghost notes are scaled around this value and clamped to the MIDI range.",
+          "maximum": 127,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
