@@ -1,0 +1,114 @@
+slug          = "ideal-weight"
+title         = "Ideal Weight Calculator"
+description   = "Estimate adult ideal body weight from height and sex with the Hamwi, Devine, Robinson and Miller formulas, a healthy BMI range and a body-frame adjustment."
+tags          = ["ideal weight calculator", "ideal body weight", "IBW calculator", "Devine formula", "Hamwi formula", "Robinson formula", "Miller formula", "healthy weight range", "body frame size", "BMI weight range"]
+h1            = "Ideal Weight Calculator"
+hero_subtitle = "Estimate adult ideal body weight from height and sex using the four classic clinical formulas — Hamwi, Devine, Robinson and Miller — side by side in kg and lb, with their average and spread, a healthy-BMI weight range, and an optional body-frame adjustment. Runs locally in your browser."
+wasm          = "gizza_ai_ideal_weight_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "height"
+label       = "Height (cm, or total inches if imperial)"
+placeholder = "175"
+default     = "175"
+source      = "field"
+
+[[input]]
+name        = "sex"
+label       = "Sex"
+source      = "field"
+default     = "male"
+[input.labels]
+male   = "Male"
+female = "Female"
+
+[[input]]
+name        = "units"
+label       = "Units"
+source      = "field"
+default     = "metric"
+[input.labels]
+metric   = "Metric (cm)"
+imperial = "Imperial (total inches)"
+
+[[input]]
+name        = "frame"
+label       = "Body frame"
+source      = "field"
+default     = "medium"
+[input.labels]
+small  = "Small (−10%)"
+medium = "Medium (no adjustment)"
+large  = "Large (+10%)"
+auto   = "Auto — from wrist measurement"
+
+[[input]]
+name        = "wrist"
+label       = "Wrist circumference (cm or inches, for Auto frame)"
+placeholder = "17"
+source      = "field"
+
+[[input]]
+name        = "age"
+label       = "Age in years (optional)"
+placeholder = "35"
+source      = "field"
+
+[[input]]
+name        = "bmi_min"
+label       = "Healthy BMI — lower bound"
+placeholder = "18.5"
+default     = "18.5"
+source      = "field"
+
+[[input]]
+name        = "bmi_max"
+label       = "Healthy BMI — upper bound"
+placeholder = "24.9"
+default     = "24.9"
+source      = "field"
+
+[[example]]
+label = "Man, 175 cm"
+[example.params]
+height  = "175"
+sex     = "male"
+units   = "metric"
+frame   = "medium"
+bmi_min = "18.5"
+bmi_max = "24.9"
+
+[[example]]
+label = "Woman, 5'5\" (imperial)"
+[example.params]
+height  = "65"
+sex     = "female"
+units   = "imperial"
+frame   = "medium"
+bmi_min = "18.5"
+bmi_max = "24.9"
+
+[[example]]
+label = "Frame from wrist"
+[example.params]
+height  = "180"
+sex     = "male"
+units   = "metric"
+frame   = "auto"
+wrist   = "19"
+bmi_min = "18.5"
+bmi_max = "24.9"
+
+[[example]]
+label = "WHO Asian BMI cutoffs"
+[example.params]
+height  = "168"
+sex     = "female"
+units   = "metric"
+frame   = "medium"
+bmi_min = "18.5"
+bmi_max = "23"
