@@ -1,0 +1,127 @@
+slug          = "gltf-glb-converter"
+title         = "glTF and GLB Converter"
+description   = "Convert glTF 2.0 JSON and packed binary GLB assets in either direction, with buffer packing, texture data-URI handling and summary reports."
+tags          = ["gltf converter", "glb converter", "3d model", "gltf to glb", "glb to gltf", "3d assets", "data uri"]
+h1            = "glTF and GLB Converter"
+hero_subtitle = "Paste glTF JSON or GLB bytes, choose the target container, and convert between text .gltf and packed binary .glb locally in your browser."
+wasm          = "gizza_ai_gltf_glb_converter_web"
+export        = "run"
+live          = false
+output_label  = "Converted model or report"
+format        = "text"
+
+[[input]]
+name        = "model"
+label       = "Model"
+placeholder = "{\"asset\":{\"version\":\"2.0\"},\"scenes\":[{\"nodes\":[]}] }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "bin"
+label       = "External .bin bytes"
+placeholder = "AAECAw=="
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "input_format"
+label   = "Input format"
+source  = "field"
+default = "auto"
+[input.labels]
+auto   = "Auto-detect"
+gltf   = "glTF JSON"
+base64 = "GLB base64"
+hex    = "GLB hex"
+
+[[input]]
+name    = "to"
+label   = "Convert to"
+source  = "field"
+default = "auto"
+[input.labels]
+auto = "Auto — flip container"
+glb  = "GLB binary"
+gltf = "glTF JSON"
+
+[[input]]
+name    = "output"
+label   = "Output"
+source  = "field"
+default = "file"
+[input.labels]
+file    = "Converted file text"
+summary = "Summary report"
+buffer  = "Binary buffer only"
+
+[[input]]
+name    = "images"
+label   = "Images"
+source  = "field"
+default = "auto"
+[input.labels]
+auto   = "Auto"
+buffer = "Pack data URI images into buffer"
+uri    = "Extract buffer images to data URIs"
+
+[[input]]
+name        = "buffer_uri"
+label       = "Buffer URI for glTF output"
+placeholder = "scene.bin"
+source      = "field"
+
+[[input]]
+name    = "pretty"
+label   = "Pretty-print glTF JSON"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "output_encoding"
+label   = "Binary output encoding"
+source  = "field"
+default = "data-url"
+[input.labels]
+data-url = "Data URL"
+base64   = "Base64"
+hex      = "Hex"
+
+[[example]]
+label = "glTF JSON to GLB summary"
+[example.params]
+model = "{\"asset\":{\"version\":\"2.0\"},\"scenes\":[{\"nodes\":[]}] }"
+bin = ""
+input_format = "gltf"
+to = "glb"
+output = "summary"
+images = "auto"
+buffer_uri = ""
+pretty = "true"
+output_encoding = "data-url"
+
+[[example]]
+label = "glTF JSON to GLB data URL"
+[example.params]
+model = "{\"asset\":{\"version\":\"2.0\"},\"scenes\":[{\"nodes\":[]}] }"
+bin = ""
+input_format = "gltf"
+to = "glb"
+output = "file"
+images = "auto"
+buffer_uri = ""
+pretty = "true"
+output_encoding = "data-url"
+
+[[example]]
+label = "glTF JSON with external buffer URI"
+[example.params]
+model = "{\"asset\":{\"version\":\"2.0\"},\"scenes\":[{\"nodes\":[]}] }"
+bin = ""
+input_format = "gltf"
+to = "gltf"
+output = "file"
+images = "auto"
+buffer_uri = "scene.bin"
+pretty = "false"
+output_encoding = "base64"

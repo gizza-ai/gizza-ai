@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gltf-glb-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert a glTF 2.0 asset between text .gltf and packed binary .glb, either direction."
