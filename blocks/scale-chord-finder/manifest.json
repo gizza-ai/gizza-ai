@@ -1,0 +1,187 @@
+{
+  "name": "gizza-ai/scale-chord-finder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Find the scales and modes that fit a set of notes, or spell any scale and its chords",
+  "role": "skill",
+  "tool": {
+    "description": "Find the scales and modes that fit a set of notes, or spell any scale and its diatonic chords. With `notes` (letters A-G with optional # or b, separated by spaces or commas) the tool searches 42 scale types across all twelve roots and ranks the matches by how tightly they fit, reporting each scale's spelled notes, the notes it adds and the notes it misses. With `action=list`, `key` and `scale` it instead spells one scale: its notes, scale degrees, semitone and step patterns, its triads or sevenths with Roman numerals, and the other modes built from the same notes. `fit` chooses between scales that contain every note, match them exactly, or miss at most one. `root` narrows a search to one tonic, `spelling` forces sharps or flats, `chord_type` switches between triads, sevenths or both, `include_chords` and `include_modes` trim the report, and `max_results` caps how many matches are listed. `output` returns the full report, just the note names, CSV rows or JSON. Everything is computed from scale-degree specs, so notes and chords always agree on their spelling and the same options always give the same answer. Pure Rust/WASM; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "default": "auto",
+          "description": "Which direction of the lookup to run. `find` takes the notes you played and reports the scales and modes that fit them; `list` spells one named scale and its diatonic chords. `auto` picks `find` when `notes` is given and `list` when it is blank. Default auto.",
+          "enum": [
+            "auto",
+            "find",
+            "list"
+          ],
+          "type": "string"
+        },
+        "chord_type": {
+          "default": "triads",
+          "description": "Which diatonic chords to build. `triads` gives three-note chords, `sevenths` gives four-note chords, and `both` prints the triad and seventh rows together. Ignored when `include_chords` is false. Default triads.",
+          "enum": [
+            "triads",
+            "sevenths",
+            "both"
+          ],
+          "type": "string"
+        },
+        "fit": {
+          "default": "contains",
+          "description": "How closely a scale has to fit the searched notes. `contains` keeps every scale holding all of them, `exact` keeps only scales whose note set is exactly yours (same size, no extras), and `near` also allows scales missing one note. Default contains.",
+          "enum": [
+            "contains",
+            "exact",
+            "near"
+          ],
+          "type": "string"
+        },
+        "include_chords": {
+          "default": true,
+          "description": "Include the diatonic chords built on each scale degree, with their Roman numerals. Turn it off for a bare note-and-degree report. Default true.",
+          "type": "boolean"
+        },
+        "include_modes": {
+          "default": true,
+          "description": "Include scales that share the same notes. In `list` this prints the parent scale's other modes (`Same notes as: D major`); in `find` it keeps every rotation of a matching note set instead of collapsing them to one row. Default true.",
+          "type": "boolean"
+        },
+        "key": {
+          "default": "C",
+          "description": "Tonic the scale is built on for `list`. Both spellings of every black key are offered: `Db` and `C#` sound the same but spell their notes and chords differently. Default C.",
+          "enum": [
+            "C",
+            "C#",
+            "Db",
+            "D",
+            "D#",
+            "Eb",
+            "E",
+            "F",
+            "F#",
+            "Gb",
+            "G",
+            "G#",
+            "Ab",
+            "A",
+            "A#",
+            "Bb",
+            "B"
+          ],
+          "type": "string"
+        },
+        "max_results": {
+          "default": 12,
+          "description": "How many matching scales `find` reports, 1-50. The report always states how many matches were found in total, so a low value truncates the list rather than the search. Default 12.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "notes": {
+          "default": "",
+          "description": "Notes to search for, as letters A-G with optional accidentals, separated by spaces or commas — for example `C E G B`, `F#, A, C#` or `Db Eb Gb Ab Bb`. Octave numbers (`C4`) are accepted and ignored, duplicates collapse to one pitch class, and up to 24 tokens are read. Only used by `find`.",
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Shape of the returned text. `text` is the full report, `names` is just the note names of the scale (or the top match), `csv` returns one row per degree (or per match), and `json` returns the whole result as a JSON object. Default text.",
+          "enum": [
+            "text",
+            "names",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "root": {
+          "default": "any",
+          "description": "Tonic filter for `find`. `any` searches all twelve roots; naming a root keeps only the scales built on it and also fixes the spelling, so `Eb` reports Eb scales rather than their D# twins. Default any.",
+          "enum": [
+            "any",
+            "C",
+            "C#",
+            "Db",
+            "D",
+            "D#",
+            "Eb",
+            "E",
+            "F",
+            "F#",
+            "Gb",
+            "G",
+            "G#",
+            "Ab",
+            "A",
+            "A#",
+            "Bb",
+            "B"
+          ],
+          "type": "string"
+        },
+        "scale": {
+          "default": "major",
+          "description": "Scale or mode to spell for `list` — the seven major modes, the pentatonics and blues scales, the modes of harmonic and melodic minor, harmonic major, the symmetric, bebop and Japanese scales, and chromatic. Default major.",
+          "enum": [
+            "major",
+            "minor",
+            "dorian",
+            "phrygian",
+            "lydian",
+            "mixolydian",
+            "locrian",
+            "major-pentatonic",
+            "minor-pentatonic",
+            "egyptian-pentatonic",
+            "blues",
+            "major-blues",
+            "harmonic-minor",
+            "locrian-natural6",
+            "ionian-augmented",
+            "ukrainian-dorian",
+            "phrygian-dominant",
+            "lydian-sharp2",
+            "altered-diminished",
+            "melodic-minor",
+            "dorian-flat2",
+            "lydian-augmented",
+            "lydian-dominant",
+            "mixolydian-flat6",
+            "locrian-natural2",
+            "altered",
+            "harmonic-major",
+            "double-harmonic",
+            "hungarian-minor",
+            "neapolitan-minor",
+            "neapolitan-major",
+            "whole-tone",
+            "augmented",
+            "diminished-whole-half",
+            "diminished-half-whole",
+            "bebop-dominant",
+            "bebop-major",
+            "hirajoshi",
+            "in-sen",
+            "iwato",
+            "kumoi",
+            "chromatic"
+          ],
+          "type": "string"
+        },
+        "spelling": {
+          "default": "auto",
+          "description": "Accidental preference for the printed names. `auto` spells each scale the way notation would (flat keys get flats, sharp keys get sharps), while `sharps` and `flats` force one accidental throughout. Default auto.",
+          "enum": [
+            "auto",
+            "sharps",
+            "flats"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
