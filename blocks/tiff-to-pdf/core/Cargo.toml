@@ -1,0 +1,16 @@
+[package]
+name = "gizza-ai-tiff-to-pdf-core"
+version = "0.1.0"
+edition = "2021"
+# tiff 0.11 (the multi-page/CCITT-fax decoder this tool needs) declares MSRV
+# 1.85; the MSRV-aware resolver would silently pick a fax-less 0.9 at 1.82.
+rust-version = "1.85"
+
+[dependencies]
+# Multi-page (multi-IFD) TIFF decode with the default feature set:
+# deflate + fax (CCITT G3/G4, the dominant scanner/fax encoding) + jpeg + lzw.
+# `zstd` stays OFF on purpose — it is a C library and would break the wasm build.
+tiff = { version = "0.11", default-features = false, features = ["deflate", "fax", "jpeg", "lzw"] }
+# Assemble the pages into a PDF and Flate-compress each image XObject.
+lopdf = { version = "0.36", default-features = false }
+flate2 = "1"

@@ -1,0 +1,99 @@
+{
+  "name": "gizza-ai/tiff-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a multi-page TIFF into a multi-page PDF, one PDF page per TIFF page.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a multi-page (multi-IFD) TIFF into a multi-page PDF — every page inside the TIFF becomes its own PDF page, in file order. Provide the TIFF as url or ref. Uncompressed, LZW, PackBits, Deflate, CCITT Group 3/4 fax and JPEG-in-TIFF pages all decode, in bilevel, grayscale, palette, RGB, CMYK or YCbCr, at 1/2/4/8/16 bits per sample. Nothing is re-encoded lossily: a 1-bit fax scan stays 1-bit in the PDF and rotation uses the page matrix, so the output is pixel-for-pixel the source. Parameters: page_size=fit|a4|letter|legal|a3|tabloid (default fit — the page matches the image's own physical size), orientation=auto|portrait|landscape (default auto, only used with a fixed page size), color=auto|color|grayscale (default auto keeps the source depth), margin_pt 0-144 points (default 0), pages like '1-3' or '2,5' (default: all pages), rotate=0|90|180|270 (default 0), dpi 0-2400 (default 0 = read the TIFF's resolution tags, falling back to 72). Returns a PDF. Runs locally on the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "color": {
+          "default": "auto",
+          "description": "How samples are carried into the PDF. 'auto' (default) keeps the source as-is — a 1-bit fax/scan page stays 1-bit (smallest possible), grayscale stays grayscale, colour stays colour. 'grayscale' converts colour pages to 8-bit gray (roughly a third the size). 'color' forces every page to 8-bit RGB.",
+          "enum": [
+            "auto",
+            "color",
+            "grayscale"
+          ],
+          "type": "string"
+        },
+        "dpi": {
+          "default": 0.0,
+          "description": "Resolution used to turn pixels into physical page size. 0 (default) reads the TIFF's own resolution tags and falls back to 72 DPI when it has none. Set it explicitly (e.g. 200, 300, 600) when a scan carries wrong or missing tags — a 2550x3300 page at 300 DPI is exactly US Letter.",
+          "maximum": 2400,
+          "minimum": 0,
+          "type": "number"
+        },
+        "margin_pt": {
+          "default": 0.0,
+          "description": "Blank border around the image on every page, in PDF points (72 pt = 1 inch), 0-144. Default 0 (edge to edge). With page_size=fit the margin grows the page; with a fixed page size it shrinks the area the image is fitted into. Try 36 for a half-inch border.",
+          "maximum": 144,
+          "minimum": 0,
+          "type": "number"
+        },
+        "orientation": {
+          "default": "auto",
+          "description": "Sheet orientation when page_size is a fixed size: 'auto' (default) matches each page to the shape of its own image, 'portrait' and 'landscape' force one for every page. Ignored when page_size=fit, where the page already follows the image.",
+          "enum": [
+            "auto",
+            "portrait",
+            "landscape"
+          ],
+          "type": "string"
+        },
+        "page_size": {
+          "default": "fit",
+          "description": "PDF page geometry. 'fit' (default) makes every page exactly the size of its own TIFF page, so a 300-DPI A4 scan comes out A4-sized and nothing is scaled. The fixed sizes (a4, letter, legal, a3, tabloid) put each image, centred and aspect-preserved, on that standard sheet instead.",
+          "enum": [
+            "fit",
+            "a4",
+            "letter",
+            "legal",
+            "a3",
+            "tabloid"
+          ],
+          "type": "string"
+        },
+        "pages": {
+          "default": "",
+          "description": "Which TIFF pages to convert, 1-based, e.g. '1-3', '2,5,9' or '4-' for page 4 to the end. Empty (the default) converts every page in file order. Duplicates are dropped and the output follows the order you list.",
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rotate": {
+          "default": "0",
+          "description": "Clockwise rotation in degrees applied to every page: 0 (default), 90, 180 or 270. Rotation is done with the PDF placement matrix, so no pixels are resampled and the file stays exactly as sharp. A quarter turn also swaps the page's width and height.",
+          "enum": [
+            "0",
+            "90",
+            "180",
+            "270"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "File URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
