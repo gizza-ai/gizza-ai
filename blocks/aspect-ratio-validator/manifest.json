@@ -1,0 +1,53 @@
+{
+  "name": "gizza-ai/aspect-ratio-validator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Check a width and height against a target aspect ratio and report PASS or FAIL.",
+  "role": "skill",
+  "tool": {
+    "description": "Compute an image, video or screen's aspect ratio from its width and height and check it against a target ratio within a tolerance. Parameters: width and height (required, 1-1000000, any consistent unit); target is the required ratio written as 16:9, 4/5, 1.85:1, 1920x1080 or a bare decimal like 1.7778 (omit it for a report-only run with no verdict); tolerance_percent (default 1) is the allowed deviation as a percentage of the target; orientation_agnostic=true lets a rotated asset pass (1080x1920 satisfies a 16:9 target); even_dimensions=true rounds the crop/pad suggestions to even numbers for video encoders. Returns status (PASS/FAIL, or INFO with no target), pass, the GCD-reduced ratio (e.g. 16:9), ratio_decimal and ratio_x_to_1, orientation (landscape/portrait/square), the nearest standard ratio with its name and deviation, target_ratio and target_decimal, signed deviation_percent (positive means too wide), reason (ok/too_wide/too_tall), orientation_flipped, the crop_width/crop_height that fit the target inside the current frame with the crop_loss_percent that discards, the pad_width/pad_height that contain it, and a one-line summary. Pure arithmetic — nothing is fetched or uploaded. To validate an image file, read its dimensions with the image-info tool first.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "even_dimensions": {
+          "default": false,
+          "description": "When true, round the suggested crop/pad dimensions to even numbers, which most video encoders (H.264/H.265) require. Default false (whole pixels).",
+          "type": "boolean"
+        },
+        "height": {
+          "description": "Required. The asset's height in the same unit as width, e.g. 1080.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "number"
+        },
+        "orientation_agnostic": {
+          "default": false,
+          "description": "When true, a rotated asset also passes — 1080x1920 satisfies a 16:9 target because 9:16 is the same ratio turned on its side. Default false (orientation must match).",
+          "type": "boolean"
+        },
+        "target": {
+          "description": "The aspect ratio the asset is supposed to be. Accepts 16:9, 4/5, 1.85:1, 1920x1080 or a bare decimal like 1.7778. Leave it out to just report the ratio, its nearest standard and the orientation with no PASS/FAIL verdict.",
+          "type": "string"
+        },
+        "tolerance_percent": {
+          "default": 1.0,
+          "description": "Allowed deviation from the target, as a percentage of the target ratio (default 1). 0 demands an exact ratio; 1 absorbs the usual off-by-one-pixel rounding (1920x1081 is 0.09% off 16:9). 0-100.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "width": {
+          "description": "Required. The asset's width in pixels (any unit works — a ratio is unit-free), e.g. 1920.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "type": "object"
+    }
+  }
+}

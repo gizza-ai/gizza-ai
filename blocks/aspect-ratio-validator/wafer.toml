@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "aspect-ratio-validator"
+version = "0.1.0"
+abi = 1
+summary = "Check a width and height against a target aspect ratio and report PASS or FAIL."

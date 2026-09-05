@@ -1,0 +1,72 @@
+slug          = "aspect-ratio-validator"
+title         = "Aspect Ratio Validator — Check 16:9, 4:5, 9:16 and Custom Ratios"
+description   = "Validate width and height against an aspect-ratio target with tolerance, orientation-aware checks and crop/pad suggestions. Runs privately in your browser."
+tags          = ["aspect ratio validator", "aspect ratio calculator", "16:9 checker", "4:5 image size", "9:16 video ratio", "crop dimensions", "pad dimensions"]
+h1            = "Aspect Ratio Validator"
+hero_subtitle = "Enter width and height, choose a target ratio, and get a PASS/FAIL verdict with exact deviation plus crop or pad dimensions to fix mismatches."
+wasm          = "gizza_ai_aspect_ratio_validator_web"
+export        = "run"
+live          = false
+output_label  = "Result (JSON)"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "width"
+label       = "Width"
+placeholder = "1920"
+default     = "1920"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "height"
+label       = "Height"
+placeholder = "1080"
+default     = "1080"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "target"
+label       = "Target ratio"
+placeholder = "16:9"
+default     = "16:9"
+source      = "field"
+
+[[input]]
+name        = "tolerance_percent"
+label       = "Tolerance (%)"
+placeholder = "1"
+default     = "1"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name   = "orientation_agnostic"
+label  = "Allow rotated match"
+source = "field"
+
+[[input]]
+name   = "even_dimensions"
+label  = "Even crop/pad dimensions"
+source = "field"
+
+[[example]]
+label  = "16:9 HD pass"
+params = { width = "1920", height = "1080", target = "16:9", tolerance_percent = "0", orientation_agnostic = "false", even_dimensions = "false" }
+
+[[example]]
+label  = "4:5 social crop"
+params = { width = "1080", height = "1350", target = "4:5", tolerance_percent = "0", orientation_agnostic = "false", even_dimensions = "true" }
+
+[[example]]
+label  = "Rotated 9:16 allowed"
+params = { width = "1920", height = "1080", target = "9:16", tolerance_percent = "0", orientation_agnostic = "true", even_dimensions = "true" }
+
+[[example]]
+label  = "Cinema scope check"
+params = { width = "3840", height = "1607", target = "2.39:1", tolerance_percent = "0.1", orientation_agnostic = "false", even_dimensions = "true" }
