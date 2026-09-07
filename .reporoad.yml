@@ -1,0 +1,10 @@
+# Customize this repository's building on https://reporoad.suppers.chatgpt.site
+version: 1
+style: greenhouse
+color: "#7d9193"
+roof: gable
+signText: gizza-ai
+garden: true
+support:
+  sponsor: true
+  helpWanted: false
