@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "raw-pcm-to-wav"
+version = "0.1.0"
+abi = 1
+summary = "Wrap headerless raw PCM samples in a RIFF/WAVE header."
