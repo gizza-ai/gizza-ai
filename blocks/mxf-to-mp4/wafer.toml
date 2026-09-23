@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "mxf-to-mp4"
+version = "0.1.0"
+abi = 1
+summary = "Convert a broadcast MXF file into a playable MP4."
