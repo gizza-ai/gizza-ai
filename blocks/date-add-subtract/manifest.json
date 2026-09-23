@@ -1,0 +1,89 @@
+{
+  "name": "gizza-ai/date-add-subtract",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add or subtract calendar and business-day durations from a date.",
+  "role": "skill",
+  "tool": {
+    "description": "Add or subtract years, months, weeks, days, hours, minutes and seconds from a date or datetime. Supports calendar math with month-end clamping plus business-day mode that skips configurable weekend days and optional holiday dates. Parameters: date (required), operation add|subtract, years/months/weeks/days/hours/minutes/seconds (whole numbers), skip_weekends, weekend_days, and holidays. Returns JSON with the normalized result date/time, weekday, ISO week, day-of-year, moved-day counts, skipped days and a human summary.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "description": "Required. Start date or datetime. Accepts YYYY-MM-DD, YYYY-MM-DDTHH:MM[:SS], YYYY/MM/DD, MM/DD/YYYY, DD.MM.YYYY, month-name forms, or today/tomorrow/yesterday.",
+          "type": "string"
+        },
+        "days": {
+          "default": 0.0,
+          "description": "Whole days to shift. With skip_weekends or holidays, these are working-day steps.",
+          "type": "number"
+        },
+        "holidays": {
+          "description": "Optional comma, semicolon, or newline separated holiday dates to skip in business-day mode. Use YYYY-MM-DD or another supported date-only format.",
+          "type": "string"
+        },
+        "hours": {
+          "default": 0.0,
+          "description": "Whole hours to shift after calendar date math.",
+          "type": "number"
+        },
+        "minutes": {
+          "default": 0.0,
+          "description": "Whole minutes to shift after calendar date math.",
+          "type": "number"
+        },
+        "months": {
+          "default": 0.0,
+          "description": "Whole calendar months to shift after years. Jan 31 plus one month becomes the last day of February.",
+          "type": "number"
+        },
+        "operation": {
+          "default": "add",
+          "description": "Whether to add the duration to the start date or subtract it.",
+          "enum": [
+            "add",
+            "subtract"
+          ],
+          "type": "string"
+        },
+        "seconds": {
+          "default": 0.0,
+          "description": "Whole seconds to shift after calendar date math.",
+          "type": "number"
+        },
+        "skip_weekends": {
+          "default": false,
+          "description": "When true, day and week steps count only Monday-Friday, and a result landing on a weekend rolls in the direction of travel.",
+          "type": "boolean"
+        },
+        "weekend_days": {
+          "default": "sat-sun",
+          "description": "Which days count as the weekend when skip_weekends is enabled. Use sat-sun for the common Saturday/Sunday weekend, fri-sat for Gulf schedules, or none to skip only listed holidays.",
+          "enum": [
+            "sat-sun",
+            "fri-sat",
+            "thu-fri",
+            "sun-only",
+            "fri-only",
+            "none"
+          ],
+          "type": "string"
+        },
+        "weeks": {
+          "default": 0.0,
+          "description": "Whole weeks to shift. In business-day mode, each week means seven working-day steps.",
+          "type": "number"
+        },
+        "years": {
+          "default": 0.0,
+          "description": "Whole calendar years to shift. Years and months are applied first and clamp the day-of-month when needed.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "type": "object"
+    }
+  }
+}
