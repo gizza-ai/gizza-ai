@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pm-list-packages-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse `adb shell pm list packages` output into a clean table split into system, user and disabled apps."

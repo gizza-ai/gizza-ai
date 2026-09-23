@@ -1,0 +1,107 @@
+slug          = "pm-list-packages-parser"
+title         = "pm list packages Parser"
+description   = "Paste raw adb shell pm list packages -f output and get a clean table that splits Android apps into system, user, updated-system and disabled."
+tags          = ["android", "adb", "packages", "debloat", "parser"]
+h1            = "adb pm list packages parser"
+hero_subtitle = "Paste the output of adb shell pm list packages -f to get a sorted table of every installed app, split into system, user and disabled."
+wasm          = "gizza_ai_pm_list_packages_parser_web"
+export        = "run"
+live          = false
+output_label  = "Package table"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "pm list packages output"
+placeholder = "package:/data/app/~~kJ2vQ==/com.example.notes-9QeL==/base.apk=com.example.notes"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "filter"
+label       = "Show"
+source      = "field"
+
+[input.labels]
+all = "All packages"
+user = "User apps only"
+system = "System apps only"
+system-updated = "Updated system apps only"
+enabled = "Enabled only"
+disabled = "Disabled only"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+table = "Aligned table"
+list = "Package names only"
+csv = "CSV"
+json = "JSON"
+markdown = "Markdown table"
+
+[[input]]
+name        = "sort"
+label       = "Sort by"
+source      = "field"
+
+[input.labels]
+package = "Package name A-Z"
+type = "Type (user first)"
+path = "APK path"
+
+[[input]]
+name        = "group"
+label       = "Group into sections"
+source      = "field"
+
+[[input]]
+name        = "disabled_list"
+label       = "Optional: pm list packages -d output"
+placeholder = "package:com.carrier.helper"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "system_list"
+label       = "Optional: pm list packages -s output"
+placeholder = "package:com.android.chrome"
+source      = "field"
+multiline   = true
+
+[[example]]
+label = "Mixed device dump"
+input = "package:/data/app/~~kJ2vQ==/com.example.notes-9QeL==/base.apk=com.example.notes\npackage:/data/app/~~7bR1w==/com.android.chrome-Ax2T==/base.apk=com.android.chrome\npackage:/system/priv-app/Settings/Settings.apk=com.android.settings\npackage:/system/app/Bluetooth/Bluetooth.apk=com.android.bluetooth\npackage:/product/app/YouTube/YouTube.apk=com.google.android.youtube\npackage:/vendor/app/CarrierHelper/CarrierHelper.apk=com.carrier.helper"
+filter = "all"
+format = "table"
+sort = "package"
+group = "true"
+
+[[example]]
+label = "User apps only"
+input = "package:/data/app/~~kJ2vQ==/com.example.notes-9QeL==/base.apk=com.example.notes\npackage:/data/app/~~7bR1w==/com.android.chrome-Ax2T==/base.apk=com.android.chrome\npackage:/system/priv-app/Settings/Settings.apk=com.android.settings\npackage:/system/app/Bluetooth/Bluetooth.apk=com.android.bluetooth\npackage:/product/app/YouTube/YouTube.apk=com.google.android.youtube\npackage:/vendor/app/CarrierHelper/CarrierHelper.apk=com.carrier.helper"
+filter = "user"
+format = "list"
+sort = "package"
+group = "false"
+
+[[example]]
+label = "CSV export"
+input = "package:/data/app/~~kJ2vQ==/com.example.notes-9QeL==/base.apk=com.example.notes\npackage:/system/priv-app/Settings/Settings.apk=com.android.settings\npackage:/vendor/app/CarrierHelper/CarrierHelper.apk=com.carrier.helper"
+filter = "all"
+format = "csv"
+sort = "type"
+group = "false"
+
+[[example]]
+label = "With disabled + system lists"
+input = "package:/data/app/~~7bR1w==/com.android.chrome-Ax2T==/base.apk=com.android.chrome\npackage:/data/app/~~kJ2vQ==/com.example.notes-9QeL==/base.apk=com.example.notes\npackage:/vendor/app/CarrierHelper/CarrierHelper.apk=com.carrier.helper"
+filter = "all"
+format = "table"
+sort = "type"
+group = "false"
+disabled_list = "package:com.carrier.helper"
+system_list = "package:com.android.chrome\npackage:com.carrier.helper"
