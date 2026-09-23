@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-xsd-to-json-schema-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+quick-xml = "0.36"
+# preserve_order keeps emitted schema keys in XSD declaration order.
+serde_json = { version = "1", features = ["preserve_order"] }

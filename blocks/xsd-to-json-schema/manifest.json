@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/xsd-to-json-schema",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an XML Schema (XSD) document into an equivalent JSON Schema",
+  "role": "skill",
+  "tool": {
+    "description": "Translate a pasted XML Schema (.xsd) document into an equivalent JSON Schema, in Draft 2020-12 or Draft-07. xs:complexType becomes an object with properties; xs:sequence and xs:all contribute properties in document order; xs:choice becomes a real oneOf over its members' required sets; xs:attribute becomes a property named with a configurable prefix (default '@') and use=\"required\" makes it required; minOccurs/maxOccurs drive the required list and array wrapping with minItems/maxItems; xs:simpleType restrictions map onto enum, pattern, minLength/maxLength, minimum/maximum, exclusiveMinimum/exclusiveMaximum and multipleOf; xs:list becomes an array and xs:union becomes anyOf; complexContent and simpleContent extension merge the base type's members, with simpleContent text stored under a configurable text property (default '#text'); nillable adds null; default and fixed become default and const; and named global types become $ref entries in $defs/definitions, pruned to what the chosen root reaches, so recursive types work. Builtin xs:* datatypes map to JSON types with the ranges and formats XSD defines (xs:int bounds, xs:date as format date, xs:base64Binary as base64 contentEncoding, and so on). Options: root_element, draft, attribute_prefix, text_property, required_from_occurs, additional_properties, annotations. Cross-document features are not resolved — xs:import, xs:include, xs:redefine and substitution groups need the other documents, and XSD 1.1 xs:assert needs XPath; an unresolvable reference returns a named error instead of a guess. Input is capped at 1000000 bytes. Returns the pretty-printed JSON Schema.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "additional_properties": {
+          "default": false,
+          "description": "Allow properties beyond those declared. false (default) emits 'additionalProperties: false' for strict validation; true omits it. Types containing xs:any or xs:anyAttribute are always left open regardless of this setting.",
+          "type": "boolean"
+        },
+        "annotations": {
+          "default": true,
+          "description": "Turn xs:annotation/xs:documentation text into JSON Schema 'description' strings on the matching element, attribute or type. Default true; false ignores all annotations.",
+          "type": "boolean"
+        },
+        "attribute_prefix": {
+          "default": "@",
+          "description": "Prefix added to property names that come from XML attributes, so they cannot collide with child elements. Default '@' (xs:attribute name=\"currency\" becomes the property '@currency'). Set to an empty string for unprefixed names.",
+          "type": "string"
+        },
+        "draft": {
+          "default": "2020-12",
+          "description": "JSON Schema dialect to emit. '2020-12' (default) uses $defs and allows keywords next to $ref; 'draft-07' uses definitions and wraps a $ref in allOf when it carries a description. Also sets the $schema URL.",
+          "enum": [
+            "2020-12",
+            "draft-07"
+          ],
+          "type": "string"
+        },
+        "required_from_occurs": {
+          "default": true,
+          "description": "Derive 'required' from the schema: elements with minOccurs >= 1 and attributes with use=\"required\" are listed, and an xs:choice becomes a 'oneOf' over its members' required sets. Default true; false omits 'required' and the choice constraint entirely.",
+          "type": "boolean"
+        },
+        "root_element": {
+          "default": "",
+          "description": "Name of the global xs:element (or named xs:complexType / xs:simpleType) to use as the schema root, e.g. 'order'. Empty (default) uses the FIRST global element, or the first named complexType when the schema declares no global element. Other named types are emitted under $defs/definitions only when the root actually references them.",
+          "type": "string"
+        },
+        "text_property": {
+          "default": "#text",
+          "description": "Property name that holds element text for types with simpleContent (text plus attributes) or mixed=\"true\". Default '#text'. Set to an empty string to drop the text property entirely and keep only the attributes.",
+          "type": "string"
+        },
+        "xsd": {
+          "description": "The XML Schema document to convert, as text — a whole .xsd file starting with <xs:schema> (any prefix bound to http://www.w3.org/2001/XMLSchema works, including a default namespace). Supported: xs:element, xs:complexType, xs:simpleType, xs:attribute, xs:group, xs:attributeGroup, xs:sequence/xs:all/xs:choice, minOccurs/maxOccurs, complexContent and simpleContent extension/restriction, facets (enumeration, pattern, length, min/maxInclusive, min/maxExclusive, fractionDigits), xs:list, xs:union, nillable, default and fixed. Maximum 1000000 bytes. Example: '<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:element name=\"id\" type=\"xs:string\"/></xs:schema>'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "xsd"
+      ],
+      "type": "object"
+    }
+  }
+}
