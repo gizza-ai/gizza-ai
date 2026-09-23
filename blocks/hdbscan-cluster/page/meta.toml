@@ -1,0 +1,247 @@
+slug          = "hdbscan-cluster"
+title         = "HDBSCAN clusterer"
+description   = "Cluster numeric CSV rows with HDBSCAN, automatically finding dense groups, marking noise, and exporting text, JSON, or CSV labels."
+tags          = ["clustering", "hdbscan", "csv", "statistics", "outliers", "density"]
+h1            = "HDBSCAN clusterer"
+hero_subtitle = "Paste a numeric table, discover clusters at varying densities, and label noise with membership probabilities and outlier scores."
+wasm          = "gizza_ai_hdbscan_cluster_web"
+export        = "run"
+live          = false
+output_label  = "Cluster report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Data table"
+placeholder = "x,y\n1,1\n1,2\n2,1\n2,2\n1.5,1.5\n1.2,1.8\n10,10\n10,11\n11,10\n11,11\n10.5,10.5\n10.2,10.8\n60,-40"
+source      = "field"
+multiline   = true
+rows        = 12
+
+[[input]]
+name        = "features"
+label       = "Feature columns"
+placeholder = "blank = all numeric columns, or x,y / 1,2"
+source      = "field"
+
+[[input]]
+name        = "min_cluster_size"
+label       = "Minimum cluster size"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = 2
+max         = 200
+step        = "1"
+
+[[input]]
+name        = "min_samples"
+label       = "Minimum samples (0 = mirror size)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 200
+step        = "1"
+
+[[input]]
+name        = "metric"
+label       = "Distance metric"
+source      = "field"
+
+[input.labels]
+euclidean = "Euclidean"
+manhattan = "Manhattan"
+chebyshev = "Chebyshev"
+cosine = "Cosine"
+
+[[input]]
+name        = "alpha"
+label       = "Alpha distance scale"
+placeholder = "1.0"
+source      = "field"
+
+[[input]]
+name        = "cluster_selection_epsilon"
+label       = "Merge distance epsilon"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "selection"
+label       = "Cluster selection"
+source      = "field"
+
+[input.labels]
+eom = "Excess of mass"
+leaf = "Leaf clusters"
+
+[[input]]
+name        = "allow_single_cluster"
+label       = "Allow single cluster"
+source      = "field"
+default     = "false"
+
+[[input]]
+name        = "max_cluster_size"
+label       = "Max cluster size (0 = none)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 5000
+step        = "1"
+
+[[input]]
+name        = "normalize"
+label       = "Standardize features"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "missing"
+label       = "Missing cells"
+source      = "field"
+
+[input.labels]
+drop = "Drop row"
+median = "Fill median"
+mean = "Fill mean"
+zero = "Fill zero"
+error = "Error"
+
+[[input]]
+name        = "sort"
+label       = "Sort rows"
+source      = "field"
+
+[input.labels]
+input = "Input order"
+cluster = "Cluster order"
+outlier = "Highest outlier first"
+
+[[input]]
+name        = "top"
+label       = "Top N (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 200
+step        = "1"
+
+[[input]]
+name        = "only_noise"
+label       = "Only noise rows"
+source      = "field"
+default     = "false"
+
+[[input]]
+name        = "header"
+label       = "Header row"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yes = "Yes"
+no = "No"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+comma = "Comma"
+tab = "Tab"
+semicolon = "Semicolon"
+pipe = "Pipe"
+space = "Whitespace"
+
+[[input]]
+name        = "decimals"
+label       = "Decimals"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 12
+step        = "1"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON"
+csv = "CSV"
+
+[[example]]
+label = "Two blobs plus one stray"
+input = "x,y\n1,1\n1,2\n2,1\n2,2\n1.5,1.5\n1.2,1.8\n10,10\n10,11\n11,10\n11,11\n10.5,10.5\n10.2,10.8\n60,-40"
+features = ""
+min_cluster_size = "5"
+min_samples = "0"
+metric = "euclidean"
+alpha = "1.0"
+cluster_selection_epsilon = "0"
+selection = "eom"
+allow_single_cluster = "false"
+max_cluster_size = "0"
+normalize = "true"
+missing = "drop"
+sort = "input"
+top = "0"
+only_noise = "false"
+header = "auto"
+delimiter = "auto"
+decimals = "4"
+format = "text"
+
+[[example]]
+label = "Leaf clusters, outliers first"
+input = "x,y\n1,1\n1,2\n2,1\n2,2\n1.5,1.5\n1.2,1.8\n10,10\n10,11\n11,10\n11,11\n10.5,10.5\n10.2,10.8\n60,-40"
+features = "x,y"
+min_cluster_size = "3"
+min_samples = "0"
+metric = "manhattan"
+alpha = "1.0"
+cluster_selection_epsilon = "0"
+selection = "leaf"
+allow_single_cluster = "false"
+max_cluster_size = "0"
+normalize = "true"
+missing = "drop"
+sort = "outlier"
+top = "6"
+only_noise = "false"
+header = "auto"
+delimiter = "auto"
+decimals = "4"
+format = "json"
+
+[[example]]
+label = "CSV export with imputation"
+input = "segment,value,cost\na,10,5\nb,11,6\nc,,5\nd,80,40\ne,9,5\nf,10,6\ng,12,5\nh,82,39"
+features = "value,cost"
+min_cluster_size = "3"
+min_samples = "0"
+metric = "euclidean"
+alpha = "1.0"
+cluster_selection_epsilon = "0"
+selection = "eom"
+allow_single_cluster = "true"
+max_cluster_size = "0"
+normalize = "true"
+missing = "median"
+sort = "cluster"
+top = "0"
+only_noise = "false"
+header = "auto"
+delimiter = "auto"
+decimals = "3"
+format = "csv"

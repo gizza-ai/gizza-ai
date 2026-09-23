@@ -1,0 +1,167 @@
+{
+  "name": "gizza-ai/hdbscan-cluster",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Cluster a pasted table with HDBSCAN, finding the cluster count automatically and labelling noise.",
+  "role": "skill",
+  "tool": {
+    "description": "Run HDBSCAN* over the numeric columns of a pasted CSV/TSV table: it discovers the number of clusters by itself, handles clusters of differing densities, and labels leftover points as noise (-1). Reports a per-row cluster label, membership probability and GLOSH outlier score, plus per-cluster size, persistence, centroid and medoid row. Supports min_cluster_size / min_samples, euclidean, manhattan, chebyshev and cosine metrics, excess-of-mass or leaf cluster selection, cluster_selection_epsilon merging, a max cluster size cap, allow_single_cluster, feature standardization, missing-value policies, and text/JSON/CSV output. Fully deterministic — no seed — and runs locally in pure Rust/WASM.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_single_cluster": {
+          "default": false,
+          "description": "Allow the answer to be one cluster covering the whole dataset. Off by default, which forces at least a split or noise; turn it on when you genuinely expect one dense population plus outliers.",
+          "type": "boolean"
+        },
+        "alpha": {
+          "default": 1.0,
+          "description": "Robust-single-linkage distance scale. Raw distances are divided by alpha before being combined with the core distances, so values above 1 lean more on local density and tend to split conservatively. Leave at 1.0 unless you are deliberately tuning.",
+          "maximum": 100,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "cluster_selection_epsilon": {
+          "default": 0.0,
+          "description": "Distance below which neighbouring micro-clusters are merged back together, in the clustering feature space (standardized units when normalize is on). 0 turns it off and returns the plain HDBSCAN* answer. Set it when the result is split finer than you care about.",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for membership probabilities, outlier scores, persistence and cluster centroids.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Column delimiter. auto picks whichever of comma, tab, semicolon or pipe appears most on the first line, falling back to runs of whitespace.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "features": {
+          "default": "",
+          "description": "Optional comma-separated feature columns by header name or 1-based index, e.g. 'x,y' or '2,3'. Leave empty to use every fully numeric column.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: a readable report with a cluster summary and a per-row table, JSON, or the original table with cluster, probability and outlier_score columns appended.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row contains column names. auto treats a first row with any non-numeric cell as a header.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "CSV, TSV, semicolon, pipe, or whitespace-delimited table. One row per point; the first row may be a header. Only numeric columns can be clustered. Max 5000 rows and 200 columns.",
+          "type": "string"
+        },
+        "max_cluster_size": {
+          "default": 0,
+          "description": "Excess-of-mass size cap: a selected cluster larger than this is rejected in favour of its sub-clusters. 0 means no cap. Ignored by selection=leaf.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "metric": {
+          "default": "euclidean",
+          "description": "Distance between rows: 'euclidean' (straight-line, the default), 'manhattan' (sum of absolute differences, steadier on many columns), 'chebyshev' (largest single-column difference), or 'cosine' (angle between rows — use it for direction/profile similarity rather than magnitude).",
+          "enum": [
+            "euclidean",
+            "manhattan",
+            "chebyshev",
+            "cosine"
+          ],
+          "type": "string"
+        },
+        "min_cluster_size": {
+          "default": 5,
+          "description": "Smallest group of points that may be called a cluster. Raising it returns fewer, broader clusters and pushes more points to noise; it is the one parameter most runs need to tune. Default 5.",
+          "maximum": 5000,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "min_samples": {
+          "default": 0,
+          "description": "Neighbourhood size k used for each point's core distance (its local density estimate). 0 mirrors min_cluster_size, the reference default. Higher values make the density estimate more conservative, so more points are labelled noise.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "missing": {
+          "default": "drop",
+          "description": "What to do with a blank or non-numeric cell in a feature column. drop = skip that row (it is still listed, marked skipped). median / mean = fill from the column's numeric values. zero = fill with 0. error = stop and name the offending cell.",
+          "enum": [
+            "drop",
+            "median",
+            "mean",
+            "zero",
+            "error"
+          ],
+          "type": "string"
+        },
+        "normalize": {
+          "default": true,
+          "description": "Standardize every feature to zero mean and unit variance before clustering, so columns on different scales contribute comparably. On by default because pasted tables usually mix units. Turn it off when the raw distances are already meaningful (e.g. coordinates in one unit).",
+          "type": "boolean"
+        },
+        "only_noise": {
+          "default": false,
+          "description": "List only the rows labelled noise (-1), dropping the clustered rows from the table. The summary still counts every row.",
+          "type": "boolean"
+        },
+        "selection": {
+          "default": "eom",
+          "description": "How clusters are picked out of the condensed tree: 'eom' (excess of mass) keeps the most stable clusters and gives few, large groups; 'leaf' takes every leaf of the tree and gives many small, homogeneous groups. Default eom.",
+          "enum": [
+            "eom",
+            "leaf"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Row order in the output: 'input' keeps the pasted order, 'cluster' groups rows by cluster id with noise last, 'outlier' lists the highest GLOSH outlier scores first.",
+          "enum": [
+            "input",
+            "cluster",
+            "outlier"
+          ],
+          "type": "string"
+        },
+        "top": {
+          "default": 0,
+          "description": "Keep only the first N listed rows after sorting. 0 lists every row. Pair with sort=outlier to get a shortlist of the most outlying points.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
