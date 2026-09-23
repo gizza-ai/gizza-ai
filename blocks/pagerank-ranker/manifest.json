@@ -1,0 +1,101 @@
+{
+  "name": "gizza-ai/pagerank-ranker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute PageRank scores from an edge list or adjacency matrix",
+  "role": "skill",
+  "tool": {
+    "description": "Compute PageRank scores for a directed or undirected graph supplied as an edge list or adjacency matrix. Supports weighted edges, damping, convergence tolerance, dangling-node policy, personalization, top-N truncation, and text/JSON/CSV output. Reports ranks, scores, share of total mass, in/out degree, convergence status, and dangling nodes.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "damping": {
+          "default": 0.85,
+          "description": "PageRank damping factor: probability of following a link instead of teleporting. Default 0.85.",
+          "maximum": 0.999,
+          "minimum": 0,
+          "type": "number"
+        },
+        "dangling": {
+          "default": "redistribute",
+          "description": "How to handle dangling nodes with no outgoing links: redistribute their mass through teleportation, keep it as a self-loop, or drop it.",
+          "enum": [
+            "redistribute",
+            "self-loop",
+            "drop"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places for PageRank scores.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "directed": {
+          "default": true,
+          "description": "Treat edges as one-way links. Turn off to symmetrise each edge into both directions.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: readable table, JSON, or CSV.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Graph as an edge list (one edge per line, e.g. `a -> b` or `a,b,2`) or a square adjacency matrix. Blank lines and # comments are ignored.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read the input. auto treats a square all-numeric paste as a matrix and everything else as an edge list.",
+          "enum": [
+            "auto",
+            "edge-list",
+            "matrix"
+          ],
+          "type": "string"
+        },
+        "max_iter": {
+          "default": 100,
+          "description": "Maximum power-iteration steps before reporting non-convergence. Default 100.",
+          "maximum": 10000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "personalization": {
+          "description": "Optional teleport weights as node:weight pairs, e.g. `home:0.7, docs:0.3`. Blank means uniform teleportation.",
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 1e-06,
+          "description": "Convergence threshold on total L1 score change between iterations. Default 1e-6.",
+          "minimum": 1e-12,
+          "type": "number"
+        },
+        "top": {
+          "default": 0,
+          "description": "Show only the top N ranked nodes. 0 shows all nodes.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "weighted": {
+          "default": false,
+          "description": "Use edge-list weight columns or matrix cell values as weights. When false, every nonzero edge counts as weight 1.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
