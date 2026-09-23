@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-bitrate-checker"
+version = "0.1.0"
+abi = 1
+summary = "Report a video's overall and per-stream bitrate and flag it against a min/max range."
