@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/pm-list-packages-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse `adb shell pm list packages` output into a clean table split into system, user and disabled apps.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn raw `adb shell pm list packages -f` output into a clean, filterable table. Classifies every package as user, system or updated-system from its APK partition, splits out the installer, uid and versionCode decorations, and filters the list. Optional pastes of `pm list packages -d` and `-s` add enabled/disabled status and accurate updated-system detection. Outputs an aligned table, bare package names, CSV, JSON or a Markdown table.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "disabled_list": {
+          "description": "Optional. Output of `adb shell pm list packages -d` (disabled packages). A single package list carries no enabled/disabled bit, so without this the status column reads `unknown` and the enabled/disabled filters match nothing.",
+          "type": "string"
+        },
+        "filter": {
+          "default": "all",
+          "description": "Which packages to keep. user = installed under /data, system = ships with the ROM (including updated ones), system-updated = preinstalled but now running an update from /data/app, enabled/disabled = needs the disabled_list paste.",
+          "enum": [
+            "all",
+            "user",
+            "system",
+            "system-updated",
+            "enabled",
+            "disabled"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output shape. table is an aligned text table with counts, list is bare package names one per line, csv and json carry the full fixed column schema for scripts, markdown is a pipe table for tickets and wikis.",
+          "enum": [
+            "table",
+            "list",
+            "csv",
+            "json",
+            "markdown"
+          ],
+          "type": "string"
+        },
+        "group": {
+          "default": true,
+          "description": "Split the table into `User apps` / `Updated system apps` / `System apps` sections with per-section counts. Applies to the table and markdown formats only; list, csv and json are always flat.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "Raw output of `adb shell pm list packages -f`, one `package:` line per app. Plain `package:com.example.app` lines also work, as do the `-i` (installer=), `-U` (uid:) and `--show-versioncode` (versionCode:) decorations. Blank lines, `#` comments and a copied shell prompt are ignored. Max 5000 lines.",
+          "type": "string"
+        },
+        "sort": {
+          "default": "package",
+          "description": "Row order: package = alphabetical by package name, type = user apps first then updated system then system, path = by APK path.",
+          "enum": [
+            "package",
+            "type",
+            "path"
+          ],
+          "type": "string"
+        },
+        "system_list": {
+          "description": "Optional. Output of `adb shell pm list packages -s` (system packages). Use it to mark preinstalled apps that now run an update from /data/app as `system-updated` instead of `user`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
