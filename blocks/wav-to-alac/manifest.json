@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/wav-to-alac",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encode WAV audio to Apple Lossless (ALAC) in an .m4a container",
+  "role": "skill",
+  "tool": {
+    "description": "Encode a WAV file to Apple Lossless (ALAC) inside an .m4a container — the lossless format iOS, iTunes and Apple Music import. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). ALAC has no quality setting: the decoded samples are bit-for-bit identical to the source. bit_depth (source|16|24), sample_rate (source|44100|48000|88200|96000|176400|192000) and channels (source|mono|stereo) all default to source, which leaves the audio untouched; keep_metadata (default true) copies textual tags into the .m4a. The result is always faststart-muxed so it streams immediately. Any audio ffmpeg can decode is accepted, but WAV → ALAC is the intended use.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bit_depth": {
+          "default": "source",
+          "description": "Output bit depth: source (default, keep the input's depth), 16 (CD depth) or 24 (hi-res). ALAC only supports these two depths; the conversion stays lossless either way, but 16 discards the low bits of a 24-bit master.",
+          "enum": [
+            "source",
+            "16",
+            "24"
+          ],
+          "type": "string"
+        },
+        "channels": {
+          "default": "source",
+          "description": "Channel layout: source (default, keep the input's channels), mono (fold to 1 channel) or stereo (force 2 channels). Use stereo to make a surround master play reliably on Apple devices.",
+          "enum": [
+            "source",
+            "mono",
+            "stereo"
+          ],
+          "type": "string"
+        },
+        "keep_metadata": {
+          "default": true,
+          "description": "Copy the source's textual tags (title, artist, album, year, …) into the .m4a. Default true; set false for a clean, tag-free file. Embedded cover art is always dropped.",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sample_rate": {
+          "default": "source",
+          "description": "Output sample rate in Hz: source (default, keep the input's rate) or one of 44100, 48000, 88200, 96000, 176400, 192000. Resampling is NOT lossless — keep source unless a target device needs a specific rate.",
+          "enum": [
+            "source",
+            "44100",
+            "48000",
+            "88200",
+            "96000",
+            "176400",
+            "192000"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Audio URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
