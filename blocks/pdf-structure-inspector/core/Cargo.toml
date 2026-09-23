@@ -1,0 +1,19 @@
+[package]
+name = "gizza-ai-pdf-structure-inspector-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# PDF parsing — pure Rust, no native libs. default-features=false drops rayon
+# (threads) plus the chrono/jiff/time date crates, keeping the dependency tree
+# thread-free so it links to wasm32-wasip1 (`wafer build`) and wasm32-unknown
+# (the page's wasm-bindgen build). We only read the object model: the header
+# version, the trailer dictionary, every indirect object's keys/type, and each
+# stream's /Filter and /Length. Stream payloads are never decoded.
+lopdf = { version = "=0.36.0", default-features = false }
+# The PDF arrives as text (page field / chat argument), so base64 in, bytes out.
+base64 = "0.22"
+# Report structs are serialized straight to the JSON output format.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
