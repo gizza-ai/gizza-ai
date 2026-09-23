@@ -1,0 +1,140 @@
+slug          = "date-add-subtract"
+title         = "Date Add & Subtract Calculator — Add Days, Weeks, Months or Years to a Date"
+description   = "Add or subtract years, months, weeks, days, hours, minutes and seconds from a date, with month-end clamping and business-day weekend/holiday skipping."
+tags          = ["date calculator", "add days to date", "subtract days from date", "date add subtract", "business day calculator", "working days calculator", "deadline calculator", "due date calculator", "days from today"]
+h1            = "Date Add & Subtract Calculator"
+hero_subtitle = "Shift any date or datetime by years, months, weeks, days, hours, minutes and seconds. Month ends clamp correctly, and business-day mode counts only working days by skipping weekends and the holidays you list — all in your browser."
+wasm          = "gizza_ai_date_add_subtract_web"
+export        = "run"
+live          = false
+output_label  = "Shifted date (JSON)"
+format        = "text"
+
+[[input]]
+name        = "date"
+label       = "Start date or datetime"
+placeholder = "2026-06-19"
+source      = "field"
+
+[[input]]
+name   = "operation"
+label  = "Operation"
+source = "field"
+[input.labels]
+"add"      = "Add — move forward from the start date"
+"subtract" = "Subtract — move back from the start date"
+
+[[input]]
+name        = "years"
+label       = "Years"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "months"
+label       = "Months"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "weeks"
+label       = "Weeks"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "days"
+label       = "Days"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "hours"
+label       = "Hours"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "minutes"
+label       = "Minutes"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "seconds"
+label       = "Seconds"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "skip_weekends"
+label  = "Count working days only (skip weekends)"
+source = "field"
+
+[[input]]
+name   = "weekend_days"
+label  = "Weekend days"
+source = "field"
+[input.labels]
+"sat-sun"  = "Saturday + Sunday"
+"fri-sat"  = "Friday + Saturday"
+"thu-fri"  = "Thursday + Friday"
+"sun-only" = "Sunday only"
+"fri-only" = "Friday only"
+"none"     = "No weekend days — skip listed holidays only"
+
+[[input]]
+name        = "holidays"
+label       = "Holidays to skip (comma, semicolon or newline separated)"
+placeholder = "2026-12-25, 2026-12-26, 2027-01-01"
+source      = "field"
+multiline   = true
+
+[[example]]
+label = "30 days from today"
+[example.params]
+date = "today"
+operation = "add"
+days = "30"
+
+[[example]]
+label = "90 days before a date"
+[example.params]
+date = "2026-06-19"
+operation = "subtract"
+days = "90"
+
+[[example]]
+label = "1 year 6 months later"
+[example.params]
+date = "2026-06-19"
+operation = "add"
+years = "1"
+months = "6"
+
+[[example]]
+label = "10 business days out"
+[example.params]
+date = "2026-06-19"
+operation = "add"
+days = "10"
+skip_weekends = "true"
+weekend_days = "sat-sun"
+
+[[example]]
+label = "15 working days, holidays skipped"
+[example.params]
+date = "2026-12-18"
+operation = "add"
+days = "15"
+skip_weekends = "true"
+weekend_days = "sat-sun"
+holidays = "2026-12-25, 2026-12-26, 2027-01-01"
+
+[[example]]
+label = "Datetime plus 36 hours"
+[example.params]
+date = "2026-06-19T09:30:00"
+operation = "add"
+hours = "36"
+minutes = "45"
