@@ -1,0 +1,250 @@
+slug          = "svm-classifier"
+title         = "SVM Classifier"
+description   = "Train a support vector machine on CSV/TSV data and report the margin, support vectors, accuracy, confusion matrix and predictions."
+tags          = ["machine-learning", "classification", "statistics", "csv", "support-vector-machine"]
+h1            = "SVM classifier"
+hero_subtitle = "Paste a labeled table, fit a linear/RBF/poly/sigmoid support vector machine locally, and inspect the margin, support vectors, metrics and predictions."
+wasm          = "gizza_ai_svm_classifier_web"
+export        = "run"
+live          = false
+output_label  = "SVM report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Training data"
+placeholder = "x,y,label\n1,1,a\n2,1,a\n1,2,a\n8,8,b\n9,8,b\n8,9,b"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "target"
+label       = "Target column"
+placeholder = "last"
+source      = "field"
+
+[[input]]
+name        = "features"
+label       = "Feature columns"
+placeholder = "x,y or blank for all except target"
+source      = "field"
+
+[[input]]
+name        = "kernel"
+label       = "Kernel"
+source      = "field"
+
+[input.labels]
+linear = "Linear"
+rbf = "RBF"
+poly = "Polynomial"
+sigmoid = "Sigmoid"
+
+[[input]]
+name        = "c"
+label       = "C (regularization cost)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = 0.1
+max         = 100
+step        = "0.1"
+
+[[input]]
+name        = "gamma"
+label       = "Gamma"
+placeholder = "scale"
+source      = "field"
+
+[[input]]
+name        = "degree"
+label       = "Polynomial degree"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 10
+step        = "1"
+
+[[input]]
+name        = "coef0"
+label       = "Coef0"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "scaling"
+label       = "Feature scaling"
+source      = "field"
+
+[input.labels]
+standard = "Standard (z-score)"
+minmax = "Min/max 0–1"
+none = "None"
+
+[[input]]
+name        = "class_weight"
+label       = "Class weights"
+source      = "field"
+
+[input.labels]
+none = "None"
+balanced = "Balanced"
+
+[[input]]
+name        = "multiclass"
+label       = "Multiclass strategy"
+source      = "field"
+
+[input.labels]
+ovo = "One-vs-one"
+ovr = "One-vs-rest"
+
+[[input]]
+name        = "tol"
+label       = "Tolerance"
+placeholder = "0.001"
+source      = "field"
+
+[[input]]
+name        = "max_iter"
+label       = "Max iterations"
+placeholder = "100000"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 1000000
+step        = "1000"
+
+[[input]]
+name        = "cv_folds"
+label       = "CV folds (0 = off)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 10
+step        = "1"
+
+[[input]]
+name        = "test_split"
+label       = "Hold-out test split"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 0.5
+step        = "0.05"
+
+[[input]]
+name        = "seed"
+label       = "Seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name        = "predict"
+label       = "Rows to classify"
+placeholder = "1,1\n9,9"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "header"
+label       = "Header row"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yes = "Yes"
+no = "No"
+
+[[input]]
+name        = "decimals"
+label       = "Decimals"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 12
+step        = "1"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON"
+csv = "CSV"
+
+[[example]]
+label = "Separated clusters"
+data = "x,y,label\n1,1,a\n2,1,a\n1,2,a\n8,8,b\n9,8,b\n8,9,b"
+target = "label"
+features = "x,y"
+kernel = "linear"
+c = "1"
+gamma = "scale"
+degree = "3"
+coef0 = "0"
+scaling = "standard"
+class_weight = "none"
+multiclass = "ovo"
+tol = "0.001"
+max_iter = "100000"
+cv_folds = "0"
+test_split = "0"
+seed = "42"
+predict = "1,1\n9,9"
+header = "auto"
+decimals = "4"
+format = "text"
+
+[[example]]
+label = "RBF with hold-out"
+data = "x,y,label\n1,1,a\n2,1,a\n1,2,a\n2,2,a\n8,8,b\n9,8,b\n8,9,b\n9,9,b"
+target = "label"
+features = ""
+kernel = "rbf"
+c = "1"
+gamma = "scale"
+degree = "3"
+coef0 = "0"
+scaling = "standard"
+class_weight = "none"
+multiclass = "ovo"
+tol = "0.001"
+max_iter = "100000"
+cv_folds = "2"
+test_split = "0.25"
+seed = "7"
+predict = "1.5,1.5\n8.5,8.5"
+header = "auto"
+decimals = "4"
+format = "json"
+
+[[example]]
+label = "Categorical feature"
+data = "color,size,label\nred,small,yes\nred,large,yes\ngreen,small,no\ngreen,large,no"
+target = "label"
+features = "color,size"
+kernel = "rbf"
+c = "1"
+gamma = "auto"
+degree = "3"
+coef0 = "0"
+scaling = "standard"
+class_weight = "balanced"
+multiclass = "ovo"
+tol = "0.001"
+max_iter = "100000"
+cv_folds = "0"
+test_split = "0"
+seed = "42"
+predict = "red,small\ngreen,large"
+header = "auto"
+decimals = "4"
+format = "text"
