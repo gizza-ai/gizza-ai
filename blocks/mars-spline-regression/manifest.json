@@ -1,0 +1,122 @@
+{
+  "name": "gizza-ai/mars-spline-regression",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Fit a MARS hinge-spline regression model to numeric tables",
+  "role": "skill",
+  "tool": {
+    "description": "Fit a deterministic Multivariate Adaptive Regression Splines (MARS) model to pasted numeric data. The tool grows hinge functions, prunes them by GCV, reports the explicit piecewise-linear equation, fit statistics, variable importance, knots, terms, and optional predictions for new rows. Inputs are local CSV/TSV/semicolon/pipe/whitespace tables; no network or machine-learning runtime is used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_linear": {
+          "default": true,
+          "description": "Allow plain linear terms as candidates as well as hinge pairs. Default true.",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "Numeric CSV, TSV, semicolon, pipe, or whitespace table. Header row is auto-detected by default. The target column defaults to the last column.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for text and CSV output. Default 4.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "endspan": {
+          "default": 0,
+          "description": "Rows to protect at each edge from becoming knots. 0 chooses an automatic span. Default 0.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "features": {
+          "description": "Optional comma-separated feature columns by name or 1-based number. Blank means all columns except the target.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: text report, CSV tables, or JSON model object. Default text.",
+          "enum": [
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the training data has a header row. Default auto.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "max_degree": {
+          "default": 1,
+          "description": "Maximum interaction degree for hinge terms. 1 = additive piecewise-linear model; 2 or 3 allow interactions. Default 1.",
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_terms": {
+          "default": 21,
+          "description": "Maximum number of basis terms grown during the forward pass. Default 21.",
+          "maximum": 101,
+          "minimum": 3,
+          "type": "integer"
+        },
+        "minspan": {
+          "default": 0,
+          "description": "Minimum number of rows between candidate knots. 0 chooses an automatic span. Default 0.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "nprune": {
+          "default": 0,
+          "description": "Optional cap on kept terms after pruning. 0 lets GCV choose. Default 0.",
+          "maximum": 101,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "penalty": {
+          "default": 3.0,
+          "description": "GCV complexity penalty per term, similar to the earth package penalty. Default 3.0.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "number"
+        },
+        "predict": {
+          "description": "Optional new feature rows to score, using the same delimiter and feature order as the training data. Do not include the target column.",
+          "type": "string"
+        },
+        "prune": {
+          "default": true,
+          "description": "Run the backward pruning pass and keep the sub-model with the best GCV score. Default true.",
+          "type": "boolean"
+        },
+        "target": {
+          "default": "last",
+          "description": "Target column to predict: a header name, 1-based column number, or 'last'. Default last.",
+          "type": "string"
+        },
+        "thresh": {
+          "default": 0.001,
+          "description": "Minimum relative RSS improvement needed to add another pair of hinge terms. Default 0.001.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
