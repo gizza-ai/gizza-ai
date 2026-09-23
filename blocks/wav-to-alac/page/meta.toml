@@ -1,0 +1,96 @@
+slug          = "wav-to-alac"
+title         = "WAV to ALAC Converter — Apple Lossless .m4a"
+description   = "Convert WAV to ALAC (Apple Lossless) .m4a in your browser. Keep the source samples, or pick bit depth, sample rate and channels. Nothing is uploaded."
+tags          = ["audio", "wav", "alac", "apple lossless", "m4a", "convert", "lossless", "itunes"]
+h1            = "Convert WAV to ALAC (Apple Lossless)"
+hero_subtitle = "Upload a WAV file and encode it to Apple Lossless in an .m4a container — the lossless format iOS, iTunes and Apple Music import. Runs locally in your browser."
+wasm          = "gizza_ai_wav_to_alac_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Apple Lossless (.m4a)"
+format        = "audio"
+
+[[input]]
+name   = "bit_depth"
+label  = "Bit depth"
+source = "field"
+
+[input.labels]
+source = "Same as source (default)"
+16     = "16-bit (CD depth)"
+24     = "24-bit (hi-res)"
+
+[[input]]
+name   = "sample_rate"
+label  = "Sample rate"
+source = "field"
+
+[input.labels]
+source = "Same as source (default)"
+44100  = "44.1 kHz (CD)"
+48000  = "48 kHz"
+88200  = "88.2 kHz"
+96000  = "96 kHz"
+176400 = "176.4 kHz"
+192000 = "192 kHz"
+
+[[input]]
+name   = "channels"
+label  = "Channels"
+source = "field"
+
+[input.labels]
+source = "Same as source (default)"
+mono   = "Mono (1 channel)"
+stereo = "Stereo (2 channels)"
+
+[[input]]
+name   = "keep_metadata"
+label  = "Keep title/artist/album tags"
+source = "field"
+
+[[input]]
+name   = "audio"
+source = "file"
+accept = "audio/*,.wav,.wave"
+label  = "WAV audio"
+
+[[example]]
+label = "Lossless re-wrap (default)"
+[example.params]
+bit_depth = "source"
+sample_rate = "source"
+channels = "source"
+keep_metadata = "true"
+
+[[example]]
+label = "CD quality (16-bit / 44.1 kHz)"
+[example.params]
+bit_depth = "16"
+sample_rate = "44100"
+channels = "source"
+keep_metadata = "true"
+
+[[example]]
+label = "Hi-res (24-bit / 96 kHz)"
+[example.params]
+bit_depth = "24"
+sample_rate = "96000"
+channels = "source"
+keep_metadata = "true"
+
+[[example]]
+label = "Fold to stereo for Apple playback"
+[example.params]
+bit_depth = "source"
+sample_rate = "source"
+channels = "stereo"
+keep_metadata = "true"
+
+[[example]]
+label = "Strip tags"
+[example.params]
+bit_depth = "source"
+sample_rate = "source"
+channels = "source"
+keep_metadata = "false"
