@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/video-bitrate-checker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Report a video's overall and per-stream bitrate and flag it against a min/max range.",
+  "role": "skill",
+  "tool": {
+    "description": "Report a video's overall and per-stream bitrate and flag whether it falls inside a configured min/max range. Provide the video as url or ref. The overall bitrate is file size x 8 / duration; the per-stream numbers are measured by demuxing the container and totalling each track's packet payload, so they are real measurements (matching ffprobe's stream bit_rate) and they work on WebM/Matroska, which stores no per-stream bitrate at all. Nothing is decoded and no ffmpeg is involved. Parameters: min_bitrate and max_bitrate (both default 0 = no bound) set the range; units=kbps|Mbps (default kbps) is the unit those two are written in; target=overall|video|audio (default overall) picks which bitrate the range applies to. With no range set the tool just reports (status INFO). Returns status (PASS/FAIL/INFO), pass, reason (ok/too_low/too_high/not_checked/unmeasurable), the checked bitrate in kbit/s and Mbit/s, the configured bounds, container, duration, file size, overall/video/audio bitrate, container overhead, a one-line summary, and a per-stream list with kind, codec, bitrate, byte share, packet count, picture size, measured frame rate, sample rate and channels. Containers: MP4/MOV/M4A, Matroska/WebM, OGG, WAV, AIFF, CAF, FLAC, MP3, AAC/ADTS. Input is capped at 32 MB because the whole file must fit in the sandbox. A file whose header records no duration cannot be rated - remux it with video-duration-fix-remux first.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "max_bitrate": {
+          "default": 0.0,
+          "description": "Highest acceptable bitrate, written in units (default 0, which means no ceiling). Use it to enforce a delivery cap, e.g. 2000 kbps for an ad spec or 8 Mbps for a 1080p upload.",
+          "maximum": 10000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "min_bitrate": {
+          "default": 0.0,
+          "description": "Lowest acceptable bitrate, written in units (default 0, which means no floor). Use it to catch over-compressed uploads, e.g. 128 kbps for an audio track or 6 Mbps for 1080p30.",
+          "maximum": 10000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "target": {
+          "default": "overall",
+          "description": "Which bitrate the range applies to: overall (default) is the whole file, size x 8 / duration; video is the video streams summed; audio is the audio streams summed. Every bitrate is reported either way — this only picks the one that is flagged.",
+          "enum": [
+            "overall",
+            "video",
+            "audio"
+          ],
+          "type": "string"
+        },
+        "units": {
+          "default": "kbps",
+          "description": "The unit min_bitrate and max_bitrate are written in: kbps (default, how ad specs and audio tracks are quoted) or Mbps (how 1080p/4K upload guidance is quoted). The report always states both.",
+          "enum": [
+            "kbps",
+            "Mbps"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

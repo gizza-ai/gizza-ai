@@ -1,0 +1,98 @@
+slug          = "video-bitrate-checker"
+title         = "Video Bitrate Checker — Overall and Per-Stream Bitrate with a Pass/Fail Range"
+description   = "Check a video's overall, video-track and audio-track bitrate, and flag it against your own min/max range. Runs in your browser — nothing is uploaded."
+tags          = ["video", "bitrate", "kbps", "mbps", "checker", "qc", "encoding", "streams"]
+h1            = "Check a Video's Overall and Per-Stream Bitrate"
+hero_subtitle = "Drop in a clip to see its overall bitrate plus the measured bitrate of every video and audio stream. Set a min or max to get a PASS or FAIL. The file is demuxed in your browser — never uploaded, never decoded."
+wasm          = "gizza_ai_video_bitrate_checker_web"
+export        = "run"
+live          = false
+output_label  = "Bitrate report (JSON)"
+format        = "json"
+
+# Field order MUST equal web/src/lib.rs run() param order:
+# media, min_bitrate, max_bitrate, units, target.
+[[input]]
+name   = "media"
+label  = "Video or audio file"
+source = "file"
+accept = "video/*,audio/*"
+
+[[input]]
+name        = "min_bitrate"
+label       = "Minimum bitrate (0 = no floor)"
+source      = "field"
+placeholder = "0"
+
+[[input]]
+name        = "max_bitrate"
+label       = "Maximum bitrate (0 = no ceiling)"
+source      = "field"
+placeholder = "8000"
+
+[[input]]
+name        = "units"
+label       = "Threshold units"
+source      = "field"
+placeholder = "kbps"
+[input.labels]
+kbps = "kbit/s — ad specs, audio tracks (default)"
+Mbps = "Mbit/s — 1080p / 4K upload guidance"
+
+[[input]]
+name        = "target"
+label       = "Apply the range to"
+source      = "field"
+placeholder = "overall"
+[input.labels]
+overall = "Overall — the whole file (default)"
+video   = "Video streams only"
+audio   = "Audio streams only"
+
+[[example]]
+label = "Report only — no limits"
+[example.params]
+min_bitrate = "0"
+max_bitrate = "0"
+units       = "kbps"
+target      = "overall"
+
+[[example]]
+label = "1080p30 upload — video 6-9 Mbps"
+[example.params]
+min_bitrate = "6"
+max_bitrate = "9"
+units       = "Mbps"
+target      = "video"
+
+[[example]]
+label = "4K30 upload — video 35-45 Mbps"
+[example.params]
+min_bitrate = "35"
+max_bitrate = "45"
+units       = "Mbps"
+target      = "video"
+
+[[example]]
+label = "Web delivery cap — 5 Mbps overall"
+[example.params]
+min_bitrate = "0"
+max_bitrate = "5"
+units       = "Mbps"
+target      = "overall"
+
+[[example]]
+label = "Ad spec — 2000 kbps overall"
+[example.params]
+min_bitrate = "0"
+max_bitrate = "2000"
+units       = "kbps"
+target      = "overall"
+
+[[example]]
+label = "Audio track at least 128 kbps"
+[example.params]
+min_bitrate = "128"
+max_bitrate = "0"
+units       = "kbps"
+target      = "audio"
