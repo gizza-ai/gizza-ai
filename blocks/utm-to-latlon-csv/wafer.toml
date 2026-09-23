@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "utm-to-latlon-csv"
+version = "0.1.0"
+abi = 1
+summary = "Convert UTM coordinate CSV files to latitude/longitude, and back."

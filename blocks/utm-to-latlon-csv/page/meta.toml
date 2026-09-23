@@ -1,0 +1,165 @@
+slug          = "utm-to-latlon-csv"
+title         = "UTM to Latitude/Longitude CSV Converter"
+description   = "Convert UTM easting/northing/zone columns to WGS84 latitude and longitude, or reverse lat/lon rows back to UTM. CSV, TSV, JSON, GeoJSON and KML output."
+tags          = ["utm to lat lon", "utm to latitude longitude", "csv coordinate converter", "utm csv", "wgs84", "geojson", "kml", "epsg 326", "epsg 327"]
+h1            = "UTM ⇄ Latitude/Longitude CSV Converter"
+hero_subtitle = "Paste a CSV with UTM easting, northing and zone columns and get WGS84 latitude/longitude back. Reverse latitude/longitude rows to UTM, choose an ellipsoid, and export CSV, TSV, JSON, GeoJSON or KML — all locally in your browser."
+wasm          = "gizza_ai_utm_to_latlon_csv_web"
+export        = "run"
+live          = false
+output_label  = "Converted coordinates"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Coordinate CSV"
+placeholder = "id,easting,northing,zone\np1,583960,4507523,18T\np2,334519,6251430,56H"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "direction"
+label  = "Direction"
+source = "field"
+[input.labels]
+"utm_to_latlon" = "UTM → latitude/longitude"
+"latlon_to_utm" = "Latitude/longitude → UTM"
+
+[[input]]
+name        = "easting_column"
+label       = "Easting / latitude column"
+placeholder = "easting"
+source      = "field"
+
+[[input]]
+name        = "northing_column"
+label       = "Northing / longitude column"
+placeholder = "northing"
+source      = "field"
+
+[[input]]
+name        = "zone_column"
+label       = "Zone column"
+placeholder = "zone"
+source      = "field"
+
+[[input]]
+name        = "zone"
+label       = "Fallback zone"
+placeholder = "18T or EPSG:32618"
+source      = "field"
+
+[[input]]
+name   = "hemisphere"
+label  = "Hemisphere"
+source = "field"
+[input.labels]
+"auto"  = "Auto from zone/band"
+"north" = "Force north"
+"south" = "Force south"
+
+[[input]]
+name   = "coord_format"
+label  = "Lat/lon format"
+source = "field"
+[input.labels]
+"decimal" = "Decimal degrees"
+"dms"     = "Degrees/minutes/seconds"
+"ddm"     = "Degrees/decimal minutes"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name   = "ellipsoid"
+label  = "Ellipsoid"
+source = "field"
+[input.labels]
+"wgs84"             = "WGS84"
+"grs80"             = "GRS80 / NAD83-style"
+"clarke1866"        = "Clarke 1866"
+"international1924" = "International 1924"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+[input.labels]
+"auto"      = "Auto-detect"
+"comma"     = "Comma (,)"
+"semicolon" = "Semicolon (;)"
+"tab"       = "Tab"
+"pipe"      = "Pipe (|)"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "keep_columns"
+label  = "Keep other columns"
+source = "field"
+
+[[input]]
+name   = "validate_ranges"
+label  = "Validate coordinate ranges"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+[input.labels]
+"csv"     = "CSV"
+"tsv"     = "TSV"
+"json"    = "JSON"
+"table"   = "Aligned table"
+"geojson" = "GeoJSON points"
+"kml"     = "KML points"
+
+[[example]]
+label = "UTM CSV → lat/lon"
+[example.params]
+input = "id,easting,northing,zone\np1,583960,4507523,18T"
+direction = "utm_to_latlon"
+
+[[example]]
+label = "Sydney southern hemisphere"
+[example.params]
+input = "name,easting,northing,zone\nsydney,334519,6251430,56H"
+direction = "utm_to_latlon"
+
+[[example]]
+label = "One zone for every row"
+[example.params]
+input = "id,easting,northing\np1,583960,4507523\np2,584000,4507600"
+zone = "18N"
+has_header = "true"
+
+[[example]]
+label = "DMS output"
+[example.params]
+input = "id,easting,northing,zone\np1,583960,4507523,18T"
+coord_format = "dms"
+
+[[example]]
+label = "Lat/lon CSV → UTM"
+[example.params]
+input = "id,latitude,longitude\nnyc,40.7128,-74.0060\nsyd,-33.8688,151.2093"
+direction = "latlon_to_utm"
+decimals = "3"
+
+[[example]]
+label = "GeoJSON export"
+[example.params]
+input = "id,easting,northing,zone\np1,583960,4507523,18T"
+output = "geojson"
