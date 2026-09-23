@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/pdf-structure-inspector",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Inspect a PDF's object tree, trailer and stream dictionaries without rendering pages.",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a PDF's file structure from pasted base64, hex, or a data:application/pdf;base64 URL. Reports the PDF version, page count, object and stream counts, trailer entries, cross-reference style, encryption and linearization flags, per-object kind/type/subtype/dictionary keys, and stream /Filter and /Length data. Parameters: input (required), section=all|summary|trailer|objects|streams, object_id such as 12 or 12 0, filter_key such as Type or Font, max_objects 1-5000 default 100, and format=text|json. This is structural inspection only: it does not render pages, decrypt files, execute embedded JavaScript, or dump arbitrary stream bodies.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "filter_key": {
+          "description": "Optional dictionary key or /Type value filter. Examples: Type, Font, Page, Resources, /XObject. Matching ignores case and a leading slash.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format. text is a readable report; json returns the same structural facts as machine-readable JSON.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Required. The PDF file bytes as base64, hex, or a data:application/pdf;base64,… URL. The tool parses structure only; it does not render pages or dump stream bodies.",
+          "type": "string"
+        },
+        "max_objects": {
+          "default": 100,
+          "description": "Maximum number of matching objects to list in the report. The summary counts still describe the whole file. Range 1-5000; default 100.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "object_id": {
+          "description": "Optional object selector. Use a bare object number like 12 to match any generation, or an exact id like 12 0.",
+          "type": "string"
+        },
+        "section": {
+          "default": "all",
+          "description": "Which part of the structure report to return. all includes summary, trailer and object rows; streams lists only stream objects.",
+          "enum": [
+            "all",
+            "summary",
+            "trailer",
+            "objects",
+            "streams"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}
