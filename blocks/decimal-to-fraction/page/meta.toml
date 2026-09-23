@@ -1,0 +1,82 @@
+slug          = "decimal-to-fraction"
+title         = "Decimal to Fraction Calculator — Exact, Mixed and Approximate Fractions"
+description   = "Convert decimals to exact fractions, mixed numbers, repeating fractions, or simplest approximations with denominator and tolerance controls."
+tags          = ["decimal to fraction", "fraction calculator", "mixed number", "continued fraction", "repeating decimal", "nearest fraction", "fraction approximation"]
+h1            = "Decimal to Fraction Calculator"
+hero_subtitle = "Turn terminating, repeating, percentage or scientific-notation decimals into exact fractions, mixed numbers, fixed-denominator fractions, or simplest approximations under a tolerance or denominator cap."
+wasm          = "gizza_ai_decimal_to_fraction_web"
+export        = "run"
+live          = false
+output_label  = "Fraction result (JSON)"
+format        = "text"
+
+[[input]]
+name        = "decimal"
+label       = "Decimal"
+placeholder = "0.625"
+source      = "field"
+
+[[input]]
+name        = "repeating_digits"
+label       = "Repeating trailing digits"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "tolerance"
+label       = "Tolerance"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_denominator"
+label       = "Maximum denominator"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "denominator"
+label       = "Fixed denominator"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "rounding"
+label  = "Rounding"
+source = "field"
+[input.labels]
+"nearest" = "Nearest fraction"
+"up"      = "Round up (not below decimal)"
+"down"    = "Round down (not above decimal)"
+
+[[input]]
+name   = "reduce"
+label  = "Reduce to lowest terms"
+source = "field"
+
+[[example]]
+label = "0.625 exactly"
+[example.params]
+decimal = "0.625"
+
+[[example]]
+label = "Pi under denominator 100"
+[example.params]
+decimal = "3.14159265"
+max_denominator = "100"
+
+[[example]]
+label = "Nearest sixteenth"
+[example.params]
+decimal = "0.31"
+denominator = "16"
+
+[[example]]
+label = "Repeating third"
+[example.params]
+decimal = "0.(3)"
+
+[[example]]
+label = "Percent to fraction"
+[example.params]
+decimal = "12.5%"
