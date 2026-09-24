@@ -1,0 +1,75 @@
+{
+  "name": "gizza-ai/xsd-from-xml",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Infer an XSD schema from a sample XML document with layout, occurrence, namespace, and type controls",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a draft W3C XML Schema (XSD) from one representative XML instance document. The tool parses the XML locally, merges repeated elements, infers child and attribute cardinality, detects namespaces, marks mixed content and xsi:nil, infers simple XML Schema types, and emits the schema in venetian-blind, salami-slice, or russian-doll layout. Options control smart-vs-string type inference, restricted-vs-relaxed occurrence bounds, optional enumeration facets, target namespace override, indentation, and whether to include the XML declaration. A single sample cannot prove every domain rule, so the output is a draft schema to review before using in production.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "declaration": {
+          "default": true,
+          "description": "Whether to include the XML declaration `<?xml version=\"1.0\" encoding=\"UTF-8\"?>` before the xs:schema element. Default true.",
+          "type": "boolean"
+        },
+        "design": {
+          "default": "venetian-blind",
+          "description": "Schema layout. venetian-blind (default) emits one global root element plus named complex types, which handles recursive structures and keeps the schema readable. salami-slice emits every element globally and references children. russian-doll nests everything inline under the root; it is compact for tiny non-recursive samples but rejects recursive shapes because inline recursive types cannot be expressed safely.",
+          "enum": [
+            "venetian-blind",
+            "salami-slice",
+            "russian-doll"
+          ],
+          "type": "string"
+        },
+        "enumerations": {
+          "default": 0,
+          "description": "Maximum distinct values to turn into xs:enumeration facets. Default 0 disables enumeration inference because one XML sample rarely proves the whole domain. Set 2-20 for small known code lists such as status values; values above the cap stay as the inferred base type.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces per XSD indentation level, 0-8. Default 2. Set 0 for compact output or 4 when matching editors that prefer wider indentation.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "occurrence": {
+          "default": "restricted",
+          "description": "How tight to make minOccurs/maxOccurs and attribute use. restricted follows the sample: always-present children are required, missing children are optional, repeated children are unbounded, and attributes present on every element are required. relaxed makes child elements optional and repeatable and never marks attributes required, which is safer when one sample may not show every optional field.",
+          "enum": [
+            "restricted",
+            "relaxed"
+          ],
+          "type": "string"
+        },
+        "target_namespace": {
+          "default": "",
+          "description": "Optional targetNamespace override for the generated schema. Leave blank to use the sample root's default namespace when it has one, or no targetNamespace for namespace-free XML. When a target namespace is present, generated references use the tns prefix and elementFormDefault=qualified.",
+          "type": "string"
+        },
+        "type_inference": {
+          "default": "smart",
+          "description": "Value typing mode. smart (default) infers XML Schema builtins such as xs:boolean, xs:int, xs:long, xs:integer, xs:decimal, xs:double, xs:date, xs:dateTime, xs:time, xs:anyURI, and xs:string. string declares every simple value as xs:string when you want a deliberately loose draft.",
+          "enum": [
+            "smart",
+            "string"
+          ],
+          "type": "string"
+        },
+        "xml": {
+          "description": "A representative XML instance document to infer from. Paste one complete document with a single root element. Repeated siblings are used to infer maxOccurs, missing siblings across repeated parents become minOccurs=0, attributes observed on every instance become required in restricted mode, and values are scanned for booleans, integers, decimals, dates, dateTimes, times, and URIs. The sample is capped at 1000000 bytes; use a concise excerpt that includes every distinct element and attribute shape you need.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "xml"
+      ],
+      "type": "object"
+    }
+  }
+}
