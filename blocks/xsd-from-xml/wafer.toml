@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xsd-from-xml"
+version = "0.1.0"
+abi = 1
+summary = "Infer an XSD schema from a sample XML document with layout, occurrence, namespace, and type controls"

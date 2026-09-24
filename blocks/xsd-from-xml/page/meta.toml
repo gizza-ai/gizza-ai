@@ -1,0 +1,109 @@
+slug          = "xsd-from-xml"
+title         = "XSD from XML — infer a schema from a sample document"
+description   = "Generate a draft XSD schema from a sample XML document with layout, occurrence, type inference, namespace, indentation, and enumeration controls."
+tags          = ["xml", "xsd", "xml schema", "schema inference", "xml tools", "developer"]
+h1            = "Generate an XSD schema from sample XML"
+hero_subtitle = "Paste one representative XML document and infer elements, attributes, types, namespaces, cardinality, and a draft W3C XML Schema locally in your browser."
+wasm          = "gizza_ai_xsd_from_xml_web"
+export        = "run"
+live          = false
+output_label  = "Generated XSD"
+format        = "text"
+
+[[input]]
+name        = "xml"
+label       = "Sample XML"
+placeholder = "<order id=\"7\">\n  <total>19.95</total>\n  <item sku=\"PEN\">pen</item>\n  <item sku=\"PAD\">pad</item>\n</order>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "design"
+label  = "Schema design"
+source = "field"
+
+[input.labels]
+venetian-blind = "Venetian blind — named types, one global root"
+salami-slice   = "Salami slice — every element global"
+russian-doll   = "Russian doll — nested inline under the root"
+
+[[input]]
+name   = "type_inference"
+label  = "Type inference"
+source = "field"
+
+[input.labels]
+smart  = "Smart built-in types"
+string = "Everything as xs:string"
+
+[[input]]
+name   = "occurrence"
+label  = "Occurrence bounds"
+source = "field"
+
+[input.labels]
+restricted = "Restricted — follow this sample"
+relaxed    = "Relaxed — optional and repeatable"
+
+[[input]]
+name        = "enumerations"
+label       = "Enumeration cap"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "target_namespace"
+label       = "Target namespace override"
+placeholder = "https://example.com/ns/orders"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "declaration"
+label  = "Include XML declaration"
+source = "field"
+
+[[example]]
+label = "Order with repeated items"
+[example.params]
+xml = "<order id=\"7\"><total>19.95</total><item sku=\"PEN\">pen</item><item sku=\"PAD\">pad</item></order>"
+design = "venetian-blind"
+type_inference = "smart"
+occurrence = "restricted"
+enumerations = "0"
+target_namespace = ""
+indent = "2"
+declaration = "true"
+
+[[example]]
+label = "Loose draft schema"
+[example.params]
+xml = "<catalog><book id=\"b1\"><title>Schema Design</title></book><book id=\"b2\"><title>XML Tools</title><isbn>9780000000000</isbn></book></catalog>"
+design = "salami-slice"
+type_inference = "string"
+occurrence = "relaxed"
+enumerations = "0"
+target_namespace = ""
+indent = "2"
+declaration = "true"
+
+[[example]]
+label = "Namespaced output"
+[example.params]
+xml = "<order xmlns=\"urn:orders\"><id>1001</id><paid>true</paid></order>"
+design = "venetian-blind"
+type_inference = "smart"
+occurrence = "restricted"
+enumerations = "0"
+target_namespace = "https://example.com/orders"
+indent = "2"
+declaration = "true"
