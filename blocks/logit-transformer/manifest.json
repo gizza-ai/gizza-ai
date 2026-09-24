@@ -1,0 +1,104 @@
+{
+  "name": "gizza-ai/logit-transformer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Transform probabilities to log-odds and back",
+  "role": "skill",
+  "tool": {
+    "description": "Apply the logit transform to probability columns and the inverse logit / sigmoid to log-odds. Paste one value or a whole column; percentages such as 90% are accepted in the logit direction. Choose log base e, 2, or 10, mirror or set separators, round to fixed decimals, and decide how p=0/p=1 boundaries should behave: fail, epsilon-clamp, skip, blank, or emit ±Infinity. Table and JSON outputs can show the odds alongside each transformed value.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "default": "e",
+          "description": "Logarithm base. 'e' (default) is the natural-log scale used by logistic regression; '2' and '10' are available for binary or common-log odds. The inverse direction uses the same base so round trips stay consistent.",
+          "enum": [
+            "e",
+            "2",
+            "10"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "Column of numbers to transform. For direction=logit, values are probabilities in 0-1; a trailing percent sign is accepted, so 90% means 0.9. For direction=inverse, values are log-odds on the whole real line. Paste one value per line, or use comma, space, semicolon, tab, or pipe separators.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": "auto",
+          "description": "Rounding for numeric output: 'auto' keeps full precision, or enter an integer from 0 to 8 for fixed decimal places. Infinities are printed as Infinity / -Infinity.",
+          "type": "string"
+        },
+        "direction": {
+          "default": "logit",
+          "description": "Transform direction. 'logit' (default) converts probabilities to log-odds with log(p/(1-p)). 'inverse' converts log-odds back to probabilities with the inverse logit / sigmoid.",
+          "enum": [
+            "logit",
+            "inverse"
+          ],
+          "type": "string"
+        },
+        "epsilon": {
+          "default": 1e-06,
+          "description": "Clamp distance used only when on_boundary=clamp. Must be greater than 0 and less than 0.5. Default 0.000001.",
+          "maximum": 0.5,
+          "minimum": 0,
+          "type": "number"
+        },
+        "on_boundary": {
+          "default": "fail",
+          "description": "What to do with p=0 or p=1 in the logit direction, where log-odds are undefined. 'fail' names the row and stops. 'clamp' nudges to epsilon and 1-epsilon. 'skip' drops the value. 'blank' preserves row alignment with an empty cell. 'infinity' emits -Infinity or Infinity.",
+          "enum": [
+            "fail",
+            "clamp",
+            "skip",
+            "blank",
+            "infinity"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "values",
+          "description": "Output shape. 'values' (default) returns only the transformed column. 'table' returns input, odds, and transformed value as tab-separated columns. 'json' returns structured rows with counts and errors.",
+          "enum": [
+            "values",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "output_separator": {
+          "default": "same",
+          "description": "How to join the output values. 'same' (default) mirrors the detected or selected input separator; choose newline, comma, space, semicolon, tab, or pipe for a specific downstream format.",
+          "enum": [
+            "same",
+            "newline",
+            "comma",
+            "space",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "How to split the input values. 'auto' (default) accepts newlines, commas, spaces, semicolons, tabs, and pipes; choose an explicit separator when empty fields or exact column shape matter.",
+          "enum": [
+            "auto",
+            "newline",
+            "comma",
+            "space",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
