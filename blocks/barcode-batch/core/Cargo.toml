@@ -1,0 +1,27 @@
+[package]
+name = "gizza-ai-barcode-batch-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# 1D symbology encoder. `default-features = false` + `std` drops the crate's own
+# ascii/json/svg renderers — this crate takes the raw module vector from
+# `encode()` and rasterises/vectorises it itself, which is what buys a
+# configurable quiet zone, bar height, colours and human-readable text.
+barcoders = { version = "2", default-features = false, features = ["std"] }
+# PNG encoding only (no decoders) — pure Rust, wasm-safe on both targets.
+image = { version = "0.25", default-features = false, features = ["png"] }
+# zip with deflate only (flate2/miniz_oxide backend) — dropping the default
+# time/aes/bzip2/zstd features keeps it pure-Rust and wasm32-safe, and makes the
+# archive deterministic (entries get the fixed 1980-01-01 DOS timestamp).
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# Deflate for the PDF content streams. The label sheet's PDF is written by hand
+# (see sheet.rs) rather than with lopdf: lopdf has a non-optional `rand` ->
+# `getrandom` dependency for PDF encryption, and getrandom has no backend on
+# wasm32-unknown-unknown, so it cannot build for the browser page target.
+flate2 = "1"
+# Public-domain 8x8 bitmap font for the PNG human-readable text. `default-features
+# = false` keeps only the `legacy::BASIC_LEGACY` const table: no_std, zero deps,
+# no font file to ship.
+font8x8 = { version = "0.3", default-features = false }

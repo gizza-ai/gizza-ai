@@ -1,0 +1,156 @@
+{
+  "name": "gizza-ai/barcode-batch",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a ZIP or printable PDF sheet of 1D barcodes from a list or CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Generate many 1D barcodes at once from a pasted list, CSV or TSV. Supports Code 128, Code 39, Code 93, EAN-13, EAN-8, UPC-A, ITF-14 and Codabar, with per-row symbology auto-detection and automatic mod-10 check-digit calculation. Returns either a ZIP of PNG/SVG files plus an index.csv manifest, or a single printable PDF label sheet on an Avery-style grid. Bar width, bar height, quiet zone, colours and human-readable text are configurable. Row errors are reported instead of silently dropped, and generation is deterministic and local.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "auto_check_digit": {
+          "default": true,
+          "description": "For EAN-13, EAN-8, UPC-A and ITF, compute the trailing mod-10 check digit when the pasted value is one digit short, and verify it when it is present. Default true. Turn off to reject short values instead.",
+          "type": "boolean"
+        },
+        "bar_height": {
+          "default": 100,
+          "description": "Bar height in pixels (20-400, default 100). Ignored for `sheet`, where bars fill the label height.",
+          "maximum": 400,
+          "minimum": 20,
+          "type": "integer"
+        },
+        "bg_color": {
+          "default": "#ffffff",
+          "description": "Background colour as #rgb, #rrggbb, a common colour name, or `transparent`. Default #ffffff.",
+          "type": "string"
+        },
+        "columns": {
+          "default": "auto",
+          "description": "Which columns to read when the input is CSV/TSV. `auto` and `value-name` treat two-column rows as value,filename; `name-value` reverses them; `value-only` keeps commas/tabs inside the barcode value.",
+          "enum": [
+            "auto",
+            "value-name",
+            "name-value",
+            "value-only"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "Rows to encode. Paste one barcode value per line, or CSV/TSV rows such as `SKU-1001,widget`. Blank lines are ignored; at most 500 rows and 120 characters per value are accepted.",
+          "type": "string"
+        },
+        "fg_color": {
+          "default": "#000000",
+          "description": "Bar colour as #rgb, #rrggbb, or a common colour name. It cannot be transparent. Default #000000 — scanners need dark bars on a light background.",
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "File type placed in the ZIP for each row: PNG, SVG, or both. Ignored when output is `sheet` (the PDF is always vector). Default png.",
+          "enum": [
+            "png",
+            "svg",
+            "both"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": false,
+          "description": "Skip the first non-blank row as a header row. Default false.",
+          "type": "boolean"
+        },
+        "include_index": {
+          "default": true,
+          "description": "Include index.csv in the ZIP, mapping each generated filename back to the encoded value and symbology and listing row-level errors. Default true; ignored for `sheet` output.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to split the pasted rows. `auto` (default) uses TSV if any tab is present, CSV if any comma is present, otherwise one value per line.",
+          "enum": [
+            "auto",
+            "list",
+            "csv",
+            "tsv"
+          ],
+          "type": "string"
+        },
+        "module_width": {
+          "default": 2,
+          "description": "Width in pixels of the narrowest bar (1-10, default 2). Raise it for low-resolution thermal printers. Ignored for `sheet`, where bars scale to the label.",
+          "maximum": 10,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name_prefix": {
+          "default": "barcode",
+          "description": "Prefix for auto-numbered filenames when a row has no filename column. `barcode` becomes barcode-001.png, barcode-002.png, and so on.",
+          "type": "string"
+        },
+        "output": {
+          "default": "zip",
+          "description": "What to bundle the batch as. `zip` (default) returns one image file per row plus index.csv; `sheet` returns a single printable PDF laid out on the label grid chosen by sheet_preset.",
+          "enum": [
+            "zip",
+            "sheet"
+          ],
+          "type": "string"
+        },
+        "quiet_zone": {
+          "default": 10,
+          "description": "Blank margin either side of the symbol, in modules (0-30, default 10). Code 128 and ITF need at least 10 to scan reliably; do not go below it for printed codes.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sheet_preset": {
+          "default": "avery-5160",
+          "description": "Label-sheet grid used when output is `sheet`. avery-5160 = US Letter 30-up (2.625x1 in, default), 5161 = Letter 20-up (4x1 in), 5163 = Letter 10-up (4x2 in), l7651 = A4 65-up (38.1x21.2 mm), l7160 = A4 21-up (63.5x38.1 mm), a4-grid = A4 40-up (45x25 mm). Each label auto-fits its symbol.",
+          "enum": [
+            "avery-5160",
+            "avery-5161",
+            "avery-5163",
+            "avery-l7651",
+            "avery-l7160",
+            "a4-grid"
+          ],
+          "type": "string"
+        },
+        "show_text": {
+          "default": true,
+          "description": "Print the human-readable value under the bars, including any check digit that was computed. Default true.",
+          "type": "boolean"
+        },
+        "symbology": {
+          "default": "code128",
+          "description": "Barcode symbology for every row. `code128` (default) encodes any printable ASCII and picks the double-density digit subset automatically. `auto` chooses per row by shape: 14 digits ITF-14, 13 EAN-13, 12 UPC-A, 8 EAN-8, anything else Code 128.",
+          "enum": [
+            "auto",
+            "code128",
+            "code39",
+            "code93",
+            "ean13",
+            "ean8",
+            "upca",
+            "itf",
+            "codabar"
+          ],
+          "type": "string"
+        },
+        "text_size": {
+          "default": 20,
+          "description": "Human-readable text height in pixels (8-48, default 20). PNG output snaps it to a whole multiple of the 8-pixel bitmap font.",
+          "maximum": 48,
+          "minimum": 8,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}
