@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "combinations-permutations"
+version = "0.1.0"
+abi = 1
+summary = "Count nCr/nPr exactly and optionally list every combination or permutation."
