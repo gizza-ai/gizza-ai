@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "heart-rate-zones"
+version = "0.1.0"
+abi = 1
+summary = "Compute heart-rate training zones from age and resting HR with the Karvonen, percent-of-max or Zoladz method"
