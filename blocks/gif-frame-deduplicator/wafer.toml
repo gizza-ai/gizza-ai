@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "gif-frame-deduplicator"
+version = "0.1.0"
+abi = 1
+summary = "Remove near-duplicate frames from an animated GIF"
