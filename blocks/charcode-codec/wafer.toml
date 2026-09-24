@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "charcode-codec"
+version = "0.1.0"
+abi = 1
+summary = "Convert text to a list of Unicode, UTF-8, UTF-16 or ASCII character codes in any base, and back."
