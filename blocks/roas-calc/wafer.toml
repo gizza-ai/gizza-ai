@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "roas-calc"
+version = "0.1.0"
+abi = 1
+summary = "Compute ROAS, ACOS, break-even and target ROAS, CAC, LTV and required ad budget"
