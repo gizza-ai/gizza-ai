@@ -1,0 +1,143 @@
+{
+  "name": "gizza-ai/calorie-burn",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Estimate calories burned for an activity, duration and body weight from standard MET values",
+  "role": "skill",
+  "tool": {
+    "description": "Estimate the calories burned by one bout of activity from its metabolic equivalent (MET), the body weight and the elapsed time, using the standard kcal/min = MET x 3.5 x kg / 200. Pick from a 59-entry table of standard MET values spanning everyday and household tasks, walking and hiking, running, cycling, swimming and water sports, gym and studio work, and field sports, or pass activity=custom with your own met value; any named activity's MET can also be overridden with met to dial intensity. Weight is accepted in kilograms or pounds and duration in minutes or hours, both converted before the arithmetic and echoed back in both forms. Reports the session total, the per-minute and per-hour rate, the MET-minutes of activity volume together with how many such sessions reach the 500 MET-min/week public-health minimum, the implied oxygen uptake in ml/kg/min and total litres, a body-fat equivalent at 7700 kcal per kg, and the same session priced across eight reference activities for context. basis=net charges MET minus 1 to report only the energy the session added above resting metabolism, instead of the gross figure trackers show. Returns a readable summary, markdown tables, or JSON. Pure arithmetic computed locally; no data leaves the machine, and MET values are population averages, so the result is an estimate rather than a measurement.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "activity": {
+          "default": "walking-moderate",
+          "description": "Which activity to price, chosen from the 59-entry table of standard metabolic-equivalent values, or custom to supply your own met. Default walking-moderate (MET 3.5). Values are grouped by prefix so they are easy to guess: everyday and household (sleeping 0.95, sitting-desk-work 1.5, standing-light-work 2, cooking 3.3, house-cleaning 3.5, gardening 3.8, mowing-lawn 5, moving-furniture 5.8, shoveling-snow 6, stairs-climbing 8.8); walking and hiking (walking-slow 2.8, walking-moderate 3.5, walking-brisk 5, walking-uphill 6.3, hiking 6, backpacking 7); running (jogging 7, running-trail 9, running-6mph 9.8, running-8mph 11.8, running-10mph 14.5); cycling (cycling-leisure 4, cycling-moderate 8, mountain-biking 8.5, indoor-cycling-class 8.5, cycling-vigorous 12); water (kayaking 5, water-aerobics 5.5, swimming-leisure 6, rowing-water 7, swimming-laps-moderate 8.3, swimming-laps-vigorous 9.8); gym and studio (stretching 2.3, yoga-hatha 2.5, pilates 3, tai-chi 3, weight-training-light 3.5, elliptical 5, weight-training-vigorous 6, rowing-machine 7, circuit-training 7.2, calisthenics-vigorous 8, stair-stepper 9, jump-rope 11); sports (volleyball 4, table-tennis 4, dancing-social 4.5, golf-walking 4.8, badminton 5.5, boxing-bag 5.5, tennis-doubles 6, soccer-casual 7, dancing-aerobic 7.3, basketball-game 8, tennis-singles 8, rock-climbing 8, soccer-competitive 10, martial-arts 10.3). If nothing matches, pick the nearest entry and adjust it with met.",
+          "enum": [
+            "sleeping",
+            "sitting-desk-work",
+            "standing-light-work",
+            "cooking",
+            "house-cleaning",
+            "gardening",
+            "mowing-lawn",
+            "moving-furniture",
+            "shoveling-snow",
+            "stairs-climbing",
+            "walking-slow",
+            "walking-moderate",
+            "walking-brisk",
+            "walking-uphill",
+            "hiking",
+            "backpacking",
+            "jogging",
+            "running-6mph",
+            "running-8mph",
+            "running-10mph",
+            "running-trail",
+            "cycling-leisure",
+            "cycling-moderate",
+            "cycling-vigorous",
+            "mountain-biking",
+            "indoor-cycling-class",
+            "swimming-leisure",
+            "swimming-laps-moderate",
+            "swimming-laps-vigorous",
+            "water-aerobics",
+            "kayaking",
+            "rowing-water",
+            "weight-training-light",
+            "weight-training-vigorous",
+            "circuit-training",
+            "calisthenics-vigorous",
+            "rowing-machine",
+            "elliptical",
+            "stair-stepper",
+            "jump-rope",
+            "yoga-hatha",
+            "pilates",
+            "stretching",
+            "tai-chi",
+            "basketball-game",
+            "soccer-casual",
+            "soccer-competitive",
+            "tennis-singles",
+            "tennis-doubles",
+            "volleyball",
+            "badminton",
+            "table-tennis",
+            "golf-walking",
+            "bowling",
+            "dancing-social",
+            "dancing-aerobic",
+            "martial-arts",
+            "boxing-bag",
+            "rock-climbing",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "basis": {
+          "default": "gross",
+          "description": "Whether to report gross or net energy. gross (default) is all energy the body used during the session, resting metabolism included, and is what almost every calculator and fitness tracker reports. net charges MET minus 1 instead, crediting back the roughly 1 MET you would have spent existing anyway, and is the honest figure for calories the session ADDED — about 30% lower for a moderate walk. Net is floored at zero, so a sub-resting activity such as sleeping reports 0 rather than a negative burn. MET-minutes and oxygen uptake always use the gross value.",
+          "enum": [
+            "gross",
+            "net"
+          ],
+          "type": "string"
+        },
+        "duration": {
+          "description": "How long the activity lasted, as a number in the unit given by duration_unit. Required. Must land between 0.5 and 1440 minutes (up to 24 hours) once converted, so 45 with duration_unit minutes and 1.5 with duration_unit hours are both fine. Count moving time, not elapsed time including long rests, since MET values assume the effort is sustained throughout.",
+          "maximum": 1440,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "duration_unit": {
+          "default": "minutes",
+          "description": "Unit that duration is given in. minutes (default) or hours; hours are multiplied by 60 before the calculation and the output echoes the minute figure, so 1.5 hours reports as 1.5 h (90 min).",
+          "enum": [
+            "minutes",
+            "hours"
+          ],
+          "type": "string"
+        },
+        "met": {
+          "default": 0.0,
+          "description": "Metabolic-equivalent override, between 0.5 and 30, or 0 (the default) to use the chosen activity's own value. One MET is resting metabolism, about 1 kcal per kg of body weight per hour. Required when activity is custom. Use it to dial intensity within an activity — walking-moderate is MET 3.5, but pushing a loaded pram uphill is closer to 5 — or to enter a value from a published compendium table that is not in the list. It also changes the reported MET-minutes and oxygen uptake, which are defined on this gross value.",
+          "maximum": 30,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output format. summary (default) is a readable report: the activity and its MET with the source of that value, the weight and duration echoed in both units, then the session total, the per-minute and per-hour rate, the MET-minutes of activity volume with how many such sessions reach the 500 MET-min/week public-health minimum, the implied oxygen uptake, a body-fat equivalent, and the same session priced across eight reference activities. table returns the same content as two GitHub-flavoured markdown tables you can paste into a training log. json returns a machine-readable object with activity, activity_label, met, met_source, met_charged, basis, weight_kg, weight_lb, duration_minutes, calories, kcal_per_minute, kcal_per_hour, met_minutes, sessions_to_500_met_minutes, vo2_ml_per_kg_per_min, oxygen_litres, fat_grams and a comparison array.",
+          "enum": [
+            "summary",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "weight": {
+          "description": "Body weight as a number, in the unit given by weight_unit. Required, because the MET formula scales energy cost directly with body mass: the same activity for the same time burns about 14% more in an 80 kg person than a 70 kg one. Must land between 20 and 300 kg (44.1 and 661.4 lb) once converted, so 70 with weight_unit kg and 154 with weight_unit lb are both fine. Use the person's current weight, not a goal weight.",
+          "maximum": 660,
+          "minimum": 20,
+          "type": "number"
+        },
+        "weight_unit": {
+          "default": "kg",
+          "description": "Unit that weight is given in. kg (default) is kilograms; lb is international pounds, converted at 0.45359237 kg per pound before any arithmetic. The output echoes both, so 70 kg reports 154.3 lb as well.",
+          "enum": [
+            "kg",
+            "lb"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "weight",
+        "duration"
+      ],
+      "type": "object"
+    }
+  }
+}

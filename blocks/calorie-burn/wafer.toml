@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "calorie-burn"
+version = "0.1.0"
+abi = 1
+summary = "Estimate calories burned for an activity, duration and body weight from standard MET values"
