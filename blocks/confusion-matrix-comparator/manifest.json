@@ -1,0 +1,148 @@
+{
+  "name": "gizza-ai/confusion-matrix-comparator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Diff two confusion matrices entrywise and report per-class deltas in precision, recall and F1",
+  "role": "skill",
+  "tool": {
+    "description": "Compare two confusion matrices — a baseline and a candidate model — and get every metric as a triple (A, B, delta) instead of two reports to diff by eye. Paste each matrix as a square grid of counts (rows = actual class, columns = predicted, header row and row labels read as class names), as two columns of 'actual,predicted' observations, or as three columns of 'actual,predicted,count'; the candidate's rows and columns are reordered onto the baseline's class order automatically. Reports accuracy, balanced accuracy, macro/weighted/micro precision, recall and F-score, Cohen's kappa and the multiclass Matthews correlation, each with its delta; a per-class table of support, precision, recall and F-score for both models with the change in each, sortable by biggest gain or biggest regression; the entrywise 'candidate minus baseline' grid showing where predictions moved; the most improved and most regressed class and the largest cell shifts; a binary block with sensitivity, specificity and the TP/FP/FN/TN counts when there are two classes; and an unpaired two-proportion z-test on the accuracy difference with a confidence interval and p-value (with the paired-McNemar caveat stated, since that test cannot be computed from matrices alone). Options: F-beta weighting, class names and model names, matrix orientation, separator and header handling, percent-formatted rates, decimal places, and markdown, text, CSV or JSON output. Counts must be whole numbers, up to 50 classes. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "beta": {
+          "default": 1.0,
+          "description": "The F-score weight, 0.1 to 10 (default 1.0 = the plain F1, precision and recall weighted equally). Values above 1 weight recall more (2.0 is the usual 'missing a case is worse' choice), values below 1 weight precision more (0.5 for 'a false alarm is worse'). The column headers rename themselves to match, e.g. F2 or F0.5.",
+          "maximum": 10,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "confidence_level": {
+          "default": "95",
+          "description": "Confidence level in percent for the interval around the accuracy difference (default 95). Also sets the significance threshold: 95 tests at the 5% level, 90 at 10%, 99 at 1%.",
+          "enum": [
+            "95",
+            "90",
+            "99"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for every rate and delta, 0 to 10 (default 4). Only the output is rounded — the metrics are computed at full f64 precision, and a p-value always keeps at least 4 decimals so a significant result never prints as 0.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output format: 'markdown' (default) = pipe tables for the overall, per-class, binary and entrywise sections; 'text' = the same content as aligned plain text; 'csv' = an overall 'section,metric,A,B,delta' block, then one row per class, then one row per matrix cell, ready for a spreadsheet; 'json' = the full result including every metric triple, the per-class array, both matrices, the delta grid and the accuracy test.",
+          "enum": [
+            "markdown",
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row holds column names rather than counts. 'auto' (default) drops it when it names known columns ('actual', 'predicted', 'count', …) or when it has no numbers and the rest of the grid does; 'yes' always drops row 1 and keeps its cells as class names; 'no' treats row 1 as data.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How both inputs are shaped. 'auto' (default) reads a square grid of numbers as a matrix, two columns as 'actual,predicted' observations, and three columns ending in a number as 'actual,predicted,count' triples. 'matrix' forces a K×K grid of counts, 'labels' forces one observation per row, 'table' forces the tallied triples — set it explicitly when an all-numeric paste is ambiguous.",
+          "enum": [
+            "auto",
+            "matrix",
+            "labels",
+            "table"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "description": "Optional class names, in the order you want the report to use, separated by newlines, commas, tabs, semicolons or pipes (e.g. 'cat,dog,fox' or 'negative,positive'). Fixes the class order for both matrices, renames unlabelled ones, and — for two classes — decides which class is the positive one (the last name). Default: the names pasted with the matrices, the labels found in an 'actual,predicted' list, or 0, 1, 2, … positionally.",
+          "type": "string"
+        },
+        "matrix_a": {
+          "description": "The baseline confusion matrix. By default paste a square grid of counts, one row per actual class, e.g. '40,10\\n5,45' — rows are the true class, columns are what the model predicted, and the diagonal is correct predictions. Cells may be separated by commas, tabs, semicolons, pipes or spaces; a header row of class names and a leading column of row labels are both read as class names. Instead of a grid you can paste two columns of 'actual,predicted' labels (one observation per row) or three columns of 'actual,predicted,count'. Counts must be whole numbers — a row-normalised matrix cannot be compared. At most 50 classes.",
+          "type": "string"
+        },
+        "matrix_b": {
+          "description": "The candidate confusion matrix to compare against the baseline, in any of the same shapes, e.g. '45,5\\n8,42'. It must cover the same classes; if it carries class names in a different order the rows and columns are reordered onto the baseline's order before anything is compared. The two matrices do NOT need the same number of observations — every rate is compared directly and the counts are reported side by side.",
+          "type": "string"
+        },
+        "matrix_delta": {
+          "default": true,
+          "description": "Include the entrywise 'candidate minus baseline' grid, one signed count per actual/predicted cell (default true). This is the section that shows WHERE the predictions moved — a diagonal gain paired with an off-diagonal loss in the same row means that class is now being classified correctly.",
+          "type": "boolean"
+        },
+        "name_a": {
+          "default": "Model A",
+          "description": "Display name for the baseline in every table header and heading, e.g. 'v1', 'Baseline', 'logistic regression'. Default: 'Model A'.",
+          "type": "string"
+        },
+        "name_b": {
+          "default": "Model B",
+          "description": "Display name for the candidate, e.g. 'v2', 'Candidate', 'gradient boosting'. Default: 'Model B'. Every delta in the report is the candidate minus the baseline, so a positive number always means the candidate is better on that metric.",
+          "type": "string"
+        },
+        "orientation": {
+          "default": "actual_rows",
+          "description": "Which axis holds the true class. 'actual_rows' (default, the scikit-learn convention) means each row is an actual class and each column a predicted one; 'actual_columns' transposes the grid first — and, for a pasted 'actual,predicted' list or triple table, reads the FIRST column as the prediction instead. Getting this wrong swaps precision with recall, so the report always says which convention it used.",
+          "enum": [
+            "actual_rows",
+            "actual_columns"
+          ],
+          "type": "string"
+        },
+        "percent": {
+          "default": false,
+          "description": "Print the rates that live in 0…1 — accuracy, precision, recall, F-score, specificity, balanced accuracy and their deltas — as percentages (default false). Cohen's kappa, the Matthews correlation, z and the p-value stay plain numbers, and counts stay counts.",
+          "type": "boolean"
+        },
+        "separator": {
+          "default": "auto",
+          "description": "How each row is split into fields. 'auto' (default) picks the delimiter that splits every row into the same number of fields, which handles a CSV or spreadsheet paste unchanged; 'space' collapses runs of spaces so a hand-aligned matrix works. Both matrices are read with the same separator.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "significance": {
+          "default": true,
+          "description": "Add a two-proportion z-test on the accuracy difference, with a confidence interval, z, a two-sided p-value and a verdict (default true). It assumes the two matrices come from INDEPENDENT test sets; if both models scored the same items the test is conservative, and the report says so — a paired McNemar test is the right one there and cannot be computed from confusion matrices alone.",
+          "type": "boolean"
+        },
+        "sort_by": {
+          "default": "class",
+          "description": "Row order for the per-class delta table. 'class' (default) keeps the class order. 'f1_delta' puts the biggest F-score gain first, 'regression' puts the biggest LOSS first — the fastest way to see which class a new model broke. 'precision_delta' and 'recall_delta' rank by those gains, 'support' by how many baseline observations each class had.",
+          "enum": [
+            "class",
+            "f1_delta",
+            "regression",
+            "precision_delta",
+            "recall_delta",
+            "support"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "matrix_a",
+        "matrix_b"
+      ],
+      "type": "object"
+    }
+  }
+}

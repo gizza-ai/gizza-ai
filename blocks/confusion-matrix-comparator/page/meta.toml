@@ -1,0 +1,168 @@
+slug          = "confusion-matrix-comparator"
+title         = "Confusion Matrix Comparator — Per-Class Precision, Recall and F1 Deltas"
+description   = "Paste two confusion matrices and get the entrywise delta plus per-class precision, recall and F1 changes, so you can see exactly which class a new model broke."
+tags          = ["confusion matrix comparator", "compare two confusion matrices", "confusion matrix diff", "per class f1 delta", "model comparison", "precision recall delta", "baseline vs candidate model", "classifier regression check", "macro f1 comparison", "cohen kappa comparison"]
+h1            = "Confusion matrix comparator"
+hero_subtitle = "Paste a baseline and a candidate confusion matrix to get every metric as a before / after / delta triple — accuracy, macro and weighted precision, recall and F1, kappa and MCC — plus a per-class delta table, the entrywise grid of where predictions moved, and the classes a new model quietly broke. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_confusion_matrix_comparator_web"
+export        = "run"
+live          = false
+output_label  = "Comparison report"
+format        = "markdown"
+wide          = true
+
+[[input]]
+name        = "matrix_a"
+label       = "Baseline matrix (A) — rows are actual classes, columns are predictions"
+placeholder = "actual,cat,dog,fox\ncat,42,5,3\ndog,6,38,6\nfox,4,7,39"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "matrix_b"
+label       = "Candidate matrix (B) — same classes, any order"
+placeholder = "actual,cat,dog,fox\ncat,46,3,1\ndog,4,43,3\nfox,9,11,30"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "labels"
+label       = "Class names (optional — sets the order, and the positive class for 2 classes)"
+placeholder = "cat, dog, fox"
+source      = "field"
+
+[[input]]
+name        = "name_a"
+label       = "Name for the baseline"
+placeholder = "Baseline"
+source      = "field"
+
+[[input]]
+name        = "name_b"
+label       = "Name for the candidate"
+placeholder = "Candidate"
+source      = "field"
+
+[[input]]
+name   = "input_format"
+label  = "Input shape"
+source = "field"
+
+[input.labels]
+auto   = "Auto — detect a grid, label pairs or count triples"
+matrix = "Matrix — a square grid of counts"
+labels = "Label pairs — one actual,predicted observation per row"
+table  = "Table — actual,predicted,count triples"
+
+[[input]]
+name   = "orientation"
+label  = "Which axis is the true class"
+source = "field"
+
+[input.labels]
+actual_rows    = "Rows are actual, columns predicted (scikit-learn)"
+actual_columns = "Columns are actual, rows predicted (transpose)"
+
+[[input]]
+name   = "separator"
+label  = "Field separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto — detect comma, tab, semicolon, pipe or spaces"
+comma     = "Comma (CSV)"
+tab       = "Tab (spreadsheet paste)"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+space     = "Spaces (hand-aligned grid)"
+
+[[input]]
+name   = "header"
+label  = "First row is a header"
+source = "field"
+
+[input.labels]
+auto = "Auto — drop a row of column names"
+yes  = "Yes — always drop row 1"
+no   = "No — row 1 is data"
+
+[[input]]
+name        = "beta"
+label       = "F-score weight (beta — above 1 favours recall)"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name   = "sort_by"
+label  = "Order the per-class table by"
+source = "field"
+
+[input.labels]
+class           = "Class order"
+f1_delta        = "Biggest F-score gain first"
+regression      = "Biggest F-score loss first (what broke)"
+precision_delta = "Biggest precision gain first"
+recall_delta    = "Biggest recall gain first"
+support         = "Largest baseline support first"
+
+[[input]]
+name   = "significance"
+label  = "Test the accuracy difference"
+source = "field"
+
+[[input]]
+name   = "confidence_level"
+label  = "Confidence level for the difference"
+source = "field"
+
+[input.labels]
+95 = "95% (test at the 5% level)"
+90 = "90% (test at the 10% level)"
+99 = "99% (test at the 1% level)"
+
+[[input]]
+name   = "matrix_delta"
+label  = "Show the entrywise delta grid"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "percent"
+label  = "Show rates as percentages"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+markdown = "Markdown tables"
+text     = "Aligned plain text"
+csv      = "CSV (spreadsheet)"
+json     = "JSON (full result)"
+
+[[example]]
+label  = "A model that gains accuracy but breaks a class"
+params = { matrix_a = "actual,cat,dog,fox\ncat,42,5,3\ndog,6,38,6\nfox,4,7,39", matrix_b = "actual,cat,dog,fox\ncat,46,3,1\ndog,4,43,3\nfox,9,11,30", name_a = "Baseline", name_b = "Candidate", sort_by = "regression", format = "markdown" }
+
+[[example]]
+label  = "Binary spam filter, v1 vs v2, rates as percentages"
+params = { matrix_a = "actual,ham,spam\nham,940,60\nspam,80,420", matrix_b = "actual,ham,spam\nham,965,35\nspam,110,390", name_a = "v1", name_b = "v2", percent = "true", decimals = "2", format = "markdown" }
+
+[[example]]
+label  = "Rare positives: weight recall with F2"
+params = { matrix_a = "actual,negative,positive\nnegative,4800,120\npositive,45,35", matrix_b = "actual,negative,positive\nnegative,4700,220\npositive,28,52", name_a = "Conservative", name_b = "Aggressive", beta = "2", sort_by = "regression", format = "markdown" }
+
+[[example]]
+label  = "Paste raw predictions instead of a grid, export JSON"
+params = { matrix_a = "cat,cat\ncat,dog\ndog,dog\ndog,dog\nfox,fox\nfox,cat", matrix_b = "cat,cat\ncat,cat\ndog,dog\ndog,fox\nfox,fox\nfox,fox", input_format = "labels", name_a = "v1", name_b = "v2", format = "json", significance = "false" }
