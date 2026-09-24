@@ -1,0 +1,52 @@
+{
+  "name": "gizza-ai/xml-structure-analyzer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Analyze XML structure: element tree, tag counts, depth, attributes, namespaces.",
+  "role": "skill",
+  "tool": {
+    "description": "Analyze the structure of an XML document without transforming it. Reports root element, element tree, tag counts, max and average depth, depth histogram, attribute usage, namespaces, XML declaration/DOCTYPE, node-type counts, and structural warnings. Options control output format, tree-depth cap, tag table cap, and whether attribute details are shown.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "text",
+          "description": "Output shape. Text renders a human-readable report and tree; JSON returns the complete structured report; CSV returns one row per distinct element tag.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "show_attributes": {
+          "default": true,
+          "description": "Show attribute names in the tree and include attribute-usage tables. Counts still include attributes when this is false.",
+          "type": "boolean"
+        },
+        "top_tags": {
+          "default": 50,
+          "description": "Maximum tag-frequency rows to include. 0 lists every distinct tag.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "tree_depth": {
+          "default": 0,
+          "description": "Maximum element-tree levels to render. 0 renders the full collapsed tree; 1 shows only the root level.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "xml": {
+          "description": "XML document to analyze. Paste a complete document or fragment with a single root element; namespaces, comments, CDATA, processing instructions, declaration, and DOCTYPE are inspected.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "xml"
+      ],
+      "type": "object"
+    }
+  }
+}
