@@ -1,0 +1,87 @@
+{
+  "name": "gizza-ai/bmp-converter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert an image to an uncompressed BMP at a chosen bit depth (1, 8, 16, 24 or 32), or back out of BMP to PNG or JPEG.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert an image to or from an uncompressed Windows BMP. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call); optional format bmp|png|jpeg (default bmp), bit_depth 1|8|16-555|16-565|24|32 (default 24), colors 2-256 for 8-bit palettes (default 256), dither none|bayer|floyd_steinberg|sierra2_4a (default floyd_steinberg), grayscale true|false (default false), and background hex/name used to flatten transparency (default #ffffff).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "background": {
+          "default": "#ffffff",
+          "description": "Colour used to flatten transparency, as hex (#ffffff, #f00) or an ffmpeg colour name (white, black, navy). Default #ffffff. Applies whenever the output cannot store alpha — every bmp depth except 32, and jpeg. Ignored for 32-bit BMP and png output, which keep transparency.",
+          "type": "string"
+        },
+        "bit_depth": {
+          "default": "24",
+          "description": "BMP colour depth in bits per pixel. 24 (default) is classic true colour; 32 keeps transparency; 16-565 and 16-555 are high colour (5:6:5 uses BITFIELDS masks, 5:5:5 is the most widely readable 16-bit layout); 8 is a 256-colour indexed palette (or greyscale with grayscale=true); 1 is black and white. Example: 8 for a small retro-style bitmap.",
+          "enum": [
+            "1",
+            "8",
+            "16-555",
+            "16-565",
+            "24",
+            "32"
+          ],
+          "type": "string"
+        },
+        "colors": {
+          "default": 256,
+          "description": "Palette size for 8-bit indexed output, 2-256 (default 256). Ignored at any other bit_depth and when grayscale is true. Example: 16 for a 16-colour poster look.",
+          "maximum": 256,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "dither": {
+          "default": "floyd_steinberg",
+          "description": "How to hide banding when colours are reduced (8-bit indexed and 1-bit output only). floyd_steinberg (default) and sierra2_4a are error-diffusion — finer, photo-friendly; bayer is an ordered cross-hatch pattern; none gives hard flat bands. Example: none for pixel-art or logos.",
+          "enum": [
+            "none",
+            "bayer",
+            "floyd_steinberg",
+            "sierra2_4a"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "bmp",
+          "description": "Output format: bmp (default) writes an uncompressed Windows BMP at the chosen bit_depth; png or jpeg convert the other way, out of BMP into a modern format. bit_depth, colors and dither only apply to bmp.",
+          "enum": [
+            "bmp",
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "grayscale": {
+          "default": false,
+          "description": "true converts to grey before writing. At bit_depth 8 this writes a true 8-bit greyscale BMP (no colour palette); at other depths the image is grey but stored in that depth. Default false (keep colour).",
+          "type": "boolean"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
