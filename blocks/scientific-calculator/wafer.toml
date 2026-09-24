@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "scientific-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Evaluate scientific, complex, and worksheet-style math expressions."

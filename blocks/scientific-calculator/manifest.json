@@ -1,0 +1,78 @@
+{
+  "name": "gizza-ai/scientific-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Evaluate scientific, complex, and worksheet-style math expressions.",
+  "role": "skill",
+  "tool": {
+    "description": "Evaluate scientific calculator expressions with functions, constants, variables, complex numbers, angle modes, and text or JSON output.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "angle_unit": {
+          "default": "radians",
+          "description": "Angle unit for trigonometric functions and inverse-trig results.",
+          "enum": [
+            "radians",
+            "degrees",
+            "gradians"
+          ],
+          "type": "string"
+        },
+        "complex_form": {
+          "default": "rectangular",
+          "description": "Display complex results as a + bi or magnitude-angle form.",
+          "enum": [
+            "rectangular",
+            "polar"
+          ],
+          "type": "string"
+        },
+        "expression": {
+          "description": "Expression or worksheet to evaluate. Use one expression per line or separate statements with semicolons; assignments like 'x = 2pi' and 'ans' are supported.",
+          "type": "string"
+        },
+        "group_digits": {
+          "default": false,
+          "description": "Add thousands separators to formatted real numbers.",
+          "type": "boolean"
+        },
+        "notation": {
+          "default": "auto",
+          "description": "How real and complex components are formatted.",
+          "enum": [
+            "auto",
+            "fixed",
+            "scientific",
+            "engineering"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "text",
+          "description": "Return plain text for humans or JSON with numeric real/imaginary fields.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "precision": {
+          "default": 12,
+          "description": "Significant digits to display. Values above 15 preserve interface compatibility but calculations use double precision.",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "variables": {
+          "description": "Optional variable assignments evaluated before the expression, one per line, such as 'r = 5' or 'theta = pi/4'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expression"
+      ],
+      "type": "object"
+    }
+  }
+}
