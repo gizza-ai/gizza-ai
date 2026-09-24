@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "logit-transformer"
+version = "0.1.0"
+abi = 1
+summary = "Transform probabilities to log-odds and back"

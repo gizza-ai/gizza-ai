@@ -1,0 +1,125 @@
+slug          = "logit-transformer"
+title         = "Logit Transformer — Probability to Log-Odds and Sigmoid"
+description   = "Convert probabilities to logits and log-odds back to probabilities. Handles pasted columns, percentages, rounding, separators, and p=0/p=1 boundary policy."
+tags          = ["logit calculator", "probability to log odds", "inverse logit", "sigmoid calculator", "expit", "logistic transform", "odds converter", "log odds calculator"]
+h1            = "Logit Transformer"
+hero_subtitle = "Turn a probability column into log-odds with log(p/(1-p)), or run the inverse logit to get probabilities back. Paste one value or thousands, accept percentages such as 90%, choose base e/2/10, and decide how p=0 and p=1 should behave."
+wasm          = "gizza_ai_logit_transformer_web"
+export        = "run"
+live          = false
+output_label  = "Transformed values"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Values"
+placeholder = "0.5\n0.75\n0.25"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "direction"
+label   = "Direction"
+default = "logit"
+source  = "field"
+
+[input.labels]
+logit   = "Probability → logit / log-odds"
+inverse = "Logit / log-odds → probability"
+
+[[input]]
+name    = "base"
+label   = "Log base"
+default = "e"
+source  = "field"
+
+[input.labels]
+e  = "e — natural log (default)"
+"2" = "2 — binary log-odds"
+"10" = "10 — common log-odds"
+
+[[input]]
+name    = "separator"
+label   = "Input separator"
+default = "auto"
+source  = "field"
+
+[input.labels]
+auto      = "Auto-detect"
+newline   = "Newline"
+comma     = "Comma"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name    = "output_separator"
+label   = "Output separator"
+default = "same"
+source  = "field"
+
+[input.labels]
+same      = "Same as input"
+newline   = "Newline"
+comma     = "Comma"
+space     = "Space"
+semicolon = "Semicolon"
+tab       = "Tab"
+pipe      = "Pipe"
+
+[[input]]
+name    = "on_boundary"
+label   = "If p is exactly 0 or 1"
+default = "fail"
+source  = "field"
+
+[input.labels]
+fail     = "Fail with a clear error"
+clamp    = "Clamp to epsilon / 1-epsilon"
+skip     = "Skip the row"
+blank    = "Blank the row"
+infinity = "Emit -Infinity / Infinity"
+
+[[input]]
+name        = "epsilon"
+label       = "Epsilon for clamp"
+placeholder = "0.000001"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimals"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "values"
+source  = "field"
+
+[input.labels]
+values = "Values only"
+table  = "Audit table with odds"
+json   = "JSON rows"
+
+[[example]]
+label  = "Logit anchors"
+params = { data = "0.5\n0.75\n0.25", direction = "logit", base = "e", separator = "newline", output_separator = "newline", on_boundary = "fail", epsilon = "0.000001", decimals = "4", output = "values" }
+
+[[example]]
+label  = "Percent risks"
+params = { data = "10%\n50%\n90%", direction = "logit", base = "e", separator = "newline", output_separator = "newline", on_boundary = "fail", epsilon = "0.000001", decimals = "6", output = "values" }
+
+[[example]]
+label  = "Inverse sigmoid"
+params = { data = "0\n1\n-1", direction = "inverse", base = "e", separator = "newline", output_separator = "newline", on_boundary = "fail", epsilon = "0.000001", decimals = "4", output = "values" }
+
+[[example]]
+label  = "Clamp p=0 and p=1"
+params = { data = "0\n0.5\n1", direction = "logit", base = "e", separator = "newline", output_separator = "newline", on_boundary = "clamp", epsilon = "0.000001", decimals = "4", output = "values" }
+
+[[example]]
+label  = "Show odds table"
+params = { data = "0.75", direction = "logit", base = "e", separator = "newline", output_separator = "newline", on_boundary = "fail", epsilon = "0.000001", decimals = "4", output = "table" }
