@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "card-deck-tools"
+version = "0.1.0"
+abi = 1
+summary = "Shuffle, deal, and draw from a standard card deck with a seeded, reproducible shuffle"
