@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "xml-structure-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Analyze XML structure: element tree, tag counts, depth, attributes, namespaces."
