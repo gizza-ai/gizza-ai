@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/css-reset-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a CSS reset stylesheet from toggleable sections, presets and cascade layers",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a CSS reset or normalize stylesheet from toggleable opinions. Pick a preset (modern, minimal, normalize, classic zero-out, utility-framework preflight, or none), then add or remove any of 29 individual sections such as box-sizing, margin, media, forms, lists, headings, reduced-motion and focus-visible. Output can use zero-specificity :where() selectors, be wrapped in an @layer, carry per-section comments, use a chosen indent width, and be minified. Body line height and min-height units are configurable. Every rule is authored by this tool, not copied from a third-party stylesheet.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "body_min_height": {
+          "default": "100svh",
+          "description": "Body min-height written by the body-defaults section. 100svh uses the small viewport unit, which does not jump when mobile browser chrome collapses. 100dvh tracks the dynamic viewport. 100vh is the widely supported classic. none omits the declaration. Ignored when body-defaults is not part of the selection.",
+          "enum": [
+            "100svh",
+            "100dvh",
+            "100vh",
+            "none"
+          ],
+          "type": "string"
+        },
+        "comments": {
+          "default": true,
+          "description": "Emit a header comment listing the preset and chosen sections, plus one comment per section. Turn off for a bare stylesheet. Always off when minify is true.",
+          "type": "boolean"
+        },
+        "exclude": {
+          "default": "",
+          "description": "Sections to switch off. Comma or space separated. Applied after include, so a section named in both is excluded. Same vocabulary as include: zero-out, box-sizing, text-size-adjust, margin, padding, body-defaults, font-smoothing, media, forms, textarea, button-reset, lists, lists-unstyled, links, headings, headings-unstyled, text-wrap, overflow-wrap, monospace, abbr, sub-sup, hr, tables, scroll-margin, isolation, interactive, focus-visible, reduced-motion, smooth-scroll.",
+          "type": "string"
+        },
+        "include": {
+          "default": "",
+          "description": "Extra sections to switch on, on top of the preset. Comma or space separated. Sections always render in the tool's canonical order, not the order you list them. Available sections: zero-out, box-sizing, text-size-adjust, margin, padding, body-defaults, font-smoothing, media, forms, textarea, button-reset, lists, lists-unstyled, links, headings, headings-unstyled, text-wrap, overflow-wrap, monospace, abbr, sub-sup, hr, tables, scroll-margin, isolation, interactive, focus-visible, reduced-motion, smooth-scroll.",
+          "type": "string"
+        },
+        "indent": {
+          "default": 2,
+          "description": "Spaces per indent level in formatted output, 0 to 8. Default 2. Ignored when minify is true.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "layer": {
+          "default": "",
+          "description": "Optional CSS cascade layer to wrap the sheet in, for example base or base.reset. Leave blank for no @layer wrapper. Layer names accept letters, digits, hyphen and underscore, with dots separating nested parts.",
+          "type": "string"
+        },
+        "line_height": {
+          "default": 1.5,
+          "description": "Body line height written by the body-defaults section, from 1 to 3. Default 1.5. Ignored when body-defaults is not part of the selection.",
+          "maximum": 3,
+          "minimum": 1,
+          "type": "number"
+        },
+        "minify": {
+          "default": false,
+          "description": "Emit the stylesheet on a single line with no comments or optional whitespace. Overrides comments and indent.",
+          "type": "boolean"
+        },
+        "preset": {
+          "default": "modern",
+          "description": "Base set of sections to emit. modern is an opinionated present-day reset (border-box, margin zeroing, block media, inheriting form controls, balanced headings, reduced-motion guard). minimal is the four rules almost every project wants. normalize smooths cross-browser element differences instead of erasing them. classic is the aggressive zero-out of every common element. preflight is a utility-framework style baseline that also unstyles headings, lists and buttons. none starts empty so include alone decides the output. All presets are style-alike baselines authored for this tool, not copies of any third-party stylesheet.",
+          "enum": [
+            "modern",
+            "minimal",
+            "normalize",
+            "classic",
+            "preflight",
+            "none"
+          ],
+          "type": "string"
+        },
+        "selector_style": {
+          "default": "standard",
+          "description": "Selector specificity. standard emits plain selectors. where wraps each selector list in :where(), giving the whole reset zero specificity so any later rule of yours wins without an override war. Pseudo-element parts such as *::before stay outside the wrapper because :where() does not accept them; their specificity is already zero, so the result is equivalent.",
+          "enum": [
+            "standard",
+            "where"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
