@@ -1,0 +1,145 @@
+slug          = "vscode-snippets-generator"
+title         = "VS Code Snippets Generator — template to user-snippet JSON"
+description   = "Convert a code template into VS Code user-snippet JSON with safe escaping for placeholders, tabstops, variables, choices, and literal dollars."
+tags          = ["vscode", "snippets", "json", "developer", "code template", "visual studio code"]
+h1            = "Generate VS Code snippet JSON from a code template"
+hero_subtitle = "Paste code, choose a prefix and options, and get a VS Code user snippet with body lines, JSON escaping, tabstops, variables, choices, scope, and file-template flags handled for you."
+wasm          = "gizza_ai_vscode_snippets_generator_web"
+export        = "run"
+live          = false
+output_label  = "VS Code snippet JSON"
+format        = "text"
+
+[[input]]
+name        = "template"
+label       = "Code template"
+placeholder = "console.log($1);"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "name"
+label       = "Snippet name"
+placeholder = "Console log"
+source      = "field"
+
+[[input]]
+name        = "prefix"
+label       = "Prefix / trigger words"
+placeholder = "clog, log"
+source      = "field"
+
+[[input]]
+name        = "description"
+label       = "Description"
+placeholder = "Insert a console.log statement"
+source      = "field"
+
+[[input]]
+name        = "scope"
+label       = "Language scope"
+placeholder = "javascript,typescript"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Output shape"
+source = "field"
+
+[input.labels]
+snippets-file = "Complete snippets-file object"
+entry         = "Single entry to paste into an existing object"
+
+[[input]]
+name   = "dollars"
+label  = "Dollar handling"
+source = "field"
+
+[input.labels]
+auto    = "Auto — preserve snippet syntax, escape stray dollars"
+literal = "Literal — escape every dollar and backslash"
+raw     = "Raw — only JSON-escape"
+
+[[input]]
+name   = "indent"
+label  = "Indent conversion"
+source = "field"
+
+[input.labels]
+keep   = "Keep pasted indentation"
+tabs   = "Convert leading indentation to tabs"
+spaces = "Convert leading indentation to spaces"
+
+[[input]]
+name        = "tab_size"
+label       = "Tab size"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "final_tabstop"
+label  = "Append $0 if missing"
+source = "field"
+
+[[input]]
+name   = "is_file_template"
+label  = "Mark as file template"
+source = "field"
+
+[[input]]
+name        = "json_indent"
+label       = "JSON indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label = "Console log"
+[example.params]
+template = "console.log($1);"
+name = "Console log"
+prefix = "clog, log"
+description = "Insert a console.log statement"
+scope = "javascript,typescript"
+output = "snippets-file"
+dollars = "auto"
+indent = "keep"
+tab_size = "2"
+final_tabstop = "true"
+is_file_template = "false"
+json_indent = "2"
+
+[[example]]
+label = "React component"
+[example.params]
+template = "export function ${1:Component}() {\n  return <div>$0</div>;\n}"
+name = "React function component"
+prefix = "rfc"
+description = "Create a React function component"
+scope = "typescriptreact,javascriptreact"
+output = "entry"
+dollars = "auto"
+indent = "spaces"
+tab_size = "2"
+final_tabstop = "false"
+is_file_template = "false"
+json_indent = "2"
+
+[[example]]
+label = "File template"
+[example.params]
+template = "# ${TM_FILENAME}\n\n$0"
+name = "Markdown starter"
+prefix = "mdstart"
+description = "Starter markdown file"
+scope = "markdown"
+output = "snippets-file"
+dollars = "auto"
+indent = "keep"
+tab_size = "2"
+final_tabstop = "false"
+is_file_template = "true"
+json_indent = "2"
