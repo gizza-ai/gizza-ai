@@ -1,0 +1,112 @@
+{
+  "name": "gizza-ai/combinations-permutations",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Count nCr/nPr exactly and optionally list every combination or permutation.",
+  "role": "skill",
+  "tool": {
+    "description": "Combinatorics counter and generator. Computes how many ways r items can be chosen from n — combinations (nCr, order does not matter), permutations (nPr, order matters), or circular permutations (round-table seatings, rotations counted once) — with or without repetition, using exact arbitrary-precision arithmetic so C(1000, 500) prints all 299 digits. The default 'summary' output shows the count with thousands separators, the formula, the substituted values and the 1-in-N odds (lottery/poker style). Paste a pool of real items (or leave it empty to use 1..n) and switch output_format to lines, csv or json to enumerate the actual selections, joined by any separator. max_results (default 10000, hard cap 100000) guards enumeration; exceeding it reports the exact count instead of truncating. n and r max 1000.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "custom_join_separator": {
+          "default": "",
+          "description": "Join string used when join_separator is 'custom', e.g. ' -> '.",
+          "type": "string"
+        },
+        "dedupe": {
+          "default": false,
+          "description": "Remove duplicate items from the pool before generating (keeps the first occurrence), so 'a, b, a' behaves as 'a, b'.",
+          "type": "boolean"
+        },
+        "item_separator": {
+          "default": "auto",
+          "description": "How the items list is split. 'auto' (default) tries tab, then newline, comma, semicolon, pipe, and falls back to spaces. 'tab' also splits on line breaks so a pasted spreadsheet column works. Items are trimmed and blanks dropped.",
+          "enum": [
+            "auto",
+            "comma",
+            "newline",
+            "semicolon",
+            "pipe",
+            "tab",
+            "space"
+          ],
+          "type": "string"
+        },
+        "items": {
+          "default": "",
+          "description": "Optional pool of actual items to draw from, e.g. 'a, b, c, d' or one per line. When given it sets n (n = the number of items) and lets output_format=lines/csv/json list the real selections. Leave empty to work from n alone; enumeration then uses the numbers 1..n.",
+          "type": "string"
+        },
+        "join_separator": {
+          "default": "comma",
+          "description": "What joins the items of each selection in 'lines' output: comma ', ', space ' ', none '', dash '-', underscore '_', pipe '|', slash '/', plus '+', dot '.', or 'custom' (see custom_join_separator). Ignored for csv/json/count/summary.",
+          "enum": [
+            "comma",
+            "space",
+            "none",
+            "dash",
+            "underscore",
+            "pipe",
+            "slash",
+            "plus",
+            "dot",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "max_results": {
+          "default": 10000,
+          "description": "Safety cap on the number of ENUMERATED selections. Exceeding it is an error that reports the exact count, so nothing is silently truncated. Default 10000, hard cap 100000. Counting (summary/count) is never capped.",
+          "maximum": 100000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "combinations",
+          "description": "'combinations' (default): order does not matter — nCr. 'permutations': order matters — nPr. 'circular_permutations': seatings around a round table, where rotations of the same order count once — C(n, r) * (r - 1)!; it does not accept repetition.",
+          "enum": [
+            "combinations",
+            "permutations",
+            "circular_permutations"
+          ],
+          "type": "string"
+        },
+        "n": {
+          "default": 0,
+          "description": "How many items there are to choose from, when no items list is pasted, e.g. 49 for a 6/49 lottery. Ignored if items is non-empty. Max 1000.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output_format": {
+          "default": "summary",
+          "description": "'summary' (default): the count with thousands separators plus the formula, the substituted values and the 1-in-N odds. 'count': the bare number only, no separators. 'lines': one selection per line, items joined by join_separator. 'csv': one RFC 4180 row per selection. 'json': array of arrays. The three enumerating formats need r >= 1 and obey max_results; summary and count never enumerate, so they are exempt.",
+          "enum": [
+            "summary",
+            "count",
+            "lines",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "r": {
+          "description": "How many items are chosen or arranged, e.g. 6 for a 6/49 lottery draw. Must be at least 1 to enumerate; r = 0 counts as exactly one empty selection. Max 1000.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "repetition": {
+          "default": false,
+          "description": "Allow the same item to be picked more than once (with replacement). Combinations then use C(n + r - 1, r) and permutations use n^r. Not available for circular_permutations.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "r"
+      ],
+      "type": "object"
+    }
+  }
+}
