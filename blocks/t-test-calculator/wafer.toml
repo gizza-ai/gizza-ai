@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "t-test-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Run one-sample, paired, pooled or Welch t-tests on pasted data: t, df, exact p, critical t, confidence interval, Cohen's d and power"
