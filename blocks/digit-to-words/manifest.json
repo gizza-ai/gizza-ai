@@ -1,0 +1,114 @@
+{
+  "name": "gizza-ai/digit-to-words",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Spell numbers out in English words",
+  "role": "skill",
+  "tool": {
+    "description": "Spell numbers out as English words — cardinals ('one thousand two hundred thirty-four'), ordinals ('twenty-first' or '21st'), spoken years ('nineteen eighty-four'), money ('twenty-five dollars and forty cents') and the cheque form ('twenty-five and 40/100 dollars'). Reads thousands separators, comma decimal points, currency symbols, accounting parentheses and scientific notation, and works on digit strings rather than floats so a 66-digit integer spells exactly. Supports short, long and Indian (lakh/crore) scales, 25 currencies, British 'and', optional hyphens, lower/UPPER/Title/Sentence case, an 'only' suffix, and batches of up to 1,000 numbers one per line.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "default": "USD",
+          "description": "ISO currency code used by the currency and check styles; ignored by every other style. Default USD (dollars and cents). Each code carries its own unit and sub-unit words — GBP gives pounds and pence, INR rupees and paise, SEK kronor and öre — and the zero-decimal currencies JPY and KRW have no sub-unit, so amounts are rounded to whole units.",
+          "enum": [
+            "USD",
+            "EUR",
+            "GBP",
+            "JPY",
+            "INR",
+            "CAD",
+            "AUD",
+            "CHF",
+            "CNY",
+            "RUB",
+            "BRL",
+            "MXN",
+            "ZAR",
+            "NGN",
+            "KRW",
+            "NZD",
+            "SGD",
+            "HKD",
+            "SEK",
+            "NOK",
+            "DKK",
+            "PLN",
+            "TRY",
+            "PHP",
+            "THB"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": "point",
+          "description": "What to do with a fractional part on the cardinal, ordinal, ordinal_num and year styles. point (default) reads it digit by digit, 1.50 → 'one point five zero'; ignore truncates toward zero, 2.9 → 'two'; round rounds half away from zero to a whole number, 2.5 → 'three'. The currency and check styles always round to the currency's sub-unit instead.",
+          "enum": [
+            "point",
+            "ignore",
+            "round"
+          ],
+          "type": "string"
+        },
+        "hyphenate": {
+          "default": true,
+          "description": "Hyphenate compound tens, so 21 reads 'twenty-one'. Default true, which is standard English spelling. Set false for 'twenty one' when the result feeds a system that cannot take hyphens.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The number or numbers to spell out, one per line (up to 1,000 lines and 100,000 bytes). Digits are read exactly as written, so a 66-digit integer or a money amount never picks up floating-point noise. Accepts thousands separators (1,234 / 1 234 / 1_234), a comma decimal point (1234,5), currency symbols, a leading minus, 'minus'/'negative' words, accounting parentheses such as (1234.50) for negatives, and scientific notation such as 1.5e3.",
+          "type": "string"
+        },
+        "letter_case": {
+          "default": "lower",
+          "description": "Letter case of the result. lower (default) 'twenty-one'; upper 'TWENTY-ONE'; title 'Twenty-One'; sentence 'Twenty-one'. Use sentence or title for cheques and invoices.",
+          "enum": [
+            "lower",
+            "upper",
+            "title",
+            "sentence"
+          ],
+          "type": "string"
+        },
+        "only_suffix": {
+          "default": false,
+          "description": "Append the word 'only' to the result, the usual terminator on cheques and invoices: 'one lakh twenty-five thousand and 00/100 rupees only'. Default false.",
+          "type": "boolean"
+        },
+        "scale": {
+          "default": "short",
+          "description": "Naming scale for large numbers. short (default, US/modern UK) makes 10^9 'one billion'; long (continental European) makes 10^9 'one milliard' and 10^12 'one billion'; indian uses thousand/lakh/crore/arab grouping, so 100000 becomes 'one lakh'. Maximum size: 66 digits on short/long, 21 digits on indian.",
+          "enum": [
+            "short",
+            "long",
+            "indian"
+          ],
+          "type": "string"
+        },
+        "style": {
+          "default": "cardinal",
+          "description": "How to read the number. cardinal (default) gives 'one thousand two hundred thirty-four'; ordinal gives 'one thousand two hundred thirty-fourth'; ordinal_num keeps the digits and spells only the suffix, '1234th'; year reads four digits the spoken way, 1984 → 'nineteen eighty-four'; currency gives 'twenty-five dollars and forty cents'; check gives the cheque/invoice form 'twenty-five and 40/100 dollars'.",
+          "enum": [
+            "cardinal",
+            "ordinal",
+            "ordinal_num",
+            "year",
+            "currency",
+            "check"
+          ],
+          "type": "string"
+        },
+        "use_and": {
+          "default": false,
+          "description": "Insert the British 'and' before the last group under one hundred: 1023 reads 'one thousand and twenty-three' and 1234 reads 'one thousand two hundred and thirty-four'. Default false (American style, no 'and').",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

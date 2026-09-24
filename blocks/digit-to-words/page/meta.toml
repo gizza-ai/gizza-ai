@@ -1,0 +1,182 @@
+slug          = "digit-to-words"
+title         = "Number to Words — spell digits out in English"
+description   = "Spell any number out in English words: cardinals, ordinals, spoken years, money and the cheque form, with short, long or Indian (lakh/crore) scales and 25 currencies."
+tags          = ["number to words", "digits to words", "numbers in words", "spell numbers", "amount in words", "check writing", "ordinal words", "lakh crore words", "currency to words"]
+h1            = "Number to words"
+hero_subtitle = "Type a number — or paste a whole column of them — and read it back in English: one thousand two hundred thirty-four, twenty-first, nineteen eighty-four, or twenty-five and 40/100 dollars for the cheque."
+wasm          = "gizza_ai_digit_to_words_web"
+export        = "run"
+live          = false
+output_label  = "In words"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Number(s)"
+placeholder = "1234\n25.40\n1,000,000"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "style"
+label  = "Style"
+source = "field"
+[input.labels]
+cardinal    = "Cardinal — one thousand two hundred thirty-four"
+ordinal     = "Ordinal words — one thousand two hundred thirty-fourth"
+ordinal_num = "Ordinal digits — 1234th"
+year        = "Year — nineteen eighty-four"
+currency    = "Money — twenty-five dollars and forty cents"
+check       = "Cheque — twenty-five and 40/100 dollars"
+
+[[input]]
+name   = "scale"
+label  = "Number scale"
+source = "field"
+[input.labels]
+short  = "Short scale — 10⁹ is one billion (US / modern UK)"
+long   = "Long scale — 10⁹ is one milliard (continental)"
+indian = "Indian — thousand, lakh, crore"
+
+[[input]]
+name   = "letter_case"
+label  = "Letter case"
+source = "field"
+[input.labels]
+lower    = "lower case"
+upper    = "UPPER CASE"
+title    = "Title Case"
+sentence = "Sentence case"
+
+[[input]]
+name   = "currency"
+label  = "Currency (money and cheque styles)"
+source = "field"
+[input.labels]
+USD = "USD — dollars and cents"
+EUR = "EUR — euros and cents"
+GBP = "GBP — pounds and pence"
+JPY = "JPY — yen (no sub-unit)"
+INR = "INR — rupees and paise"
+CAD = "CAD — Canadian dollars and cents"
+AUD = "AUD — Australian dollars and cents"
+CHF = "CHF — Swiss francs and centimes"
+CNY = "CNY — yuan and fen"
+RUB = "RUB — rubles and kopecks"
+BRL = "BRL — reais and centavos"
+MXN = "MXN — pesos and centavos"
+ZAR = "ZAR — rand and cents"
+NGN = "NGN — naira and kobo"
+KRW = "KRW — won (no sub-unit)"
+NZD = "NZD — New Zealand dollars and cents"
+SGD = "SGD — Singapore dollars and cents"
+HKD = "HKD — Hong Kong dollars and cents"
+SEK = "SEK — kronor and öre"
+NOK = "NOK — kroner and øre"
+DKK = "DKK — kroner and øre"
+PLN = "PLN — zlotys and groszy"
+TRY = "TRY — lira and kurus"
+PHP = "PHP — Philippine pesos and centavos"
+THB = "THB — baht and satang"
+
+[[input]]
+name   = "use_and"
+label  = "British 'and' — one thousand and twenty-three"
+source = "field"
+
+[[input]]
+name   = "hyphenate"
+label  = "Hyphenate compound tens — twenty-one"
+source = "field"
+
+[[input]]
+name   = "decimals"
+label  = "Decimal fraction"
+source = "field"
+[input.labels]
+point  = "Read it out — one point five zero"
+ignore = "Drop it — 2.9 becomes two"
+round  = "Round it — 2.5 becomes three"
+
+[[input]]
+name   = "only_suffix"
+label  = "Append 'only' (cheques and invoices)"
+source = "field"
+
+[[example]]
+label = "1234 → words"
+[example.values]
+input = "1234"
+style = "cardinal"
+scale = "short"
+letter_case = "lower"
+currency = "USD"
+use_and = "false"
+hyphenate = "true"
+decimals = "point"
+only_suffix = "false"
+
+[[example]]
+label = "Cheque amount $14,273.38"
+[example.values]
+input = "14,273.38"
+style = "check"
+scale = "short"
+letter_case = "sentence"
+currency = "USD"
+use_and = "false"
+hyphenate = "true"
+decimals = "point"
+only_suffix = "true"
+
+[[example]]
+label = "₹1,25,000 in lakh"
+[example.values]
+input = "125000"
+style = "currency"
+scale = "indian"
+letter_case = "title"
+currency = "INR"
+use_and = "false"
+hyphenate = "true"
+decimals = "point"
+only_suffix = "true"
+
+[[example]]
+label = "1984 read as a year"
+[example.values]
+input = "1984"
+style = "year"
+scale = "short"
+letter_case = "lower"
+currency = "USD"
+use_and = "false"
+hyphenate = "true"
+decimals = "point"
+only_suffix = "false"
+
+[[example]]
+label = "Ordinals — 1st, 2nd, 103rd"
+[example.values]
+input = "1\n2\n103"
+style = "ordinal_num"
+scale = "short"
+letter_case = "lower"
+currency = "USD"
+use_and = "false"
+hyphenate = "true"
+decimals = "point"
+only_suffix = "false"
+
+[[example]]
+label = "British style with 'and'"
+[example.values]
+input = "1023"
+style = "cardinal"
+scale = "short"
+letter_case = "lower"
+currency = "GBP"
+use_and = "true"
+hyphenate = "true"
+decimals = "point"
+only_suffix = "false"
