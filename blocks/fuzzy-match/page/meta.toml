@@ -1,0 +1,122 @@
+slug          = "fuzzy-match"
+title         = "Fuzzy Match"
+description   = "Rank candidate strings by similarity to a query with hybrid, edit-distance or subsequence scoring, thresholds, limits and text, CSV or JSON output."
+tags          = ["fuzzy match", "string similarity", "fuzzy search", "levenshtein", "subsequence match", "candidate ranking", "text matching", "data cleanup"]
+h1            = "Fuzzy Match"
+hero_subtitle = "Paste a query and a list of candidate strings, then rank the best approximate matches. Use hybrid fuzzy scoring, normalized edit distance or subsequence matching, set a threshold, and export text, CSV or JSON. Runs locally in your browser."
+wasm          = "gizza_ai_fuzzy_match_web"
+export        = "run"
+live          = false
+output_label  = "Matches"
+format        = "text"
+
+[[input]]
+name        = "query"
+label       = "Query"
+placeholder = "apple"
+default     = "apple"
+source      = "field"
+
+[[input]]
+name        = "candidates"
+label       = "Candidates (one per line)"
+placeholder = "apple pie\napplet\nbanana\napply"
+default     = "apple pie\napplet\nbanana\napply\npineapple"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "algorithm"
+label   = "Scoring algorithm"
+default = "hybrid"
+source  = "field"
+[input.labels]
+hybrid      = "Hybrid (best overall)"
+levenshtein = "Levenshtein / edit distance"
+subsequence = "Subsequence / fuzzy finder"
+
+[[input]]
+name        = "limit"
+label       = "Maximum results"
+placeholder = "10"
+default     = "10"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name        = "threshold"
+label       = "Minimum score"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name    = "case_sensitive"
+label   = "Case sensitive"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "include_reasons"
+label   = "Show reason column"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "output_format"
+label   = "Output format"
+default = "text"
+source  = "field"
+[input.labels]
+text = "Ranked table"
+csv  = "CSV"
+json = "JSON"
+
+[[example]]
+label = "Rank product names"
+[example.params]
+query           = "apple"
+candidates      = "apple pie\napplet\nbanana\napply\npineapple"
+algorithm       = "hybrid"
+limit           = "5"
+threshold       = "0"
+case_sensitive  = "false"
+include_reasons = "true"
+output_format   = "text"
+
+[[example]]
+label = "Strict review threshold"
+[example.params]
+query           = "acme ltd"
+candidates      = "ACME Limited\nAcme Incorporated\nAce Metal\nGlobex LLC"
+algorithm       = "hybrid"
+limit           = "10"
+threshold       = "70"
+case_sensitive  = "false"
+include_reasons = "true"
+output_format   = "csv"
+
+[[example]]
+label = "Fuzzy finder mode"
+[example.params]
+query           = "fb"
+candidates      = "foo_bar.rs\nfast_build.sh\nformat-bytes.ts\nREADME.md"
+algorithm       = "subsequence"
+limit           = "10"
+threshold       = "0"
+case_sensitive  = "false"
+include_reasons = "true"
+output_format   = "text"
+
+[[example]]
+label = "JSON for automation"
+[example.params]
+query           = "new york"
+candidates      = "New York\nNewark\nYork New\nSydney"
+algorithm       = "levenshtein"
+limit           = "3"
+threshold       = "0"
+case_sensitive  = "false"
+include_reasons = "false"
+output_format   = "json"
