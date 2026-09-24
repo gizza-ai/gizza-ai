@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/tournament-bracket-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a single- or double-elimination tournament bracket with seeding and byes",
+  "role": "skill",
+  "tool": {
+    "description": "Build a single- or double-elimination tournament bracket from a list of participants. `participants` takes one name per line (a comma-separated line, '-'/'*'/'1.' list markers, '#' comments and a bare count like '16' all work); 2 to 64 names, unique case-insensitively. The field is rounded up to the next power of two and the spare slots become byes, which standard seeding hands to the top seeds. bracket_type=single (default, n-1 matches) | double (losers bracket + grand final, 2n-2 matches, optional grand_final_reset). seeding=standard (default, classic 1-vs-N layout) | ordered (entry 1 plays entry 2) | random (reproducible shuffle set by seed). third_place_match adds a semifinal-losers playoff to a single-elimination bracket. tournament_name titles the sheet and include_summary toggles the summary and seed list. output_format=text (default) | markdown | csv | json. Unplayed slots are shown as 'Winner of M3' / 'Loser of M3' so the sheet is printable before anyone plays. Deterministic and runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bracket_type": {
+          "default": "single",
+          "description": "single (default) is a straight knockout — one loss and you are out, n-1 matches. double adds a losers bracket so everyone gets a second chance, plus a grand final: 2n-2 matches.",
+          "enum": [
+            "single",
+            "double"
+          ],
+          "type": "string"
+        },
+        "grand_final_reset": {
+          "default": true,
+          "description": "Double elimination only: include the conditional reset match played when the losers-bracket finalist wins the grand final and both sides end on one loss (default true). Turn it off if your grand final is a single decider.",
+          "type": "boolean"
+        },
+        "include_summary": {
+          "default": true,
+          "description": "Prepend the summary line (format, participants, bracket size, byes, rounds, match count) and the seed list (default true). Applies to the text and markdown formats; csv and json are always just the matches.",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "text",
+          "description": "Output format: text (default, a printable round-by-round bracket sheet), markdown (pipe table with Match/Bracket/Round columns), csv (match,bracket,round,round_name,side_a,side_a_seed,side_b,side_b_seed,status for spreadsheets), or json (array of match objects).",
+          "enum": [
+            "text",
+            "markdown",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "participants": {
+          "description": "The teams or players, one per line (a single comma-separated line also works). Example: 'Lions' then 'Tigers' then 'Bears'. Leading '-', '*' or '1.' list markers are stripped, blank lines and '#' comments are ignored, and names must be unique (case-insensitive). A plain count such as '16' expands to Team 1…Team 16. Needs 2 to 64 participants; the field is rounded up to the next power of two and the spare slots become byes.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 0,
+          "description": "Draw seed used when seeding=random; ignored otherwise. Every value including the default 0 is a valid reproducible draw — change it to reshuffle, keep it to get the identical bracket again.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "seeding": {
+          "default": "standard",
+          "description": "How entries are placed in the bracket. standard (default) treats the entered order as the seeding and uses the classic 1-vs-N layout (1v8, 4v5, 2v7, 3v6), so the top seeds get the byes and seeds 1 and 2 can only meet in the final. ordered fills the slots top to bottom, pairing entry 1 with entry 2 — use it when you already know the pairings you want. random shuffles the entries with the reproducible draw set by `seed`, then places them the standard way.",
+          "enum": [
+            "standard",
+            "ordered",
+            "random"
+          ],
+          "type": "string"
+        },
+        "third_place_match": {
+          "default": false,
+          "description": "Add a third-place playoff between the two semifinal losers (default false). Single elimination only, and only when the bracket has semifinals — a double-elimination losers bracket already decides third place.",
+          "type": "boolean"
+        },
+        "tournament_name": {
+          "default": "",
+          "description": "Optional title printed above the bracket, e.g. 'Spring Cup'. Empty (default) prints no title. Shown in the text and markdown formats; csv and json are always just the matches.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "participants"
+      ],
+      "type": "object"
+    }
+  }
+}
