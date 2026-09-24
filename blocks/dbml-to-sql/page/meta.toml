@@ -1,0 +1,80 @@
+slug          = "dbml-to-sql"
+title         = "Convert DBML to SQL Online"
+description   = "Free DBML to SQL compiler. Paste a database markup schema and generate CREATE TABLE DDL for PostgreSQL, MySQL, SQLite, SQL Server or Oracle locally."
+tags          = ["dbml", "sql", "ddl", "database", "schema", "postgresql", "mysql", "sqlite", "sqlserver", "oracle", "foreign-key", "index"]
+h1            = "Convert DBML to SQL"
+hero_subtitle = "Paste a DBML database schema and compile it into CREATE TABLE DDL with indexes, foreign keys, enums and comments — all in your browser."
+wasm          = "gizza_ai_dbml_to_sql_web"
+export        = "run"
+live          = false
+output_label  = "SQL DDL"
+format        = "sql"
+
+[[input]]
+name        = "dbml"
+label       = "DBML schema"
+placeholder = "Table users { id int [pk, increment] email varchar [unique, not null] }"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "dialect"
+label       = "SQL dialect"
+placeholder = "auto"
+source      = "field"
+
+[input.labels]
+"auto" = "Auto — Project database_type or PostgreSQL"
+"postgresql" = "PostgreSQL"
+"mysql" = "MySQL / MariaDB"
+"sqlite" = "SQLite"
+"sqlserver" = "SQL Server"
+"oracle" = "Oracle"
+
+[[input]]
+name        = "foreign_keys"
+label       = "Emit foreign keys"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "indexes"
+label       = "Emit indexes"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "comments"
+label       = "Emit comments where supported"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "if_not_exists"
+label       = "Use IF NOT EXISTS"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "drop_if_exists"
+label       = "Prepend DROP IF EXISTS"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "quote_identifiers"
+label       = "Quote identifiers"
+source      = "field"
+kind        = "checkbox"
+
+[[example]]
+label  = "Users table — PostgreSQL"
+params = { dbml = "Table users { id int [pk, increment] email varchar [unique, not null] }", dialect = "postgresql", foreign_keys = "true", indexes = "true", comments = "true", quote_identifiers = "true" }
+
+[[example]]
+label  = "Orders with a foreign key"
+params = { dbml = "Table users { id int [pk] }\nTable orders { id int [pk] user_id int [not null] }\nRef: orders.user_id > users.id", dialect = "postgresql", foreign_keys = "true", indexes = "true", comments = "false", quote_identifiers = "true" }
+
+[[example]]
+label  = "SQLite bare identifiers"
+params = { dbml = "Project app { database_type: 'sqlite' }\nTable notes { id integer [pk] body text }", dialect = "auto", foreign_keys = "true", indexes = "true", comments = "false", quote_identifiers = "false" }
