@@ -1,0 +1,114 @@
+slug          = "covariance-matrix-builder"
+title         = "Covariance Matrix Calculator — Build a Covariance or Correlation Matrix Online"
+description   = "Paste rows of numbers and build the covariance matrix: sample or population denominator, optional weights, plus correlation, centered and z-score variants."
+tags          = ["covariance matrix calculator", "covariance calculator", "correlation matrix", "variance covariance matrix", "sample covariance", "population covariance", "bessel correction", "z-score standardization", "centered data", "multivariate statistics"]
+h1            = "Covariance matrix calculator"
+hero_subtitle = "Paste a table of numbers — one observation per row, one variable per column — and get the covariance matrix, with the sample (n − 1) or population (n) denominator, optional frequency weights, and correlation, centered or standardized variants of the same data. Runs entirely in your browser, nothing is uploaded."
+wasm          = "gizza_ai_covariance_matrix_builder_web"
+export        = "run"
+live          = false
+output_label  = "Matrix"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data (one observation per line; columns split on comma, tab, semicolon, pipe or space)"
+placeholder = "height,weight,age\n170,65,30\n180,80,42\n165,59,25\n175,72,35"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "labels"
+label       = "Variable names (optional, comma-separated, in data order — overrides a header row)"
+placeholder = "height,weight,age"
+source      = "field"
+
+[[input]]
+name   = "delimiter"
+label  = "Column separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto — comma, tab, semicolon, pipe or spaces"
+comma     = "Comma (CSV)"
+tab       = "Tab (spreadsheet paste)"
+semicolon = "Semicolon"
+space     = "Spaces"
+pipe      = "Pipe"
+
+[[input]]
+name   = "header"
+label  = "First row is variable names"
+source = "field"
+
+[input.labels]
+auto = "Auto — a non-numeric first row is a header"
+yes  = "Yes — always treat row 1 as names"
+no   = "No — row 1 is data"
+
+[[input]]
+name   = "matrix"
+label  = "Matrix to build"
+source = "field"
+
+[input.labels]
+covariance   = "Covariance matrix (variances on the diagonal)"
+correlation  = "Correlation matrix (standardized covariance, diagonal 1)"
+centered     = "Centered data (each value minus its column mean)"
+standardized = "Standardized data (z-scores)"
+
+[[input]]
+name   = "denominator"
+label  = "Denominator"
+source = "field"
+
+[input.labels]
+sample     = "Sample — n − 1 (Bessel's correction, COVARIANCE.S)"
+population = "Population — n (COVARIANCE.P)"
+
+[[input]]
+name        = "weights"
+label       = "Row weights (optional, one non-negative number per data row)"
+placeholder = "2,1,1,1"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "stats"
+label  = "Show the per-variable summary (n, mean, variance, std dev)"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+text     = "Aligned table"
+markdown = "Markdown pipe table"
+csv      = "CSV (matrix with labels)"
+json     = "JSON (full result)"
+
+[[example]]
+label  = "Body measurements (height, weight, age)"
+params = { data = "height,weight,age\n170,65,30\n180,80,42\n165,59,25\n175,72,35\n190,95,50\n160,54,22", matrix = "covariance", denominator = "sample", decimals = "6" }
+
+[[example]]
+label  = "Two-asset returns, population denominator"
+params = { data = "fund_a,fund_b\n0.021,0.015\n-0.008,0.004\n0.034,0.028\n0.012,-0.002\n-0.019,-0.011\n0.005,0.009", matrix = "covariance", denominator = "population", decimals = "6" }
+
+[[example]]
+label  = "Correlation matrix instead"
+params = { data = "height,weight,age\n170,65,30\n180,80,42\n165,59,25\n175,72,35\n190,95,50\n160,54,22", matrix = "correlation", decimals = "4" }
+
+[[example]]
+label  = "Export as CSV"
+params = { data = "height,weight,age\n170,65,30\n180,80,42\n165,59,25\n175,72,35\n190,95,50\n160,54,22", matrix = "covariance", format = "csv", decimals = "3" }

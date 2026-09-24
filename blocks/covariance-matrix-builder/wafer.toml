@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "covariance-matrix-builder"
+version = "0.1.0"
+abi = 1
+summary = "Build a covariance, correlation, centered or z-score matrix from pasted data"
