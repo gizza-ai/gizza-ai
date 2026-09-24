@@ -1,0 +1,97 @@
+slug          = "bmp-converter"
+title         = "BMP Converter — Convert Images to Uncompressed BMP by Bit Depth"
+description   = "Convert any image to an uncompressed Windows BMP at 1, 8, 16, 24 or 32-bit, or turn a BMP back into PNG or JPEG. Runs in your browser, nothing is uploaded."
+tags          = ["bmp", "bitmap", "image", "converter", "bit depth", "24-bit", "8-bit", "1-bit", "indexed", "palette", "dither", "grayscale", "png", "jpeg", "windows"]
+h1            = "BMP Converter"
+hero_subtitle = "Pick an image and a bit depth — an uncompressed Windows BMP is written in your browser, nothing is uploaded."
+wasm          = "gizza_ai_bmp_converter_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Converted image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+# Field order MUST equal web/src/lib.rs build_argv param order:
+# format, bit_depth, colors, dither, grayscale, background.
+[[input]]
+name   = "format"
+source = "field"
+label  = "Output format"
+
+[input.labels]
+"bmp"  = "BMP — uncompressed Windows bitmap"
+"png"  = "PNG — lossless, keeps transparency"
+"jpeg" = "JPEG — small file, no transparency"
+
+[[input]]
+name   = "bit_depth"
+source = "field"
+label  = "BMP bit depth"
+
+[input.labels]
+"1"      = "1-bit — black & white"
+"8"      = "8-bit — 256 colours (indexed)"
+"16-555" = "16-bit — high colour 5:5:5"
+"16-565" = "16-bit — high colour 5:6:5"
+"24"     = "24-bit — true colour (16.7M)"
+"32"     = "32-bit — true colour + transparency"
+
+[[input]]
+name        = "colors"
+source      = "field"
+label       = "Palette colours (8-bit only)"
+placeholder = "256"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "dither"
+source = "field"
+label  = "Dithering"
+
+[input.labels]
+"none"            = "none — hard flat bands"
+"bayer"           = "bayer — ordered cross-hatch"
+"floyd_steinberg" = "Floyd–Steinberg — fine error diffusion"
+"sierra2_4a"      = "Sierra 2-4A — fast error diffusion"
+
+[[input]]
+name   = "grayscale"
+source = "field"
+label  = "Convert to greyscale"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Background behind transparency"
+placeholder = "#ffffff"
+kind        = "color"
+
+[[example]]
+label  = "Classic 24-bit BMP"
+params = { format = "bmp", bit_depth = "24" }
+
+[[example]]
+label  = "256-colour (8-bit)"
+params = { format = "bmp", bit_depth = "8", colors = "256", dither = "floyd_steinberg" }
+
+[[example]]
+label  = "16 colours, no dither"
+params = { format = "bmp", bit_depth = "8", colors = "16", dither = "none" }
+
+[[example]]
+label  = "1-bit black & white"
+params = { format = "bmp", bit_depth = "1", dither = "floyd_steinberg" }
+
+[[example]]
+label  = "32-bit, keep transparency"
+params = { format = "bmp", bit_depth = "32" }
+
+[[example]]
+label  = "BMP back to PNG"
+params = { format = "png" }
