@@ -1,0 +1,130 @@
+slug          = "elo-rating-calculator"
+title         = "Elo Rating Calculator — Expected Score, Delta & New Ratings"
+description   = "Compute Elo expected scores, signed rating changes and new ratings for two players or teams after a match or same-opponent series."
+tags          = ["elo calculator", "rating calculator", "chess rating", "expected score", "k factor", "rating delta", "sports ranking"]
+h1            = "Elo Rating Calculator"
+hero_subtitle = "Enter two starting ratings, the result and a K-factor to get expected scores, rating deltas, new ratings and win/draw/loss scenarios. Runs locally in your browser."
+wasm          = "gizza_ai_elo_rating_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Elo result"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "player_a_rating"
+label       = "Player A rating"
+placeholder = "1600"
+default     = "1600"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "player_b_rating"
+label       = "Player B rating"
+placeholder = "1500"
+default     = "1500"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "score_a"
+label       = "Player A score"
+placeholder = "1"
+default     = "1"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "k_factor"
+label       = "K-factor for A"
+placeholder = "32"
+default     = "32"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "games"
+label       = "Games"
+placeholder = "1"
+default     = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "k_factor_b"
+label       = "K-factor for B (0 = same)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_rating_difference"
+label       = "Rating-difference cap (0 = off)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "decimals"
+label       = "Decimals"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+default = "summary"
+source = "field"
+[input.labels]
+summary = "Full summary"
+scenarios = "Scenario table"
+json = "JSON"
+csv = "CSV"
+delta = "Player A delta only"
+
+[[input]]
+name        = "player_a_name"
+label       = "Player A name"
+placeholder = "Player A"
+default     = "Player A"
+source      = "field"
+
+[[input]]
+name        = "player_b_name"
+label       = "Player B name"
+placeholder = "Player B"
+default     = "Player B"
+source      = "field"
+
+[[example]]
+label = "Favourite wins"
+params = { player_a_rating = "1600", player_b_rating = "1500", score_a = "1", k_factor = "32", games = "1", k_factor_b = "0", max_rating_difference = "0", decimals = "0", output_format = "summary", player_a_name = "Player A", player_b_name = "Player B" }
+
+[[example]]
+label = "Draw costs favourite"
+params = { player_a_rating = "1600", player_b_rating = "1500", score_a = "0.5", k_factor = "32", games = "1", output_format = "delta" }
+
+[[example]]
+label = "FIDE-style 400 cap"
+params = { player_a_rating = "2400", player_b_rating = "1400", score_a = "1", k_factor = "20", max_rating_difference = "400", output_format = "json" }
+
+[[example]]
+label = "Five-game series"
+params = { player_a_rating = "1600", player_b_rating = "1500", score_a = "3.5", k_factor = "32", games = "5", output_format = "summary" }
+
+[[example]]
+label = "Different K-factors"
+params = { player_a_rating = "1600", player_b_rating = "1500", score_a = "1", k_factor = "10", k_factor_b = "40", output_format = "csv" }
