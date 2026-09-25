@@ -1,0 +1,149 @@
+slug          = "coefficient-of-variation-calculator"
+title         = "Coefficient of Variation Calculator — Compare Relative Dispersion"
+description   = "Compute coefficient of variation from raw data or known mean and standard deviation. Rank datasets by relative spread with sample/population and JSON options."
+tags          = ["coefficient of variation", "cv calculator", "relative standard deviation", "statistics calculator", "sample cv", "population cv", "relative dispersion", "compare datasets", "standard deviation mean ratio"]
+h1            = "Coefficient of Variation Calculator"
+hero_subtitle = "Paste one dataset per line, or enter a known mean and standard deviation, to compute CV as a ratio and percentage. Rank datasets by relative spread instead of raw standard deviation."
+wasm          = "gizza_ai_coefficient_of_variation_calculator_web"
+export        = "run"
+live          = false
+output_label  = "CV report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "Kittens: 4.2 5.1 4.8 5.6 5.1\nOxen: 792 800 803 795 797"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "basis"
+label  = "Standard deviation basis"
+source = "field"
+
+[input.labels]
+sample     = "Sample (n-1)"
+population = "Population (N)"
+
+[[input]]
+name   = "grouping"
+label  = "Dataset grouping"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+single = "Pool all rows into one dataset"
+lines  = "One dataset per line"
+
+[[input]]
+name   = "delimiter"
+label  = "Delimiter"
+source = "field"
+
+[input.labels]
+auto      = "Auto (spaces, comma, semicolon, pipe)"
+comma     = "Comma"
+tab       = "Tab"
+semicolon = "Semicolon"
+space     = "Space"
+pipe      = "Pipe"
+
+[[input]]
+name        = "mean"
+label       = "Known mean (optional)"
+placeholder = "23.41"
+source      = "field"
+
+[[input]]
+name        = "std_dev"
+label       = "Known standard deviation (optional)"
+placeholder = "0.783"
+source      = "field"
+
+[[input]]
+name   = "exclude_outliers"
+label  = "Exclude Tukey 1.5×IQR outliers"
+source = "field"
+
+[[input]]
+name   = "ignore_non_numeric"
+label  = "Ignore non-numeric cells"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+summary = "Readable summary"
+table   = "Markdown table"
+json    = "JSON"
+
+[[example]]
+label = "Compare small and large animals"
+[example.params]
+data = "Kittens: 4.2 5.1 4.8 5.6 5.1\nOxen: 792 800 803 795 797"
+basis = "sample"
+grouping = "auto"
+delimiter = "auto"
+mean = ""
+std_dev = ""
+exclude_outliers = "false"
+ignore_non_numeric = "false"
+decimals = "4"
+output = "summary"
+
+[[example]]
+label = "Single column, population CV"
+[example.params]
+data = "2\n4\n4\n4\n5\n5\n7\n9"
+basis = "population"
+grouping = "auto"
+delimiter = "auto"
+mean = ""
+std_dev = ""
+exclude_outliers = "false"
+ignore_non_numeric = "false"
+decimals = "2"
+output = "table"
+
+[[example]]
+label = "Known mean + standard deviation"
+[example.params]
+data = ""
+basis = "sample"
+grouping = "auto"
+delimiter = "auto"
+mean = "23.41"
+std_dev = "0.783"
+exclude_outliers = "false"
+ignore_non_numeric = "false"
+decimals = "4"
+output = "summary"
+
+[[example]]
+label = "Spreadsheet paste with outlier filter"
+[example.params]
+data = "Machine A: 10, 11, n/a, 10, 12, 11, 10, 11, 90"
+basis = "sample"
+grouping = "auto"
+delimiter = "comma"
+mean = ""
+std_dev = ""
+exclude_outliers = "true"
+ignore_non_numeric = "true"
+decimals = "3"
+output = "json"
