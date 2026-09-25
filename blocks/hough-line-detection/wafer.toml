@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hough-line-detection"
+version = "0.1.0"
+abi = 1
+summary = "Detect straight lines in an image with the Hough transform and report their endpoints, angles and lengths or draw them as an overlay"

@@ -1,0 +1,159 @@
+{
+  "name": "gizza-ai/hough-line-detection",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Detect straight lines in an image with the Hough transform and report their endpoints, angles and lengths or draw them as an overlay",
+  "role": "skill",
+  "tool": {
+    "description": "Detect straight lines in an image using the Hough transform (a hand-rolled Canny edge pass, a rho/theta accumulator, peak suppression and a segment walk). mode=segments (default) returns real segments with endpoints, the HoughLinesP answer shape; mode=lines returns each accumulator peak as an infinite line clipped to the image. Tuning: canny_low/canny_high (0-1 gradient fractions, 0 = automatic Otsu), blur (Gaussian sigma 0-5, default 1), threshold (minimum votes, 0 = automatic), min_line_length and max_line_gap (ORIGINAL image pixels, 0 = automatic from the image diagonal), angle_resolution (0.1-5 degrees, default 1), rho_resolution (0.5-20 px, default 1), max_lines (1-500, default 50) and orientation (any|horizontal|vertical). output=report (default) returns JSON: per-line x1,y1,x2,y2,length,angle_degrees,rho,theta_degrees,votes,orientation plus counts, the dominant angle, and the effective value of every automatic threshold so the next call can be tuned. output=overlay returns the image with the lines drawn, controlled by color, line_width, overlay_background (original|edges|black|white) and format (png|jpg). angle_degrees is the tilt from horizontal in (-90,90], positive when the right-hand end sits lower. Large images are analyzed downscaled to 1024 px on the long side and coordinates are mapped back to original pixels. Accepts PNG, JPEG, WebP, GIF and BMP as either url (HTTP/HTTPS) or ref from a prior tool call. This finds straight edges: for one page-skew angle use document-skew-detector, for a photo horizon use image-horizon-tilt-checker, for a page quadrilateral use document-scan, and for a plain edge-map image use edge-detection. Circle and generalized Hough detection are not supported.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "angle_resolution": {
+          "default": 1.0,
+          "description": "Accumulator angle step in degrees (0.1-5, default 1). Smaller is more precise but slower; 0.25 helps when two lines differ by a fraction of a degree.",
+          "maximum": 5,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "blur": {
+          "default": 1.0,
+          "description": "Gaussian pre-blur sigma applied before edge detection (0-5, default 1). 0 turns smoothing off for crisp synthetic images; raise to 2-3 to suppress grain in photos.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "number"
+        },
+        "canny_high": {
+          "default": 0,
+          "description": "Canny upper hysteresis threshold as a 0-1 fraction of the maximum possible gradient. 0 (default) is automatic (Otsu over the gradient histogram). Raise it on noisy or textured photos to keep only strong edges.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "canny_low": {
+          "default": 0,
+          "description": "Canny lower hysteresis threshold as a 0-1 fraction of the maximum possible gradient. 0 (default) is automatic (0.4 x the automatic high threshold). Lower it to keep fainter, broken edges.",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "color": {
+          "default": "#ff0000",
+          "description": "Overlay line colour as #rgb, #rrggbb or a name (red, green, lime, blue, yellow, cyan, magenta, orange, white, black, gray). Default #ff0000.",
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Overlay image format: png (default, lossless) or jpg (smaller).",
+          "enum": [
+            "png",
+            "jpg"
+          ],
+          "type": "string"
+        },
+        "line_width": {
+          "default": 0,
+          "description": "Overlay line thickness in pixels (1-20). 0 (default) scales it from the image size.",
+          "maximum": 20,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_line_gap": {
+          "default": 0,
+          "description": "Largest break, in ORIGINAL image pixels, tolerated inside one segment before it is split in two. 0 (default) is automatic (1.5% of the diagonal, floor 3 px). Only used in segments mode.",
+          "maximum": 2000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "max_lines": {
+          "default": 50,
+          "description": "Maximum number of lines to return, strongest first (1-500, default 50).",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_line_length": {
+          "default": 0,
+          "description": "Shortest segment to report, in ORIGINAL image pixels. 0 (default) is automatic (8% of the image diagonal, floor 20 px). Only used in segments mode.",
+          "maximum": 20000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "mode": {
+          "default": "segments",
+          "description": "segments (default) returns real line segments with endpoints, the probabilistic-Hough answer. lines returns each accumulator peak as an infinite line clipped to the image rectangle, the classic-Hough answer.",
+          "enum": [
+            "segments",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "orientation": {
+          "default": "any",
+          "description": "Keep only lines of this class: any (default), horizontal or vertical. A line counts as horizontal/vertical when it sits within 10 degrees of that axis.",
+          "enum": [
+            "any",
+            "horizontal",
+            "vertical"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "report",
+          "description": "report (default) returns the line geometry as JSON. overlay returns an image with the detected lines drawn on it.",
+          "enum": [
+            "report",
+            "overlay"
+          ],
+          "type": "string"
+        },
+        "overlay_background": {
+          "default": "original",
+          "description": "What the overlay draws on: original (default) the source photo, edges the Canny edge map (use this to debug what the transform saw), black or white a flat canvas.",
+          "enum": [
+            "original",
+            "edges",
+            "black",
+            "white"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "rho_resolution": {
+          "default": 1.0,
+          "description": "Accumulator distance step in analysis pixels (0.5-20, default 1). Larger merges nearly-coincident parallel lines into one.",
+          "maximum": 20,
+          "minimum": 0.5,
+          "type": "number"
+        },
+        "threshold": {
+          "default": 0,
+          "description": "Minimum accumulator votes a line must collect. 0 (default) is automatic (0.6 x min_line_length in analysis pixels, floor 16). Raise it to keep only the most strongly supported lines.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
