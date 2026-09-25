@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "video-audio-to-mono"
+version = "0.1.0"
+abi = 1
+summary = "Downmix a video's audio to a single mono channel"
