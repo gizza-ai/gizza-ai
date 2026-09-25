@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/aspect-ratio-calc",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Solve a missing width or height from an aspect ratio, or reduce a resolution to its ratio.",
+  "role": "skill",
+  "tool": {
+    "description": "Aspect ratio calculator. Give a target ratio ('16:9', '4/5', '1.85:1', '1920x1080' or a bare decimal like '1.7778') plus one dimension and it solves the other; give both width and height with no ratio and it reduces them to the smallest whole-number ratio; give a ratio alone and it normalises it. With a ratio AND both dimensions it shows both ways to reach the ratio — keep the width, or keep the height. Every answer names the nearest standard ratio (16:9, 4:3, 3:2, 1.85:1, 2.39:1, 9:16, ISO A-series paper and 19 more) with its percentage deviation, plus orientation, total pixels, megapixels, the diagonal and a ready-to-paste CSS aspect-ratio declaration. 'rounding' picks how a solved dimension is snapped — nearest (default), up, down, even (H.264/H.265 need even sides) or exact. 'output_format' selects summary (default), dimensions, ratio, decimal, css or json. Dimensions max 1000000. Pure arithmetic, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "description": "Known height in pixels, e.g. 1080. Leave it out (or pass 0) to solve for it from the ratio and the width. Passing it together with width AND a ratio shows both ways to reach that ratio. Max 1000000.",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output_format": {
+          "default": "summary",
+          "description": "'summary' (default): the solved dimensions, the reduced ratio, orientation, the nearest standard ratio with its deviation, total pixels, megapixels, diagonal and the CSS declaration. 'dimensions': just WIDTHxHEIGHT (needs a width or a height). 'ratio': just the reduced ratio, e.g. '16:9'. 'decimal': just width divided by height, to 4 decimals. 'css': an 'aspect-ratio' declaration plus the legacy padding-top ratio box. 'json': every field as a JSON object.",
+          "enum": [
+            "summary",
+            "dimensions",
+            "ratio",
+            "decimal",
+            "css",
+            "json"
+          ],
+          "type": "string"
+        },
+        "ratio": {
+          "default": "16:9",
+          "description": "Target aspect ratio, written as '16:9', '4/5', '1.85:1', '1920x1080' or a bare decimal like '1.7778'. Paired with a width or a height it solves the missing dimension; on its own it is normalised and described. Leave it empty and pass BOTH width and height to reduce that resolution to its ratio instead.",
+          "type": "string"
+        },
+        "rounding": {
+          "default": "nearest",
+          "description": "How the solved dimension is snapped to a usable number. 'nearest' (default) rounds to the closest whole pixel; 'up' never crops; 'down' never overflows a size budget; 'even' snaps to an even number, which H.264/H.265 encoders require; 'exact' keeps the fraction and reports 4 decimals. Ignored when no dimension has to be solved.",
+          "enum": [
+            "nearest",
+            "up",
+            "down",
+            "even",
+            "exact"
+          ],
+          "type": "string"
+        },
+        "width": {
+          "description": "Known width in pixels, e.g. 1920. Leave it out (or pass 0) to solve for it from the ratio and the height. Passing it together with height AND a ratio shows both ways to reach that ratio. Max 1000000.",
+          "maximum": 1000000,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
