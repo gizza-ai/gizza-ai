@@ -1,0 +1,112 @@
+{
+  "name": "gizza-ai/anomaly-timeseries",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Flag anomalies in a time series with rolling z-score and seasonal rules",
+  "role": "skill",
+  "tool": {
+    "description": "Find the anomalous points in a metric history using rolling-baseline and seasonal-deviation rules. Paste the series in time order — one number per line, `label,value` rows so dates keep their names, or one separated line (a header row is skipped). 'method' picks the rule: rolling_z (default) uses the rolling mean and standard deviation of the surrounding 'window' (default 12); rolling_mad uses the median and scaled MAD so spikes inside the window cannot mask the next one; seasonal_z compares each point with the same position in other cycles of length 'period' (default 7), so a routinely quiet weekend is not called an anomaly; combined takes the worse of the rolling and seasonal verdicts and reports which fired. Every baseline excludes the point under test, so a spike cannot hide inside its own mean. 'threshold' (default 3) flags anomalies, 'warn_threshold' (default 2) only labels near-misses, 'tolerance' ignores gaps too small to care about, 'direction' limits alerts to spikes or drops, 'min_periods' controls how much history is required before scoring, and 'center' switches between causal (past-only) and retrospective (symmetric) baselines. Returns each row's expected value, deviation, score, normal band and severity (unscored/normal/warning/critical), the anomaly indices, values and scores, and a summary with counts, anomaly rate and the worst point — as JSON, an aligned table, or CSV. Runs locally, so the metric history never leaves the device.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "center": {
+          "default": false,
+          "description": "How the baseline is gathered. False (default) is the live-monitoring reading: only EARLIER points count, so a verdict never depends on the future and the first rows are unscored. True is the retrospective reading: a symmetric window around each point (and every other cycle for the seasonal rule), which scores the whole series including its start.",
+          "type": "boolean"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places to round every returned number to, 0-10 (default 6).",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "direction": {
+          "default": "both",
+          "description": "Which side to alert on: 'both' (default), 'above' for spikes only (traffic surges, error bursts), 'below' for drops only (a feed that stopped reporting).",
+          "enum": [
+            "both",
+            "above",
+            "below"
+          ],
+          "type": "string"
+        },
+        "method": {
+          "default": "rolling_z",
+          "description": "Which rule decides. rolling_z (default) compares each point with the mean and standard deviation of its window. rolling_mad swaps in the median and scaled MAD, so spikes already inside the window cannot inflate the spread and mask the next one. seasonal_z compares each point with the points at the SAME position in the other cycles (same weekday, same month), which stops a routinely quiet Sunday being called an anomaly. combined takes the worse verdict of the rolling z-score and seasonal rules and reports which one fired.",
+          "enum": [
+            "rolling_z",
+            "rolling_mad",
+            "seasonal_z",
+            "combined"
+          ],
+          "type": "string"
+        },
+        "min_periods": {
+          "default": 0,
+          "description": "Fewest baseline points needed before a rolling verdict is given, 0-1000. 0 (default) requires the full window, so early rows come back as 'unscored' instead of judged on thin history; a smaller number starts scoring sooner. Never below 2, since a spread needs two points.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "only_anomalies": {
+          "default": false,
+          "description": "Return only the rows marked 'warning' or 'critical' instead of every row (default false). The summary still counts the whole series.",
+          "type": "boolean"
+        },
+        "output": {
+          "default": "json",
+          "description": "Result shape: 'json' (default) gives the full report — per-point expected value, deviation, score, normal band, severity plus anomaly_indices/anomaly_values/anomaly_scores and a summary; 'table' is an aligned text table with a header and a plain-language reading; 'csv' is index,label,value,expected,deviation,score,lower,upper,severity,anomaly,rule for a spreadsheet.",
+          "enum": [
+            "json",
+            "table",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "period": {
+          "default": 7,
+          "description": "Length of one seasonal cycle in data points, 2-1000 (default 7 for daily data with a weekly pattern; 12 for monthly, 24 for hourly). Used only by method=seasonal_z and combined, which need at least 3 points at each position in the cycle (2 x period + 1 values).",
+          "maximum": 1000,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "series": {
+          "description": "The metric history in time order: one number per line, `label,value` rows so dates keep their names (e.g. '2026-01-03, 118'), or a single line separated by commas, spaces, semicolons or tabs. A leading header row is skipped. Needs at least 3 values; max 20,000.",
+          "type": "string"
+        },
+        "threshold": {
+          "default": 3.0,
+          "description": "How many baseline spreads from the expected value counts as an anomaly (default 3, the usual production cutoff; 2 is roughly the top 5% of normally-distributed points). Points at or beyond it are marked 'critical' and listed in anomaly_indices.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "tolerance": {
+          "default": 0.0,
+          "description": "Deadband in the series' OWN units (default 0 = off). A point whose gap from its expected value is this small or smaller is never flagged, however large its score — the fix for a near-flat metric where a rounding-level wobble scores like a crisis.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "warn_threshold": {
+          "default": 2.0,
+          "description": "Watch-band cutoff (default 2). Points that reach it but stay under 'threshold' are marked 'warning' and counted separately — they never inflate the anomaly count. Set 0 to switch the watch band off. Must not exceed threshold.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "window": {
+          "default": 12,
+          "description": "How many neighbouring points form the rolling baseline, 2-1000 (default 12, e.g. a year of monthly data or a quarter of weekly). The point under test is always excluded from its own baseline. Ignored by method=seasonal_z.",
+          "maximum": 1000,
+          "minimum": 2,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "series"
+      ],
+      "type": "object"
+    }
+  }
+}
