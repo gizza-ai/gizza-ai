@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pareto-chart"
+version = "0.1.0"
+abi = 1
+summary = "Rank categories and render a Pareto chart: sorted bars plus a cumulative-percentage line as deterministic SVG"

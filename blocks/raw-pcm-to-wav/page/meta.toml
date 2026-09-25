@@ -1,0 +1,119 @@
+slug          = "raw-pcm-to-wav"
+title         = "Raw PCM to WAV — add a RIFF/WAVE header to headerless audio"
+description   = "Wrap headerless raw PCM bytes in a WAV header in your browser. Set sample rate, channels, bit depth, signed/unsigned/float and byte order."
+tags          = ["raw pcm to wav", "pcm to wav converter", "headerless audio", "add wav header", "s16le to wav", "raw audio import", "mulaw to wav", "float32 pcm to wav"]
+h1            = "Raw PCM to WAV Converter"
+hero_subtitle = "Paste headerless PCM sample bytes as base64 or hex, describe what they are — sample rate, channels, bit depth, signed/unsigned/float and byte order — and get a playable RIFF/WAVE file back. Samples are never decoded or resampled: the only edits are the two rules WAVE insists on, little-endian byte order and unsigned 8-bit. Skip a leading header, wrap only a window, or read the info report to see the exact header and the equivalent ffmpeg and SoX commands. Everything runs locally in your browser through WebAssembly — the audio is never uploaded."
+wasm          = "gizza_ai_raw_pcm_to_wav_web"
+export        = "run"
+live          = false
+output_label  = "WAV output"
+format        = "text"
+
+# Field ORDER must match the web `run()` parameter order.
+[[input]]
+name        = "input"
+label       = "Raw PCM bytes (base64 or hex)"
+placeholder = "00000000001000f0002000e0003000d0004000c0005000b0006000a000700090"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input encoding"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+base64 = "Base64"
+hex    = "Hex"
+
+[[input]]
+name        = "sample_rate"
+label       = "Sample rate (Hz)"
+placeholder = "44100"
+source      = "field"
+
+[[input]]
+name        = "channels"
+label       = "Channels"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name   = "bit_depth"
+label  = "Bit depth"
+source = "field"
+
+[input.labels]
+8  = "8-bit"
+16 = "16-bit"
+24 = "24-bit"
+32 = "32-bit"
+64 = "64-bit (float only)"
+
+[[input]]
+name   = "encoding"
+label  = "Sample encoding"
+source = "field"
+
+[input.labels]
+signed   = "Signed integer (two's complement)"
+unsigned = "Unsigned integer (offset binary)"
+float    = "IEEE float (32 or 64-bit)"
+mulaw    = "G.711 mu-law (8-bit telephony)"
+alaw     = "G.711 A-law (8-bit telephony)"
+
+[[input]]
+name   = "byte_order"
+label  = "Byte order"
+source = "field"
+
+[input.labels]
+little = "Little-endian (PCs, phones — the usual)"
+big    = "Big-endian (network or big-endian capture)"
+
+[[input]]
+name        = "skip_bytes"
+label       = "Skip leading bytes"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "max_frames"
+label       = "Max sample frames (0 = all)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "output"
+label  = "Return"
+source = "field"
+
+[input.labels]
+data_url = "data: URL (save or play it)"
+base64   = "Base64 WAV bytes"
+hex      = "Hex WAV bytes"
+info     = "Header report (no audio)"
+
+# One-click presets for the dumps people actually have. Each chip is a runnable
+# example of the small demo described in the copy below.
+[[example]]
+label  = "CD-style stereo dump"
+params = { input = "00000000001000f0002000e0003000d0004000c0005000b0006000a000700090", input_format = "auto", sample_rate = "44100", channels = "2", bit_depth = "16", encoding = "signed", byte_order = "little", skip_bytes = "0", max_frames = "0", output = "data_url" }
+
+[[example]]
+label  = "8 kHz mu-law telephony"
+params = { input = "ff7f0080ff7f0080", input_format = "auto", sample_rate = "8000", channels = "1", bit_depth = "8", encoding = "mulaw", byte_order = "little", skip_bytes = "0", max_frames = "0", output = "data_url" }
+
+[[example]]
+label  = "Big-endian capture"
+params = { input = "00000000001000f0002000e0003000d0004000c0005000b0006000a000700090", input_format = "auto", sample_rate = "44100", channels = "2", bit_depth = "16", encoding = "signed", byte_order = "big", skip_bytes = "0", max_frames = "0", output = "hex" }
+
+[[example]]
+label  = "32-bit float dump"
+params = { input = "000000000000003f000000bf0000803f", input_format = "auto", sample_rate = "48000", channels = "1", bit_depth = "32", encoding = "float", byte_order = "little", skip_bytes = "0", max_frames = "0", output = "data_url" }
+
+[[example]]
+label  = "Explain the header"
+params = { input = "00000000001000f0002000e0003000d0004000c0005000b0006000a000700090", input_format = "auto", sample_rate = "44100", channels = "2", bit_depth = "16", encoding = "signed", byte_order = "little", skip_bytes = "0", max_frames = "0", output = "info" }

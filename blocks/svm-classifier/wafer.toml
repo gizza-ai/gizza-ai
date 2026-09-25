@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "svm-classifier"
+version = "0.1.0"
+abi = 1
+summary = "Train a support vector machine on a pasted table and read the margin, support vectors, and accuracy."

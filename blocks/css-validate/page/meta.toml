@@ -1,0 +1,78 @@
+slug          = "css-validate"
+title         = "CSS Validator — Find Syntax Errors & Unknown Properties"
+description   = "Validate CSS syntax, selectors, declarations, unknown properties, vendor prefixes, calc()/var() usage, and malformed colors with line-and-column diagnostics."
+tags          = ["css validator", "validate css", "css syntax checker", "css lint", "unknown css property", "css error checker", "css diagnostics", "check css online"]
+h1            = "CSS Validator"
+hero_subtitle = "Paste a stylesheet or snippet and get local line-and-column diagnostics for malformed rules, unknown properties, vendor prefixes, calc()/var() issues, and summary stats."
+wasm          = "gizza_ai_css_validate_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+
+[[input]]
+name        = "css"
+label       = "CSS to validate"
+placeholder = ".card {\n  color: #333;\n  margin: 1rem;\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[[input]]
+name        = "severity"
+label       = "Issue filter"
+source      = "field"
+[input.labels]
+all = "All issues"
+error = "Errors only"
+warning = "Warnings only"
+
+[[input]]
+name        = "unknown_properties"
+label       = "Unknown properties"
+source      = "field"
+[input.labels]
+warn = "Warn"
+error = "Error"
+ignore = "Ignore"
+
+[[input]]
+name        = "vendor_prefixes"
+label       = "Vendor prefixes"
+source      = "field"
+[input.labels]
+ignore = "Ignore"
+warn = "Warn"
+error = "Error"
+
+[[input]]
+name        = "stats"
+label       = "Include summary stats"
+source      = "field"
+
+[[example]]
+label = "Valid card CSS"
+[example.params]
+css = ".card {\n  color: #333;\n  margin: 1rem;\n  --gap: 8px;\n  padding: var(--gap);\n}"
+
+[[example]]
+label = "Find typos"
+[example.params]
+css = ".hero, {\n  colr: #12zz width: 10px;\n}"
+
+[[example]]
+label = "JSON warnings"
+[example.params]
+css = ".box {\n  -webkit-transform: scale(1);\n  color: var(--missing);\n}"
+format = "json"
+vendor_prefixes = "warn"
+
+[[example]]
+label = "Strict unknowns"
+[example.params]
+css = ".btn {\n  colr: red;\n  display: flex;\n}"
+unknown_properties = "error"

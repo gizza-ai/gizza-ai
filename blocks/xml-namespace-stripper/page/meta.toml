@@ -1,0 +1,103 @@
+slug          = "xml-namespace-stripper"
+title         = "XML Namespace Stripper — Remove xmlns Declarations and Prefixes"
+description   = "Remove xmlns declarations and element/attribute prefixes from XML so XPath and XML-to-JSON just work. Comments, CDATA and the DOCTYPE survive. Runs in your browser."
+tags          = ["xml namespace stripper", "remove xml namespaces", "strip xmlns", "remove namespace prefixes xml", "soap response to plain xml", "xml namespace remover online", "remove xsi schemalocation", "flatten namespaced xml for xpath"]
+h1            = "XML Namespace Stripper"
+hero_subtitle = "Delete xmlns declarations and the ns: prefixes on elements and attributes, and get back plain XML that XPath expressions and XML-to-JSON converters can address directly. Comments, processing instructions, CDATA, the DOCTYPE and every attribute entity are preserved — by default the output is your document minus the namespace plumbing and nothing else. Runs entirely in your browser; the XML is never uploaded."
+wasm          = "gizza_ai_xml_namespace_stripper_web"
+export        = "run"
+live          = false
+output_label  = "Prefix-free XML"
+format        = "text"
+
+[[input]]
+name        = "xml"
+label       = "XML"
+placeholder = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <m:GetPrice xmlns:m=\"https://example.com/prices\">\n      <m:Item>Apples</m:Item>\n    </m:GetPrice>\n  </soap:Body>\n</soap:Envelope>"
+source      = "field"
+multiline   = true
+
+# mode / conflicts / format / output render as <select>s and
+# remove_schema_hints as a checkbox, derived from the descriptor schema in
+# manifest.json — so the option lists are not duplicated here, only their
+# friendly labels.
+[[input]]
+name    = "mode"
+label   = "Remove"
+default = "all"
+source  = "field"
+
+[input.labels]
+all          = "Declarations and prefixes (default)"
+prefixes     = "Prefixes only — leave the xmlns attributes"
+declarations = "xmlns attributes only — leave the prefixed names"
+
+[[input]]
+name        = "keep"
+label       = "Keep these prefixes (comma-separated)"
+placeholder = "soap,wsse"
+source      = "field"
+
+[[input]]
+name    = "conflicts"
+label   = "When two attributes collapse onto one name"
+default = "rename"
+source  = "field"
+
+[input.labels]
+rename = "Keep both — rename the later one to prefix_name (default)"
+first  = "Keep the first, drop the later one"
+error  = "Stop and report the clash"
+
+[[input]]
+name    = "remove_schema_hints"
+label   = "Also remove dangling xsi:schemaLocation references"
+default = "true"
+source  = "field"
+
+[[input]]
+name    = "format"
+label   = "Layout"
+default = "preserve"
+source  = "field"
+
+[input.labels]
+preserve = "Preserve the document's own whitespace (default)"
+pretty   = "Pretty-print with indentation"
+minify   = "Minify onto one line"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces (pretty only)"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name    = "output"
+label   = "Output"
+default = "xml"
+source  = "field"
+
+[input.labels]
+xml    = "Stripped XML (default)"
+report = "Report — what was removed, and from which namespaces"
+
+[[example]]
+label  = "Flatten a SOAP response"
+params = { xml = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <m:GetPrice xmlns:m=\"https://example.com/prices\">\n      <m:Item>Apples</m:Item>\n    </m:GetPrice>\n  </soap:Body>\n</soap:Envelope>", mode = "all", keep = "", conflicts = "rename", remove_schema_hints = "true", format = "preserve", indent = "2", output = "xml" }
+
+[[example]]
+label  = "Atom feed — drop the default namespace"
+params = { xml = "<feed xmlns=\"http://www.w3.org/2005/Atom\">\n  <title>Posts</title>\n  <entry>\n    <title>Hello</title>\n  </entry>\n</feed>", mode = "all", keep = "", conflicts = "rename", remove_schema_hints = "true", format = "preserve", indent = "2", output = "xml" }
+
+[[example]]
+label  = "Keep the soap: envelope, flatten the payload"
+params = { xml = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <m:GetPrice xmlns:m=\"https://example.com/prices\">\n      <m:Item m:id=\"1\">Apples</m:Item>\n    </m:GetPrice>\n  </soap:Body>\n</soap:Envelope>", mode = "all", keep = "soap", conflicts = "rename", remove_schema_hints = "true", format = "preserve", indent = "2", output = "xml" }
+
+[[example]]
+label  = "Schema-hinted document, pretty-printed"
+params = { xml = "<r xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"r.xsd\"><c xsi:type=\"Decimal\">4</c></r>", mode = "all", keep = "", conflicts = "rename", remove_schema_hints = "true", format = "pretty", indent = "2", output = "xml" }
+
+[[example]]
+label  = "Report — what would be removed"
+params = { xml = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <m:GetPrice xmlns:m=\"https://example.com/prices\">\n      <m:Item>Apples</m:Item>\n    </m:GetPrice>\n  </soap:Body>\n</soap:Envelope>", mode = "all", keep = "", conflicts = "rename", remove_schema_hints = "true", format = "preserve", indent = "2", output = "report" }

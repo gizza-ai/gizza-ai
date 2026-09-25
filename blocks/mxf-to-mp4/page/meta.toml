@@ -1,0 +1,83 @@
+slug          = "mxf-to-mp4"
+title         = "Convert MXF to MP4 Online"
+description   = "Free MXF to MP4 converter that runs in your browser. Handles XDCAM, AVC-Intra and XAVC, merges channel-per-track audio to stereo. Nothing is uploaded."
+tags          = ["mxf", "mp4", "convert", "video", "broadcast", "xdcam", "avc-intra", "xavc", "imx", "dnxhd", "h264", "aac", "remux", "amerge"]
+h1            = "Convert MXF to MP4"
+hero_subtitle = "Turn a broadcast MXF into an MP4 that actually plays — re-encode to H.264 or rewrap the picture untouched, and fold channel-per-track mono audio into one stereo track. Runs in your browser, nothing is uploaded."
+wasm          = "gizza_ai_mxf_to_mp4_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "MP4 video"
+format        = "video"
+
+[[input]]
+name   = "video"
+source = "file"
+accept = "application/mxf,video/mxf,video/*"
+label  = "MXF file"
+
+[[input]]
+name        = "picture"
+source      = "field"
+label       = "Picture"
+placeholder = "h264"
+
+[input.labels]
+"h264"   = "Re-encode to H.264 — always plays (default)"
+"rewrap" = "Rewrap picture — copy AVC-Intra/XAVC/H.264 untouched"
+
+[[input]]
+name        = "quality"
+source      = "field"
+label       = "Picture quality (1–100)"
+placeholder = "75"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "audio"
+source      = "field"
+label       = "Audio"
+placeholder = "stereo"
+
+[input.labels]
+"stereo" = "First track as stereo AAC (default)"
+"merge"  = "Merge mono tracks into one stereo track"
+"all"    = "Keep every track as its own AAC stream"
+"none"   = "No audio — picture only"
+
+[[input]]
+name        = "merge_tracks"
+source      = "field"
+label       = "Tracks to merge (2–16, audio = merge)"
+placeholder = "2"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "audio_bitrate"
+source      = "field"
+label       = "AAC bitrate (kbps)"
+placeholder = "192"
+kind        = "slider"
+step        = "16"
+
+[[example]]
+label  = "H.264 MP4 (default)"
+params = { picture = "h264", quality = "75", audio = "stereo", audio_bitrate = "192" }
+
+[[example]]
+label  = "Rewrap AVC-Intra — no re-encode"
+params = { picture = "rewrap", audio = "stereo", audio_bitrate = "192" }
+
+[[example]]
+label  = "Merge 2 mono tracks → stereo"
+params = { picture = "h264", quality = "75", audio = "merge", merge_tracks = "2", audio_bitrate = "192" }
+
+[[example]]
+label  = "Merge 4 mono tracks, high quality"
+params = { picture = "h264", quality = "90", audio = "merge", merge_tracks = "4", audio_bitrate = "256" }
+
+[[example]]
+label  = "Picture only (no audio)"
+params = { picture = "h264", quality = "75", audio = "none" }

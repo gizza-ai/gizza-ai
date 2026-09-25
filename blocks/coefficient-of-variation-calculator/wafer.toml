@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "coefficient-of-variation-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Calculate and compare coefficients of variation"

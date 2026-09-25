@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/dbml-to-sql",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compile DBML database schemas into SQL DDL.",
+  "role": "skill",
+  "tool": {
+    "description": "Compile a DBML (Database Markup Language) schema into CREATE TABLE SQL DDL. Supports Project database_type auto-detection; PostgreSQL, MySQL/MariaDB, SQLite, SQL Server and Oracle output; Table and schema-qualified table blocks; TablePartial injection; Enum blocks; column settings including pk, increment, not null, unique, default, check and note; indexes; inline and standalone Ref relationships, including many-to-many join tables; optional foreign keys, indexes, comments, IF NOT EXISTS, DROP IF EXISTS and quoted identifiers. Cross-dialect type mapping covers common DBML types such as int, varchar, text, boolean, decimal, timestamp, json, uuid and blobs while unknown native types pass through. Unsupported DBML sections are skipped rather than executed. Input is capped at 200000 bytes. Returns SQL text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "default": true,
+          "description": "Emit COMMENT ON statements for table and column notes where the dialect supports them (PostgreSQL and Oracle). Default true.",
+          "type": "boolean"
+        },
+        "dbml": {
+          "description": "DBML schema text to compile. Include one or more Table blocks, plus optional Project database_type, Enum blocks, indexes and Ref relationships. Maximum 200000 bytes. Example: `Table users { id int [pk, increment] email varchar [unique, not null] }`.",
+          "type": "string"
+        },
+        "dialect": {
+          "default": "auto",
+          "description": "SQL dialect to emit. auto (default) reads Project { database_type: '...' } when present, otherwise PostgreSQL. Choices: postgresql, mysql, sqlite, sqlserver, oracle.",
+          "enum": [
+            "auto",
+            "postgresql",
+            "mysql",
+            "sqlite",
+            "sqlserver",
+            "oracle"
+          ],
+          "type": "string"
+        },
+        "drop_if_exists": {
+          "default": false,
+          "description": "Prepend DROP TABLE IF EXISTS (and PostgreSQL DROP TYPE IF EXISTS for enums) so the script can rebuild objects. Default false.",
+          "type": "boolean"
+        },
+        "foreign_keys": {
+          "default": true,
+          "description": "Emit ALTER TABLE foreign-key statements for DBML Ref definitions and inline ref settings. Default true; false emits tables without FK constraints.",
+          "type": "boolean"
+        },
+        "if_not_exists": {
+          "default": false,
+          "description": "Use CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS where the dialect supports it. Default false for plain DDL.",
+          "type": "boolean"
+        },
+        "indexes": {
+          "default": true,
+          "description": "Emit CREATE INDEX / UNIQUE INDEX statements for DBML indexes and single-column unique flags. Default true.",
+          "type": "boolean"
+        },
+        "quote_identifiers": {
+          "default": true,
+          "description": "Quote table, column, index and constraint identifiers with the dialect delimiter. Default true; false emits bare identifiers for simple schemas.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "dbml"
+      ],
+      "type": "object"
+    }
+  }
+}

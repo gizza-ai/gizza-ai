@@ -1,0 +1,86 @@
+slug          = "eth-vanity-address"
+title         = "Ethereum vanity address generator"
+description   = "Generate a local Ethereum keypair whose 0x address starts with a hex prefix, ends with a suffix, or both, with reproducible seed and estimate modes."
+tags          = ["ethereum", "vanity address", "wallet", "secp256k1", "keccak-256", "eip-55"]
+h1            = "Ethereum vanity address generator"
+hero_subtitle = "Search locally for a secp256k1 private key whose Ethereum address matches your chosen hex prefix or suffix, and see the odds before you grind."
+wasm          = "gizza_ai_eth_vanity_address_web"
+export        = "run"
+live          = false
+output_label  = "Vanity address result"
+format        = "text"
+
+[[input]]
+name        = "prefix"
+label       = "Address prefix after 0x"
+placeholder = "a"
+source      = "field"
+
+[[input]]
+name        = "suffix"
+label       = "Address suffix"
+placeholder = "beef"
+source      = "field"
+
+[[input]]
+name        = "match_case"
+label       = "Match EIP-55 case exactly"
+source      = "field"
+
+[[input]]
+name        = "max_attempts"
+label       = "Maximum keys to test"
+placeholder = "100000"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "5000000"
+step        = "1"
+
+[[input]]
+name        = "seed"
+label       = "Seed for reproducible search"
+placeholder = "demo-seed"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+all         = "All fields"
+address     = "Address only"
+private-key = "Private key only"
+json        = "JSON"
+estimate    = "Estimate only"
+
+[[example]]
+label = "Estimate a 4-hex prefix"
+[example.params]
+prefix        = "dead"
+suffix        = ""
+match_case    = "false"
+max_attempts  = "100000"
+seed          = ""
+output_format = "estimate"
+
+[[example]]
+label = "Reproducible demo prefix"
+[example.params]
+prefix        = "ab"
+suffix        = ""
+match_case    = "false"
+max_attempts  = "10000"
+seed          = "gizza-demo"
+output_format = "address"
+
+[[example]]
+label = "Case-sensitive JSON"
+[example.params]
+prefix        = "AB"
+suffix        = ""
+match_case    = "true"
+max_attempts  = "200000"
+seed          = "gizza-demo"
+output_format = "json"

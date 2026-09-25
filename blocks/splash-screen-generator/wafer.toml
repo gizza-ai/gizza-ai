@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "splash-screen-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate iOS, Android, and PWA splash screen image bundles from one logo."

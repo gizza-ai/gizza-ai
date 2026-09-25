@@ -1,0 +1,267 @@
+slug          = "treemap-chart"
+title         = "Treemap Chart Generator — Hierarchical SVG Treemaps"
+description   = "Paste label/value rows, nested paths, or a grouped table and render a hierarchical treemap as clean SVG with squarified tiles, palettes, percentages, and stats."
+tags          = ["treemap chart", "treemap generator", "hierarchical chart", "squarified treemap", "part-of-whole chart", "svg chart", "disk usage treemap", "nested data visualization"]
+h1            = "Treemap Chart Generator"
+hero_subtitle = "Turn a flat list, a nested path list, or a grouped CSV table into a deterministic SVG treemap: squarified, slice-and-dice, or binary tiling, six palettes, labels with values and percentages, plus summary and JSON stats."
+wasm          = "gizza_ai_treemap_chart_web"
+export        = "run"
+live          = false
+output_label  = "Treemap output"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Data"
+placeholder = "label,value\nDocuments,4200\nPhotos,3100\nVideos,2400\nMusic,900"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "layout"
+label       = "Input layout"
+placeholder = "auto"
+source      = "field"
+[input.labels]
+auto = "Auto-detect"
+flat = "Flat label/value list"
+path = "Nested paths (parent/child)"
+grouped = "Grouped table (one column per level)"
+
+[[input]]
+name        = "path_separator"
+label       = "Path separator"
+placeholder = "/"
+source      = "field"
+
+[[input]]
+name        = "sort"
+label       = "Tile order"
+placeholder = "value_desc"
+source      = "field"
+[input.labels]
+value_desc = "Largest first"
+value_asc = "Smallest first"
+input = "Order in the data"
+label = "Alphabetical"
+
+[[input]]
+name        = "tiling"
+label       = "Tiling algorithm"
+placeholder = "squarified"
+source      = "field"
+[input.labels]
+squarified = "Squarified (near-square tiles)"
+slice_dice = "Slice and dice (ordered stripes)"
+binary = "Binary split"
+
+[[input]]
+name        = "max_depth"
+label       = "Maximum depth (0 = all levels)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "1"
+
+[[input]]
+name        = "top_n"
+label       = "Keep top N per level (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "50"
+step        = "1"
+
+[[input]]
+name        = "show_labels"
+label       = "Show tile names"
+source      = "field"
+
+[[input]]
+name        = "show_values"
+label       = "Show values"
+source      = "field"
+
+[[input]]
+name        = "show_percent"
+label       = "Show percentages"
+source      = "field"
+
+[[input]]
+name        = "label_position"
+label       = "Label position"
+placeholder = "top"
+source      = "field"
+[input.labels]
+top = "Top left"
+center = "Centred"
+bottom = "Bottom left"
+
+[[input]]
+name        = "font_size"
+label       = "Label font size"
+placeholder = "13"
+source      = "field"
+kind        = "slider"
+min         = "6"
+max         = "48"
+step        = "1"
+
+[[input]]
+name        = "palette"
+label       = "Palette"
+placeholder = "default"
+source      = "field"
+[input.labels]
+default = "Default (bright)"
+pastel = "Pastel"
+dusk = "Dusk (deep)"
+earth = "Earth"
+ocean = "Ocean"
+mono = "Mono (single hue)"
+
+[[input]]
+name        = "color"
+label       = "Mono base colour"
+placeholder = "#2563eb"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "background"
+label       = "Background colour"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "border_width"
+label       = "Tile gap"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "12"
+step        = "0.5"
+
+[[input]]
+name        = "corner_radius"
+label       = "Corner radius"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "24"
+step        = "1"
+
+[[input]]
+name        = "title"
+label       = "Chart title"
+placeholder = "Storage by folder"
+source      = "field"
+
+[[input]]
+name        = "legend"
+label       = "Show legend"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "SVG width"
+placeholder = "800"
+source      = "field"
+kind        = "slider"
+min         = "320"
+max         = "2400"
+step        = "20"
+
+[[input]]
+name        = "height"
+label       = "SVG height"
+placeholder = "500"
+source      = "field"
+kind        = "slider"
+min         = "240"
+max         = "1800"
+step        = "20"
+
+[[input]]
+name        = "theme"
+label       = "Theme"
+placeholder = "light"
+source      = "field"
+[input.labels]
+light = "Light"
+dark = "Dark"
+
+[[input]]
+name        = "output"
+label       = "Output"
+placeholder = "svg"
+source      = "field"
+[input.labels]
+svg = "SVG chart"
+summary = "Summary table"
+json = "JSON nodes"
+
+[[example]]
+label = "Storage by folder"
+[example.params]
+data = "label,value\nDocuments,4200\nPhotos,3100\nVideos,2400\nMusic,900"
+layout = "auto"
+path_separator = "/"
+sort = "value_desc"
+tiling = "squarified"
+max_depth = "0"
+top_n = "0"
+show_labels = "true"
+show_values = "true"
+show_percent = "true"
+label_position = "top"
+font_size = "13"
+palette = "default"
+color = "#2563eb"
+background = ""
+border_width = "2"
+corner_radius = "2"
+title = "Storage by folder"
+legend = "false"
+width = "800"
+height = "500"
+theme = "light"
+output = "svg"
+
+[[example]]
+label = "Nested repo paths"
+[example.params]
+data = "src/core.rs,1200\nsrc/ui/app.rs,860\nsrc/ui/theme.rs,340\ndocs/guide.md,220\ndocs/api.md,180"
+layout = "path"
+path_separator = "/"
+title = "Lines of code by path"
+legend = "true"
+palette = "ocean"
+output = "svg"
+
+[[example]]
+label = "Grouped table, dark mono"
+[example.params]
+data = "region,city,people\nEU,Paris,2100\nEU,Madrid,3200\nEU,Rome,2800\nUS,Austin,960\nUS,Denver,710"
+layout = "grouped"
+theme = "dark"
+palette = "mono"
+color = "#22d3ee"
+label_position = "center"
+show_percent = "true"
+corner_radius = "6"
+output = "svg"
+
+[[example]]
+label = "Top 3 + Other, summary"
+[example.params]
+data = "Rent,1800\nGroceries,620\nTransport,240\nUtilities,190\nStreaming,45\nCoffee,38"
+top_n = "3"
+output = "summary"

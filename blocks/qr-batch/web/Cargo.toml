@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-qr-batch-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+base64 = "0.22"
+wasm-bindgen = "0.2"
+gizza-ai-qr-batch-core = { path = "../core" }

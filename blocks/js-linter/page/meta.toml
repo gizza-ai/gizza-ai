@@ -1,0 +1,68 @@
+slug          = "js-linter"
+title         = "JavaScript Linter — check common JS bugs"
+description   = "Lint JavaScript for loose equality, unused variables, unreachable code, implicit globals, missing semicolons and debug calls. Runs locally in your browser."
+tags          = ["javascript linter", "js lint", "eslint online", "unused variables", "strict equality", "unreachable code", "no var", "syntax checker"]
+h1            = "JavaScript Linter"
+hero_subtitle = "Paste JavaScript and get a local lint report for common bugs and style hazards: loose equality, unused variables, unreachable statements, missing semicolons, debug calls and more."
+wasm          = "gizza_ai_js_linter_web"
+export        = "run"
+live          = false
+output_label  = "Lint report"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "JavaScript code"
+placeholder = "function demo(x) {\n  var unused = 1\n  if (x == 1) console.log(x)\n  return x;\n  alert('later');\n}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "preset"
+label       = "Rule preset"
+placeholder = "recommended"
+source      = "field"
+
+[[input]]
+name        = "ecma"
+label       = "ECMAScript target"
+placeholder = "latest"
+source      = "field"
+
+[[input]]
+name        = "env"
+label       = "Known globals"
+placeholder = "browser"
+source      = "field"
+
+[[input]]
+name        = "source_type"
+label       = "Source type"
+placeholder = "auto"
+source      = "field"
+
+[[input]]
+name        = "min_severity"
+label       = "Minimum severity"
+placeholder = "all"
+source      = "field"
+
+[[input]]
+name        = "ignore"
+label       = "Ignore rule IDs"
+placeholder = "NO-CONSOLE SEMICOLON"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "text"
+source      = "field"
+
+[[example]]
+label = "Buggy browser snippet"
+params = { code = "function demo(x) {\n  var unused = 1\n  if (x == 1) console.log(x)\n  return x;\n  alert('later');\n}", preset = "recommended", ecma = "latest", env = "browser", source_type = "auto", min_severity = "all", ignore = "", format = "text" }
+
+[[example]]
+label = "CI JSON warnings"
+params = { code = "const answer = 42\nif (answer != '42') console.log(answer)", preset = "strict", ecma = "es2020", env = "node", source_type = "script", min_severity = "warning", ignore = "NO-CONSOLE", format = "json" }

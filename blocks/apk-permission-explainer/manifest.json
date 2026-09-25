@@ -1,0 +1,57 @@
+{
+  "name": "gizza-ai/apk-permission-explainer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Explain APK permissions from an AndroidManifest.xml with risk categories and plain-English descriptions.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode an APK or AndroidManifest.xml, extract requested Android permissions, and explain each permission in plain English with a risk category. Paste APK bytes as Base64, a Base64 manifest, or a decoded manifest. Returns a readable report by default, with list, CSV, and JSON output modes plus risk filtering and sorting.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "APK bytes as Base64, a Base64 AndroidManifest.xml, or a decoded AndroidManifest.xml pasted as text.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "report",
+          "description": "Output format. report gives a readable Markdown audit, list is compact one-line-per-permission text, csv is spreadsheet-friendly, and json is structured data.",
+          "enum": [
+            "report",
+            "list",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "risk": {
+          "default": "all",
+          "description": "Filter permissions by risk bucket. risky keeps dangerous, privacy-sensitive, and signature/system permissions.",
+          "enum": [
+            "all",
+            "risky",
+            "dangerous",
+            "privacy-sensitive",
+            "signature",
+            "normal",
+            "unknown"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": "risk",
+          "description": "Sort permissions by severity then name, or alphabetically by permission name.",
+          "enum": [
+            "risk",
+            "name"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

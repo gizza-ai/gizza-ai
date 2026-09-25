@@ -1,0 +1,156 @@
+slug          = "heart-rate-zones"
+title         = "Heart Rate Zones Calculator — Karvonen, % Max HR & Zoladz"
+description   = "Work out your heart-rate training zones from age and resting pulse using the Karvonen, percent-of-max or Zoladz method. Five-zone, polarized or AHA bands."
+tags          = ["heart rate zones", "heart rate zone calculator", "karvonen formula", "target heart rate", "max heart rate", "heart rate reserve", "training zones", "zone 2", "running"]
+h1            = "Heart rate zone calculator"
+hero_subtitle = "Enter your age and resting pulse to get every training zone in beats per minute — Karvonen heart-rate reserve, plain percentage of maximum, or Zoladz offsets — computed in your browser."
+wasm          = "gizza_ai_heart_rate_zones_web"
+export        = "run"
+live          = false
+output_label  = "Training zones"
+format        = "text"
+
+[[input]]
+name        = "age"
+label       = "Age (years)"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "resting_hr"
+label       = "Resting heart rate (bpm)"
+placeholder = "60"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "max_hr"
+label       = "Measured max heart rate (bpm, 0 = estimate from age)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "max_hr_formula"
+label  = "Max HR formula"
+source = "field"
+
+[input.labels]
+tanaka  = "Tanaka — 208 − 0.7 × age (recommended)"
+fox     = "Fox — 220 − age (classic)"
+gulati  = "Gulati — 206 − 0.88 × age (women)"
+nes     = "Nes — 211 − 0.64 × age"
+inbar   = "Inbar — 205.8 − 0.685 × age"
+oakland = "Oakland — 192 − 0.007 × age² (nonlinear)"
+
+[[input]]
+name   = "method"
+label  = "Zone method"
+source = "field"
+
+[input.labels]
+karvonen      = "Karvonen — % of heart-rate reserve"
+percent-max   = "% of maximum heart rate"
+zoladz        = "Zoladz — fixed bpm below maximum"
+
+[[input]]
+name   = "model"
+label  = "Zone model"
+source = "field"
+
+[input.labels]
+five-zone  = "Five zones (50/60/70/80/90%)"
+three-zone = "Three zones (polarized)"
+aha        = "Two AHA bands (moderate / vigorous)"
+
+[[input]]
+name        = "intensity"
+label       = "Single target intensity (%, 0 = none)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+summary = "Readable summary"
+table   = "Markdown tables"
+json    = "JSON"
+
+[[example]]
+label = "Average adult, 30"
+[example.params]
+age = "30"
+resting_hr = "60"
+max_hr = "0"
+max_hr_formula = "tanaka"
+method = "karvonen"
+model = "five-zone"
+intensity = "0"
+output = "summary"
+
+[[example]]
+label = "Trained runner, measured max"
+[example.params]
+age = "35"
+resting_hr = "52"
+max_hr = "192"
+max_hr_formula = "tanaka"
+method = "karvonen"
+model = "five-zone"
+intensity = "70"
+output = "summary"
+
+[[example]]
+label = "Polarized three-zone"
+[example.params]
+age = "42"
+resting_hr = "55"
+max_hr = "0"
+max_hr_formula = "tanaka"
+method = "karvonen"
+model = "three-zone"
+intensity = "0"
+output = "summary"
+
+[[example]]
+label = "Elite endurance profile"
+[example.params]
+age = "28"
+resting_hr = "45"
+max_hr = "0"
+max_hr_formula = "tanaka"
+method = "karvonen"
+model = "five-zone"
+intensity = "0"
+output = "summary"
+
+[[example]]
+label = "Zoladz bands as a table"
+[example.params]
+age = "35"
+resting_hr = "55"
+max_hr = "0"
+max_hr_formula = "tanaka"
+method = "zoladz"
+model = "five-zone"
+intensity = "0"
+output = "table"
+
+[[example]]
+label = "AHA bands as JSON"
+[example.params]
+age = "55"
+resting_hr = "68"
+max_hr = "0"
+max_hr_formula = "fox"
+method = "percent-max"
+model = "aha"
+intensity = "0"
+output = "json"

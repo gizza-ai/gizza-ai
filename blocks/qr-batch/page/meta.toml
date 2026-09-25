@@ -1,0 +1,104 @@
+slug          = "qr-batch"
+title         = "Batch QR Code Generator"
+description   = "Generate many QR codes from a pasted list, CSV or TSV and download a ZIP with PNG/SVG files plus an audit index. Runs locally in your browser."
+tags          = ["bulk qr generator", "batch qr codes", "csv to qr", "qr zip", "qr code generator"]
+h1            = "Batch QR code generator"
+hero_subtitle = "Paste a list or CSV, choose PNG/SVG output, and download a ZIP of scannable QR codes with an index.csv manifest. Everything runs locally."
+wasm          = "gizza_ai_qr_batch_web"
+export        = "run"
+live          = false
+output_label  = "ZIP archive"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Rows to encode"
+placeholder = "homepage,https://example.com\nsupport,mailto:support@example.com\ninventory-001"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+labels = { auto = "Auto-detect", list = "List — one payload per line", csv = "CSV — comma-separated", tsv = "TSV — tab-separated" }
+
+[[input]]
+name   = "columns"
+label  = "Column mapping"
+source = "field"
+labels = { auto = "Auto (name,value when two columns)", name-value = "Name, then value", value-name = "Value, then name", value-only = "Whole line is the value" }
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Files per row"
+source = "field"
+labels = { png = "PNG", svg = "SVG", both = "PNG and SVG" }
+
+[[input]]
+name        = "size"
+label       = "Image size (px)"
+placeholder = "512"
+source      = "field"
+kind        = "slider"
+min         = "64"
+max         = "2048"
+step        = "32"
+
+[[input]]
+name        = "margin"
+label       = "Quiet-zone margin (modules)"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "16"
+step        = "1"
+
+[[input]]
+name   = "error_correction"
+label  = "Error correction"
+source = "field"
+labels = { L = "L — lowest density", M = "M — balanced default", Q = "Q — print tolerant", H = "H — most robust" }
+
+[[input]]
+name        = "fg_color"
+label       = "Foreground colour"
+placeholder = "#000000"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "bg_color"
+label       = "Background colour"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "name_prefix"
+label       = "Auto filename prefix"
+placeholder = "qr"
+source      = "field"
+
+[[input]]
+name   = "include_index"
+label  = "Include index.csv manifest"
+source = "field"
+
+[[example]]
+label  = "Named links (CSV)"
+params = { data = "homepage,https://example.com\nsupport,mailto:support@example.com", input_format = "csv", columns = "name-value", format = "png", name_prefix = "link" }
+
+[[example]]
+label  = "Plain inventory list"
+params = { data = "SKU-001\nSKU-002\nSKU-003", input_format = "list", columns = "value-only", format = "svg", name_prefix = "asset" }
+
+[[example]]
+label  = "Transparent SVGs"
+params = { data = "badge-1,https://example.com/badge/1", input_format = "csv", format = "svg", bg_color = "transparent", fg_color = "#111827" }

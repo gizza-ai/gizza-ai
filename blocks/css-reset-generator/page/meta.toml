@@ -1,0 +1,161 @@
+slug          = "css-reset-generator"
+title         = "CSS Reset Generator — build a modern reset stylesheet"
+description   = "Build a CSS reset stylesheet from togglable sections: presets, zero-specificity :where() selectors, an @layer wrapper, comments, indent width and minified output."
+tags          = ["css", "css reset", "normalize css", "stylesheet", "frontend", "web design", "cascade layers"]
+h1            = "Generate a CSS reset stylesheet"
+hero_subtitle = "Start from a preset, switch individual opinions on or off, and copy a reset you can read — with optional zero-specificity :where() selectors, an @layer wrapper, per-section comments and minified output."
+wasm          = "gizza_ai_css_reset_generator_web"
+export        = "run"
+live          = false
+output_label  = "CSS reset stylesheet"
+format        = "text"
+wide          = true
+
+[[input]]
+name   = "preset"
+label  = "Preset"
+source = "field"
+
+[input.labels]
+modern    = "Modern — today's opinionated baseline"
+minimal   = "Minimal — the four rules everyone wants"
+normalize = "Normalize-style — smooth browser differences"
+classic   = "Classic — aggressive zero-out"
+preflight = "Preflight-style — utility-framework baseline"
+none      = "None — start empty, build from Include"
+
+[[input]]
+name        = "include"
+label       = "Include extra sections"
+placeholder = "focus-visible"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name        = "exclude"
+label       = "Exclude sections"
+placeholder = "font-smoothing"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "selector_style"
+label  = "Selector style"
+source = "field"
+
+[input.labels]
+standard = "Standard selectors"
+where    = ":where() — zero specificity, always overridable"
+
+[[input]]
+name        = "layer"
+label       = "Wrap in @layer (optional)"
+placeholder = "base.reset"
+source      = "field"
+
+[[input]]
+name        = "line_height"
+label       = "Body line height"
+placeholder = "1.5"
+source      = "field"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name   = "body_min_height"
+label  = "Body min-height"
+source = "field"
+
+[input.labels]
+"100svh" = "100svh — small viewport, no jump on mobile"
+"100dvh" = "100dvh — dynamic viewport"
+"100vh"  = "100vh — classic viewport unit"
+none     = "None — omit min-height"
+
+[[input]]
+name   = "comments"
+label  = "Section comments"
+source = "field"
+
+[[input]]
+name   = "minify"
+label  = "Minify output"
+source = "field"
+
+[[input]]
+name        = "indent"
+label       = "Indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label = "Modern reset"
+[example.params]
+preset = "modern"
+include = ""
+exclude = ""
+selector_style = "standard"
+layer = ""
+line_height = "1.5"
+body_min_height = "100svh"
+comments = "true"
+minify = "false"
+indent = "2"
+
+[[example]]
+label = "Minimal, no comments"
+[example.params]
+preset = "minimal"
+include = ""
+exclude = ""
+selector_style = "standard"
+layer = ""
+line_height = "1.5"
+body_min_height = "none"
+comments = "false"
+minify = "false"
+indent = "2"
+
+[[example]]
+label = "Classic zero-out"
+[example.params]
+preset = "classic"
+include = "box-sizing"
+exclude = ""
+selector_style = "standard"
+layer = ""
+line_height = "1.5"
+body_min_height = "none"
+comments = "true"
+minify = "false"
+indent = "2"
+
+[[example]]
+label = "Layered + :where()"
+[example.params]
+preset = "modern"
+include = "focus-visible, smooth-scroll"
+exclude = "font-smoothing"
+selector_style = "where"
+layer = "base.reset"
+line_height = "1.5"
+body_min_height = "100dvh"
+comments = "true"
+minify = "false"
+indent = "2"
+
+[[example]]
+label = "Minified"
+[example.params]
+preset = "minimal"
+include = ""
+exclude = ""
+selector_style = "standard"
+layer = ""
+line_height = "1.5"
+body_min_height = "100svh"
+comments = "false"
+minify = "true"
+indent = "2"

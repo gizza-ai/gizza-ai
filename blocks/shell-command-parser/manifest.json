@@ -1,0 +1,39 @@
+{
+  "name": "gizza-ai/shell-command-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse shell commands into JSON, trees, explanations, or command tables.",
+  "role": "skill",
+  "tool": {
+    "description": "Parses a POSIX/bash-style shell command line into commands, pipes, redirects, assignments, quotes, globs, and expansions without executing anything.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "default": "json",
+          "description": "Output format: structured JSON, an ASCII tree, a plain-English explanation, or a flat command table.",
+          "enum": [
+            "json",
+            "tree",
+            "explain",
+            "commands"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Shell command line to parse. The command is analyzed only; it is never executed.",
+          "type": "string"
+        },
+        "pretty": {
+          "default": true,
+          "description": "Pretty-print JSON output with indentation. Ignored by non-JSON formats.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

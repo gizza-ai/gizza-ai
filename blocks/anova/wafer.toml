@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "anova"
+version = "0.1.0"
+abi = 1
+summary = "Run a one-way ANOVA on pasted groups: full ANOVA table, F and p, effect sizes, Levene and Welch checks, and post-hoc pairs"

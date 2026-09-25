@@ -1,0 +1,126 @@
+slug          = "charcode-codec"
+title         = "Character Code Converter — Text ⇄ Unicode, ASCII, UTF-8 & UTF-16 Codes"
+description   = "Convert text to Unicode, ASCII, UTF-8 byte or UTF-16 character codes in decimal, hex, binary or octal, and decode code lists back to text."
+tags          = ["character code converter", "text to ascii", "ascii to text", "unicode code points", "utf8 bytes", "utf16 code units", "hex character codes", "binary ascii"]
+h1            = "Character Code Converter"
+hero_subtitle = "Encode text as Unicode code points, UTF-8 bytes, UTF-16 units or ASCII codes in decimal, hex, binary or octal — and decode code lists back to text locally."
+wasm          = "gizza_ai_charcode_codec_web"
+export        = "run"
+live          = false
+output_label  = "Converted output"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Text or codes"
+placeholder = "Hello 😀"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+[input.labels]
+encode = "Encode text to codes"
+decode = "Decode codes to text"
+
+[[input]]
+name        = "base"
+label       = "Number base"
+source      = "field"
+[input.labels]
+dec = "Decimal"
+hex = "Hexadecimal"
+bin = "Binary"
+oct = "Octal"
+
+[[input]]
+name        = "scope"
+label       = "Code scope"
+source      = "field"
+[input.labels]
+unicode-scalar = "Unicode scalar values"
+utf8-bytes = "UTF-8 bytes"
+utf16-units = "UTF-16 code units"
+ascii = "ASCII only"
+
+[[input]]
+name        = "delimiter"
+label       = "Delimiter"
+source      = "field"
+[input.labels]
+space = "Space"
+comma = "Comma"
+newline = "New line"
+none = "No delimiter"
+
+[[input]]
+name        = "prefix"
+label       = "Prefix"
+source      = "field"
+[input.labels]
+none = "None"
+"0x" = "0x"
+"\\x" = "\\x"
+"U+" = "U+"
+
+[[input]]
+name        = "padding"
+label       = "Zero padding"
+source      = "field"
+[input.labels]
+none = "Shortest"
+fixed = "Fixed width"
+
+[[input]]
+name        = "uppercase"
+label       = "Uppercase hex digits"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+text = "Text"
+json = "JSON"
+
+[[example]]
+label = "Hello → decimal"
+[example.params]
+input = "Hello"
+
+[[example]]
+label = "Emoji code point"
+[example.params]
+input = "😀"
+base = "hex"
+prefix = "U+"
+padding = "fixed"
+
+[[example]]
+label = "UTF-8 bytes"
+[example.params]
+input = "café"
+base = "hex"
+scope = "utf8-bytes"
+prefix = "0x"
+delimiter = "comma"
+
+[[example]]
+label = "Decode hex bytes"
+[example.params]
+input = "48 65 6c 6c 6f"
+mode = "decode"
+base = "hex"
+scope = "utf8-bytes"
+
+[[example]]
+label = "JSON output"
+[example.params]
+input = "Hi"
+base = "bin"
+scope = "ascii"
+padding = "fixed"
+format = "json"

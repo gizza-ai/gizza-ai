@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/css-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate CSS syntax and flag malformed rules, unknown properties, and warnings",
+  "role": "skill",
+  "tool": {
+    "description": "Validate a CSS stylesheet or snippet and report malformed rules, unbalanced braces/comments/strings, selector mistakes, declaration syntax errors, unknown properties, vendor prefixes, malformed colors/calc()/var() usage, and summary stats. Every issue includes 1-based line and column. Set format='report' for readable output or format='json' for machine-readable results. Runs locally with no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "css": {
+          "description": "CSS stylesheet or snippet to validate. Paste rules such as `.card { color: red; }`; comments, strings, selectors, at-rules, declarations, custom properties, and calc()/var() expressions are scanned locally.",
+          "type": "string"
+        },
+        "format": {
+          "default": "report",
+          "description": "Output format: `report` for a human-readable issue list with line and column, or `json` for machine-readable validity, counts, issues, and stats.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "severity": {
+          "default": "all",
+          "description": "Filter displayed issues by severity while preserving the true validity summary: `all`, `error`, or `warning`.",
+          "enum": [
+            "all",
+            "error",
+            "warning"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": true,
+          "description": "Include rule/declaration counts, unique property count, custom-property count, at-rule count, and the most frequent properties.",
+          "type": "boolean"
+        },
+        "unknown_properties": {
+          "default": "warn",
+          "description": "How to handle properties not in the curated modern CSS property list: warn by default, fail as errors, or ignore.",
+          "enum": [
+            "warn",
+            "error",
+            "ignore"
+          ],
+          "type": "string"
+        },
+        "vendor_prefixes": {
+          "default": "ignore",
+          "description": "How to handle vendor-prefixed properties such as `-webkit-transform`: ignore, warn, or treat as errors.",
+          "enum": [
+            "ignore",
+            "warn",
+            "error"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "css"
+      ],
+      "type": "object"
+    }
+  }
+}

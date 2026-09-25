@@ -1,0 +1,98 @@
+{
+  "name": "gizza-ai/port-process-mapper",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Map listening ports to PIDs and processes from lsof, ss or netstat output.",
+  "role": "skill",
+  "tool": {
+    "description": "Turn a pasted socket listing into one normalised port → PID → process table and flag the ports more than one process is bound to. Accepts `lsof -i`, `ss -tulpn`, Linux `netstat -tulpn` and Windows `netstat -ano`/`-anb` output, auto-detecting the dialect. Normalises IPv4/IPv6 addresses, protocol, socket state, PID, command name and user; annotates well-known services (22 → ssh, 5432 → postgresql); filters by protocol, port list/ranges, process-name substring, listening-only or conflicts-only; sorts by port, PID, process, state or address; and can emit ready-to-run kill/taskkill commands for freeing a port. Renders as a markdown table, aligned text, CSV or JSON. Pure text in, text out — nothing is executed or uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "annotate_services": {
+          "default": true,
+          "description": "Add a Service column naming the well-known service behind each port number (22 → ssh, 5432 → postgresql, 5173 → dev server (Vite), …). Unregistered ports show a dash.",
+          "type": "boolean"
+        },
+        "conflicts_only": {
+          "default": false,
+          "description": "Show only the rows on ports that more than one distinct process is bound to — the answer to 'why is this port already in use?'. Conflicts are detected after the protocol, port, process and listening filters are applied.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The captured socket listing to map. Paste the output of `lsof -i -P -n`, `ss -tulpn`, `netstat -tulpn` (Linux/macOS) or `netstat -ano` / `netstat -anb` (Windows), header line included. Up to 20000 lines.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "Which command produced the input. 'auto' (default) detects the dialect from the header and row shape; set one explicitly when a trimmed paste is detected wrongly or reported as unrecognised.",
+          "enum": [
+            "auto",
+            "lsof",
+            "ss",
+            "netstat",
+            "netstat-windows"
+          ],
+          "type": "string"
+        },
+        "kill_commands": {
+          "default": false,
+          "description": "Append a 'Free a port' section with ready-to-run `kill -9` (Linux/macOS) and `taskkill /PID … /F` (Windows) command lines pre-filled with every PID holding each listed port. Covers at most 20 ports.",
+          "type": "boolean"
+        },
+        "listening_only": {
+          "default": true,
+          "description": "Keep only listening/bound server sockets (LISTEN, UNCONN and stateless UDP). Turn this off to also include established, time-wait and other client connections present in the paste.",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "markdown",
+          "description": "How to render the mapping. 'markdown' is a pipe table plus a summary and a port-conflict list; 'text' is the same table space-aligned for a terminal; 'csv' is one row per socket for a spreadsheet; 'json' returns rows, conflicts and summary counts as structured data.",
+          "enum": [
+            "markdown",
+            "csv",
+            "json",
+            "text"
+          ],
+          "type": "string"
+        },
+        "ports": {
+          "default": "",
+          "description": "Optional port filter: a comma-separated list of numbers and inclusive ranges, e.g. '80,443,8000-8100'. Empty (default) keeps every port. Rows whose port is a service name rather than a number are dropped when this filter is set.",
+          "type": "string"
+        },
+        "process": {
+          "default": "",
+          "description": "Optional case-insensitive substring matched against the process/command name, e.g. 'node' or 'nginx'. Empty (default) keeps every process.",
+          "type": "string"
+        },
+        "protocol": {
+          "default": "any",
+          "description": "Restrict the table to one transport protocol. 'any' (default) keeps both; 'tcp' and 'udp' match the normalised protocol, so tcp6/udp6 rows are included with their IPv4 counterparts.",
+          "enum": [
+            "any",
+            "tcp",
+            "udp"
+          ],
+          "type": "string"
+        },
+        "sort_by": {
+          "default": "port",
+          "description": "Row ordering. 'port' sorts numerically by local port (default), 'pid' by process id, 'process' by command name, 'state' by socket state (LISTEN first), 'address' by the bound local address.",
+          "enum": [
+            "port",
+            "pid",
+            "process",
+            "state",
+            "address"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

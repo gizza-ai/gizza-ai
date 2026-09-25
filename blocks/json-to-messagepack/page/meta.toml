@@ -1,0 +1,92 @@
+slug          = "json-to-messagepack"
+title         = "JSON to MessagePack Converter"
+description   = "Serialize JSON into compact MessagePack and render the exact bytes as hex, base64, decimal byte arrays, annotations or a size summary."
+tags          = ["json to messagepack", "msgpack encoder", "messagepack converter", "json binary", "base64 msgpack", "hex msgpack", "messagepack size", "json serializer"]
+h1            = "JSON to MessagePack Converter"
+hero_subtitle = "Paste JSON and get deterministic MessagePack bytes as hex, base64, byte arrays, annotations or a size report. Preserve key order, sort keys for reproducible payloads, and choose new or old string headers. Runs locally in your browser."
+wasm          = "gizza_ai_json_to_messagepack_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "JSON input"
+placeholder = "{\"ok\":true,\"count\":2}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+source      = "field"
+default     = "hex"
+[input.labels]
+hex       = "Hex"
+base64    = "Base64"
+bytes     = "Decimal byte array"
+annotated = "Annotated tags"
+summary   = "Size summary"
+json      = "JSON summary"
+
+[[input]]
+name        = "key_order"
+label       = "Object key order"
+source      = "field"
+default     = "input"
+[input.labels]
+input  = "Preserve input order"
+sorted = "Sort keys deterministically"
+
+[[input]]
+name        = "compact_floats"
+label       = "Use float32 when lossless"
+source      = "field"
+default     = "false"
+
+[[input]]
+name        = "spec"
+label       = "String header spec"
+source      = "field"
+default     = "new"
+[input.labels]
+new = "New (str8 enabled)"
+old = "Old (no str8)"
+
+[[input]]
+name        = "group"
+label       = "Hex grouping bytes"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[example]]
+label = "Simple object"
+[example.params]
+input = "{\"a\":1,\"b\":2}"
+output = "hex"
+key_order = "input"
+compact_floats = "false"
+spec = "new"
+group = "0"
+
+[[example]]
+label = "Telemetry summary"
+[example.params]
+input = "{\"device\":\"sensor-7\",\"ok\":true,\"readings\":[21.5,22,21.75]}"
+output = "summary"
+key_order = "sorted"
+compact_floats = "true"
+spec = "new"
+group = "16"
+
+[[example]]
+label = "Annotated bytes"
+[example.params]
+input = "[1,true,null,\"x\"]"
+output = "annotated"
+key_order = "input"
+compact_floats = "false"
+spec = "new"
+group = "0"

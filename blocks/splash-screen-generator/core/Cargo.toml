@@ -1,0 +1,12 @@
+[package]
+name = "gizza-ai-splash-screen-generator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: decode the source logo and encode every composited splash canvas
+# (pure-Rust, wasm32-safe). Lanczos3 for the logo downscale, PNG/JPEG out.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+# zip with deflate only — bundle every generated screen into one archive.
+zip = { version = "8", default-features = false, features = ["deflate"] }

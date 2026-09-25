@@ -1,0 +1,96 @@
+{
+  "name": "gizza-ai/vscode-snippets-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a code template into VS Code user-snippet JSON with safe escaping",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a code template with placeholders into a VS Code user-snippet JSON entry or complete snippets-file object. The tool accepts name, prefix, description, scope, output shape, dollar escaping mode, indentation normalization, tab size, final-tabstop insertion, file-template flag, and JSON indentation. It preserves valid VS Code constructs like $1, ${1:name}, ${1|a,b|}, $0, $TM_FILENAME, and transforms while escaping stray literal dollars and JSON-special characters.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "default": "",
+          "description": "Optional description shown in VS Code's IntelliSense details. Leave blank to omit the description field.",
+          "type": "string"
+        },
+        "dollars": {
+          "default": "auto",
+          "description": "How to treat dollar signs in the template. auto preserves valid VS Code tabstops, placeholders, choices, variables, and transforms, but escapes stray literal dollars. literal escapes every dollar and backslash for plain text snippets. raw leaves the template untouched except for JSON escaping.",
+          "enum": [
+            "auto",
+            "literal",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "final_tabstop": {
+          "default": false,
+          "description": "Append $0 to the last body line if the template does not already contain a final tabstop. This is a stateless alternative to generator pages that provide an insert-final-cursor button.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": "keep",
+          "description": "Leading indentation normalization. keep preserves pasted whitespace. tabs converts leading whitespace to tabs using tab_size. spaces converts leading tabs to spaces using tab_size.",
+          "enum": [
+            "keep",
+            "tabs",
+            "spaces"
+          ],
+          "type": "string"
+        },
+        "is_file_template": {
+          "default": false,
+          "description": "Include VS Code's isFileTemplate flag when true. File-template snippets can be used with VS Code's 'Snippets: Fill File with Snippet' command.",
+          "type": "boolean"
+        },
+        "json_indent": {
+          "default": 2,
+          "description": "Spaces for formatting the output JSON, 0 to 8. Default 2. Set 0 for compact one-line JSON.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "default": "",
+          "description": "Snippet name, used as the JSON key in the snippets file. If omitted, the first prefix is used. Use a readable name such as React function component or Rust test module.",
+          "type": "string"
+        },
+        "output": {
+          "default": "snippets-file",
+          "description": "Output shape. snippets-file returns a complete JSON object ready to save as a user snippets file. entry returns only the quoted snippet entry, useful when pasting into an existing JSON object.",
+          "enum": [
+            "snippets-file",
+            "entry"
+          ],
+          "type": "string"
+        },
+        "prefix": {
+          "default": "",
+          "description": "Trigger word or words you type in VS Code IntelliSense. Separate multiple triggers with commas or new lines. One trigger is emitted as a string; multiple triggers are emitted as an array.",
+          "type": "string"
+        },
+        "scope": {
+          "default": "",
+          "description": "Optional comma-separated VS Code language identifiers such as javascript,typescriptreact,rust. Scope matters in a global .code-snippets file; language-specific files are already scoped by filename.",
+          "type": "string"
+        },
+        "tab_size": {
+          "default": 2,
+          "description": "Tab width used when converting indentation, from 1 to 16. Default 2. Has no effect when indent=keep.",
+          "maximum": 16,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "template": {
+          "description": "The code template that should become the VS Code snippet body. Paste one or more lines. Existing VS Code snippet constructs such as $1, ${1:name}, ${1|red,green|}, $0, $TM_FILENAME, and ${TM_FILENAME/(.*)\\..+$/$1/} are preserved in auto dollar mode, while stray literal dollar signs are escaped. Up to 200000 bytes.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template"
+      ],
+      "type": "object"
+    }
+  }
+}

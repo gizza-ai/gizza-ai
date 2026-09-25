@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "confusion-matrix"
+version = "0.1.0"
+abi = 1
+summary = "Build a confusion matrix and classification metrics"

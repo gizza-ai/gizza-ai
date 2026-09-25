@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-docker-compose-validator-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# yaml-rust2 (not a serde YAML binding) because the checks need a *marked* parse:
+# every finding reports the exact 1-based line/column it came from, and the
+# `quote-ports` rule needs to know whether a scalar was written plain or quoted.
+# A serde binding erases both. `encoding` (a default feature) only powers
+# YamlDecoder for non-UTF-8 input, which we don't need.
+yaml-rust2 = { version = "0.8", default-features = false }
+serde_json = { version = "1", features = ["preserve_order"] }

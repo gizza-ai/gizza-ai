@@ -1,0 +1,58 @@
+{
+  "name": "gizza-ai/decimal-to-fraction",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert decimals to exact or approximate fractions.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a decimal into an exact fraction, mixed number, or simplest approximation within a tolerance or denominator cap. Supports repeating decimals, percentages, scientific notation, fixed denominators, rounding up/down/nearest, and optional fraction reduction. Returns JSON with numerator, denominator, mixed number, exactness, error, convergents and worked steps.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimal": {
+          "description": "Decimal number to convert. Accepts signs, thousands separators, percentages, scientific notation, and repeating notation such as 0.1(6).",
+          "type": "string"
+        },
+        "denominator": {
+          "default": 0.0,
+          "description": "Optional fixed denominator to snap onto, such as 16 for nearest sixteenth or 100 for nearest hundredth.",
+          "type": "number"
+        },
+        "max_denominator": {
+          "default": 0.0,
+          "description": "Optional maximum denominator for continued-fraction approximation. Use 0 for no cap.",
+          "type": "number"
+        },
+        "reduce": {
+          "default": true,
+          "description": "Reduce the output fraction to lowest terms. Turn off to keep a fixed denominator such as 8/16.",
+          "type": "boolean"
+        },
+        "repeating_digits": {
+          "default": 0.0,
+          "description": "Optional count of trailing decimal digits that repeat when the input does not use parentheses or ellipsis notation.",
+          "type": "number"
+        },
+        "rounding": {
+          "default": "nearest",
+          "description": "Rounding direction for approximations: nearest, up (not below the decimal), or down (not above the decimal).",
+          "enum": [
+            "nearest",
+            "up",
+            "down"
+          ],
+          "type": "string"
+        },
+        "tolerance": {
+          "default": 0.0,
+          "description": "Optional absolute error tolerance. Use 0 for the exact fraction, or values such as 0.000001 to find the simplest nearby fraction.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "decimal"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,152 @@
+slug          = "meeting-time-finder"
+title         = "Meeting Time Finder — Find Overlapping Work Hours Across Timezones"
+description   = "Find fair meeting slots across IANA timezones, working hours, weekends and DST. Rank overlaps, export tables, JSON, CSV or ICS — private, in-browser."
+tags          = ["meeting time finder", "timezone meeting planner", "working hours overlap", "world clock", "remote team", "calendar", "ics", "dst"]
+h1            = "Meeting Time Finder Across Timezones"
+hero_subtitle = "Rank meeting slots for remote teams by checking each participant's local working hours, timezone, weekends and DST."
+wasm          = "gizza_ai_meeting_time_finder_web"
+export        = "run"
+live          = true
+output_label  = "Ranked meeting times"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "participants"
+label       = "Participants and timezones"
+placeholder = "Alice@Europe/London, Bob@America/New_York, Chen@Asia/Tokyo:10-18"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "date"
+label       = "Date to search"
+placeholder = "2026-10-01"
+source      = "field"
+kind        = "date"
+default     = "today"
+
+[[input]]
+name        = "duration_minutes"
+label       = "Meeting length (minutes)"
+placeholder = "60"
+source      = "field"
+kind        = "slider"
+min         = "5"
+max         = "480"
+step        = "5"
+
+[[input]]
+name        = "granularity_minutes"
+label       = "Candidate start step"
+source      = "field"
+[input.labels]
+"15" = "Every 15 minutes"
+"30" = "Every 30 minutes"
+"60" = "Hourly"
+
+[[input]]
+name        = "work_start"
+label       = "Default workday start"
+placeholder = "09:00"
+source      = "field"
+kind        = "time"
+
+[[input]]
+name        = "work_end"
+label       = "Default workday end"
+placeholder = "17:00"
+source      = "field"
+kind        = "time"
+
+[[input]]
+name        = "max_results"
+label       = "Slots to return"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "24"
+step        = "1"
+
+[[input]]
+name        = "clock"
+label       = "Clock style"
+source      = "field"
+[input.labels]
+"24h" = "24-hour"
+"12h" = "12-hour AM/PM"
+
+[[input]]
+name        = "display_zone"
+label       = "Show ranked slots in timezone"
+placeholder = "Europe/London"
+source      = "field"
+options     = "timezones"
+
+[[input]]
+name        = "skip_weekends"
+label       = "Skip each person's local weekends"
+source      = "field"
+
+[[input]]
+name        = "allow_partial"
+label       = "Rank closest compromises if no perfect slot exists"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+summary  = "Summary"
+timeline = "24-hour timeline"
+table    = "Table"
+json     = "JSON"
+csv      = "CSV"
+ics      = "ICS calendar event"
+
+[[example]]
+label = "US ↔ Europe"
+participants = "Alice@Europe/London, Bob@America/New_York, Casey@America/Los_Angeles"
+date = "2026-10-01"
+duration_minutes = "60"
+granularity_minutes = "30"
+work_start = "09:00"
+work_end = "17:00"
+max_results = "5"
+clock = "24h"
+display_zone = "Europe/London"
+skip_weekends = "true"
+allow_partial = "true"
+output_format = "summary"
+
+[[example]]
+label = "US ↔ Asia"
+participants = "Ava@America/Los_Angeles, Ben@America/New_York, Chen@Asia/Tokyo:10-18"
+date = "2026-10-01"
+duration_minutes = "45"
+granularity_minutes = "15"
+work_start = "09:00"
+work_end = "17:00"
+max_results = "6"
+clock = "12h"
+display_zone = "America/Los_Angeles"
+skip_weekends = "true"
+allow_partial = "true"
+output_format = "timeline"
+
+[[example]]
+label = "Global support handoff"
+participants = "London@Europe/London:8-16, Chicago@America/Chicago:8-16, Singapore@Asia/Singapore:9-17"
+date = "2026-10-01"
+duration_minutes = "30"
+granularity_minutes = "30"
+work_start = "09:00"
+work_end = "17:00"
+max_results = "8"
+clock = "24h"
+display_zone = "UTC"
+skip_weekends = "true"
+allow_partial = "true"
+output_format = "table"

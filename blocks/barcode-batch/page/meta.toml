@@ -1,0 +1,151 @@
+slug          = "barcode-batch"
+title         = "Bulk Barcode Generator — Code 128, EAN, UPC from a CSV or list"
+description   = "Generate hundreds of 1D barcodes from a pasted list or CSV and download a ZIP of PNG/SVG files or a printable Avery label sheet. Runs locally in your browser."
+tags          = ["bulk barcode generator", "batch barcode generator", "csv to barcode", "code 128 generator", "ean upc barcode generator"]
+h1            = "Bulk barcode generator"
+hero_subtitle = "Paste SKUs or upload-style CSV rows, pick Code 128, EAN-13, UPC-A, ITF-14 or Code 39, and download a ZIP of barcodes or a print-ready label sheet. Check digits are calculated for you and nothing leaves your device."
+wasm          = "gizza_ai_barcode_batch_web"
+export        = "run"
+live          = false
+output_label  = "Barcode bundle"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "Values to encode"
+placeholder = "SKU-1001,widget\nSKU-1002,gadget\nSKU-1003"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+labels = { auto = "Auto-detect", list = "List — one value per line", csv = "CSV — comma-separated", tsv = "TSV — tab-separated" }
+
+[[input]]
+name   = "columns"
+label  = "Column mapping"
+source = "field"
+labels = { auto = "Auto (value,filename when two columns)", value-name = "Value, then filename", name-value = "Filename, then value", value-only = "Whole line is the value" }
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "symbology"
+label  = "Symbology"
+source = "field"
+labels = { auto = "Auto-detect per row", code128 = "Code 128 — any text or digits", code39 = "Code 39 — A-Z, 0-9", code93 = "Code 93 — A-Z, 0-9, compact", ean13 = "EAN-13 — 13 digits", ean8 = "EAN-8 — 8 digits", upca = "UPC-A — 12 digits", itf = "ITF / ITF-14 — even digit count", codabar = "Codabar — digits, A-D start/stop" }
+
+[[input]]
+name   = "auto_check_digit"
+label  = "Calculate missing check digits"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Bundle as"
+source = "field"
+labels = { zip = "ZIP of image files", sheet = "Printable PDF label sheet" }
+
+[[input]]
+name   = "format"
+label  = "Files per row (ZIP only)"
+source = "field"
+labels = { png = "PNG", svg = "SVG", both = "PNG and SVG" }
+
+[[input]]
+name   = "sheet_preset"
+label  = "Label sheet (PDF only)"
+source = "field"
+labels = { avery-5160 = "Avery 5160 — Letter, 30 up (2.625 x 1 in)", avery-5161 = "Avery 5161 — Letter, 20 up (4 x 1 in)", avery-5163 = "Avery 5163 — Letter, 10 up (4 x 2 in)", avery-l7651 = "Avery L7651 — A4, 65 up (38.1 x 21.2 mm)", avery-l7160 = "Avery L7160 — A4, 21 up (63.5 x 38.1 mm)", a4-grid = "Generic A4 grid — 40 up (45 x 25 mm)" }
+
+[[input]]
+name        = "module_width"
+label       = "Narrow bar width (px)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "10"
+step        = "1"
+
+[[input]]
+name        = "bar_height"
+label       = "Bar height (px)"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+min         = "20"
+max         = "400"
+step        = "10"
+
+[[input]]
+name        = "quiet_zone"
+label       = "Quiet zone (modules)"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "30"
+step        = "1"
+
+[[input]]
+name   = "show_text"
+label  = "Print the value under the bars"
+source = "field"
+
+[[input]]
+name        = "text_size"
+label       = "Text size (px)"
+placeholder = "20"
+source      = "field"
+kind        = "slider"
+min         = "8"
+max         = "48"
+step        = "1"
+
+[[input]]
+name        = "fg_color"
+label       = "Bar colour"
+placeholder = "#000000"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "bg_color"
+label       = "Background colour"
+placeholder = "#ffffff"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "name_prefix"
+label       = "Auto filename prefix"
+placeholder = "barcode"
+source      = "field"
+
+[[input]]
+name   = "include_index"
+label  = "Include index.csv manifest"
+source = "field"
+
+[[example]]
+label  = "SKUs to Code 128 (CSV)"
+params = { data = "SKU-1001,widget\nSKU-1002,gadget\nSKU-1003,gizmo", input_format = "csv", columns = "value-name", symbology = "code128", format = "png" }
+
+[[example]]
+label  = "UPC-A, check digit calculated"
+params = { data = "03600029145\n01234565000\n04901234567", symbology = "upca", format = "svg", name_prefix = "upc" }
+
+[[example]]
+label  = "Avery 5160 label sheet"
+params = { data = "ASSET-0001\nASSET-0002\nASSET-0003\nASSET-0004\nASSET-0005\nASSET-0006", symbology = "code128", output = "sheet", sheet_preset = "avery-5160" }
+
+[[example]]
+label  = "EAN-13 retail, no text"
+params = { data = "5901234123457\n4006381333931", symbology = "ean13", format = "svg", show_text = "false", bar_height = "140" }

@@ -1,0 +1,59 @@
+{
+  "name": "gizza-ai/caesar-cipher-breaker",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Crack Caesar ciphers by frequency analysis",
+  "role": "skill",
+  "tool": {
+    "description": "Crack a Caesar cipher automatically by trying all 26 shifts and scoring each candidate against language letter frequencies. Returns the likely shift, a confidence estimate, and the recovered plaintext, with optional ranked/all/report views, six language profiles, and an option to rotate digits too.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "Caesar-shifted ciphertext to crack. The scorer uses A-Z letters only, preserving case, spacing, punctuation, symbols, and (unless shift_digits is true) digits in the recovered plaintext. A few sentences gives the frequency scorer enough evidence; limit 20,000 characters.",
+          "type": "string"
+        },
+        "language": {
+          "default": "english",
+          "description": "Expected plaintext language used for letter-frequency scoring: english (default), french, german, spanish, italian, or portuguese.",
+          "enum": [
+            "english",
+            "french",
+            "german",
+            "spanish",
+            "italian",
+            "portuguese"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "best",
+          "description": "Output view. best (default) prints the best shift, confidence note, and recovered plaintext. ranked adds the top candidate table. all lists all 26 decryptions. report adds index-of-coincidence and letter-frequency diagnostics.",
+          "enum": [
+            "best",
+            "ranked",
+            "all",
+            "report"
+          ],
+          "type": "string"
+        },
+        "shift_digits": {
+          "default": false,
+          "description": "Also rotate digits 0-9 backward by shift modulo 10. Default false because ordinary Caesar ciphers shift letters only.",
+          "type": "boolean"
+        },
+        "top": {
+          "default": 5,
+          "description": "How many candidates to show in the ranked view, 1 through 26. Default 5. Ignored by best/all/report except for validation.",
+          "maximum": 26,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

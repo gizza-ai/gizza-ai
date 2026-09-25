@@ -1,0 +1,167 @@
+slug          = "confusion-matrix"
+title         = "Confusion Matrix Calculator — Precision, Recall, F1 & Accuracy"
+description   = "Paste actual and predicted labels to build a confusion matrix with precision, recall, F1/F-beta, accuracy, kappa, MCC, and binary diagnostics."
+tags          = ["confusion matrix", "classification metrics", "precision recall f1", "accuracy calculator", "machine learning", "binary classifier", "multiclass metrics"]
+h1            = "Confusion matrix calculator"
+hero_subtitle = "Paste true labels and predictions — or an existing count matrix — and get per-class precision, recall, F-score, accuracy, kappa, MCC, and binary diagnostics. Runs locally in your browser."
+wasm          = "gizza_ai_confusion_matrix_web"
+export        = "run"
+live          = false
+output_label  = "Matrix and classification report"
+format        = "markdown"
+
+[[input]]
+name        = "actual"
+label       = "Actual labels / table / matrix"
+placeholder = "actual,predicted,count\nspam,spam,180\nspam,ham,20\nham,spam,40\nham,ham,760"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "predicted"
+label       = "Predicted labels (optional)"
+placeholder = "Leave blank when the first box is a paired table or matrix. Or paste one predicted label per row here."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "labels"
+label       = "Class order (optional)"
+placeholder = "spam, ham"
+source      = "field"
+
+[[input]]
+name        = "positive_label"
+label       = "Positive class (optional)"
+placeholder = "spam"
+source      = "field"
+
+[[input]]
+name   = "input_format"
+label  = "Input format"
+source = "field"
+
+[input.labels]
+auto   = "Auto-detect"
+labels = "Two label lists"
+table  = "Actual/predicted table"
+matrix = "Count matrix grid"
+
+[[input]]
+name   = "separator"
+label  = "Separator"
+source = "field"
+
+[input.labels]
+auto      = "Auto"
+newline   = "Newline"
+comma     = "Comma"
+tab       = "Tab"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+space     = "Spaces"
+
+[[input]]
+name   = "header"
+label  = "Header row"
+source = "field"
+
+[input.labels]
+auto = "Auto-detect"
+yes  = "Yes"
+no   = "No"
+
+[[input]]
+name   = "normalize"
+label  = "Normalize matrix"
+source = "field"
+
+[input.labels]
+none   = "Raw counts"
+row    = "By actual row"
+column = "By predicted column"
+all    = "By all observations"
+
+[[input]]
+name        = "beta"
+label       = "F-beta weight"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+min         = "0.1"
+max         = "10"
+step        = "0.1"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "10"
+step        = "1"
+
+[[input]]
+name   = "percent"
+label  = "Show rates as percentages"
+source = "field"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+markdown = "Markdown"
+text     = "Plain text"
+csv      = "CSV"
+json     = "JSON"
+
+[[example]]
+label = "Spam classifier counts"
+[example.params]
+actual = "actual,predicted,count\nspam,spam,180\nspam,ham,20\nham,spam,40\nham,ham,760"
+predicted = ""
+labels = "spam, ham"
+positive_label = "spam"
+input_format = "table"
+separator = "comma"
+header = "yes"
+normalize = "none"
+beta = "1"
+decimals = "4"
+percent = "true"
+format = "markdown"
+
+[[example]]
+label = "Two pasted label lists"
+[example.params]
+actual = "cat\ncat\ncat\ndog\ndog\ndog"
+predicted = "cat\ncat\ndog\ncat\ndog\ndog"
+labels = "cat, dog"
+positive_label = "dog"
+input_format = "labels"
+separator = "newline"
+header = "no"
+normalize = "row"
+beta = "1"
+decimals = "3"
+percent = "false"
+format = "text"
+
+[[example]]
+label = "Existing count matrix"
+[example.params]
+actual = ",cat,dog\ncat,5,1\ndog,2,7"
+predicted = ""
+labels = ""
+positive_label = "dog"
+input_format = "matrix"
+separator = "comma"
+header = "yes"
+normalize = "none"
+beta = "2"
+decimals = "4"
+percent = "false"
+format = "json"

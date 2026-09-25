@@ -1,0 +1,9 @@
+[package]
+name = "gizza-ai-json-to-messagepack-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+serde_json = { version = "1", features = ["preserve_order"] }

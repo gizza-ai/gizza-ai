@@ -1,0 +1,107 @@
+slug          = "youtube-id-extractor"
+title         = "YouTube ID Extractor"
+description   = "Extract the canonical 11-character YouTube video ID, start timestamp, playlist ID, thumbnail URL and embed URL from YouTube, Invidious or Piped links."
+tags          = ["youtube", "url", "video", "parser", "timestamp"]
+h1            = "YouTube video ID extractor"
+hero_subtitle = "Paste YouTube, youtu.be, Shorts, embed, live, Invidious or Piped links and extract the video ID plus timestamp metadata."
+wasm          = "gizza_ai_youtube_id_extractor_web"
+export        = "run"
+live          = false
+output_label  = "Extracted IDs"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "urls"
+label       = "YouTube URLs or IDs"
+placeholder = "https://youtu.be/dQw4w9WgXcQ?t=90"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON"
+csv = "CSV"
+
+[[input]]
+name        = "timestamp"
+label       = "Timestamp style"
+source      = "field"
+
+[input.labels]
+seconds = "Seconds"
+clock = "Clock"
+both = "Seconds + clock"
+
+[[input]]
+name        = "thumbnail"
+label       = "Thumbnail URL"
+source      = "field"
+
+[input.labels]
+none = "None"
+default = "default (120×90)"
+mqdefault = "mqdefault (320×180)"
+hqdefault = "hqdefault (480×360)"
+sddefault = "sddefault (640×480)"
+maxresdefault = "maxresdefault (1280×720)"
+
+[[input]]
+name        = "canonical"
+label       = "Include canonical watch URL"
+source      = "field"
+
+[[input]]
+name        = "embed"
+label       = "Include youtube-nocookie embed URL"
+source      = "field"
+
+[[input]]
+name        = "strict"
+label       = "Fail on invalid lines"
+source      = "field"
+
+[[example]]
+label = "youtu.be with timestamp"
+urls = "https://youtu.be/dQw4w9WgXcQ?t=90"
+format = "text"
+timestamp = "both"
+thumbnail = "hqdefault"
+canonical = "true"
+embed = "false"
+strict = "false"
+
+[[example]]
+label = "Shorts + embed CSV"
+urls = "https://www.youtube.com/shorts/dQw4w9WgXcQ\nhttps://www.youtube.com/embed/dQw4w9WgXcQ?start=75"
+format = "csv"
+timestamp = "seconds"
+thumbnail = "none"
+canonical = "true"
+embed = "true"
+strict = "false"
+
+[[example]]
+label = "Invidious / Piped links"
+urls = "https://yewtu.be/watch?v=dQw4w9WgXcQ&t=1m30s\nhttps://piped.video/watch?v=dQw4w9WgXcQ&list=PL1234567890123&index=2"
+format = "json"
+timestamp = "both"
+thumbnail = "mqdefault"
+canonical = "true"
+embed = "false"
+strict = "false"
+
+[[example]]
+label = "Channel and playlist IDs"
+urls = "@ExampleChannel\nUC_x5XG1OV2P6uZZ5FSM9Ttw\nPL1234567890123"
+format = "text"
+timestamp = "both"
+thumbnail = "none"
+canonical = "false"
+embed = "false"
+strict = "false"

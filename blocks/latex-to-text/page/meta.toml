@@ -1,0 +1,119 @@
+slug          = "latex-to-text"
+title         = "LaTeX to Text — Strip Commands and Recover Readable Plain Text"
+description   = "Convert LaTeX source into readable plain text. Choose how math, citations, comments, Unicode accents and source line breaks are handled."
+tags          = ["latex", "tex", "text", "plain text", "detex", "unicode", "documents"]
+h1            = "Convert LaTeX Source to Plain Text"
+hero_subtitle = "Paste a .tex document or fragment and recover readable prose. Commands are stripped while visible argument text is kept; math, citations, comments and source line breaks are configurable."
+wasm          = "gizza_ai_latex_to_text_web"
+export        = "run"
+live          = true
+output_label  = "Plain text"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "LaTeX source"
+placeholder = "\\section{Introduction}\nThe \\textbf{mallard} swims at $v = 3$ m/s. See \\cite{smith2024}."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "math"
+label       = "Math handling"
+source      = "field"
+placeholder = "remove"
+[input.labels]
+remove      = "Remove math (default)"
+keep        = "Keep math source"
+placeholder = "Replace formulas with [math]"
+
+[[input]]
+name        = "citations"
+label       = "Citations and references"
+source      = "field"
+placeholder = "drop"
+[input.labels]
+drop = "Drop citation/ref commands (default)"
+keys = "Keep raw keys"
+
+[[input]]
+name        = "drop_environments"
+label       = "Dropped environments"
+source      = "field"
+kind        = "tag-list"
+placeholder = "array,longtable,picture,tabular,tabularx,verbatim,lstlisting,minted,tikzpicture"
+
+[[input]]
+name        = "keep_comments"
+label       = "Keep percent comments"
+source      = "field"
+placeholder = "false"
+
+[[input]]
+name        = "unicode"
+label       = "Convert accents and symbols to Unicode"
+source      = "field"
+placeholder = "true"
+
+[[input]]
+name        = "body_only"
+label       = "Use document body only"
+source      = "field"
+placeholder = "true"
+
+[[input]]
+name        = "line_breaks"
+label       = "Line breaks"
+source      = "field"
+placeholder = "paragraphs"
+[input.labels]
+paragraphs = "Reflow source lines into paragraphs (default)"
+source     = "Preserve source line breaks"
+
+[[example]]
+label = "Article prose"
+[example.params]
+input = "\\documentclass{article}\n\\title{On Ducks}\n\\begin{document}\n\\section{Introduction}\nThe \\textbf{mallard} is a common duck~\\cite{smith2024}.\nIt swims at $v = 3$ m/s.\n\\end{document}"
+math = "remove"
+citations = "drop"
+drop_environments = ""
+keep_comments = "false"
+unicode = "true"
+body_only = "true"
+line_breaks = "paragraphs"
+
+[[example]]
+label = "Keep math placeholders"
+[example.params]
+input = "Let $E = mc^2$ hold. Then \\[ a+b=c \\] follows."
+math = "placeholder"
+citations = "drop"
+drop_environments = ""
+keep_comments = "false"
+unicode = "true"
+body_only = "true"
+line_breaks = "paragraphs"
+
+[[example]]
+label = "Keep citation keys"
+[example.params]
+input = "As shown in \\cite{knuth1984} and Figure~\\ref{fig:one}, this works."
+math = "remove"
+citations = "keys"
+drop_environments = ""
+keep_comments = "false"
+unicode = "true"
+body_only = "true"
+line_breaks = "paragraphs"
+
+[[example]]
+label = "Preserve source lines"
+[example.params]
+input = "First source line\\nsecond source line\\n\\nNew paragraph with Caf\\'e."
+math = "remove"
+citations = "drop"
+drop_environments = ""
+keep_comments = "false"
+unicode = "true"
+body_only = "true"
+line_breaks = "source"

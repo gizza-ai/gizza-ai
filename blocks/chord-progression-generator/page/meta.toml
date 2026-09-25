@@ -1,0 +1,122 @@
+slug          = "chord-progression-generator"
+title         = "Chord Progression Generator"
+description   = "Generate deterministic chord progressions by key, mode and style, with Roman numerals, spelled notes and Standard MIDI output as base64."
+tags          = ["chord progression generator", "music theory", "roman numerals", "midi generator", "songwriting", "diatonic chords"]
+h1            = "Chord Progression Generator"
+hero_subtitle = "Pick a key, mode and style preset to get chord names, Roman-numeral analysis, spelled notes and a reproducible MIDI loop."
+wasm          = "gizza_ai_chord_progression_generator_web"
+export        = "run"
+live          = false
+output_label  = "Progression"
+format        = "text"
+wide          = true
+
+[[input]]
+name   = "key"
+label  = "Key"
+source = "field"
+labels = { C = "C", "C#" = "C#", Db = "Db", D = "D", "D#" = "D#", Eb = "Eb", E = "E", F = "F", "F#" = "F#", Gb = "Gb", G = "G", "G#" = "G#", Ab = "Ab", A = "A", "A#" = "A#", Bb = "Bb", B = "B" }
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+labels = { major = "Major", minor = "Minor", dorian = "Dorian", phrygian = "Phrygian", lydian = "Lydian", mixolydian = "Mixolydian", locrian = "Locrian", harmonic-minor = "Harmonic minor", melodic-minor = "Melodic minor" }
+
+[[input]]
+name   = "style"
+label  = "Style"
+source = "field"
+labels = { pop = "Pop", rock = "Rock", folk = "Folk", country = "Country", ballad = "Ballad", worship = "Worship", edm = "EDM", hip-hop = "Hip-hop", lofi = "Lo-fi", rnb = "R&B", jazz = "Jazz", blues = "Blues", reggae = "Reggae", metal = "Metal", cinematic = "Cinematic", random = "Random walk" }
+
+[[input]]
+name        = "variation"
+label       = "Variation"
+placeholder = "1"
+default     = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "sevenths"
+label  = "Chord thickness"
+source = "field"
+labels = { auto = "Auto", triads = "Triads", sevenths = "Sevenths", extended = "Extended ninths" }
+
+[[input]]
+name   = "borrowed"
+label  = "Borrowed chords"
+source = "field"
+labels = { none = "None", light = "Light", rich = "Rich modal interchange" }
+
+[[input]]
+name        = "chords"
+label       = "Chord count"
+placeholder = "0"
+default     = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "tempo"
+label       = "Tempo (BPM)"
+placeholder = "100"
+default     = "100"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "instrument"
+label  = "MIDI instrument"
+source = "field"
+labels = { acoustic-grand-piano = "Acoustic grand piano", bright-acoustic-piano = "Bright acoustic piano", electric-piano = "Electric piano", harpsichord = "Harpsichord", vibraphone = "Vibraphone", drawbar-organ = "Drawbar organ", church-organ = "Church organ", accordion = "Accordion", acoustic-guitar-nylon = "Acoustic guitar — nylon", acoustic-guitar-steel = "Acoustic guitar — steel", electric-guitar-clean = "Electric guitar — clean", acoustic-bass = "Acoustic bass", string-ensemble = "String ensemble", choir-aahs = "Choir aahs", synth-pad-warm = "Warm synth pad", synth-lead-square = "Square synth lead" }
+
+[[input]]
+name   = "pattern"
+label  = "MIDI pattern"
+source = "field"
+labels = { block = "Block chords", arpeggio-up = "Arpeggio up", arpeggio-down = "Arpeggio down", arpeggio-updown = "Arpeggio up/down", strum = "Strum" }
+
+[[input]]
+name   = "voice_leading"
+label  = "Nearest-inversion voice leading"
+source = "field"
+
+[[input]]
+name        = "repeats"
+label       = "Repeats"
+placeholder = "1"
+default     = "1"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "octave"
+label       = "Root octave"
+placeholder = "4"
+default     = "4"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { text = "Full report", chords = "Chord line", roman = "Roman numerals", csv = "CSV", midi-base64 = "MIDI base64" }
+
+[[example]]
+label  = "Pop loop"
+params = { key = "C", mode = "major", style = "pop", variation = "1", output = "text" }
+
+[[example]]
+label  = "Borrowed rock"
+params = { key = "Eb", mode = "minor", style = "rock", borrowed = "rich", variation = "3", chords = "6", output = "chords" }
+
+[[example]]
+label  = "Jazz MIDI"
+params = { key = "F", mode = "major", style = "jazz", sevenths = "extended", tempo = "92", instrument = "electric-piano", pattern = "arpeggio-updown", output = "midi-base64" }

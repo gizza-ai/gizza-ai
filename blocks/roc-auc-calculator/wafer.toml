@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "roc-auc-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compute ROC AUC, a DeLong confidence interval and the optimal cutoff from scored observations"

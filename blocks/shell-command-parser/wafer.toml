@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "shell-command-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse shell commands into JSON, trees, explanations, or command tables."

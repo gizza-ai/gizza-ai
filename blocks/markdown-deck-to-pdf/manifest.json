@@ -1,0 +1,83 @@
+{
+  "name": "gizza-ai/markdown-deck-to-pdf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a Markdown slide deck into a PDF with one slide per page",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a Markdown slide deck into a paginated PDF with exactly one slide per page, and return it as a download. Thematic breaks (`---`) always split slides and headings can split at `#`, `##`, both or not at all. Choose a 16:9, 4:3, A4-landscape or Letter-landscape page, a light or dark theme, a base font size, repeated header/footer text, page numbers, and a PDF outline with one bookmark per slide. Body text shrinks automatically to fit each slide. Output is a real PDF that any viewer opens; base-14 fonts only, so text is folded to Latin-1 and images render as their alt text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "font_size": {
+          "default": 20.0,
+          "description": "Base body text size in points, 8-48 (default 20). Slide titles scale from it. Body text also shrinks automatically, down to half this size, so a busy slide still fits on one page.",
+          "maximum": 48,
+          "minimum": 8,
+          "type": "number"
+        },
+        "footer": {
+          "description": "Optional text repeated in the bottom-left corner of every slide, e.g. 'Confidential' or a date. Empty (default) leaves the footer off.",
+          "type": "string"
+        },
+        "header": {
+          "description": "Optional text repeated in the top-left corner of every slide, e.g. a project or client name. Empty (default) leaves the header off.",
+          "type": "string"
+        },
+        "markdown": {
+          "description": "The slide deck written in Markdown. A thematic break (`---`) always starts a new slide; headings start slides per `split_level` and become the slide title. Lists, paragraphs, quotes, tables, code blocks and inline `**bold**`/`*italic*`/`` `code` `` all render. Example: `# Intro\\n- First point\\n\\n---\\n\\n# Next`.",
+          "type": "string"
+        },
+        "outline": {
+          "default": true,
+          "description": "Add a PDF outline (bookmark sidebar) with one entry per slide, titled by its heading. Default true; set false to omit the outline.",
+          "type": "boolean"
+        },
+        "page_numbers": {
+          "default": true,
+          "description": "Print 'n / total' in the bottom-right corner of every page. Default true; set false for a clean deck with no numbering.",
+          "type": "boolean"
+        },
+        "slide_size": {
+          "default": "16:9",
+          "description": "Page geometry for every slide, always landscape: '16:9' (default, 960x540 pt), '4:3' (720x540 pt), 'a4-landscape' (842x595 pt) or 'letter-landscape' (792x612 pt). Use a paper size when the deck will be printed as a handout.",
+          "enum": [
+            "16:9",
+            "4:3",
+            "a4-landscape",
+            "letter-landscape"
+          ],
+          "type": "string"
+        },
+        "split_level": {
+          "default": "h1",
+          "description": "Which heading levels start a new slide: 'h1' (default) breaks at each `#`, 'h2' at each `##`, 'both' at every `#` and `##`, 'none' never breaks on headings. A `---` thematic break always starts a new slide regardless.",
+          "enum": [
+            "h1",
+            "h2",
+            "both",
+            "none"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Slide colour theme: 'light' (default) is dark text on a white background; 'dark' is light text on a near-black background.",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "description": "Optional deck title. When set, a centered cover slide with this text is added as page 1. Example: 'Q3 Business Review'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "markdown"
+      ],
+      "type": "object"
+    }
+  }
+}

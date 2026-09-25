@@ -145,6 +145,22 @@ pub struct FfmpegBlock {
     service: Arc<dyn FfmpegService>,
 }
 
+trait IntoBodyResult {
+    fn into_body_result(self) -> Result<Vec<u8>, WaferError>;
+}
+
+impl IntoBodyResult for Vec<u8> {
+    fn into_body_result(self) -> Result<Vec<u8>, WaferError> {
+        Ok(self)
+    }
+}
+
+impl IntoBodyResult for Result<Vec<u8>, WaferError> {
+    fn into_body_result(self) -> Result<Vec<u8>, WaferError> {
+        self
+    }
+}
+
 impl FfmpegBlock {
     pub fn new(service: Arc<dyn FfmpegService>) -> Self {
         Self { service }
@@ -171,7 +187,15 @@ impl Block for FfmpegBlock {
             ));
         }
 
-        let body = input.collect_to_bytes().await;
+        let body = match input.collect_to_bytes().await.into_body_result() {
+            Ok(body) => body,
+            Err(e) => {
+                return OutputStream::error(WaferError::new(
+                    ErrorCode::InvalidArgument,
+                    format!("FfmpegBlock: read request body: {e}"),
+                ));
+            }
+        };
         let args: ExecArgs = match serde_json::from_slice(&body) {
             Ok(v) => v,
             Err(e) => {

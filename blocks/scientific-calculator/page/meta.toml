@@ -1,0 +1,103 @@
+slug          = "scientific-calculator"
+title         = "Scientific Calculator"
+description   = "Evaluate scientific math expressions with variables, worksheet lines, complex numbers, trig angle modes, and JSON output in your browser."
+tags          = ["math", "calculator", "science", "complex", "trigonometry"]
+h1            = "Scientific Calculator"
+hero_subtitle = "Evaluate functions, constants, variables, complex numbers, and worksheet-style expressions locally in your browser."
+wasm          = "gizza_ai_scientific_calculator_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+[[input]]
+name        = "expression"
+label       = "Expression"
+placeholder = "x = 2pi\nsin(90) + x"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "variables"
+label       = "Variables"
+placeholder = "r = 5\ntheta = pi/4"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "angle_unit"
+label       = "Angle unit"
+source      = "field"
+[input.labels]
+radians = "Radians"
+degrees = "Degrees"
+gradians = "Gradians"
+
+[[input]]
+name        = "precision"
+label       = "Displayed digits"
+placeholder = "12"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "200"
+step        = "1"
+
+[[input]]
+name        = "notation"
+label       = "Notation"
+source      = "field"
+[input.labels]
+auto = "Auto"
+fixed = "Fixed decimal"
+scientific = "Scientific"
+engineering = "Engineering"
+
+[[input]]
+name        = "complex_form"
+label       = "Complex format"
+source      = "field"
+[input.labels]
+rectangular = "Rectangular a + bi"
+polar = "Polar magnitude-angle"
+
+[[input]]
+name        = "group_digits"
+label       = "Group digits"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+text = "Text"
+json = "JSON"
+
+[[example]]
+label = "Degrees trig"
+expression = "sin(90) + cos(0)"
+angle_unit = "degrees"
+precision = "12"
+notation = "auto"
+complex_form = "rectangular"
+output_format = "text"
+
+[[example]]
+label = "Complex square root"
+expression = "sqrt(-1) + (2+3i)"
+angle_unit = "radians"
+precision = "12"
+notation = "auto"
+complex_form = "rectangular"
+output_format = "text"
+
+[[example]]
+label = "Worksheet variables"
+expression = "x = 7\ny = x^2\ny + ans"
+variables = ""
+angle_unit = "radians"
+precision = "12"
+notation = "auto"
+complex_form = "rectangular"
+output_format = "text"

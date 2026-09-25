@@ -1,0 +1,88 @@
+slug          = "caesar-cipher-breaker"
+title         = "Caesar Cipher Breaker — crack shift ciphers"
+description   = "Crack Caesar ciphers automatically by scoring all 26 shifts against English, French, German, Spanish, Italian, or Portuguese letter frequencies."
+tags          = ["caesar cipher", "cipher breaker", "shift cipher", "rot13", "cryptogram", "frequency analysis", "classical cipher", "cryptography"]
+h1            = "Caesar cipher breaker"
+hero_subtitle = "Paste a Caesar-shifted message and try every shift at once. The best candidate is scored by letter frequency, with ranked, all-shifts, and diagnostic report views."
+wasm          = "gizza_ai_caesar_cipher_breaker_web"
+export        = "run"
+live          = false
+output_label  = "Likely plaintext"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Ciphertext"
+placeholder = "Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output"
+label  = "Output view"
+source = "field"
+[input.labels]
+best   = "Best match — shift and plaintext"
+ranked = "Ranked candidates — top shifts with previews"
+all    = "All 26 decryptions"
+report = "Diagnostic report — scores and letter frequencies"
+
+[[input]]
+name   = "language"
+label  = "Expected language"
+source = "field"
+[input.labels]
+english    = "English"
+french     = "French"
+german     = "German"
+spanish    = "Spanish"
+italian    = "Italian"
+portuguese = "Portuguese"
+
+[[input]]
+name        = "top"
+label       = "Ranked candidates to show"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+
+[[input]]
+name   = "shift_digits"
+label  = "Also rotate digits"
+source = "field"
+
+[[example]]
+label = "English shift 3"
+[example.values]
+input = "Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj."
+output = "best"
+language = "english"
+top = "5"
+shift_digits = "false"
+
+[[example]]
+label = "Rank top 3 candidates"
+[example.values]
+input = "Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj."
+output = "ranked"
+language = "english"
+top = "3"
+shift_digits = "false"
+
+[[example]]
+label = "ROT13 text"
+[example.values]
+input = "Gur dhvpx oebja sbk whzcf bire gur ynml qbt."
+output = "best"
+language = "english"
+top = "5"
+shift_digits = "false"
+
+[[example]]
+label = "Rotate letters and digits"
+[example.values]
+input = "Phhw dw 45 vkdus eb jdwh 2, eulqj wkh eoxh iroghu"
+output = "best"
+language = "english"
+top = "5"
+shift_digits = "true"

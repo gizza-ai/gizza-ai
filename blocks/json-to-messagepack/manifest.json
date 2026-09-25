@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/json-to-messagepack",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Serialize JSON into MessagePack and render the bytes as hex, base64 or diagnostics.",
+  "role": "skill",
+  "tool": {
+    "description": "Serialize a JSON value into MessagePack locally. Pass input as any JSON value. output chooses hex, base64, bytes, annotated, summary or json. key_order=input preserves object order while key_order=sorted gives deterministic byte order. compact_floats=true writes float32 when lossless. spec=old avoids the MessagePack str8 header for older decoders. group inserts spaces every N bytes in hex output. Returns the rendered MessagePack bytes or diagnostics.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "compact_floats": {
+          "default": false,
+          "description": "When true, emit float32 for JSON numbers that round-trip exactly as f32; otherwise all non-integer numbers use float64. Default false.",
+          "type": "boolean"
+        },
+        "group": {
+          "default": 0,
+          "description": "For hex-bearing outputs, insert a space every N bytes (for example 16 for dump-style grouping). Use 0 for continuous hex. Default 0; max 64.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "JSON value to serialize into MessagePack. Objects, arrays, strings, numbers, booleans and null are supported; input is capped at 1,000,000 UTF-8 bytes.",
+          "type": "string"
+        },
+        "key_order": {
+          "default": "input",
+          "description": "Object key order: input preserves the JSON document order (default); sorted sorts keys by raw UTF-8 bytes for deterministic payloads.",
+          "enum": [
+            "input",
+            "sorted"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "hex",
+          "description": "Rendered output format: hex (default), base64, bytes (decimal byte array), annotated (offset/type breakdown), summary (sizes plus hex/base64), or json (machine-readable summary).",
+          "enum": [
+            "hex",
+            "base64",
+            "bytes",
+            "annotated",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "spec": {
+          "default": "new",
+          "description": "MessagePack string header revision: new uses the str8 header for 32–255 byte strings; old avoids str8 for pre-2013 decoders. Default new.",
+          "enum": [
+            "new",
+            "old"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

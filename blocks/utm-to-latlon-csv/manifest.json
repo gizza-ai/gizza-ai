@@ -1,0 +1,130 @@
+{
+  "name": "gizza-ai/utm-to-latlon-csv",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert UTM coordinate CSV files to latitude/longitude, and back.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert CSV rows between UTM easting/northing/zone coordinates and WGS84 latitude/longitude. Auto-detects common coordinate column names, accepts UTM zones as numbers, MGRS latitude bands or EPSG:326xx/327xx codes, can reverse latitude/longitude rows back to UTM, and writes CSV, TSV, JSON, aligned tables, GeoJSON or KML. Runs offline with a pure Rust Transverse Mercator implementation; ellipsoid choices do not perform datum shifts.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "coord_format": {
+          "default": "decimal",
+          "description": "Latitude/longitude format for utm_to_latlon output: decimal degrees, degrees-minutes-seconds (dms), or degrees-decimal-minutes (ddm).",
+          "enum": [
+            "decimal",
+            "dms",
+            "ddm"
+          ],
+          "type": "string"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Number of decimal places to print for numeric output. For DMS/DDM, the setting controls equivalent precision and is capped at 12.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Input delimiter. Auto sniffs the first non-blank line and preserves the detected delimiter for CSV output.",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "direction": {
+          "default": "utm_to_latlon",
+          "description": "Conversion direction. Use utm_to_latlon to add latitude/longitude columns from UTM metres, or latlon_to_utm to add easting/northing/zone columns from WGS84 latitude/longitude.",
+          "enum": [
+            "utm_to_latlon",
+            "latlon_to_utm"
+          ],
+          "type": "string"
+        },
+        "easting_column": {
+          "default": "",
+          "description": "UTM easting column for utm_to_latlon, or latitude column for latlon_to_utm. Accepts a header name or 1-based column number. Blank auto-detects common names, then falls back to column 1.",
+          "type": "string"
+        },
+        "ellipsoid": {
+          "default": "wgs84",
+          "description": "Reference ellipsoid used for the Transverse Mercator math. This does not apply a datum shift; it only changes the ellipsoid shape.",
+          "enum": [
+            "wgs84",
+            "grs80",
+            "clarke1866",
+            "international1924"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first non-blank row as column headers. When false, columns are named column1, column2, and so on.",
+          "type": "boolean"
+        },
+        "hemisphere": {
+          "default": "auto",
+          "description": "Hemisphere interpretation for UTM northings. Auto uses the latitude-band letter or EPSG code when present and otherwise assumes north; choose north or south to override a questionable zone label.",
+          "enum": [
+            "auto",
+            "north",
+            "south"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "CSV or delimited text containing UTM easting, northing and zone columns (or latitude and longitude columns when direction=latlon_to_utm). The first row is treated as a header by default.",
+          "type": "string"
+        },
+        "keep_columns": {
+          "default": true,
+          "description": "Keep non-coordinate columns in the output. Disable this to return only the converted coordinate columns.",
+          "type": "boolean"
+        },
+        "northing_column": {
+          "default": "",
+          "description": "UTM northing column for utm_to_latlon, or longitude column for latlon_to_utm. Accepts a header name or 1-based column number. Blank auto-detects common names, then falls back to column 2.",
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Output format. CSV/TSV are spreadsheet-friendly, JSON/table are for inspection, and GeoJSON/KML create point features from the converted coordinates.",
+          "enum": [
+            "csv",
+            "tsv",
+            "json",
+            "table",
+            "geojson",
+            "kml"
+          ],
+          "type": "string"
+        },
+        "validate_ranges": {
+          "default": true,
+          "description": "Reject out-of-range UTM eastings/northings, latitude outside UTM coverage, and latitude-band mismatches before returning output.",
+          "type": "boolean"
+        },
+        "zone": {
+          "default": "",
+          "description": "Fallback or forced UTM zone when a row has no zone column. Examples: 18, 18T, 18N, EPSG:32618. For latlon_to_utm, leave blank to pick the standard zone from longitude.",
+          "type": "string"
+        },
+        "zone_column": {
+          "default": "",
+          "description": "Optional UTM zone column name or 1-based index. Values may be zone numbers, MGRS-style bands such as 18T, hemisphere suffixes such as 56S, or EPSG codes such as EPSG:32618.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

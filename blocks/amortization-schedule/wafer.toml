@@ -1,0 +1,4 @@
+name = "gizza-ai/amortization-schedule"
+version = "0.1.0"
+interface = "handler@v1"
+summary = "Generate a loan amortization schedule with payments, interest, balances, and totals."

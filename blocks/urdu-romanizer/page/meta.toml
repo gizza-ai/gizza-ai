@@ -1,0 +1,88 @@
+slug          = "urdu-romanizer"
+title         = "Urdu Romanizer — transliterate Urdu script to Roman Urdu"
+description   = "Convert Urdu script into Roman Urdu locally with informal ASCII, ALA-LC and ISO 15919 schemes, short-vowel options, digit and punctuation controls."
+tags          = ["urdu romanizer", "urdu to roman urdu", "urdu transliteration", "roman urdu converter", "urdu latin transliteration", "ala-lc urdu", "iso 15919 urdu"]
+h1            = "Urdu Romanizer"
+hero_subtitle = "Paste Urdu script and get deterministic Roman Urdu output. Choose informal ASCII for everyday writing, or scholarly ALA-LC / ISO 15919 output when you need letter distinctions. Nothing is uploaded."
+wasm          = "gizza_ai_urdu_romanizer_web"
+export        = "run"
+live          = false
+output_label  = "Roman Urdu"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Urdu text"
+placeholder = "یہ کتاب اچھی ہے۔\nپاکستان ۲۰۲۶"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "scheme"
+label  = "Romanization scheme"
+source = "field"
+
+[input.labels]
+"informal" = "Informal ASCII Roman Urdu"
+"ala-lc"   = "ALA-LC style with diacritics"
+"iso15919" = "ISO 15919 style with diacritics"
+
+[[input]]
+name   = "short_vowels"
+label  = "Short vowels"
+source = "field"
+
+[input.labels]
+"insert-a"   = "Insert default a between consonants"
+"marks-only" = "Use only typed vowel marks"
+"omit"       = "Omit short vowels"
+
+[[input]]
+name   = "common_words"
+label  = "Use common-word spellings"
+source = "field"
+
+[[input]]
+name   = "digits"
+label  = "Digits"
+source = "field"
+
+[input.labels]
+"latin" = "Convert Urdu digits to 0-9"
+"keep"  = "Keep original digit characters"
+
+[[input]]
+name   = "punctuation"
+label  = "Punctuation"
+source = "field"
+
+[input.labels]
+"latin" = "Convert Urdu punctuation to Latin"
+"keep"  = "Keep Urdu punctuation"
+
+[[input]]
+name   = "capitalization"
+label  = "Capitalization"
+source = "field"
+
+[input.labels]
+"none"     = "Lowercase / no capitalization"
+"sentence" = "Sentence case"
+"title"    = "Title case"
+
+[[example]]
+label  = "Default informal"
+params = { input = "یہ کتاب اچھی ہے۔\nپاکستان ۲۰۲۶", scheme = "informal", short_vowels = "insert-a", common_words = "true", digits = "latin", punctuation = "latin", capitalization = "sentence" }
+
+[[example]]
+label  = "Diacritics honoured"
+params = { input = "مُحَمَّد صدرِ مملکت", scheme = "informal", short_vowels = "insert-a", common_words = "false", digits = "latin", punctuation = "latin", capitalization = "none" }
+
+[[example]]
+label  = "ALA-LC scholarly"
+params = { input = "طٹت خ ژ", scheme = "ala-lc", short_vowels = "marks-only", common_words = "false", digits = "latin", punctuation = "latin", capitalization = "none" }
+
+[[example]]
+label  = "Keep script punctuation"
+params = { input = "۱۲۳ ہے، جی۔", scheme = "informal", short_vowels = "insert-a", common_words = "true", digits = "keep", punctuation = "keep", capitalization = "none" }

@@ -1,0 +1,69 @@
+{
+  "name": "gizza-ai/charset-decoder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Decode hex or base64 byte dumps into text using a chosen or detected character set.",
+  "role": "skill",
+  "tool": {
+    "description": "Decode raw bytes pasted as hex or base64 into readable text under a chosen character set. input is the hex dump or base64 body. input_format can be auto, hex or base64. charset can be auto or a label such as utf-8, utf-16le, windows-1252/latin1, windows-1251, koi8-r, shift_jis, euc-jp, gbk, big5, euc-kr, utf-32le or utf-32be. output can be text, escaped, hexdump, compare or report. errors controls malformed byte handling (replace or strict). strip_bom drops a matching BOM by default. per_line decodes each non-empty line independently for output=text or escaped. Returns the rendered text plus charset/input diagnostics.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "charset": {
+          "default": "auto",
+          "description": "Character set label to decode with, or auto. Accepts WHATWG labels such as utf-8, utf-16le, windows-1252/latin1, windows-1251, koi8-r, shift_jis/sjis, euc-jp, gbk, big5, euc-kr, plus utf-32le and utf-32be. Default auto.",
+          "type": "string"
+        },
+        "errors": {
+          "default": "replace",
+          "description": "Malformed byte handling: replace substitutes U+FFFD and counts replacements; strict fails at the first invalid byte offset. Default replace.",
+          "enum": [
+            "replace",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "Bytes to decode, pasted as hex (e.g. 48 65 6c 6c 6f) or base64 (e.g. SGVsbG8=). Hex may include spaces, colons, dashes, 0x or \\x byte prefixes; base64 may be padded, unpadded, URL-safe, multiline, or a data: URI.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read input: auto detects even-length hex dumps and otherwise base64; hex forces hexadecimal; base64 forces standard or URL-safe base64. Default auto.",
+          "enum": [
+            "auto",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "text",
+          "description": "Output view: text for decoded text, escaped to reveal control/invisible characters, hexdump for raw bytes, compare to show common charsets side by side, or report for diagnostics. Default text.",
+          "enum": [
+            "text",
+            "escaped",
+            "hexdump",
+            "compare",
+            "report"
+          ],
+          "type": "string"
+        },
+        "per_line": {
+          "default": false,
+          "description": "Decode each non-empty input line independently, useful for log files containing one encoded value per line. Works with output=text or output=escaped. Default false.",
+          "type": "boolean"
+        },
+        "strip_bom": {
+          "default": true,
+          "description": "Drop a leading byte-order mark when it matches the chosen charset (UTF-8/UTF-16/UTF-32). Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

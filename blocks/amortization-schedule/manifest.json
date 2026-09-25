@@ -1,0 +1,107 @@
+{
+  "name": "gizza-ai/amortization-schedule",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a loan amortization schedule with payments, interest, balances, and totals.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a fixed-rate loan amortization schedule. Pass loan_amount, annual_interest_rate_percent, loan_years and optional loan_months; choose payment_frequency (weekly, biweekly, monthly, quarterly, semiannual, annual), optional start_date, recurring extra_payment, one-time extra_one_time plus extra_one_time_period, schedule_view (period or annual), format (table, csv, json), and currency_symbol. Returns per-period or annual principal/interest/balance rows plus payment_per_period, total_interest, total_paid, interest_saved and payments_saved.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "annual_interest_rate_percent": {
+          "default": 6.0,
+          "description": "Nominal annual interest rate as a percent, e.g. 6 for 6% APR. Default 6. Range 0–100.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "currency_symbol": {
+          "default": "$",
+          "description": "Currency symbol printed in the table summary, up to 3 characters. Default $. Cosmetic only; no conversion is applied.",
+          "type": "string"
+        },
+        "extra_one_time": {
+          "default": 0.0,
+          "description": "One-time extra principal amount applied in extra_one_time_period. Default 0.",
+          "maximum": 1000000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "extra_one_time_period": {
+          "default": 1,
+          "description": "1-based payment number where extra_one_time is applied. Default 1. Must be within the scheduled term when a lump sum is entered.",
+          "maximum": 5000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "extra_payment": {
+          "default": 0.0,
+          "description": "Extra principal paid every period, on top of the scheduled payment. Default 0. It shortens the payoff and reduces interest.",
+          "maximum": 1000000000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "table",
+          "description": "Output format: table for a readable aligned report, csv for spreadsheet rows, or json for the full structured schedule. Default table.",
+          "enum": [
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "loan_amount": {
+          "default": 300000.0,
+          "description": "Amount borrowed / principal balance to amortize. Default 300000. Must be greater than 0 and at most 1000000000.",
+          "maximum": 1000000000,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "loan_months": {
+          "default": 0.0,
+          "description": "Additional months in the loan term beyond loan_years. Default 0. The total term must be at least one month.",
+          "maximum": 1200,
+          "minimum": 0,
+          "type": "number"
+        },
+        "loan_years": {
+          "default": 30.0,
+          "description": "Whole years in the loan term. Default 30. Combine with loan_months for terms like 5 years 6 months.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "payment_frequency": {
+          "default": "monthly",
+          "description": "Payment frequency used for the amortization schedule and per-period interest: weekly, biweekly, monthly, quarterly, semiannual, or annual. Default monthly.",
+          "enum": [
+            "weekly",
+            "biweekly",
+            "monthly",
+            "quarterly",
+            "semiannual",
+            "annual"
+          ],
+          "type": "string"
+        },
+        "schedule_view": {
+          "default": "period",
+          "description": "Schedule density: period returns every payment row; annual groups rows by loan year. Default period.",
+          "enum": [
+            "period",
+            "annual"
+          ],
+          "type": "string"
+        },
+        "start_date": {
+          "default": "2026-01-01",
+          "description": "First payment date. Use YYYY-MM-DD (also accepts YYYY/MM/DD, MM/DD/YYYY, DD.MM.YYYY). Blank uses 2026-01-01 for deterministic output.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

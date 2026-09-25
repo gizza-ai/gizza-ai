@@ -1,0 +1,199 @@
+slug          = "anomaly-timeseries"
+title         = "Time Series Anomaly Detector — Rolling Z-Score and Seasonal Rules"
+description   = "Paste a metric history and flag its anomalies with a rolling z-score, a robust median/MAD baseline, or a seasonal rule — with scores, severity and a normal band."
+tags = [
+  "time series anomaly detection",
+  "rolling z-score anomaly detector",
+  "seasonal anomaly detection",
+  "flag anomalous days in a metric",
+  "moving window outlier detection",
+  "robust MAD anomaly detection",
+  "spike and drop detection",
+  "anomaly threshold sigma",
+  "expected value and normal band",
+]
+h1            = "Find the anomalous points in a time series"
+hero_subtitle = "Paste a metric history and see which points broke from their recent window — or from their own weekday pattern — with the expected value, the score, the band they should have stayed inside, and a severity for each row."
+wasm          = "gizza_ai_anomaly_timeseries_web"
+export        = "run"
+live          = false
+output_label  = "Anomaly report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "series"
+label       = "Metric history (in time order)"
+placeholder = """2026-01-01, 120
+2026-01-02, 132
+2026-01-03, 118
+2026-01-04, 410"""
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "method"
+label  = "Rule"
+source = "field"
+
+[input.labels]
+rolling_z    = "Rolling z-score: mean ± SD of the window"
+rolling_mad  = "Robust rolling: median ± MAD (ignores spikes in the window)"
+seasonal_z   = "Seasonal: compare with the same position in other cycles"
+combined     = "Combined: worse of the rolling and seasonal verdicts"
+
+[[input]]
+name        = "window"
+label       = "Rolling window (points)"
+placeholder = "12"
+source      = "field"
+kind        = "slider"
+min         = 2
+max         = 60
+step        = "1"
+
+[[input]]
+name        = "min_periods"
+label        = "History required before scoring (0 = full window)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "threshold"
+label       = "Anomaly threshold (spreads from expected)"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 10
+step        = "0.1"
+
+[[input]]
+name        = "warn_threshold"
+label       = "Watch-band threshold (0 = off)"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 10
+step        = "0.1"
+
+[[input]]
+name        = "period"
+label       = "Seasonal cycle length (points)"
+placeholder = "7"
+source      = "field"
+
+[[input]]
+name        = "tolerance"
+label       = "Tolerance deadband (series units)"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name   = "direction"
+label  = "Alert on"
+source = "field"
+
+[input.labels]
+both  = "Both spikes and drops"
+above = "Spikes only (above the baseline)"
+below = "Drops only (below the baseline)"
+
+[[input]]
+name   = "center"
+label  = "Use a centred window (retrospective, scores the first rows too)"
+source = "field"
+
+[[input]]
+name   = "only_anomalies"
+label  = "Show only the warning and critical rows"
+source = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 10
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+json  = "JSON report (every field)"
+table = "Aligned table + plain-language reading"
+csv   = "CSV for a spreadsheet"
+
+[[example]]
+label = "Traffic spike"
+[example.params]
+series = "120, 132, 118, 127, 131, 124, 129, 122, 135, 128, 126, 133, 410, 130, 125"
+method = "rolling_z"
+window = "7"
+min_periods = "3"
+threshold = "3"
+warn_threshold = "2"
+period = "7"
+tolerance = "0"
+direction = "both"
+center = "false"
+only_anomalies = "false"
+decimals = "2"
+output = "table"
+
+[[example]]
+label = "Weekly pattern"
+[example.params]
+series = "100, 104, 98, 102, 101, 42, 38, 103, 99, 101, 100, 104, 41, 39, 102, 101, 99, 103, 100, 40, 95"
+method = "seasonal_z"
+window = "12"
+min_periods = "0"
+threshold = "3"
+warn_threshold = "2"
+period = "7"
+tolerance = "0"
+direction = "both"
+center = "false"
+only_anomalies = "false"
+decimals = "2"
+output = "table"
+
+[[example]]
+label = "Robust to a noisy window"
+[example.params]
+series = "50, 52, 49, 51, 250, 50, 52, 51, 49, 180, 51, 50"
+method = "rolling_mad"
+window = "6"
+min_periods = "3"
+threshold = "3"
+warn_threshold = "2"
+period = "7"
+tolerance = "0"
+direction = "both"
+center = "false"
+only_anomalies = "false"
+decimals = "2"
+output = "table"
+
+[[example]]
+label = "Drops only"
+[example.params]
+series = "500, 512, 495, 505, 498, 507, 503, 60, 501, 499, 508, 502"
+method = "rolling_z"
+window = "6"
+min_periods = "3"
+threshold = "3"
+warn_threshold = "2"
+period = "7"
+tolerance = "0"
+direction = "below"
+center = "false"
+only_anomalies = "true"
+decimals = "2"
+output = "table"

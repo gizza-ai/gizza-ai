@@ -1,0 +1,74 @@
+{
+  "name": "gizza-ai/ideal-weight",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Estimate ideal body-weight ranges from height and sex using the Devine, Robinson, Miller and Hamwi formulas plus a healthy BMI range.",
+  "role": "skill",
+  "tool": {
+    "description": "Estimate adult ideal body weight (IBW) from height and sex. Pass height (units=metric for cm or imperial for total inches), sex (male/female), and optionally frame (small/medium/large for a ∓10% body-frame adjustment, or auto to derive it from a wrist measurement), wrist, age, and the healthy BMI bounds bmi_min/bmi_max. Every parameter is optional with a sensible default. Returns all four classic formulas side by side (Hamwi 1964, Devine 1974, Robinson 1983, Miller 1983) in kg and lb with the BMI each represents, their average and min-max spread, the healthy-BMI weight range, per-input caveats, and a plain-language summary. Adult estimates for planning, not medical advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "description": "Age in years, e.g. 35. Optional and not used by any formula — it only adds a note when under 18, since these are adult equations.",
+          "maximum": 120,
+          "minimum": 0,
+          "type": "number"
+        },
+        "bmi_max": {
+          "default": 24.9,
+          "description": "Upper BMI bound for the healthy-weight range. Default 24.9 (WHO). Must be greater than bmi_min.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "bmi_min": {
+          "default": 18.5,
+          "description": "Lower BMI bound for the healthy-weight range. Default 18.5 (WHO). Use e.g. 18.5 with bmi_max=23 for the WHO Asian cutoffs.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "frame": {
+          "default": "medium",
+          "description": "Body frame size, applied as a weight adjustment to every formula: small (−10%), medium (no adjustment, default), large (+10%), or auto to derive the frame from the wrist measurement.",
+          "enum": [
+            "small",
+            "medium",
+            "large",
+            "auto"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "default": 175.0,
+          "description": "Height, in cm when units=metric or total inches when units=imperial (e.g. 5'10\" = 70). Default 175 cm (69 in when imperial). Accepted range 122–250 cm / 48–98.4 in — the equations are adult-only.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "sex": {
+          "default": "male",
+          "description": "Biological sex the equations were published for: male or female. Default male.",
+          "enum": [
+            "male",
+            "female"
+          ],
+          "type": "string"
+        },
+        "units": {
+          "default": "metric",
+          "description": "Unit system for the height and wrist inputs: metric (cm) or imperial (inches). Results are always reported in both kg and lb. Default metric.",
+          "enum": [
+            "metric",
+            "imperial"
+          ],
+          "type": "string"
+        },
+        "wrist": {
+          "description": "Wrist circumference measured just below the wrist bone, in cm when units=metric or inches when units=imperial (e.g. 17 cm / 6.7 in). Required when frame=auto, ignored otherwise. Optional.",
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

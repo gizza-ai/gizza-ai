@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hdbscan-cluster"
+version = "0.1.0"
+abi = 1
+summary = "Cluster a pasted table with HDBSCAN, finding the cluster count automatically and labelling noise."

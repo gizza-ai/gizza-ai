@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "wav-to-alac"
+version = "0.1.0"
+abi = 1
+summary = "Encode WAV audio to Apple Lossless (ALAC) in an .m4a container"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "regex-from-examples"
+version = "0.1.0"
+abi = 1
+summary = "Infer a verified regex from positive and negative examples"

@@ -1,0 +1,147 @@
+slug          = "reservoir-sampler"
+title         = "Reservoir Sampler — Fixed-Size Random Sample in One Pass"
+description   = "Draw a uniform random sample of N lines from a huge list in a single pass. Reservoir Algorithm L or R, seeded and repeatable, entirely in your browser."
+tags = [
+  "reservoir sampling",
+  "random sample",
+  "algorithm l",
+  "algorithm r",
+  "sample n lines",
+  "random line picker",
+  "streaming sample",
+  "seeded random selection",
+]
+h1            = "Reservoir sampling — a fixed-size random sample in one pass"
+hero_subtitle = "Paste a list, log, or export and pull out N records drawn uniformly at random. One pass, no record drawn twice, and a seed so the same draw comes back whenever you need to prove it."
+wasm          = "gizza_ai_reservoir_sampler_web"
+export        = "run"
+live          = false
+output_label  = "Sample"
+format        = "text"
+
+[[input]]
+name        = "data"
+label       = "Dataset (one record per line)"
+placeholder = "2026-09-04 GET /home 200\n2026-09-04 GET /pricing 200\n2026-09-04 POST /signup 500\n..."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "k"
+label       = "Sample size"
+placeholder = "10"
+source      = "field"
+
+[[input]]
+name   = "algorithm"
+label  = "Algorithm"
+source = "field"
+
+[input.labels]
+l = "Algorithm L — skip ahead (fewer random draws)"
+r = "Algorithm R — classic, one draw per record"
+
+[[input]]
+name        = "seed"
+label       = "Random seed"
+placeholder = "42"
+source      = "field"
+
+[[input]]
+name   = "skip_empty"
+label  = "Ignore blank lines"
+source = "field"
+
+[[input]]
+name   = "header"
+label  = "First line is a header"
+source = "field"
+
+[[input]]
+name   = "order"
+label  = "Result order"
+source = "field"
+
+[input.labels]
+input     = "Original dataset order"
+reservoir = "Draw order (as the reservoir ended up)"
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+lines    = "Records only"
+numbered = "Line number + tab + record"
+json     = "JSON array of {line, text}"
+
+[[input]]
+name   = "stats"
+label  = "Show pass statistics"
+source = "field"
+
+[[example]]
+label = "Sample 4 log lines"
+[example.params]
+data = "GET /home 200\nGET /pricing 200\nPOST /signup 500\nGET /docs 200\nGET /home 304\nPOST /login 401\nGET /blog 200\nGET /home 200\nDELETE /account 204\nGET /pricing 500"
+k = "4"
+algorithm = "l"
+seed = "42"
+skip_empty = "true"
+header = "false"
+order = "input"
+format = "lines"
+stats = "false"
+
+[[example]]
+label = "Pick 3 winners in draw order"
+[example.params]
+data = "ada\nbrooke\ncarlos\ndanielle\nemeka\nfarrah\ngustav\nhana"
+k = "3"
+algorithm = "l"
+seed = "7"
+skip_empty = "true"
+header = "false"
+order = "reservoir"
+format = "lines"
+stats = "false"
+
+[[example]]
+label = "CSV with a header row"
+[example.params]
+data = "id,city,amount\n1,Lisbon,42\n2,Oslo,18\n3,Nairobi,77\n4,Lima,5\n5,Osaka,63\n6,Cairo,29"
+k = "3"
+algorithm = "l"
+seed = "42"
+skip_empty = "true"
+header = "true"
+order = "input"
+format = "lines"
+stats = "false"
+
+[[example]]
+label = "Numbered lines with stats"
+[example.params]
+data = "alpha\nbravo\ncharlie\ndelta\necho\nfoxtrot\ngolf\nhotel\nindia\njuliett\nkilo\nlima"
+k = "4"
+algorithm = "r"
+seed = "42"
+skip_empty = "true"
+header = "false"
+order = "input"
+format = "numbered"
+stats = "true"
+
+[[example]]
+label = "JSON sample for a script"
+[example.params]
+data = "alpha\nbravo\ncharlie\ndelta\necho\nfoxtrot"
+k = "2"
+algorithm = "l"
+seed = "42"
+skip_empty = "true"
+header = "false"
+order = "input"
+format = "json"
+stats = "true"

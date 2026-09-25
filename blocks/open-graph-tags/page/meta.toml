@@ -1,0 +1,235 @@
+slug          = "open-graph-tags"
+title         = "Open Graph and Twitter Card Meta Tag Generator"
+description   = "Generate Open Graph and Twitter Card meta tags so your page renders a rich preview when shared on Facebook, X, LinkedIn, Slack or Discord."
+tags          = ["open graph generator", "og tags", "twitter card generator", "meta tag generator", "social share preview", "og:image", "link preview tags"]
+h1            = "Open Graph and Twitter Card Meta Tag Generator"
+hero_subtitle = "Fill in your page's title, description, URL and preview image, and get a copy-pasteable block of <head> markup — Open Graph tags for Facebook, LinkedIn, Slack and Discord, plus Twitter Card tags for X. Runs locally in your browser; nothing is uploaded."
+wasm          = "gizza_ai_open_graph_tags_web"
+export        = "run"
+live          = false
+output_label  = "Meta tags"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "title"
+label       = "Page title"
+placeholder = "How to bake sourdough"
+source      = "field"
+
+[[input]]
+name        = "description"
+label       = "Description"
+placeholder = "A step-by-step sourdough guide covering starter, autolyse, bulk ferment and bake."
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "url"
+label       = "Page URL"
+placeholder = "https://example.com/sourdough"
+source      = "field"
+
+[[input]]
+name        = "image"
+label       = "Preview image URL"
+placeholder = "https://example.com/og/sourdough.png"
+source      = "field"
+
+[[input]]
+name        = "image_alt"
+label       = "Image alt text"
+placeholder = "A sliced sourdough loaf"
+source      = "field"
+
+[[input]]
+name        = "image_width"
+label       = "Image width (px)"
+placeholder = "1200"
+source      = "field"
+default     = "0"
+
+[[input]]
+name        = "image_height"
+label       = "Image height (px)"
+placeholder = "630"
+source      = "field"
+default     = "0"
+
+[[input]]
+name        = "site_name"
+label       = "Site name"
+placeholder = "Example Bakery"
+source      = "field"
+
+[[input]]
+name    = "og_type"
+label   = "Content type (og:type)"
+source  = "field"
+default = "website"
+[input.labels]
+website       = "Website — an ordinary page"
+article       = "Article — a post or story"
+product       = "Product"
+profile       = "Profile — a person"
+"video.other" = "Video"
+"music.song"  = "Music track"
+book          = "Book"
+
+[[input]]
+name    = "twitter_card"
+label   = "Card layout (twitter:card)"
+source  = "field"
+default = "summary_large_image"
+[input.labels]
+summary_large_image = "Large image — wide preview"
+summary             = "Summary — small square thumbnail"
+player              = "Player — embedded media"
+app                 = "App — mobile app promo"
+
+[[input]]
+name        = "twitter_site"
+label       = "Site X handle"
+placeholder = "@examplebakery"
+source      = "field"
+
+[[input]]
+name        = "twitter_creator"
+label       = "Author X handle"
+placeholder = "@some_baker"
+source      = "field"
+
+[[input]]
+name        = "locale"
+label       = "Locale (og:locale)"
+placeholder = "en_US"
+source      = "field"
+default     = "en_US"
+
+[[input]]
+name        = "author"
+label       = "Author name"
+placeholder = "Dana Ruiz"
+source      = "field"
+
+[[input]]
+name    = "include_basic"
+label   = "Include standard title, description and canonical tags"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "include_twitter"
+label   = "Include Twitter Card tags"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "include_schema"
+label   = "Include schema.org itemprop tags"
+source  = "field"
+default = "false"
+
+[[input]]
+name    = "group_comments"
+label   = "Label each block with an HTML comment"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "warnings"
+label   = "Append a checks comment"
+source  = "field"
+default = "true"
+
+[[example]]
+label = "Blog article"
+[example.params]
+title = "How to bake sourdough"
+description = "A step-by-step sourdough guide covering starter, autolyse, bulk ferment and bake."
+url = "https://example.com/sourdough"
+image = "https://example.com/og/sourdough.png"
+image_alt = "A sliced sourdough loaf"
+image_width = "1200"
+image_height = "630"
+site_name = "Example Bakery"
+og_type = "article"
+twitter_card = "summary_large_image"
+twitter_site = "@examplebakery"
+twitter_creator = "@some_baker"
+locale = "en_US"
+author = "Dana Ruiz"
+include_basic = "true"
+include_twitter = "true"
+include_schema = "false"
+group_comments = "true"
+warnings = "true"
+
+[[example]]
+label = "Product page"
+[example.params]
+title = "Cast iron dutch oven, 5.5 qt"
+description = "An enamelled cast iron dutch oven for no-knead bread, braises and stews, with a 5.5 quart capacity and an oven-safe lid."
+url = "https://example.com/shop/dutch-oven"
+image = "https://example.com/og/dutch-oven.jpg"
+image_alt = "A blue enamelled cast iron dutch oven"
+image_width = "1200"
+image_height = "630"
+site_name = "Example Bakery"
+og_type = "product"
+twitter_card = "summary_large_image"
+twitter_site = "@examplebakery"
+twitter_creator = ""
+locale = "en_US"
+author = ""
+include_basic = "true"
+include_twitter = "true"
+include_schema = "true"
+group_comments = "true"
+warnings = "true"
+
+[[example]]
+label = "Author profile, small card"
+[example.params]
+title = "Dana Ruiz — baker and recipe writer"
+description = "Dana Ruiz writes about slow fermentation, home milling and everyday sourdough at Example Bakery."
+url = "https://example.com/authors/dana-ruiz"
+image = "https://example.com/og/dana.jpg"
+image_alt = "Portrait of Dana Ruiz"
+image_width = "400"
+image_height = "400"
+site_name = "Example Bakery"
+og_type = "profile"
+twitter_card = "summary"
+twitter_site = "@examplebakery"
+twitter_creator = "@some_baker"
+locale = "en_US"
+author = "dana"
+include_basic = "true"
+include_twitter = "true"
+include_schema = "false"
+group_comments = "true"
+warnings = "true"
+
+[[example]]
+label = "Open Graph only, no comments"
+[example.params]
+title = "How to bake sourdough"
+description = "A step-by-step sourdough guide covering starter, autolyse, bulk ferment and bake."
+url = "https://example.com/sourdough"
+image = "https://example.com/og/sourdough.png"
+image_alt = "A sliced sourdough loaf"
+image_width = "1200"
+image_height = "630"
+site_name = "Example Bakery"
+og_type = "website"
+twitter_card = "summary_large_image"
+twitter_site = ""
+twitter_creator = ""
+locale = "en_US"
+author = ""
+include_basic = "false"
+include_twitter = "false"
+include_schema = "false"
+group_comments = "false"
+warnings = "false"

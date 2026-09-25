@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/yaml-lint",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint YAML for syntax, duplicate keys and style traps",
+  "role": "skill",
+  "tool": {
+    "description": "Lint a pasted YAML document for parser errors, duplicate mapping keys, tabs and indentation drift, line length, trailing whitespace, comment and colon spacing, truthy/octal-looking scalars, multi-document stream counts and optional strict rules. Choose relaxed/default/strict presets, disable individual rules, adjust indentation and line-length limits, and return either a human report or JSON for CI.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "disable": {
+          "default": "",
+          "description": "Comma, space or newline separated rule ids to disable, such as truthy, line-length or comments.",
+          "type": "string"
+        },
+        "indent_spaces": {
+          "default": 2,
+          "description": "Expected indentation width in spaces, from 1 to 8. Lines indented by a non-multiple are reported.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "input": {
+          "description": "YAML document to lint. Multi-document streams are supported and no data leaves the local runtime.",
+          "type": "string"
+        },
+        "max_line_length": {
+          "default": 80,
+          "description": "Maximum line length in characters. Set to 0 to disable the line-length rule.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "preset": {
+          "default": "default",
+          "description": "Rule preset. relaxed checks syntax, duplicate keys and indentation; default adds common style and portability warnings; strict adds document-start, key-ordering and empty-value checks.",
+          "enum": [
+            "relaxed",
+            "default",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "report_format": {
+          "default": "report",
+          "description": "Output format: report returns human-readable line:column findings; json returns a machine-readable object for CI.",
+          "enum": [
+            "report",
+            "json"
+          ],
+          "type": "string"
+        },
+        "strict_warnings": {
+          "default": false,
+          "description": "Promote every warning to an error, matching the strict CI convention used by many YAML linters.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "name": "gizza-ai/qr-batch",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a ZIP of QR codes from a pasted list or CSV",
+  "role": "skill",
+  "tool": {
+    "description": "Generate many QR codes at once from a pasted list, CSV or TSV and return a downloadable ZIP archive. Each row becomes a PNG, SVG or both; optional filename columns, header skipping, QR error correction, colours, size, quiet-zone margin and an index.csv manifest are supported. Row errors are reported instead of silently dropped, and generation is deterministic and local.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bg_color": {
+          "default": "#ffffff",
+          "description": "Background colour as #rgb, #rrggbb, a common colour name, or `transparent`. Default #ffffff.",
+          "type": "string"
+        },
+        "columns": {
+          "default": "auto",
+          "description": "Which columns to read when the input is CSV/TSV. `auto` treats two-column rows as name,value and one-column rows as values; `value-only` keeps commas/tabs inside the payload.",
+          "enum": [
+            "auto",
+            "name-value",
+            "value-name",
+            "value-only"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "Rows to encode. Paste one QR payload per line, or CSV/TSV rows such as `label,https://example.com`. Blank lines are ignored; at most 500 rows are accepted.",
+          "type": "string"
+        },
+        "error_correction": {
+          "default": "M",
+          "description": "QR error-correction level. L fits the most data; M is the balanced default; Q and H survive more print damage but reduce capacity.",
+          "enum": [
+            "L",
+            "M",
+            "Q",
+            "H"
+          ],
+          "type": "string"
+        },
+        "fg_color": {
+          "default": "#000000",
+          "description": "Foreground/module colour as #rgb, #rrggbb, or a common colour name. It cannot be transparent. Default #000000.",
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "File type to place in the ZIP for each row: PNG, SVG, or both. Default png.",
+          "enum": [
+            "png",
+            "svg",
+            "both"
+          ],
+          "type": "string"
+        },
+        "has_header": {
+          "default": false,
+          "description": "Skip the first non-blank row as a header row. Default false.",
+          "type": "boolean"
+        },
+        "include_index": {
+          "default": true,
+          "description": "Include index.csv in the ZIP, mapping each generated filename back to the encoded value and listing row-level errors. Default true.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to split the pasted rows. `auto` (default) uses TSV if any tab is present, CSV if any comma is present, otherwise one value per line.",
+          "enum": [
+            "auto",
+            "list",
+            "csv",
+            "tsv"
+          ],
+          "type": "string"
+        },
+        "margin": {
+          "default": 4,
+          "description": "Quiet-zone border in QR modules (0-16, default 4). Use at least 4 for printed codes unless you know the scanner tolerates less.",
+          "maximum": 16,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name_prefix": {
+          "default": "qr",
+          "description": "Prefix for auto-numbered filenames when a row has no explicit name. `qr` becomes qr-001.png, qr-002.png, and so on.",
+          "type": "string"
+        },
+        "size": {
+          "default": 512,
+          "description": "Target edge size in pixels for each QR image (64-2048, default 512). PNG output snaps upward to whole QR modules so edges stay sharp.",
+          "maximum": 2048,
+          "minimum": 64,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

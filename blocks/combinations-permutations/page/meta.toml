@@ -1,0 +1,147 @@
+slug          = "combinations-permutations"
+title         = "Combinations & Permutations Calculator — nCr, nPr, Lists & CSV"
+description   = "Count nCr/nPr exactly, compare with-repetition and circular cases, and enumerate combinations or permutations of a pasted item list as lines, CSV or JSON."
+tags          = ["combinations calculator", "permutations calculator", "ncr", "npr", "combinatorics", "lottery odds", "combination generator", "permutation generator"]
+h1            = "Combinations & Permutations Calculator"
+hero_subtitle = "Compute exact nCr/nPr counts, formula substitutions and 1-in-N odds — or paste a list and generate every combination or permutation locally."
+wasm          = "gizza_ai_combinations_permutations_web"
+export        = "run"
+live          = false
+output_label  = "Combinatorics result"
+format        = "text"
+
+[[input]]
+name        = "items"
+label       = "Items (optional)"
+placeholder = "A, B, C, D"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "n"
+label       = "n (pool size)"
+placeholder = "49"
+source      = "field"
+
+[[input]]
+name        = "r"
+label       = "r (chosen count)"
+placeholder = "6"
+source      = "field"
+
+[[input]]
+name        = "mode"
+label       = "Mode"
+source      = "field"
+[input.labels]
+combinations = "Combinations — order does not matter"
+permutations = "Permutations — order matters"
+circular_permutations = "Circular permutations — rotations count once"
+
+[[input]]
+name        = "repetition"
+label       = "Allow repetition"
+source      = "field"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+source      = "field"
+[input.labels]
+summary = "Summary with formula and odds"
+count = "Count only"
+lines = "List one result per line"
+csv = "CSV rows"
+json = "JSON arrays"
+
+[[input]]
+name        = "item_separator"
+label       = "Item separator"
+source      = "field"
+[input.labels]
+auto = "Auto-detect"
+comma = "Comma"
+newline = "New line"
+semicolon = "Semicolon"
+pipe = "Pipe"
+tab = "Tab / spreadsheet column"
+space = "Space"
+
+[[input]]
+name        = "dedupe"
+label       = "Deduplicate items"
+source      = "field"
+
+[[input]]
+name        = "join_separator"
+label       = "Line output joiner"
+source      = "field"
+[input.labels]
+comma = "Comma + space"
+space = "Space"
+none = "No separator"
+dash = "Dash"
+underscore = "Underscore"
+pipe = "Pipe"
+slash = "Slash"
+plus = "Plus"
+dot = "Dot"
+custom = "Custom"
+
+[[input]]
+name        = "custom_join_separator"
+label       = "Custom joiner"
+placeholder = " -> "
+source      = "field"
+
+[[input]]
+name        = "max_results"
+label       = "Max enumerated results"
+placeholder = "10000"
+source      = "field"
+
+[[example]]
+label = "Lottery 6/49 count"
+[example.params]
+n = "49"
+r = "6"
+
+[[example]]
+label = "Poker hands C(52,5)"
+[example.params]
+n = "52"
+r = "5"
+output_format = "count"
+
+[[example]]
+label = "List letter combinations"
+[example.params]
+items = "A, B, C, D"
+r = "2"
+output_format = "lines"
+
+[[example]]
+label = "3-digit PIN with repetition"
+[example.params]
+n = "10"
+r = "3"
+mode = "permutations"
+repetition = "true"
+output_format = "count"
+
+[[example]]
+label = "Round-table seating"
+[example.params]
+items = "Ada, Ben, Cy, Dee"
+r = "4"
+mode = "circular_permutations"
+output_format = "lines"
+join_separator = "dash"
+
+[[example]]
+label = "CSV export rows"
+[example.params]
+items = "red|green|blue"
+item_separator = "pipe"
+r = "2"
+output_format = "csv"

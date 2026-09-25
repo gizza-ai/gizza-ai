@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "dbml-to-sql"
+version = "0.1.0"
+abi = 1
+summary = "Compile DBML database schemas into SQL DDL."

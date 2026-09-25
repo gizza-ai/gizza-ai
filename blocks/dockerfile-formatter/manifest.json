@@ -1,0 +1,62 @@
+{
+  "name": "gizza-ai/dockerfile-formatter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Normalize Dockerfile instruction casing, indentation and line continuations",
+  "role": "skill",
+  "tool": {
+    "description": "Format a pasted Dockerfile or Containerfile. Pass the text as `input`; choose instruction keyword casing, continuation indent, backslash alignment, the blank-line cap, stage separation and comment spacing. Instructions are never reordered and their arguments are never rewritten — heredoc bodies and the top-of-file parser directives (# syntax=, # escape=, # check=) are copied through verbatim, and an escape directive switches the continuation character to a backtick. Unknown instructions, dangling line continuations and unterminated heredocs return a line-numbered error instead of partial output. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "align_continuations": {
+          "default": false,
+          "description": "Pad continuation lines so the trailing backslashes line up in one column. Default false keeps a single space before each backslash.",
+          "type": "boolean"
+        },
+        "blank_line_between_stages": {
+          "default": true,
+          "description": "Insert one blank line before each build stage after the first, placed above the comments that document that FROM. Default true.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 4,
+          "description": "Spaces prefixed to every line continuation inside a multi-line instruction, from 0 to 8. Default 4.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "input": {
+          "description": "Dockerfile or Containerfile text to format. Instruction arguments, heredoc bodies and parser directives are preserved; only layout changes.",
+          "type": "string"
+        },
+        "instruction_case": {
+          "default": "upper",
+          "description": "Casing for instruction keywords and the AS keyword in a FROM line: 'upper' emits FROM/RUN/COPY (the Docker convention), 'lower' emits from/run/copy, 'preserve' leaves the source casing alone. Default upper.",
+          "enum": [
+            "upper",
+            "lower",
+            "preserve"
+          ],
+          "type": "string"
+        },
+        "max_blank_lines": {
+          "default": 1,
+          "description": "Maximum consecutive blank lines to keep between instructions, from 0 to 5. Default 1; 0 removes every blank line.",
+          "maximum": 5,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "normalize_comments": {
+          "default": true,
+          "description": "Ensure exactly one space after the # of a comment. Banner comments such as #### and top-of-file parser directives are never touched. Default true.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

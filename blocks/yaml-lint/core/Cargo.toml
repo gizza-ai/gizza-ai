@@ -1,0 +1,14 @@
+[package]
+name = "gizza-ai-yaml-lint-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# yaml-rust2 (not a serde YAML binding) because its low-level event parser
+# exposes source Markers (line/column) and scalar styles — which is what makes
+# line-precise duplicate-key, truthy and octal findings possible, and what gives
+# a syntax error its exact position. `encoding` (a default feature) only powers
+# YamlDecoder for non-UTF-8 input, which we don't need.
+yaml-rust2 = { version = "0.8", default-features = false }
+serde_json = { version = "1", features = ["preserve_order"] }

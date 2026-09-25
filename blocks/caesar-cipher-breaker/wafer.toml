@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "caesar-cipher-breaker"
+version = "0.1.0"
+abi = 1
+summary = "Crack Caesar ciphers by frequency analysis"

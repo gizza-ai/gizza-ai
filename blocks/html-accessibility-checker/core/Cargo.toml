@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-html-accessibility-checker-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+gizza-ai-html-entity-decoder-core = { path = "../../html-entity-decoder/core" }
+serde_json = "1"
+csv = "1"

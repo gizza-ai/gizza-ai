@@ -1,0 +1,76 @@
+slug          = "xsd-to-json-schema"
+title         = "Convert XSD to JSON Schema Online"
+description   = "Free XSD to JSON Schema converter. Paste XML Schema and emit Draft 2020-12 or Draft-07 with elements, attributes, choices, facets and refs mapped locally."
+tags          = ["xsd", "xml", "json-schema", "schema", "converter", "draft-2020-12", "draft-07", "validation", "xml-schema"]
+h1            = "Convert XSD to JSON Schema"
+hero_subtitle = "Paste an XML Schema (.xsd) and generate JSON Schema in your browser — elements, attributes, choices, restrictions and named types mapped without uploading anything."
+wasm          = "gizza_ai_xsd_to_json_schema_web"
+export        = "run"
+live          = false
+output_label  = "JSON Schema"
+format        = "json"
+
+[[input]]
+name        = "xsd"
+label       = "XSD document"
+placeholder = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:element name=\"id\" type=\"xs:string\"/></xs:schema>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "root_element"
+label       = "Root element or type (optional)"
+placeholder = "order"
+source      = "field"
+
+[[input]]
+name        = "draft"
+label       = "JSON Schema draft"
+placeholder = "2020-12"
+source      = "field"
+
+[input.labels]
+"2020-12" = "Draft 2020-12 — $defs (default)"
+"draft-07" = "Draft-07 — definitions"
+
+[[input]]
+name        = "attribute_prefix"
+label       = "Attribute prefix"
+placeholder = "@"
+source      = "field"
+
+[[input]]
+name        = "text_property"
+label       = "Text property"
+placeholder = "#text"
+source      = "field"
+
+[[input]]
+name        = "required_from_occurs"
+label       = "Use minOccurs/use=required"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "additional_properties"
+label       = "Allow additional properties"
+source      = "field"
+kind        = "checkbox"
+
+[[input]]
+name        = "annotations"
+label       = "Use xs:documentation as descriptions"
+source      = "field"
+kind        = "checkbox"
+
+[[example]]
+label  = "Simple typed element"
+params = { xsd = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:element name=\"id\" type=\"xs:string\"/></xs:schema>", draft = "2020-12", attribute_prefix = "@", text_property = "#text", required_from_occurs = "true", annotations = "true" }
+
+[[example]]
+label  = "Order with required attribute"
+params = { xsd = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:element name=\"order\"><xs:complexType><xs:sequence><xs:element name=\"total\" type=\"xs:decimal\"/></xs:sequence><xs:attribute name=\"currency\" type=\"xs:string\" use=\"required\"/></xs:complexType></xs:element></xs:schema>", root_element = "order", draft = "2020-12", attribute_prefix = "@", text_property = "#text", required_from_occurs = "true", annotations = "true" }
+
+[[example]]
+label  = "Draft-07 output"
+params = { xsd = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:element name=\"email\" type=\"xs:string\"/></xs:schema>", draft = "draft-07", attribute_prefix = "@", text_property = "#text", required_from_occurs = "true", annotations = "false" }

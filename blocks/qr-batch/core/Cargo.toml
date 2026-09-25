@@ -1,0 +1,18 @@
+[package]
+name = "gizza-ai-qr-batch-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# qrcode with NO default features: this crate builds its own SVG (by hand) and
+# its own PNG raster from `QrCode::to_colors()`, so neither the crate's `svg`
+# nor its `image` renderer feature is needed — that also buys a configurable
+# quiet zone, which the built-in renderers hard-code to 4 modules.
+qrcode = { version = "0.14", default-features = false }
+# PNG encoding only (no decoders) — pure Rust, wasm-safe on both targets.
+image = { version = "0.25", default-features = false, features = ["png"] }
+# zip with deflate only (flate2/miniz_oxide backend) — dropping the default
+# time/aes/bzip2/zstd features keeps it pure-Rust and wasm32-safe, and makes the
+# archive deterministic (entries get the fixed 1980-01-01 DOS timestamp).
+zip = { version = "8", default-features = false, features = ["deflate"] }

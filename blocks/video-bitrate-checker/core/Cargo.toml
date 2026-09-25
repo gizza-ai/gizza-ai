@@ -1,0 +1,30 @@
+[package]
+name = "gizza-ai-video-bitrate-checker-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# symphonia: pure-Rust container demuxers. We demux but never DECODE — the
+# per-stream measurement only totals each track's packet payload — so there is
+# no I/O and no std clock, and the same code runs in the chat block, the CLI and
+# the browser page. The block owns the buffer (no second copy) because a video
+# file has to fit in the 64 MiB wasm sandbox alongside it.
+
+symphonia = { version = "0.5", default-features = false, features = [
+    "isomp4",
+    "mkv",
+    "ogg",
+    "wav",
+    "aiff",
+    "caf",
+    "flac",
+    "mp3",
+    "aac",
+    "adpcm",
+    "pcm",
+    "vorbis",
+    "alac",
+] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

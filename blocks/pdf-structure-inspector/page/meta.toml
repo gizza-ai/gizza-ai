@@ -1,0 +1,73 @@
+slug          = "pdf-structure-inspector"
+title         = "PDF Structure Inspector"
+description   = "Inspect a PDF's object tree, trailer dictionary, cross-reference style, and stream dictionaries without rendering page content."
+tags          = ["pdf", "debugging", "forensics", "document"]
+h1            = "PDF Structure Inspector"
+hero_subtitle = "Parse PDF internals locally: version, trailer keys, object types, streams, filters, and structural flags."
+wasm          = "gizza_ai_pdf_structure_inspector_web"
+export        = "run"
+live          = false
+output_label  = "Structure report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "PDF bytes"
+placeholder = "JVBERi0xLjEKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCAyMDAgMjAwXSA+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9Sb290IDEgMCBSIC9TaXplIDQgPj4Kc3RhcnR4cmVmCjE4NgolJUVPRgo="
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "section"
+label       = "Section"
+source      = "field"
+
+[input.labels]
+all = "Everything"
+summary = "Summary only"
+trailer = "Trailer"
+objects = "Objects"
+streams = "Streams"
+
+[[input]]
+name        = "object_id"
+label       = "Object id"
+placeholder = "12 or 12 0"
+source      = "field"
+
+[[input]]
+name        = "filter_key"
+label       = "Filter key or type"
+placeholder = "Type, Font, Page, Resources, /XObject"
+source      = "field"
+
+[[input]]
+name        = "max_objects"
+label       = "Max objects"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+min         = "1"
+max         = "5000"
+step        = "1"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Readable report"
+json = "JSON"
+
+[[example]]
+label = "Summary view"
+params = { section = "summary", max_objects = "100", format = "text" }
+
+[[example]]
+label = "Stream dictionaries"
+params = { section = "streams", max_objects = "50", format = "text" }
+
+[[example]]
+label = "JSON object table"
+params = { section = "objects", filter_key = "Type", max_objects = "25", format = "json" }

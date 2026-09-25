@@ -1,0 +1,156 @@
+slug          = "matrix-text-parser"
+title         = "Matrix Text Parser — paste any matrix, get a clean 2D array"
+description   = "Parse a matrix pasted as space, comma or tab rows, a Python/NumPy list, MATLAB semicolon syntax or LaTeX into a normalized 2D JSON array with its shape."
+tags          = ["matrix parser", "matrix to json", "2d array", "numpy", "matlab", "latex matrix", "matrix converter", "matrix shape", "csv matrix"]
+h1            = "Matrix text parser"
+hero_subtitle = "Paste a matrix in whatever form you copied it — whitespace rows, comma or tab columns, a Python list, MATLAB semicolons, or a LaTeX bmatrix — and get a normalized 2D array plus its shape, ready to re-emit as JSON, CSV, MATLAB, NumPy, LaTeX or aligned text."
+wasm          = "gizza_ai_matrix_text_parser_web"
+export        = "run"
+live          = false
+output_label  = "Parsed matrix"
+format        = "text"
+
+[[input]]
+name        = "matrix"
+label       = "Matrix text"
+placeholder = "1 2 3\n4 5 6\n\nor [[1, 2], [3, 4]]\nor [1 2; 3 4]"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "input_format"
+label  = "Input syntax"
+source = "field"
+[input.labels]
+auto      = "Auto-detect"
+delimited = "Delimited rows (one row per line)"
+python    = "Python / NumPy nested list"
+matlab    = "MATLAB / Octave semicolons"
+latex     = "LaTeX matrix environment"
+
+[[input]]
+name   = "delimiter"
+label  = "Cell delimiter (delimited rows only)"
+source = "field"
+[input.labels]
+auto      = "Auto-detect"
+comma     = "Comma (,)"
+space     = "Whitespace"
+tab       = "Tab"
+semicolon = "Semicolon (;)"
+pipe      = "Pipe (|)"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+[input.labels]
+json    = "JSON with shape report"
+array   = "Bare 2D JSON array"
+csv     = "CSV rows"
+tsv     = "TSV rows"
+matlab  = "MATLAB [1 2; 3 4]"
+numpy   = "NumPy np.array(...)"
+latex   = "LaTeX bmatrix"
+aligned = "Column-aligned text"
+
+[[input]]
+name   = "cells"
+label  = "Cell typing"
+source = "field"
+[input.labels]
+auto   = "Numbers where possible, text otherwise"
+number = "Numbers only — fail on anything else"
+text   = "Keep every cell as text"
+
+[[input]]
+name   = "fractions"
+label  = "Evaluate fractions like 3/4 into decimals"
+source = "field"
+
+[[input]]
+name   = "header"
+label  = "First row is column labels"
+source = "field"
+
+[[input]]
+name   = "ragged"
+label  = "Uneven row lengths"
+source = "field"
+[input.labels]
+error = "Fail and name the row"
+pad   = "Pad short rows with the fill value"
+trim  = "Trim every row to the shortest"
+
+[[input]]
+name        = "fill"
+label       = "Fill value for padded cells"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "indent"
+label       = "JSON indent spaces"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "8"
+step        = "1"
+
+[[example]]
+label = "Whitespace rows → JSON with shape"
+[example.values]
+matrix = "1 2 3\n4 5 6"
+input_format = "auto"
+delimiter = "auto"
+output = "json"
+cells = "auto"
+fractions = "true"
+header = "false"
+ragged = "error"
+fill = "0"
+indent = "2"
+
+[[example]]
+label = "NumPy list → MATLAB"
+[example.values]
+matrix = "np.array([[1, 2], [3, 4]])"
+input_format = "auto"
+delimiter = "auto"
+output = "matlab"
+cells = "auto"
+fractions = "true"
+header = "false"
+ragged = "error"
+fill = "0"
+indent = "2"
+
+[[example]]
+label = "LaTeX bmatrix → bare array"
+[example.values]
+matrix = "\\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}"
+input_format = "auto"
+delimiter = "auto"
+output = "array"
+cells = "auto"
+fractions = "true"
+header = "false"
+ragged = "error"
+fill = "0"
+indent = "0"
+
+[[example]]
+label = "Ragged CSV with headers → padded"
+[example.values]
+matrix = "x,y,z\n1,2,3\n4,5"
+input_format = "delimited"
+delimiter = "comma"
+output = "aligned"
+cells = "auto"
+fractions = "true"
+header = "true"
+ragged = "pad"
+fill = "0"
+indent = "2"

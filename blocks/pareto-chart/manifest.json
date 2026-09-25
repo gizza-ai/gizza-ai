@@ -1,0 +1,225 @@
+{
+  "name": "gizza-ai/pareto-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Rank categories and render a Pareto chart: sorted bars plus a cumulative-percentage line as deterministic SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Render a Pareto chart from pasted `label,value` rows: bars sorted largest-first on a value axis, a cumulative-percentage line on a second 0-100% axis, and a dashed threshold line (80% by default) that separates the vital few from the trivial many. Detects the delimiter and an optional header row, sums duplicate labels, tolerates thousands separators, currency marks, and trailing percent signs, and can roll a long tail into one `Other` bar. Returns self-contained SVG by default, or a summary table / JSON with each category's value, percent of total, running total, cumulative percent, vital-few mark, and the exact threshold-crossing category. Options control the delimiter, header handling, sort order, tail bucketing, threshold, vital-few highlighting, value and cumulative labels, decimals, title and all three axis titles, category label rotation, bar/vital/line/threshold/background colours, bar width, line width, point radius, grid, legend, font size, canvas size, theme, and output format. Everything runs locally in pure Rust; no plotting service, fonts, or external data are used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "default": "",
+          "description": "Chart background colour, for example #ffffff or transparent. Default empty uses the theme background: white for light, dark slate for dark.",
+          "type": "string"
+        },
+        "bar_width": {
+          "default": 0.8,
+          "description": "Bar width as a fraction of the slot each category gets, 0.05-1. Default 0.8, which leaves a clear gap between bars. Use 1 for a touching histogram-style look.",
+          "maximum": 1,
+          "minimum": 0.05,
+          "type": "number"
+        },
+        "category_label": {
+          "default": "",
+          "description": "Title for the horizontal category axis, for example `Complaint reason`. Default empty reuses the pasted header row's first column name, if there was one.",
+          "type": "string"
+        },
+        "color": {
+          "default": "#2563eb",
+          "description": "Bar fill colour as CSS colour text, for example #2563eb, #f00, or steelblue. Default #2563eb. Applies to the trivial-many bars when highlight_vital_few is on, and to every bar when it is off.",
+          "type": "string"
+        },
+        "data": {
+          "description": "The categories to rank, one `label,value` row per line, for example `Late delivery,45`. Comma, tab, semicolon, pipe, and whitespace separated rows all work; quoted CSV fields are honoured, `#` starts a comment, a header row is detected automatically, duplicate labels are summed, and values may carry thousands separators, a currency mark, or a trailing %. Values must be zero or positive. Up to 10000 rows and 500 categories. Example: `Late delivery,45`\\n`Wrong item,30`\\n`Damaged,15`\\n`Billing error,7`\\n`Rude staff,3`.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 1,
+          "description": "Decimal places for percentages and axis values, 0-6. Default 1, so 83.3%. Use 0 for whole-number counts and percentages.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "How each row is split. auto (default) picks the separator that appears on every row, preferring tab, semicolon, pipe, then comma, and falls back to whitespace. Choose whitespace to read `Late delivery 45` rows, where everything before the last space is the label.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "whitespace"
+          ],
+          "type": "string"
+        },
+        "font_size": {
+          "default": 13.0,
+          "description": "Base font size in pixels for labels and the legend, 6-48. Default 13. Axis ticks and value labels are drawn slightly smaller; the title slightly larger.",
+          "maximum": 48,
+          "minimum": 6,
+          "type": "number"
+        },
+        "grid": {
+          "default": true,
+          "description": "Draw horizontal grid lines across the plot at each axis tick. Default true; both axes share the same five gridlines, so 20% steps line up with the value ticks.",
+          "type": "boolean"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row is a header. auto (default) treats it as a header when its value column is not a number, and then reuses its two column names as the category and value axis titles. yes always skips it, no always plots it.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "height": {
+          "default": 520,
+          "description": "SVG height in pixels, 240-1800. Default 520.",
+          "maximum": 1800,
+          "minimum": 240,
+          "type": "integer"
+        },
+        "highlight_vital_few": {
+          "default": true,
+          "description": "Paint every bar up to and including the one that crosses the threshold in vital_color instead of color, so the vital few separate from the trivial many at a glance. Default true. Has no effect when threshold is 0.",
+          "type": "boolean"
+        },
+        "label_angle": {
+          "default": 0.0,
+          "description": "Rotate the category labels counterclockwise by this many degrees, 0-90. Default 0 (horizontal). Use 45 or 90 when long labels would otherwise overlap; the bottom margin grows to fit them.",
+          "maximum": 90,
+          "minimum": 0,
+          "type": "number"
+        },
+        "legend": {
+          "default": true,
+          "description": "Draw a legend strip under the chart naming the bars, the vital-few colour, the cumulative line, and the threshold line. Default true.",
+          "type": "boolean"
+        },
+        "line_color": {
+          "default": "#dc2626",
+          "description": "Colour of the cumulative-percentage line, its markers, and its labels, for example #dc2626 or black. Default #dc2626.",
+          "type": "string"
+        },
+        "line_width": {
+          "default": 2.0,
+          "description": "Stroke width of the cumulative line in pixels, 0-8. Default 2. Use 0 to keep only the point markers.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "number"
+        },
+        "max_categories": {
+          "default": 0,
+          "description": "Keep only the first N bars after sorting and roll the rest into one bucket, 0-200. Default 0 keeps every category. Set 8-12 when a long tail squashes the chart; the bucket is named by other_label and still counts toward the total and the cumulative line.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "other_label": {
+          "default": "Other",
+          "description": "Name of the bucket that absorbs the tail when max_categories is set, for example `Other` or `All other causes`. Default `Other`. Ignored when max_categories is 0.",
+          "type": "string"
+        },
+        "output": {
+          "default": "svg",
+          "description": "Output format: svg (default, self-contained markup you can paste into a document), summary (aligned text table with each category's value, percent of total, running total, cumulative percent, and vital-few mark, plus a one-line vital-few verdict), or json (machine-readable rows plus total, crossing index, crossing label, and vital-few count).",
+          "enum": [
+            "svg",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "percent_label": {
+          "default": "Cumulative %",
+          "description": "Title for the right-hand percentage axis. Default `Cumulative %`. Set it empty to drop the axis title and keep just the 0-100% ticks.",
+          "type": "string"
+        },
+        "point_radius": {
+          "default": 3.5,
+          "description": "Radius of the marker drawn at each cumulative point in pixels, 0-12. Default 3.5; use 0 to hide the markers. Markers carry a hover tooltip with the category and its cumulative percentage.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "number"
+        },
+        "show_cumulative": {
+          "default": true,
+          "description": "Draw the cumulative-percentage line, its markers, and the right-hand 0-100% axis. Default true — it is what makes this a Pareto chart rather than a sorted bar chart. Turn it off for a plain ranked bar chart.",
+          "type": "boolean"
+        },
+        "show_cumulative_labels": {
+          "default": false,
+          "description": "Print the running cumulative percentage above each point on the line. Default false. Turn it on when the exact crossing percentage matters more than the shape.",
+          "type": "boolean"
+        },
+        "show_values": {
+          "default": false,
+          "description": "Print each bar's value just above the bar. Default false; useful for 5-10 bars, crowded beyond that.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "desc",
+          "description": "Bar order: desc (default) is the classic Pareto ranking, biggest contributor first, which is what makes the cumulative line meaningful; asc puts the smallest first for tail reviews; input keeps your pasted order to audit an already-ranked table. Ties keep input order.",
+          "enum": [
+            "desc",
+            "asc",
+            "input"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Chart theme: light (default) or dark. Sets the background, grid, axis, and text colours; override the background alone with the background parameter.",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 80.0,
+          "description": "Cumulative-percentage cutoff that defines the vital few, 0-100. Default 80 for the classic 80/20 rule. Drawn as a dashed horizontal reference line on the percentage axis; set 0 to hide the line and the vital-few marking entirely.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "threshold_color": {
+          "default": "#94a3b8",
+          "description": "Colour of the dashed threshold reference line, for example #94a3b8 or grey. Default #94a3b8. Ignored when threshold is 0.",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn centred above the plot, for example `Q3 customer complaints`. Also printed above the summary table.",
+          "type": "string"
+        },
+        "value_label": {
+          "default": "",
+          "description": "Title for the left value axis, for example `Complaints` or `Cost (USD)`. Default empty reuses the pasted header row's second column name, if there was one; it also names the value column in summary output and the bar entry in the legend.",
+          "type": "string"
+        },
+        "vital_color": {
+          "default": "#f97316",
+          "description": "Fill colour for the vital-few bars, those up to the threshold crossing, for example #f97316 or tomato. Default #f97316. Used only when highlight_vital_few is on and threshold is above 0.",
+          "type": "string"
+        },
+        "width": {
+          "default": 820,
+          "description": "SVG width in pixels, 320-2400. Default 820. Widen it when you have many categories so the bars stay readable.",
+          "maximum": 2400,
+          "minimum": 320,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

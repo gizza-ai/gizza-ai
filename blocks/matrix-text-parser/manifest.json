@@ -1,0 +1,105 @@
+{
+  "name": "gizza-ai/matrix-text-parser",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Parse a pasted matrix into a normalized 2D array",
+  "role": "skill",
+  "tool": {
+    "description": "Parse a matrix pasted in any common form into a normalized 2D array with its shape. Accepts space/comma/tab/semicolon/pipe delimited rows, Python and NumPy nested lists (including np.array(...) wrappers), MATLAB/Octave semicolon syntax, and LaTeX bmatrix/pmatrix/array environments, auto-detecting which one was pasted. Reports rows, columns, whether the matrix is square and whether every cell is numeric; evaluates fractions and scientific notation; can pad or trim ragged rows, split off a header row, and re-emit the result as JSON, CSV, TSV, MATLAB, NumPy, LaTeX or column-aligned text.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "cells": {
+          "default": "auto",
+          "description": "Cell typing. auto (default) makes every parseable cell a JSON number and keeps the rest as strings; number fails with the row and column of the first non-numeric cell; text keeps every cell as a string so IDs with leading zeros survive.",
+          "enum": [
+            "auto",
+            "number",
+            "text"
+          ],
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Cell separator for delimited rows, ignored by the python/matlab/latex syntaxes. auto (default) picks the first of tab, comma, semicolon or pipe that appears, else splits on whitespace.",
+          "enum": [
+            "auto",
+            "comma",
+            "space",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "fill": {
+          "default": "0",
+          "description": "Cell written into short rows when ragged=pad, for example 0, null or n/a. Default '0'. Ignored for ragged=error and ragged=trim.",
+          "type": "string"
+        },
+        "fractions": {
+          "default": true,
+          "description": "Evaluate plain fractions such as 3/4 or -1/8 into decimal numbers. Default true. Turn it off to keep them as text. Arithmetic expressions are never evaluated.",
+          "type": "boolean"
+        },
+        "header": {
+          "default": false,
+          "description": "Treat the first row as column labels instead of data. Default false. When true the labels are returned in the json output's 'header' field, re-emitted as the first csv/tsv/aligned row, and written as a comment line above matlab/numpy/latex output.",
+          "type": "boolean"
+        },
+        "indent": {
+          "default": 2.0,
+          "description": "JSON indentation in spaces for the json and array outputs, from 0 for minified to 8. Default 2. Ignored by the text output formats.",
+          "maximum": 8,
+          "minimum": 0,
+          "type": "number"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "Input syntax. auto (default) detects LaTeX environments, nested Python/NumPy lists, MATLAB semicolon rows and plain delimited lines. Set it explicitly when a paste is ambiguous, for example forcing delimited on a single line that contains semicolons.",
+          "enum": [
+            "auto",
+            "delimited",
+            "python",
+            "matlab",
+            "latex"
+          ],
+          "type": "string"
+        },
+        "matrix": {
+          "description": "The matrix text to parse, in any common form: delimited rows such as '1 2 3' or '1,2,3' one per line, a Python/NumPy nested list such as [[1,2],[3,4]] (np.array(...) wrappers are stripped), MATLAB/Octave '[1 2; 3 4]', or a LaTeX bmatrix/pmatrix/array environment. Up to 2,000,000 bytes, 10,000 rows, 2,000 columns and 1,000,000 cells.",
+          "type": "string"
+        },
+        "output": {
+          "default": "json",
+          "description": "Output format. json (default) returns the 2D array plus shape, rows, columns, square, numeric and the detected syntax; array returns the bare 2D JSON array; csv/tsv re-emit delimited rows; matlab gives '[1 2; 3 4]'; numpy gives np.array([[1, 2], [3, 4]]); latex gives a bmatrix environment; aligned gives column-aligned plain text.",
+          "enum": [
+            "json",
+            "array",
+            "csv",
+            "tsv",
+            "matlab",
+            "numpy",
+            "latex",
+            "aligned"
+          ],
+          "type": "string"
+        },
+        "ragged": {
+          "default": "error",
+          "description": "What to do when rows have different lengths. error (default) reports the first mismatching row; pad extends short rows with the fill value; trim cuts every row to the shortest length.",
+          "enum": [
+            "error",
+            "pad",
+            "trim"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "matrix"
+      ],
+      "type": "object"
+    }
+  }
+}

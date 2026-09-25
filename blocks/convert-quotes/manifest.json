@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/convert-quotes",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert quote delimiters in text or code between single, double and curly styles, respecting escapes.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert the quote delimiters around quoted runs in text or code between styles: single 'x', double \"x\", curly “x” and ‘x’. Unlike a find-and-replace it parses the text: backslash escapes are respected so \\\" is never mistaken for a delimiter, a quote that no longer needs escaping is unescaped (\"a \\\" b\" -> 'a \" b'), a quote that now collides with the new delimiter is escaped (backslash, SQL-style doubling, or left bare), and word-internal apostrophes (don't, it’s, O'Hara) are never treated as quotes. direction=single-to-double|double-to-single|smart-to-double|smart-to-single|auto-to-double|auto-to-single|swap; auto-* normalizes a file that mixes all four styles. An opening quote with no partner is left untouched by default, or reported with on_unbalanced=error. include_report=true adds counts of runs converted, quotes escaped and lone quotes found. Up to 1,000,000 bytes per run.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "default": "single-to-double",
+          "description": "Which delimiters to read and which to write. 'single-to-double' (default) turns 'x' into \"x\"; 'double-to-single' does the reverse; 'smart-to-double'/'smart-to-single' read curly “x” and ‘x’ runs and emit straight quotes; 'auto-to-double'/'auto-to-single' read every style at once and normalize a mixed file to one delimiter; 'swap' exchanges ' and \" in a single pass.",
+          "enum": [
+            "single-to-double",
+            "double-to-single",
+            "smart-to-double",
+            "smart-to-single",
+            "auto-to-double",
+            "auto-to-single",
+            "swap"
+          ],
+          "type": "string"
+        },
+        "escape_style": {
+          "default": "backslash",
+          "description": "How to protect a quote that ends up inside the new delimiter. 'backslash' (default) writes \\\" or \\' — the C, JavaScript, Python, JSON, Rust and Go convention; 'doubled' writes \"\" or '' — the SQL, CSV and Pascal convention; 'bare' leaves the inner quote alone, which is right for prose but produces a broken literal in code.",
+          "enum": [
+            "backslash",
+            "doubled",
+            "bare"
+          ],
+          "type": "string"
+        },
+        "include_report": {
+          "default": false,
+          "description": "When true, return JSON with the converted text plus counts: 'converted' quoted runs, inner quotes 'escaped', and 'unbalanced' lone quotes left as-is. Default false returns just the converted text.",
+          "type": "boolean"
+        },
+        "input": {
+          "description": "The text or code whose quote delimiters should be converted, e.g. print('hello') or He said “hi”. Everything outside a quoted run is passed through byte for byte. Up to 1,000,000 bytes (1000 KB) per run.",
+          "type": "string"
+        },
+        "on_unbalanced": {
+          "default": "keep",
+          "description": "What to do with an opening quote that has no closing partner. 'keep' (default) leaves that one character exactly as it was and converts the rest; 'error' fails and names the character position, so a malformed file is not half-converted.",
+          "enum": [
+            "keep",
+            "error"
+          ],
+          "type": "string"
+        },
+        "preserve_apostrophes": {
+          "default": true,
+          "description": "When true (default), a ' or ’ sitting between two word characters is an apostrophe, not a delimiter, so don't, it’s and O'Hara survive and 'don't stop' still converts as one run. Set false to treat every single quote as a delimiter.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

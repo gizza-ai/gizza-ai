@@ -1,0 +1,152 @@
+{
+  "name": "gizza-ai/isolation-forest-anomaly",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Score every row of a pasted table with an isolation forest and flag the outliers.",
+  "role": "skill",
+  "tool": {
+    "description": "Fit an isolation forest on the numeric columns of a pasted CSV/TSV table and report a per-row anomaly score, average path length, rank and anomaly flag, plus a summary of the forest settings and the normal/anomalous score split. Supports the standard axis-parallel algorithm and the extended hyperplane variant, subsampling, bootstrapping, per-tree feature sampling, a contamination rate or an explicit score threshold, missing-value policies, and text/JSON/CSV output. Deterministic for a given seed and runs locally in pure Rust/WASM.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "bootstrap": {
+          "default": false,
+          "description": "Draw each tree's subsample with replacement instead of without. Default false (sample without replacement).",
+          "type": "boolean"
+        },
+        "contamination": {
+          "default": "auto",
+          "description": "Expected outlier rate used to place the score cut-off: auto keeps the classic 0.5 score threshold, or give a fraction such as 0.05 or a percentage such as 5% to flag that share of the rows. Must be above 0 and at most 0.5.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for anomaly scores, path lengths and the summary averages.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "Column delimiter. auto picks whichever of comma, tab, semicolon or pipe appears most on the first line, falling back to runs of whitespace.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "features": {
+          "default": "",
+          "description": "Optional comma-separated feature columns by header name or 1-based index, e.g. 'temp,pressure' or '2,3'. Leave empty to use every fully numeric column.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: a readable report with a scored table, JSON, or the original table with anomaly_score, path_length, is_anomaly and rank columns appended.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row contains column names. auto treats a first row with any non-numeric cell as a header.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "CSV, TSV, semicolon, pipe, or whitespace-delimited table. One row per observation; the first row may be a header. Only numeric columns can be scored. Max 20000 rows and 200 columns.",
+          "type": "string"
+        },
+        "max_features": {
+          "default": 1.0,
+          "description": "Feature columns each tree may split on: a fraction of the selected columns when 1 or less (1 = all of them), otherwise an absolute count. Lower values decorrelate the trees on wide tables.",
+          "maximum": 200,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "method": {
+          "default": "standard",
+          "description": "Isolation variant. standard = axis-parallel cuts, the original Liu/Ting/Zhou algorithm; scale-invariant per column. extended = randomly-oriented hyperplane cuts, which removes the rectangular banding the standard version leaves around correlated columns; features are standardized first because hyperplanes mix columns.",
+          "enum": [
+            "standard",
+            "extended"
+          ],
+          "type": "string"
+        },
+        "missing": {
+          "default": "drop",
+          "description": "What to do with a blank or non-numeric cell in a feature column. drop = skip that row (it is still listed, marked skipped). median / mean = fill from the column's numeric values. zero = fill with 0. error = stop and name the offending cell.",
+          "enum": [
+            "drop",
+            "median",
+            "mean",
+            "zero",
+            "error"
+          ],
+          "type": "string"
+        },
+        "only_anomalies": {
+          "default": false,
+          "description": "List only the rows flagged as anomalies, dropping the normal rows from the table. The summary still counts every scored row.",
+          "type": "boolean"
+        },
+        "sample_size": {
+          "default": "auto",
+          "description": "Rows drawn per tree: auto for min(256, row count) as in the paper, an absolute count such as 128, a fraction such as 0.25, or a percentage such as 25%. Small subsamples are what make isolation forests good at swamping-resistant local anomalies.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the subsampling, the split features and the split values. The same input plus the same seed always gives byte-identical output.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sort": {
+          "default": "input",
+          "description": "Row order in the output: input keeps the pasted order, score lists the most anomalous rows first.",
+          "enum": [
+            "input",
+            "score"
+          ],
+          "type": "string"
+        },
+        "threshold": {
+          "default": 0.0,
+          "description": "Explicit anomaly-score cut-off in (0, 1); rows scoring at or above it are flagged. 0 means derive the cut-off from contamination instead. Overrides contamination when set.",
+          "maximum": 0.9999,
+          "minimum": 0,
+          "type": "number"
+        },
+        "top": {
+          "default": 0,
+          "description": "Keep only the first N listed rows after sorting. 0 lists every row. Pair with sort=score to get a shortlist of the worst offenders.",
+          "maximum": 20000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "trees": {
+          "default": 100,
+          "description": "Number of isolation trees in the forest. More trees give a steadier average path length and smoother scores at a linear cost. Default 100.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
+    }
+  }
+}

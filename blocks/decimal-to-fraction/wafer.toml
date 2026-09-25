@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "decimal-to-fraction"
+version = "0.1.0"
+abi = 1
+summary = "Convert decimals to exact or approximate fractions."

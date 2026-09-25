@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/c-vuln-pattern-scanner",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Scan C/C++ source for vulnerability patterns with CWE ids and severities",
+  "role": "skill",
+  "tool": {
+    "description": "Lexically scan pasted C or C++ source for common vulnerability patterns and report each hit with a line number, a severity (low/medium/high/critical), a rule code, a CWE identifier and a fix hint. Rules cover banned copies (strcpy/strcat/sprintf), gets, scanf %s without a field width, non-literal format strings, provable buffer overruns and off-by-one indexes, integer-overflow and signed-length size arithmetic, alloca/VLA stack growth, unchecked malloc results, leaks, use-after-free and double free, sizeof on a pointer, unbounded C++ cin >> extraction, shell execution, insecure temp files, TOCTOU races, weak randomness and broken crypto. Params: code (source, max 200,000 bytes), language (auto|c|cpp), profile (all|memory|injection|crypto|banned rule family), min_severity (all|low|medium|high|critical), ignore (comma-separated rule codes to mute), format (text|json|csv), include_context (echo the matching source line). Comments and string/char literal bodies are masked first, so a flagged name inside a comment or a string does not fire; a `// vuln-scan: ignore` comment suppresses its own line and the next. The code is never compiled, preprocessed, linked or executed, and there is no control-flow, data-flow, macro or type information — findings mean \"worth a human look\", never \"proven vulnerability\", and a clean report is not a proof of safety. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "The C or C++ source to scan — a function, a whole file, or a reduced snippet (up to 200,000 bytes). It is scanned as text: never compiled, preprocessed, linked or executed.",
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format. text (default) is a readable report with a severity roll-up header; json returns language, profile, per-severity counts and a findings array; csv returns line,severity,code,cwe,message,source with RFC-4180 quoting for spreadsheets and CI.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "ignore": {
+          "default": "",
+          "description": "Rule codes to suppress, comma- or space-separated and case-insensitive — e.g. \"BOUNDED-COPY, MEM-LEAK\". Unknown codes are ignored. Use it to mute a rule that is noisy for your codebase without lowering min_severity.",
+          "type": "string"
+        },
+        "include_context": {
+          "default": true,
+          "description": "Echo the offending source line under each finding (text), or fill the source field (json/csv). Turn it off for a compact one-line-per-finding report that is easier to diff or grep.",
+          "type": "boolean"
+        },
+        "language": {
+          "default": "auto",
+          "description": "Language of the snippet. auto (default) reads it as C++ when it sees markers such as std::, class, namespace, template or #include <iostream>, otherwise C. cpp adds the CPP-STREAM rule (unbounded cin >> into a char buffer); c never fires it.",
+          "enum": [
+            "auto",
+            "c",
+            "cpp"
+          ],
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Lowest severity to report. all (default) and low are equivalent and keep every finding; medium, high and critical drop everything below that level. Use high or critical to triage a large paste down to the likely-exploitable patterns.",
+          "enum": [
+            "all",
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "type": "string"
+        },
+        "profile": {
+          "default": "all",
+          "description": "Rule family to run. all (default) runs every rule; memory keeps buffer, bounds, allocation and lifetime rules; injection keeps format strings, shell execution, temp-file and TOCTOU races; crypto keeps weak random and broken algorithms; banned keeps the dangerous-libc-function list.",
+          "enum": [
+            "all",
+            "memory",
+            "injection",
+            "crypto",
+            "banned"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}

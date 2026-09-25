@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "vscode-snippets-generator"
+version = "0.1.0"
+abi = 1
+summary = "Convert a code template into VS Code user-snippet JSON with safe escaping"

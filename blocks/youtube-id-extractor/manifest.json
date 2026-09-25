@@ -1,0 +1,71 @@
+{
+  "name": "gizza-ai/youtube-id-extractor",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Extract the YouTube video ID and start timestamp from any link",
+  "role": "skill",
+  "tool": {
+    "description": "Extract the canonical 11-character video ID, and any start timestamp, from any YouTube-style URL. Handles watch?v=, youtu.be, /shorts/, /embed/, /live/, /v/, /e/, youtube-nocookie.com, the m./music./gaming. subdomains, attribution_link and redirect wrappers, and — unlike most extractors — Invidious and Piped front-ends such as yewtu.be or piped.video, because the same path/query rules are applied to every host. A bare 11-character ID, an @handle, a UC… channel ID or a playlist ID pasted on its own is recognised too. Also reports the playlist ID and index when the link carries them, and can emit the canonical watch URL, an i.ytimg.com thumbnail URL and a youtube-nocookie embed URL. Paste one link per line (max 200) for bulk extraction; choose text, json or csv output. Pure local parsing — nothing is fetched, so titles, durations and whether the video still exists are out of scope.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical": {
+          "default": true,
+          "description": "Include the canonical https://www.youtube.com/watch URL, keeping the playlist and start offset. Default true.",
+          "type": "boolean"
+        },
+        "embed": {
+          "default": false,
+          "description": "Include the privacy-enhanced https://www.youtube-nocookie.com/embed URL, carrying the playlist and start offset. Default false.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output shape. 'text' is a labelled report per line, 'json' an array of objects, 'csv' a spreadsheet-ready table with a header row. Default text.",
+          "enum": [
+            "text",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "When true, fail the whole run if any line cannot be resolved instead of marking that line invalid and continuing. Default false.",
+          "type": "boolean"
+        },
+        "thumbnail": {
+          "default": "hqdefault",
+          "description": "Which i.ytimg.com thumbnail URL to include for each video: none, default (120x90), mqdefault (320x180), hqdefault (480x360), sddefault (640x480) or maxresdefault (1280x720). hqdefault exists for every video; sddefault and maxresdefault 404 on some older uploads. Default hqdefault.",
+          "enum": [
+            "none",
+            "default",
+            "mqdefault",
+            "hqdefault",
+            "sddefault",
+            "maxresdefault"
+          ],
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "both",
+          "description": "How a start offset is shown: 'seconds' as 90s, 'clock' as 1:30 (h:mm:ss past an hour), 'both' as 90s (1:30). Default both.",
+          "enum": [
+            "seconds",
+            "clock",
+            "both"
+          ],
+          "type": "string"
+        },
+        "urls": {
+          "description": "YouTube links to parse, one per line (max 200). Accepts watch, youtu.be, shorts, embed, live, /v/, /e/, youtube-nocookie, m./music. subdomains, attribution_link and redirect wrappers, Invidious and Piped front-ends, plus a bare 11-character video ID, a @handle, a UC… channel ID or a playlist ID. Example: https://youtu.be/dQw4w9WgXcQ?t=90",
+          "type": "string"
+        }
+      },
+      "required": [
+        "urls"
+      ],
+      "type": "object"
+    }
+  }
+}

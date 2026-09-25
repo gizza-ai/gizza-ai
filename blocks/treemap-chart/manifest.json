@@ -1,0 +1,186 @@
+{
+  "name": "gizza-ai/treemap-chart",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render hierarchical treemaps sized by value as deterministic SVG",
+  "role": "skill",
+  "tool": {
+    "description": "Render a hierarchical treemap from pasted rows: `label,value` for a flat chart, `parent/child,value` for paths, or `group,label,value` for a grouped table. Aggregates duplicate paths, sorts tiles, tiles the canvas with a squarified, slice-and-dice, or binary algorithm, and returns self-contained SVG by default or a summary table / JSON node list with values, shares, and tile rectangles. Options control layout detection, path separator, sort order, tiling algorithm, depth cap, top-N grouping into an Other tile, label/value/percentage display, label position, font size, colour palette, mono base colour, background, tile gap, corner radius, title, legend, canvas size, and theme. Everything runs locally in pure Rust; no plotting service, fonts, or external data are used.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "default": "",
+          "description": "Chart background colour, for example #ffffff or transparent. Default empty uses the theme background (white for light, dark slate for dark).",
+          "type": "string"
+        },
+        "border_width": {
+          "default": 2.0,
+          "description": "Gap/stroke width between tiles in pixels, 0-12. Default 2; use 0 for a seamless mosaic.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "number"
+        },
+        "color": {
+          "default": "#2563eb",
+          "description": "Base colour for palette=mono, as CSS colour text such as #2563eb, #f00, or tomato. Default #2563eb. Named colours are used as-is without the lightness ramp.",
+          "type": "string"
+        },
+        "corner_radius": {
+          "default": 2.0,
+          "description": "Rounded corner radius of each tile in pixels, 0-24. Default 2; use 0 for square corners.",
+          "maximum": 24,
+          "minimum": 0,
+          "type": "number"
+        },
+        "data": {
+          "description": "Rows to plot, one per line. Use `label,value` for a flat treemap, `parent/child,value` for hierarchical paths, or `group,label,value` for a grouped table; the last column is always the number. Comma, tab, semicolon, and single-space separated rows all work, a leading header row is skipped, `#` starts a comment, and values may carry thousands separators or a currency mark. Required.",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 13.0,
+          "description": "Label font size in pixels, 6-48. Default 13. Larger values hide labels on small tiles because text is only drawn when it fits.",
+          "maximum": 48,
+          "minimum": 6,
+          "type": "number"
+        },
+        "height": {
+          "default": 500,
+          "description": "SVG height in pixels, 240-1800. Default 500.",
+          "maximum": 1800,
+          "minimum": 240,
+          "type": "integer"
+        },
+        "label_position": {
+          "default": "top",
+          "description": "Vertical placement of tile text: top (default, left aligned), center (also horizontally centred), or bottom.",
+          "enum": [
+            "top",
+            "center",
+            "bottom"
+          ],
+          "type": "string"
+        },
+        "layout": {
+          "default": "auto",
+          "description": "How to read each row: auto (default) picks grouped for 3+ columns, path when the first column contains the path separator, else flat; flat forces one level of `label,value`; path splits the first column on path_separator; grouped treats every column except the last as a nesting level.",
+          "enum": [
+            "auto",
+            "flat",
+            "path",
+            "grouped"
+          ],
+          "type": "string"
+        },
+        "legend": {
+          "default": false,
+          "description": "Draw a legend strip under the chart naming each top-level branch with its share. Default false.",
+          "type": "boolean"
+        },
+        "max_depth": {
+          "default": 0,
+          "description": "Maximum hierarchy levels to keep, 0-12. Deeper paths are aggregated into their ancestor at this depth. Default 0 keeps every level (hard cap 12).",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "output": {
+          "default": "svg",
+          "description": "Output format: svg (default, self-contained markup), summary (aligned text table of every tile with value, share, and depth), or json (machine-readable nodes with values, shares, and tile rectangles).",
+          "enum": [
+            "svg",
+            "summary",
+            "json"
+          ],
+          "type": "string"
+        },
+        "palette": {
+          "default": "default",
+          "description": "Tile colour scheme: default (bright), pastel, dusk (deep), earth, ocean, or mono (single-hue ramp built from the color parameter, darkest tile = largest value). Non-mono palettes give each top-level branch its own hue and lighten nested children.",
+          "enum": [
+            "default",
+            "pastel",
+            "dusk",
+            "earth",
+            "ocean",
+            "mono"
+          ],
+          "type": "string"
+        },
+        "path_separator": {
+          "default": "/",
+          "description": "Separator that splits hierarchy levels when layout is path or auto, for example `/` (default), `>`, or `::`. Ignored for flat and grouped layouts.",
+          "type": "string"
+        },
+        "show_labels": {
+          "default": true,
+          "description": "Draw the name of each tile and group when it fits. Default true.",
+          "type": "boolean"
+        },
+        "show_percent": {
+          "default": false,
+          "description": "Draw each tile's share of the grand total as a percentage. Default false; combines with show_values as `1,250 (23.4%)`.",
+          "type": "boolean"
+        },
+        "show_values": {
+          "default": true,
+          "description": "Draw each tile's numeric value under its name when it fits. Default true.",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": "value_desc",
+          "description": "Order tiles within each parent: value_desc (default, largest first, best for squarified layout), value_asc, input (order first seen in the data), or label (alphabetical).",
+          "enum": [
+            "value_desc",
+            "value_asc",
+            "input",
+            "label"
+          ],
+          "type": "string"
+        },
+        "theme": {
+          "default": "light",
+          "description": "Chart theme: light (default) or dark. Sets the background and text colours; override the background alone with the background parameter.",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "tiling": {
+          "default": "squarified",
+          "description": "Tiling algorithm: squarified (default, near-square tiles that are easiest to compare), slice_dice (strict stripes that alternate direction per level and preserve order), or binary (recursive halving, a middle ground).",
+          "enum": [
+            "squarified",
+            "slice_dice",
+            "binary"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Optional chart title drawn above the tiles, for example `Storage by folder`.",
+          "type": "string"
+        },
+        "top_n": {
+          "default": 0,
+          "description": "Keep only the largest N children at each level and fold the remainder into a single `Other` tile, 0-500. Default 0 keeps everything; 10-15 is a readable tile count.",
+          "maximum": 500,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "width": {
+          "default": 800,
+          "description": "SVG width in pixels, 320-2400. Default 800.",
+          "maximum": 2400,
+          "minimum": 320,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

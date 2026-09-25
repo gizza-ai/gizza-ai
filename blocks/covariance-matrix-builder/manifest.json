@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/covariance-matrix-builder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Build a covariance, correlation, centered or z-score matrix from pasted data",
+  "role": "skill",
+  "tool": {
+    "description": "Build the covariance matrix of a pasted multivariate dataset — one observation per line, one variable per column, split on commas, tabs, semicolons, pipes or spaces (a non-numeric first row is read as variable names). Returns the symmetric matrix of variances (the diagonal) and covariances (off-diagonal), using the sample n − 1 denominator by default or the population n denominator on request, with optional per-row frequency weights. Set matrix='correlation' for the same matrix standardized to Pearson correlations, 'centered' for the mean-subtracted data, or 'standardized' for z-scores. Reports the column means, variances, standard deviations and the total variance (trace), with decimals controlling the rounding and format='text', 'markdown', 'csv' or 'json' controlling the rendering. Handles up to 20000 observations and 100 variables. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "description": "The dataset: one observation per line, one variable per column, columns separated by commas, tabs, semicolons, pipes or spaces, e.g. '1,2\\n2,4\\n3,5'. Every row must have the same number of columns and at least 2 data rows are required. A first row whose cells are not all numbers is read as a header of variable names. Up to 20000 rows and 100 columns.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 6,
+          "description": "Decimal places for every reported number, 0 to 12 (default 6). Only the output is rounded — the arithmetic itself runs at full f64 precision.",
+          "maximum": 12,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "How each line is split into columns. 'auto' (default) splits on runs of commas, tabs, semicolons, pipes or whitespace, which handles a spreadsheet copy-paste unchanged; pick an explicit delimiter when a value could be ambiguous or when an empty cell must be reported rather than skipped.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "space",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "denominator": {
+          "default": "sample",
+          "description": "Divisor for the covariance sums: 'sample' (default) uses n − 1, Bessel's correction, matching numpy.cov, R's cov() and Excel COVARIANCE.S; 'population' uses n, matching COVARIANCE.P, and is right only when the rows are the entire population. With weights the divisor is Σw − 1 or Σw. The choice cancels out of a correlation matrix.",
+          "enum": [
+            "sample",
+            "population"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: 'text' (default) = an aligned, labelled table; 'markdown' = a pipe table to paste into docs; 'csv' = the matrix with a label row and label column, ready for a spreadsheet; 'json' = the full result including the variable names, means, variances, standard deviations, the total variance (trace) and the matrix itself.",
+          "enum": [
+            "text",
+            "markdown",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row holds variable names. 'auto' (default) treats it as a header only when its cells are not all numeric; 'yes' forces it to be names even if numeric; 'no' forces it to be data.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "labels": {
+          "description": "Optional comma-separated variable names, one per column in data order (e.g. 'height,weight,age'). They label the matrix rows and columns and override any header row. Default v1, v2, … .",
+          "type": "string"
+        },
+        "matrix": {
+          "default": "covariance",
+          "description": "Which matrix to return: 'covariance' (default) = the symmetric k×k matrix whose diagonal is each variable's variance and whose off-diagonal entries are the covariances; 'correlation' = that matrix standardized by the column standard deviations (Pearson r, diagonal 1, range −1…1); 'centered' = the n×k data with each column's mean subtracted; 'standardized' = the n×k data as z-scores, whose covariance matrix is the correlation matrix.",
+          "enum": [
+            "covariance",
+            "correlation",
+            "centered",
+            "standardized"
+          ],
+          "type": "string"
+        },
+        "stats": {
+          "default": true,
+          "description": "Append a per-variable summary of n, mean, variance and standard deviation below the matrix (default true); the variances are the covariance matrix's diagonal. Applies to the 'text' and 'markdown' formats — 'csv' is the bare matrix and 'json' always carries those figures.",
+          "type": "boolean"
+        },
+        "weights": {
+          "description": "Optional frequency weights, one non-negative number per data row, separated by commas or whitespace (e.g. '2,1,1' makes the first row count twice, exactly as if it were pasted twice). Default: every row weighted 1. Weighted runs use Σw in place of n everywhere, matching numpy.cov(fweights=…).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

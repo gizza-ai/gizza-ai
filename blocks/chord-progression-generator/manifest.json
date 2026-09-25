@@ -1,0 +1,187 @@
+{
+  "name": "gizza-ai/chord-progression-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate a chord progression in any key, mode and style",
+  "role": "skill",
+  "tool": {
+    "description": "Generate a chord progression in any key, mode and style, with Roman-numeral analysis, the spelled notes of every chord and a Standard MIDI File. `key` offers 17 tonic spellings, `mode` covers major, minor, dorian, phrygian, lydian, mixolydian, locrian, harmonic-minor and melodic-minor, and `style` picks a preset (pop, rock, folk, country, ballad, worship, edm, hip-hop, lofi, rnb, jazz, blues, reggae, metal, cinematic) or `random` for a fresh in-key walk. `variation` re-rolls within a style; `chords` sets the length, with 0 keeping the preset's own (a 12-bar blues stays 12 bars). `sevenths` chooses triads, sevenths or extended chords and `borrowed` adds modal interchange such as iv, bIII, bVI and bVII. `tempo`, `instrument`, `pattern`, `octave`, `repeats` and `voice_leading` shape the rendered MIDI. `output` returns the full report, a bare chord line, a Roman-numeral line, CSV rows, or the .mid file as base64. Generation is deterministic: the same options always give the same progression and the same MIDI bytes. Pure Rust/WASM; nothing is uploaded.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "borrowed": {
+          "default": "none",
+          "description": "Modal interchange. `none` keeps every chord inside the mode, `light` keeps the chromatic chords a style already uses (such as the bVII in rock and metal), and `rich` also recolours diatonic chords with borrowed ones like iv, bIII, bVI and secondary dominants. Default none.",
+          "enum": [
+            "none",
+            "light",
+            "rich"
+          ],
+          "type": "string"
+        },
+        "chords": {
+          "default": 0,
+          "description": "How many chords the progression has, 1-32, or 0 for the preset's own length — 0 keeps a 12-bar blues at 12 bars. A larger value cycles the preset. Default 0.",
+          "maximum": 32,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "instrument": {
+          "default": "acoustic-grand-piano",
+          "description": "General MIDI instrument program written into the MIDI file, from acoustic-grand-piano to synth-pad-warm. Any DAW can swap it afterwards. Default acoustic-grand-piano.",
+          "enum": [
+            "acoustic-grand-piano",
+            "bright-acoustic-piano",
+            "electric-piano",
+            "harpsichord",
+            "vibraphone",
+            "drawbar-organ",
+            "church-organ",
+            "accordion",
+            "acoustic-guitar-nylon",
+            "acoustic-guitar-steel",
+            "electric-guitar-clean",
+            "acoustic-bass",
+            "string-ensemble",
+            "choir-aahs",
+            "synth-pad-warm",
+            "synth-lead-square"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "default": "C",
+          "description": "Tonic the progression is built on. Both spellings of every black key are offered: `Db` and `C#` sound the same but are written differently, and a flat key spells its chords with flats. Default C.",
+          "enum": [
+            "C",
+            "C#",
+            "Db",
+            "D",
+            "D#",
+            "Eb",
+            "E",
+            "F",
+            "F#",
+            "Gb",
+            "G",
+            "G#",
+            "Ab",
+            "A",
+            "A#",
+            "Bb",
+            "B"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "major",
+          "description": "Scale the chords are drawn from — the seven church modes plus harmonic and melodic minor. `major` and `minor` cover most songs; the others change which degrees come out major, minor or diminished. Default major.",
+          "enum": [
+            "major",
+            "minor",
+            "dorian",
+            "phrygian",
+            "lydian",
+            "mixolydian",
+            "locrian",
+            "harmonic-minor",
+            "melodic-minor"
+          ],
+          "type": "string"
+        },
+        "octave": {
+          "default": 4,
+          "description": "Octave of the tonic before voicing, 1-7. 4 puts middle C at MIDI note 60; lower values move the whole file down. Default 4.",
+          "maximum": 7,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "text",
+          "description": "Shape of the returned text. `text` is the full report (key, Roman numerals, chord symbols, spelled notes and file stats), `chords` and `roman` are one-line summaries, `csv` returns `bar,roman,chord,notes` rows, and `midi-base64` returns the Standard MIDI File itself as base64. Default text.",
+          "enum": [
+            "text",
+            "chords",
+            "roman",
+            "csv",
+            "midi-base64"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "default": "block",
+          "description": "How each chord is played in the MIDI file. `block` sounds every note together, the arpeggio modes step through the chord tones up, down or up-and-down, and `strum` staggers the note starts. Default block.",
+          "enum": [
+            "block",
+            "arpeggio-up",
+            "arpeggio-down",
+            "arpeggio-updown",
+            "strum"
+          ],
+          "type": "string"
+        },
+        "repeats": {
+          "default": 1,
+          "description": "How many times the progression is written into the MIDI file, 1-8, for a longer loop to work over. The printed analysis always shows a single pass. Default 1.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sevenths": {
+          "default": "auto",
+          "description": "Chord thickness. `auto` follows the style (jazz, lofi, R&B, hip-hop and ballad get sevenths; pop and rock stay triads), `triads` forces plain three-note chords, `sevenths` adds a seventh to every chord and `extended` adds ninths where the mode allows. Default auto.",
+          "enum": [
+            "auto",
+            "triads",
+            "sevenths",
+            "extended"
+          ],
+          "type": "string"
+        },
+        "style": {
+          "default": "pop",
+          "description": "Progression preset. Each style holds a handful of characteristic progressions; pick between them with `variation`. `random` instead walks the scale to build a fresh in-key progression. Default pop.",
+          "enum": [
+            "pop",
+            "rock",
+            "folk",
+            "country",
+            "ballad",
+            "worship",
+            "edm",
+            "hip-hop",
+            "lofi",
+            "rnb",
+            "jazz",
+            "blues",
+            "reggae",
+            "metal",
+            "cinematic",
+            "random"
+          ],
+          "type": "string"
+        },
+        "tempo": {
+          "default": 100.0,
+          "description": "Tempo in BPM written into the MIDI file, 40-300. It changes how fast the file plays, not which chords are chosen. Default 100.",
+          "maximum": 300,
+          "minimum": 40,
+          "type": "number"
+        },
+        "variation": {
+          "default": 1,
+          "description": "Which progression of the style to use, 1-99. Change it to re-roll: the same number always returns the same progression, so a result stays reproducible and shareable. Default 1.",
+          "maximum": 99,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "voice_leading": {
+          "default": true,
+          "description": "Voice-lead the MIDI file by picking the inversion of each chord nearest to the previous one, instead of restacking every chord in root position. Affects the file only, never the chord names. Default true.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

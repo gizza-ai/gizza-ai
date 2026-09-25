@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "freelance-rate-calc"
+version = "0.1.0"
+abi = 1
+summary = "Compute freelance hourly and day rates from income goals, taxes, expenses and billable time"

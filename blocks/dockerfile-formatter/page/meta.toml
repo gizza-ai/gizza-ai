@@ -1,0 +1,97 @@
+slug          = "dockerfile-formatter"
+title         = "Dockerfile Formatter"
+description   = "Normalize Dockerfile instruction casing, continuation indentation, comment spacing and stage blank lines without rewriting command arguments or heredoc bodies."
+tags          = ["dockerfile formatter", "dockerfile beautifier", "containerfile formatter", "dockerfile indentation", "dockerfile line continuations", "dockerfile uppercase instructions", "docker formatter"]
+h1            = "Dockerfile Formatter"
+hero_subtitle = "Paste a Dockerfile or Containerfile and normalize instruction casing, continuation indentation, comments and build-stage spacing. Heredocs and parser directives stay byte-safe. Runs locally in your browser."
+wasm          = "gizza_ai_dockerfile_formatter_web"
+export        = "run"
+live          = false
+output_label  = "Formatted Dockerfile"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Dockerfile text"
+placeholder = "from alpine:3.20 as build\nrun apk add --no-cache curl \\\n  && curl --version\ncopy . /app"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "instruction_case"
+label   = "Instruction case"
+source  = "field"
+default = "upper"
+[input.labels]
+upper    = "Uppercase (FROM, RUN, COPY)"
+lower    = "Lowercase (from, run, copy)"
+preserve = "Preserve source casing"
+
+[[input]]
+name        = "indent"
+label       = "Continuation indent"
+placeholder = "4"
+source      = "field"
+default     = "4"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "align_continuations"
+label   = "Align trailing backslashes"
+source  = "field"
+default = "false"
+
+[[input]]
+name        = "max_blank_lines"
+label       = "Maximum blank lines"
+placeholder = "1"
+source      = "field"
+default     = "1"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "blank_line_between_stages"
+label   = "Blank line between build stages"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "normalize_comments"
+label   = "Normalize comment spacing"
+source  = "field"
+default = "true"
+
+[[example]]
+label = "Multi-stage Alpine build"
+[example.params]
+input = "from alpine:3.20 as build\nrun apk add --no-cache curl \\\n  && curl --version\n#runtime\nfrom alpine\ncopy --from=build /usr/bin/curl /usr/bin/curl"
+instruction_case = "upper"
+indent = "4"
+align_continuations = "false"
+max_blank_lines = "1"
+blank_line_between_stages = "true"
+normalize_comments = "true"
+
+[[example]]
+label = "Lowercase with aligned continuations"
+[example.params]
+input = "FROM node:22 AS deps\nRUN npm ci \\\n&& npm cache clean --force\nCOPY . /app"
+instruction_case = "lower"
+indent = "2"
+align_continuations = "true"
+max_blank_lines = "1"
+blank_line_between_stages = "true"
+normalize_comments = "true"
+
+[[example]]
+label = "Compact Containerfile"
+[example.params]
+input = "FROM scratch\n\n\nCOPY app /app\nUSER 10001"
+instruction_case = "preserve"
+indent = "0"
+align_continuations = "false"
+max_blank_lines = "0"
+blank_line_between_stages = "false"
+normalize_comments = "false"

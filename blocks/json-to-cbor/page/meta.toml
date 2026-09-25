@@ -1,0 +1,64 @@
+slug          = "json-to-cbor"
+title         = "JSON to CBOR Encoder — Hex and Base64 bytes"
+description   = "Encode JSON into RFC 8949 CBOR bytes and return lowercase hex, Base64, or a size summary. Runs locally in your browser."
+tags          = ["JSON", "CBOR", "RFC 8949", "hex", "base64", "binary encoding", "IoT"]
+h1            = "JSON to CBOR encoder"
+hero_subtitle = "Paste JSON and encode it as CBOR bytes. Get reproducible canonical hex, Base64, and JSON-vs-CBOR byte counts without uploading data."
+wasm          = "gizza_ai_json_to_cbor_web"
+export        = "run"
+live          = false
+output_label  = "CBOR output"
+format        = "text"
+
+[[input]]
+name        = "json"
+label       = "JSON input"
+placeholder = "{\"sensor\":\"kitchen\",\"ok\":true,\"value\":23.5}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "output"
+label       = "Output format"
+placeholder = "hex"
+source      = "field"
+[input.labels]
+hex     = "Hex"
+base64  = "Base64"
+summary = "Summary"
+json    = "JSON wrapper"
+
+[[input]]
+name        = "canonical"
+label       = "Canonical key order"
+source      = "field"
+
+[[input]]
+name        = "group"
+label       = "Group hex every N bytes"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label = "Canonical hex object"
+[example.params]
+json = "{\"b\":2,\"a\":1}"
+output = "hex"
+canonical = "true"
+group = "0"
+
+[[example]]
+label = "Base64 for compact transport"
+[example.params]
+json = "[1,true,null,\"x\"]"
+output = "base64"
+canonical = "true"
+group = "0"
+
+[[example]]
+label = "Readable size summary"
+[example.params]
+json = "{\"sensor\":\"kitchen\",\"ok\":true,\"value\":23.5}"
+output = "summary"
+canonical = "true"
+group = "2"

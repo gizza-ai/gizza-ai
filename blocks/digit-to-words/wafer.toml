@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "digit-to-words"
+version = "0.1.0"
+abi = 1
+summary = "Spell numbers out in English words"

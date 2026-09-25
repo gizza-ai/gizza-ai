@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "charset-decoder"
+version = "0.1.0"
+abi = 1
+summary = "Decode hex or base64 byte dumps into text using a chosen or detected character set."

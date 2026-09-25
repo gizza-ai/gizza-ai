@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "vector-similarity"
+version = "0.1.0"
+abi = 1
+summary = "Rank nearest vectors by cosine, dot product and distance metrics."

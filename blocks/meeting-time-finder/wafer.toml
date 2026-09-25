@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "meeting-time-finder"
+version = "0.1.0"
+abi = 1
+summary = "Find the meeting slots on a date that fall inside every participant's working hours, ranked fairness-first."

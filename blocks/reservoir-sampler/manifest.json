@@ -1,0 +1,79 @@
+{
+  "name": "gizza-ai/reservoir-sampler",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Draw a uniform random sample of fixed size from a dataset in one pass",
+  "role": "skill",
+  "tool": {
+    "description": "Draw a uniform random sample of `k` records from a line-oriented dataset using reservoir sampling — one pass, memory proportional to the sample size rather than the dataset. `algorithm` picks Algorithm L (skip-based, the default) or Algorithm R (the classic per-record version); both sample without replacement, so no record is drawn twice. `seed` makes the draw reproducible. Blank lines are skipped by default (`skip_empty`), and `header=true` keeps the first line out of the draw and echoes it above the sample. `order` returns the records in their original dataset order or in reservoir (draw) order, `format` emits plain lines, line-numbered lines, or JSON, and `stats=true` reports how many records were scanned and the inclusion probability. If the dataset is smaller than `k`, every record is returned.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "default": "l",
+          "description": "Reservoir algorithm: 'l' (Algorithm L — skips ahead to the next replacement, far fewer random draws) or 'r' (Algorithm R — the classic one-draw-per-record version). Both give a uniform sample without replacement; they pick different records for the same seed. Default l.",
+          "enum": [
+            "l",
+            "r"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "The dataset to sample from, one record per line. Records are read as a stream in a single pass, so the memory used depends on `k`, not on how long the dataset is.",
+          "type": "string"
+        },
+        "format": {
+          "default": "lines",
+          "description": "Output format: 'lines' (the records alone), 'numbered' (original line number, a tab, then the record), or 'json' (an array of {line, text} objects). Default lines.",
+          "enum": [
+            "lines",
+            "numbered",
+            "json"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": false,
+          "description": "Treat the first line as a header row: it is excluded from the draw and echoed at the top of the result (lines/numbered output only). Default false.",
+          "type": "boolean"
+        },
+        "k": {
+          "default": 10,
+          "description": "Sample size — how many records to keep in the reservoir. If the dataset holds fewer records than this, every record is returned. Default 10.",
+          "maximum": 1000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "order": {
+          "default": "input",
+          "description": "Order of the sampled records: 'input' keeps their original order in the dataset, 'reservoir' returns them in the shuffled order the reservoir ended up in (handy for picking ranked winners). Default input.",
+          "enum": [
+            "input",
+            "reservoir"
+          ],
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the reproducible PRNG. The same seed, dataset, and options always yield the same sample; change it to draw again. Default 42.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "skip_empty": {
+          "default": true,
+          "description": "Ignore blank and whitespace-only lines so they can never be drawn or counted. Default true.",
+          "type": "boolean"
+        },
+        "stats": {
+          "default": false,
+          "description": "Report the one-pass statistics — records scanned, records sampled, the inclusion probability k/N, the algorithm, and the seed. Appended as a '#' comment line for lines/numbered output, or wrapped around the array as an object for json. Default false.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

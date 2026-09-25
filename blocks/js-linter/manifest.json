@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/js-linter",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Lint JavaScript for common bugs and style hazards",
+  "role": "skill",
+  "tool": {
+    "description": "Lint JavaScript locally for common issues: syntax imbalance, loose equality, unreachable code, unused variables, implicit globals, var in modern targets, missing semicolons, console/debugger/alert calls, module/script mismatches, and single-line control flow without braces. Supports presets, environment globals, severity filtering, ignored rule IDs, and text or JSON output. JSX, TypeScript, auto-fixing, and deep AST metrics are deliberately out of scope.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "JavaScript source code to lint. Paste plain .js; JSX and TypeScript are intentionally out of scope.",
+          "type": "string"
+        },
+        "ecma": {
+          "default": "latest",
+          "description": "JavaScript target version. es5 suppresses modern no-var guidance; newer targets recommend let/const.",
+          "enum": [
+            "latest",
+            "es2020",
+            "es2015",
+            "es5"
+          ],
+          "type": "string"
+        },
+        "env": {
+          "default": "browser",
+          "description": "Known global environment used when checking implicit assignments and undeclared names.",
+          "enum": [
+            "browser",
+            "node",
+            "both",
+            "none"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "text",
+          "description": "Output format: human-readable text report or JSON diagnostics for scripts and CI.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "ignore": {
+          "description": "Optional comma- or space-separated rule IDs to suppress, such as EQEQ, UNUSED-VAR, SEMICOLON, or NO-CONSOLE.",
+          "type": "string"
+        },
+        "min_severity": {
+          "default": "all",
+          "description": "Filter the report to all findings, warning-or-error findings, or only errors.",
+          "enum": [
+            "all",
+            "warning",
+            "error"
+          ],
+          "type": "string"
+        },
+        "preset": {
+          "default": "recommended",
+          "description": "Rule bundle to run. minimal keeps only high-signal bug checks; recommended is balanced; strict adds style-oriented warnings.",
+          "enum": [
+            "recommended",
+            "minimal",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "source_type": {
+          "default": "auto",
+          "description": "Treat the input as a classic script, an ES module, or infer automatically. script flags import/export syntax.",
+          "enum": [
+            "auto",
+            "script",
+            "module"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "round-robin-scheduler"
+version = "0.1.0"
+abi = 1
+summary = "Generate a balanced round-robin match schedule from a list of participants"
