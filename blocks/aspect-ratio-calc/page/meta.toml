@@ -1,0 +1,97 @@
+slug          = "aspect-ratio-calc"
+title         = "Aspect Ratio Calculator — Solve Width, Height or Ratio"
+description   = "Solve a missing width or height from any aspect ratio, reduce a resolution to its simplest ratio, and copy the CSS aspect-ratio — entirely in your browser."
+tags          = ["aspect ratio calculator", "ratio calculator", "resolution calculator", "16:9 calculator", "image aspect ratio", "video aspect ratio", "css aspect-ratio", "pixel dimensions"]
+h1            = "Aspect Ratio Calculator"
+hero_subtitle = "Enter a ratio plus one dimension to solve the other — or paste a width and height to see the ratio it actually is, with the nearest standard named."
+wasm          = "gizza_ai_aspect_ratio_calc_web"
+export        = "run"
+live          = false
+output_label  = "Aspect ratio result"
+format        = "text"
+
+[[input]]
+name        = "ratio"
+label       = "Target ratio"
+placeholder = "16:9"
+default     = "16:9"
+source      = "field"
+
+[[input]]
+name        = "width"
+label       = "Width (px)"
+placeholder = "1920"
+default     = "1920"
+source      = "field"
+
+[[input]]
+name        = "height"
+label       = "Height (px)"
+placeholder = "1080"
+source      = "field"
+
+[[input]]
+name        = "rounding"
+label       = "Rounding"
+default     = "nearest"
+source      = "field"
+[input.labels]
+nearest = "Nearest whole pixel"
+up = "Round up — never crop"
+down = "Round down — never overflow"
+even = "Nearest even pixel — H.264/H.265"
+exact = "Exact — keep the fraction"
+
+[[input]]
+name        = "output_format"
+label       = "Output format"
+default     = "summary"
+source      = "field"
+[input.labels]
+summary = "Full summary"
+dimensions = "Dimensions only (WxH)"
+ratio = "Reduced ratio only"
+decimal = "Decimal ratio only"
+css = "CSS aspect-ratio"
+json = "JSON"
+
+[[example]]
+label = "Height for 1920 wide at 16:9"
+[example.params]
+ratio = "16:9"
+width = "1920"
+
+[[example]]
+label = "Simplify 2560 x 1600"
+[example.params]
+ratio = ""
+width = "2560"
+height = "1600"
+
+[[example]]
+label = "Vertical video from 1080 wide"
+[example.params]
+ratio = "9:16"
+width = "1080"
+output_format = "dimensions"
+
+[[example]]
+label = "Even sides for cinema flat"
+[example.params]
+ratio = "1.85:1"
+width = "1920"
+rounding = "even"
+output_format = "dimensions"
+
+[[example]]
+label = "CSS box for 4:5 portrait"
+[example.params]
+ratio = "4:5"
+output_format = "css"
+
+[[example]]
+label = "Fit 1920 x 1200 into 16:9"
+[example.params]
+ratio = "16:9"
+width = "1920"
+height = "1200"
