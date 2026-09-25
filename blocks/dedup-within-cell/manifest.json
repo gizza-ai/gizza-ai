@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/dedup-within-cell",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove duplicate items inside delimited CSV cells",
+  "role": "skill",
+  "tool": {
+    "description": "Remove repeated items inside selected CSV/TSV cells while preserving rows and columns. Paste table text in `data`; each selected cell is split by `item_separator`, deduped, optionally case-folded and sorted, then joined back with the original spacing or `output_separator`. Use `columns` to target header names or 1-based indices, `delimiter` for the table delimiter, and `output=stats` for a removal report.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "default": "",
+          "description": "Comma-separated 1-based column numbers or header names to process, e.g. `2,tags`. Leave blank to process every column. Header names require has_header=true.",
+          "type": "string"
+        },
+        "data": {
+          "description": "CSV/TSV/table text to clean. Each selected cell is treated as a delimited list, e.g. `a, b, a, c` becomes `a, b, c`. A single-column input works too (one list per line). Maximum 1 MB.",
+          "type": "string"
+        },
+        "delimiter": {
+          "default": "comma",
+          "description": "Delimiter between table fields: comma for CSV (default), tab for TSV, semicolon, or pipe. This is not the same as item_separator inside a cell.",
+          "enum": [
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe"
+          ],
+          "type": "string"
+        },
+        "drop_empty": {
+          "default": true,
+          "description": "Drop empty items created by repeated separators, e.g. `a,,b,,,a` -> `a,b`. Enabled by default.",
+          "type": "boolean"
+        },
+        "has_header": {
+          "default": true,
+          "description": "Treat the first row as a header. Header rows are never rewritten, and column names in `columns` are resolved from it.",
+          "type": "boolean"
+        },
+        "ignore_case": {
+          "default": false,
+          "description": "Treat differently-cased items as duplicates while keeping the first occurrence's original casing.",
+          "type": "boolean"
+        },
+        "item_separator": {
+          "default": "comma",
+          "description": "Separator between items inside each cell. Use comma for `a,b,a`, comma-space for `a, b, a`, semicolon, pipe, space, tab, or newline.",
+          "enum": [
+            "comma",
+            "comma-space",
+            "semicolon",
+            "pipe",
+            "space",
+            "tab",
+            "newline"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "csv",
+          "description": "Return the rewritten table as csv (default), or stats for a plain-text count of rows, cells scanned, cells changed, and duplicate items removed.",
+          "enum": [
+            "csv",
+            "stats"
+          ],
+          "type": "string"
+        },
+        "output_separator": {
+          "default": "",
+          "description": "Separator used to join the kept items. Leave blank to preserve the cell's original separator and spacing (for example comma-space stays comma-space).",
+          "type": "string"
+        },
+        "sort_items": {
+          "default": "none",
+          "description": "Order for the surviving items inside each cell: none keeps first-seen order, asc sorts A-Z, desc sorts Z-A.",
+          "enum": [
+            "none",
+            "asc",
+            "desc"
+          ],
+          "type": "string"
+        },
+        "trim_items": {
+          "default": true,
+          "description": "Trim whitespace around each item before comparing and writing it back. Enabled by default.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

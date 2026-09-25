@@ -1,0 +1,140 @@
+slug          = "dedup-within-cell"
+title         = "Deduplicate Items Inside CSV Cells"
+description   = "Remove repeated list items inside selected CSV or TSV cells while preserving rows, columns, headers and the first-seen order."
+tags          = ["csv dedupe", "deduplicate cell values", "remove duplicate list items", "csv cleaner", "split cell list", "within cell duplicates"]
+h1            = "Remove duplicate items inside CSV cells"
+hero_subtitle = "Clean packed list fields such as tags, categories or emails: `a, b, a, c` becomes `a, b, c`, without dropping rows or changing unrelated columns."
+wasm          = "gizza_ai_dedup_within_cell_web"
+export        = "run"
+live          = false
+output_label  = "Cleaned table"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "data"
+label       = "CSV / TSV data"
+placeholder = "id,tags\n1,\"a, b, a, c\"\n2,\"red, blue, red\""
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "columns"
+label       = "Columns to clean (blank = all)"
+placeholder = "tags or 2"
+source      = "field"
+
+[[input]]
+name   = "item_separator"
+label  = "Separator inside each cell"
+source = "field"
+
+[input.labels]
+comma       = "Comma: a,b,a"
+comma-space = "Comma + space: a, b, a"
+semicolon   = "Semicolon: a;b;a"
+pipe        = "Pipe: a|b|a"
+space       = "Space: a b a"
+tab         = "Tab"
+newline     = "Newline inside quoted cell"
+
+[[input]]
+name        = "output_separator"
+label       = "Output separator (blank = preserve spacing)"
+placeholder = ", "
+source      = "field"
+
+[[input]]
+name   = "ignore_case"
+label  = "Ignore case when matching duplicates"
+source = "field"
+
+[[input]]
+name   = "trim_items"
+label  = "Trim spaces around items"
+source = "field"
+
+[[input]]
+name   = "drop_empty"
+label  = "Drop empty items"
+source = "field"
+
+[[input]]
+name   = "sort_items"
+label  = "Sort surviving items"
+source = "field"
+
+[input.labels]
+none = "Keep first-seen order"
+asc  = "Sort A-Z"
+desc = "Sort Z-A"
+
+[[input]]
+name   = "delimiter"
+label  = "Table delimiter"
+source = "field"
+
+[input.labels]
+comma     = "CSV comma"
+tab       = "TSV tab"
+semicolon = "Semicolon"
+pipe      = "Pipe"
+
+[[input]]
+name   = "has_header"
+label  = "First row is a header"
+source = "field"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+
+[input.labels]
+csv   = "Cleaned CSV / table"
+stats = "Stats only"
+
+[[example]]
+label = "Tags column"
+[example.params]
+data = "id,tags\n1,\"a, b, a, c\"\n2,\"red, blue, red\""
+columns = "tags"
+item_separator = "comma"
+output_separator = ""
+ignore_case = "false"
+trim_items = "true"
+drop_empty = "true"
+sort_items = "none"
+delimiter = "comma"
+has_header = "true"
+output = "csv"
+
+[[example]]
+label = "Case-insensitive sort"
+[example.params]
+data = "tags\n\"banana, Apple, apple, Cherry\""
+columns = ""
+item_separator = "comma"
+output_separator = ", "
+ignore_case = "true"
+trim_items = "true"
+drop_empty = "true"
+sort_items = "asc"
+delimiter = "comma"
+has_header = "true"
+output = "csv"
+
+[[example]]
+label = "Stats report"
+[example.params]
+data = "id,tags\n1,\"a, b, a\"\n2,\"c, c, c\""
+columns = "tags"
+item_separator = "comma"
+output_separator = ""
+ignore_case = "false"
+trim_items = "true"
+drop_empty = "true"
+sort_items = "none"
+delimiter = "comma"
+has_header = "true"
+output = "stats"
