@@ -1,0 +1,66 @@
+slug          = "python-syntax-check"
+title         = "Python Syntax Check — find Python 3 parse errors"
+description   = "Paste Python source and check for SyntaxError, IndentationError and TabError without executing the code. Reports line, column, caret context and optional JSON."
+tags          = ["python syntax checker", "python parse error", "syntaxerror", "indentationerror", "taberror", "python compile check"]
+h1            = "Python Syntax Check"
+hero_subtitle = "Compile-check pasted Python 3 source locally: get the first syntax error with line, column, caret context, Python 2 migration hints and optional JSON for scripts."
+wasm          = "gizza_ai_python_syntax_check_web"
+export        = "run"
+live          = false
+output_label  = "Syntax report"
+format        = "text"
+
+[[input]]
+name        = "code"
+label       = "Python code"
+placeholder = "def greet(name):\n    print(f\"hello {name}\")\n\ngreet(\"Ada\")"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Compile mode"
+placeholder = "module"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+placeholder = "text"
+source      = "field"
+
+[[input]]
+name        = "show_context"
+label       = "Show caret context"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "python2_hints"
+label       = "Python 2 hints"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "stats"
+label       = "Show line stats"
+placeholder = "true"
+source      = "field"
+
+[[input]]
+name        = "filename"
+label       = "Filename label"
+placeholder = "app.py"
+source      = "field"
+
+[[example]]
+label = "Valid module"
+params = { code = "def greet(name):\n    return f\"hello {name}\"\n\nprint(greet(\"Ada\"))", mode = "module", format = "text", show_context = "true", python2_hints = "true", stats = "true", filename = "app.py" }
+
+[[example]]
+label = "Missing colon"
+params = { code = "def greet(name)\n    return name", mode = "module", format = "text", show_context = "true", python2_hints = "true", stats = "true", filename = "broken.py" }
+
+[[example]]
+label = "JSON expression check"
+params = { code = "1 + 2 *", mode = "expression", format = "json", show_context = "true", python2_hints = "false", stats = "false", filename = "expr.py" }
