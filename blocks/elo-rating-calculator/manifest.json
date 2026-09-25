@@ -1,0 +1,96 @@
+{
+  "name": "gizza-ai/elo-rating-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute Elo expected scores, rating deltas and new ratings for a two-player match or same-opponent series.",
+  "role": "skill",
+  "tool": {
+    "description": "Elo rating calculator for a two-player match or a same-opponent series. Provide player_a_rating, player_b_rating, score_a (1 win, 0.5 draw, 0 loss, or total points across games), and optionally k_factor (default 32), games, player-specific k_factor_b, max_rating_difference such as 400 for FIDE-style caps, decimals and output_format. It returns both players' expected scores, signed rating changes, new ratings, formula substitution, win/draw/loss scenarios, and JSON/CSV/delta outputs. Pure arithmetic, no network.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "decimals": {
+          "default": 0.0,
+          "description": "Decimal places for rating changes and final ratings. Default 0 for whole rating points; use 1-6 to inspect unrounded values.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "games": {
+          "default": 1.0,
+          "description": "Number of games represented by score_a. Use 1 for a single match; for a same-opponent series, enter the count and score_a as total points. Default 1.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "k_factor": {
+          "default": 32.0,
+          "description": "K-factor for Player A. Common values: 10 master/low volatility, 20 standard/FIDE established, 32 online default, 40 new players. Default 32.",
+          "maximum": 200,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "k_factor_b": {
+          "default": 0.0,
+          "description": "Optional K-factor for Player B. Leave 0 to mirror k_factor; set a value when the players have different development factors.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "number"
+        },
+        "max_rating_difference": {
+          "default": 0.0,
+          "description": "Optional cap on the rating difference used in the expected-score formula. 0 disables the cap; 400 matches the common FIDE cap.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "output_format": {
+          "default": "summary",
+          "description": "Output shape. summary gives both players, expected scores, formula substitutions and scenarios; scenarios prints win/draw/loss what-ifs; json and csv are machine-readable; delta returns Player A's signed rating change only.",
+          "enum": [
+            "summary",
+            "scenarios",
+            "json",
+            "csv",
+            "delta"
+          ],
+          "type": "string"
+        },
+        "player_a_name": {
+          "default": "Player A",
+          "description": "Optional display name for Player A, up to 60 characters. Used in summaries, JSON and CSV.",
+          "type": "string"
+        },
+        "player_a_rating": {
+          "description": "Player A's starting Elo rating, from 0 to 5000. Example: 1600.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "player_b_name": {
+          "default": "Player B",
+          "description": "Optional display name for Player B, up to 60 characters. Used in summaries, JSON and CSV.",
+          "type": "string"
+        },
+        "player_b_rating": {
+          "default": 1500.0,
+          "description": "Player B's starting Elo rating, from 0 to 5000. Default 1500.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "score_a": {
+          "default": 1.0,
+          "description": "Player A's actual score: 1 for a win, 0.5 for a draw, 0 for a loss. For a series, enter total points across games; player B's score is games - score_a. Default 1.",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "player_a_rating"
+      ],
+      "type": "object"
+    }
+  }
+}
