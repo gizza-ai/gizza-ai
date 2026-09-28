@@ -13,13 +13,13 @@
 //! Validation is strict: an unknown word, a bad word count, or a failing
 //! checksum is a hard error (that is what wallets require before restoring).
 
+// The official BIP39 English wordlist, shared with the sibling
+// `bip39-mnemonic-generator` block (single source, no copy).
+use gizza_ai_bip39_mnemonic_generator_core::words;
 use hmac::Hmac;
 use serde::Serialize;
 use sha2::{Digest, Sha256, Sha512};
 
-/// The official BIP39 English wordlist (2048 words), REUSED from the sibling
-/// `bip39-mnemonic-generator` block at build time (single source, no copy).
-const WORDLIST: &str = include_str!("../../../bip39-mnemonic-generator/core/src/english.txt");
 
 /// Valid BIP39 word counts.
 pub const WORD_COUNTS: [usize; 5] = [12, 15, 18, 21, 24];
@@ -39,10 +39,6 @@ pub struct Seed {
     pub passphrase: String,
     /// BIP39 512-bit seed, hex-encoded (PBKDF2-HMAC-SHA512, 2048 iters).
     pub seed_hex: String,
-}
-
-fn words() -> Vec<&'static str> {
-    WORDLIST.lines().map(|w| w.trim()).filter(|w| !w.is_empty()).collect()
 }
 
 /// Validate a pasted BIP39 mnemonic and derive its 512-bit seed.
