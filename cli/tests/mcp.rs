@@ -5,7 +5,7 @@ use gizza_cli::{mcp::McpServer, runtime};
 use serde_json::{json, Value};
 
 async fn server() -> McpServer {
-    McpServer::new(runtime::boot_minimal().await.expect("boot"))
+    McpServer::new(runtime::boot().await.expect("boot"))
 }
 
 #[tokio::test]

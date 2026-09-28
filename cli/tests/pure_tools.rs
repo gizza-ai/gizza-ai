@@ -2,7 +2,7 @@ use gizza_cli::runtime;
 
 #[tokio::test]
 async fn boots_and_registers_calculator() {
-    let rt = runtime::boot_minimal().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     let names = rt.tool_names();
     assert!(
         names.iter().any(|n| n == "gizza-ai/calculator"),
@@ -12,7 +12,7 @@ async fn boots_and_registers_calculator() {
 
 #[tokio::test]
 async fn calculator_evaluates() {
-    let rt = runtime::boot_minimal().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     let body = rt
         .run_tool("gizza-ai/calculator", serde_json::json!({"expr":"2+2"}))
         .await
@@ -23,7 +23,7 @@ async fn calculator_evaluates() {
 
 #[tokio::test]
 async fn calculator_div_by_zero_errors() {
-    let rt = runtime::boot_minimal().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     let body = rt
         .run_tool("gizza-ai/calculator", serde_json::json!({"expr":"1/0"}))
         .await
