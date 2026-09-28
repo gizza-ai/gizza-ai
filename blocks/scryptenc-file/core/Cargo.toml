@@ -5,12 +5,12 @@ edition = "2021"
 rust-version = "1.82"
 
 [dependencies]
-scrypt = { version = "0.11", default-features = false }
+scrypt = { version = "0.12", default-features = false }
 aes = "0.8"
 ctr = "0.9"
 cipher = { version = "0.4", features = ["alloc"] }
-hmac = "0.12"
-sha2 = "0.10"
+hmac = "0.13"
+sha2 = "0.11"
 subtle = "2"
 hex = "0.4"
 base64 = "0.22"

@@ -26,7 +26,7 @@
 use aes::Aes256;
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use cipher::{KeyIvInit, StreamCipher};
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use scrypt::Params;
 use sha2::{Digest, Sha256};
 use subtle::ConstantTimeEq;
@@ -248,7 +248,7 @@ fn check_memory(log_n: u8, r: u32, p: u32, max_memory_mib: i64) -> Result<(), St
 
 /// scrypt(password, salt) → 64 bytes = AES-256 key ++ HMAC-SHA256 key.
 fn derive_keys(password: &str, salt: &[u8], log_n: u8, r: u32, p: u32) -> Result<[u8; 64], String> {
-    let params = Params::new(log_n, r, p, 64)
+    let params = Params::new(log_n, r, p)
         .map_err(|e| format!("invalid scrypt parameters (logN={log_n}, r={r}, p={p}): {e}"))?;
     let mut dk = [0u8; 64];
     scrypt::scrypt(password.as_bytes(), salt, &params, &mut dk)

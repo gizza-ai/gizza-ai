@@ -11,8 +11,8 @@ rust-version = "1.82"
 # browser's crypto.getRandomValues under wasm-pack (the `js` backend below).
 x25519-dalek = { version = "2", default-features = false, features = ["static_secrets"] }
 getrandom = "0.2"
-hkdf = "0.12"
-sha2 = "0.10"
+hkdf = "0.13"
+sha2 = "0.11"
 base64 = "0.22"
 hex = "0.4"
 

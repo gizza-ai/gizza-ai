@@ -172,11 +172,9 @@ pub fn derive_bytes(
             "scrypt parameters too large: 128*N*r = {mem} bytes exceeds the 1 GiB limit; lower N or r"
         ));
     }
-    // `Params::len` is unused by `scrypt()` (it derives `output.len()` bytes), but
-    // `Params::new` requires len in 10..=64 — pass a fixed valid value; the real
-    // output length is governed by the `out` buffer below.
+    // The output length is governed by the `out` buffer below.
     let params =
-        Params::new(log_n, r, p, 32).map_err(|e| format!("invalid scrypt parameters: {e}"))?;
+        Params::new(log_n, r, p).map_err(|e| format!("invalid scrypt parameters: {e}"))?;
     let mut out = vec![0u8; dk_len];
     scrypt(password.as_bytes(), salt, &params, &mut out)
         .map_err(|e| format!("scrypt failed: {e}"))?;

@@ -17,7 +17,7 @@
 
 use std::sync::OnceLock;
 
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use regex::Regex;
 use serde::Serialize;
 use sha2::Sha256;

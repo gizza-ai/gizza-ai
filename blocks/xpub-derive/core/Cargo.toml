@@ -7,6 +7,6 @@ rust-version = "1.82"
 [dependencies]
 bip32 = { version = "0.5", default-features = false, features = ["secp256k1", "alloc"] }
 bs58 = { version = "0.5", features = ["check"] }
-sha2 = "0.10"
-ripemd = "0.1"
+sha2 = "0.11"
+ripemd = "0.2"
 hex = "0.4"

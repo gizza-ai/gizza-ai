@@ -4,7 +4,7 @@
 //! works on every backend (the chat block / CLI supply the real clock; the page
 //! supplies `Date.now()`).
 
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 
 /// HMAC hash algorithm for the TOTP.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -15,7 +15,7 @@
 //! including the chat Service Worker and the browser page.
 
 use base64::Engine;
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 
 // ---------------------------------------------------------------------------
 // Enumerations (single source of truth for the descriptor, manifest and page)

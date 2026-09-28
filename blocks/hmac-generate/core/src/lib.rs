@@ -11,7 +11,7 @@
 //! runs on every backend, including the chat Service Worker.
 
 use base64::Engine;
-use hmac::{Hmac, Mac};
+use hmac::{KeyInit, Mac, SimpleHmac};
 
 /// Which underlying hash algorithm to key.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -125,26 +125,15 @@ fn decode_input(text: &str, encoding: InputEncoding, field: &str) -> Result<Vec<
 fn hmac_bytes(key: &[u8], message: &[u8], alg: Algorithm) -> Vec<u8> {
     use sha2::{Sha224, Sha256, Sha384, Sha512};
     use sha3::{Sha3_256, Sha3_512};
-    fn mac<D>(key: &[u8], message: &[u8]) -> Vec<u8>
-    where
-        D: digest::core_api::CoreProxy,
-        D::Core: Sync
-            + Send
-            + Clone
-            + digest::core_api::BufferKindUser<BufferKind = digest::block_buffer::Eager>
-            + digest::core_api::FixedOutputCore
-            + digest::HashMarker
-            + Default,
-        <D::Core as digest::core_api::BlockSizeUser>::BlockSize:
-            digest::typenum::IsLess<digest::consts::U256>,
-        digest::typenum::Le<
-            <D::Core as digest::core_api::BlockSizeUser>::BlockSize,
-            digest::consts::U256,
-        >: digest::typenum::NonZero,
-    {
+    // SimpleHmac, not Hmac: hmac's block-level `Hmac` needs an eager
+    // block-level core, which the SHA-3 hashes do not expose.
+    fn mac<D: hmac::digest::Digest + hmac::digest::common::BlockSizeUser>(
+        key: &[u8],
+        message: &[u8],
+    ) -> Vec<u8> {
         // HMAC accepts a key of any length (it is internally padded/hashed to the
         // block size), so new_from_slice never fails here.
-        let mut m = Hmac::<D>::new_from_slice(key).expect("hmac accepts any key length");
+        let mut m = SimpleHmac::<D>::new_from_slice(key).expect("hmac accepts any key length");
         m.update(message);
         m.finalize().into_bytes().to_vec()
     }

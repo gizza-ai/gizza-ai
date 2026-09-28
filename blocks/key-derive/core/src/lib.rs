@@ -313,9 +313,8 @@ fn derive_scrypt(secret: &[u8], salt: &[u8], p: &Params, out: &mut [u8]) -> Resu
             "scrypt parameters too large: 128*N*r = {mem} bytes exceeds the 1 GiB limit"
         ));
     }
-    // `Params::len` is unused by `scrypt()` (output length comes from `out`), but
-    // `Params::new` requires len in 10..=64 — pass a fixed valid value.
-    let sp = scrypt::Params::new(log_n, p.r, p.p, 32)
+    // The output length comes from `out`.
+    let sp = scrypt::Params::new(log_n, p.r, p.p)
         .map_err(|e| format!("invalid scrypt parameters: {e}"))?;
     scrypt::scrypt(secret, salt, &sp, out).map_err(|e| format!("scrypt failed: {e}"))
 }

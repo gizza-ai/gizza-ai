@@ -2,8 +2,10 @@
 //! memory, iterations, parallelism) returning a PHC string, and verify a password
 //! against a PHC string. Pure-Rust (`argon2`). No wafer/wasm-bindgen deps.
 
-use argon2::password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString};
-use argon2::{Algorithm, Argon2, Params, Version};
+use argon2::{
+    password_hash, Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier,
+    Version,
+};
 
 /// Hash `password` with Argon2id and return the PHC string
 /// (`$argon2id$v=19$m=...,t=...,p=...$<salt>$<hash>`). A fresh random salt is used.
@@ -20,9 +22,8 @@ pub fn hash(password: &str, m_cost: u32, t_cost: u32, p_cost: u32) -> Result<Str
     // the js backend).
     let mut salt_bytes = [0u8; 16];
     getrandom::getrandom(&mut salt_bytes).map_err(|e| format!("rng error: {e}"))?;
-    let salt = SaltString::encode_b64(&salt_bytes).map_err(|e| format!("salt error: {e}"))?;
     argon
-        .hash_password(password.as_bytes(), &salt)
+        .hash_password_with_salt(password.as_bytes(), &salt_bytes)
         .map(|h| h.to_string())
         .map_err(|e| format!("hashing failed: {e}"))
 }
@@ -34,7 +35,7 @@ pub fn verify(password: &str, phc: &str) -> Result<bool, String> {
     // Argon2::default() reads the algorithm/params from the PHC string.
     match Argon2::default().verify_password(password.as_bytes(), &parsed) {
         Ok(()) => Ok(true),
-        Err(argon2::password_hash::Error::Password) => Ok(false),
+        Err(password_hash::Error::PasswordInvalid) => Ok(false),
         Err(e) => Err(format!("verification error: {e}")),
     }
 }
