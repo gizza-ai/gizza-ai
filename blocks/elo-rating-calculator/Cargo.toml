@@ -12,8 +12,8 @@ rust-version = "1.82"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", rev = "8c22d606224ed513c5eb5ec95240b5f6b1104c1f" }
-wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", rev = "8c22d606224ed513c5eb5ec95240b5f6b1104c1f" }
+wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
 gizza-ai-elo-rating-calculator-core = { path = "core" }
 gizza-ai-block-utils = { path = "../../block-utils" }
 serde = { version = "1", features = ["derive"] }
