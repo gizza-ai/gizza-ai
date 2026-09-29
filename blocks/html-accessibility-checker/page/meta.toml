@@ -1,0 +1,64 @@
+slug          = "html-accessibility-checker"
+title         = "HTML accessibility checker"
+description   = "Paste HTML and catch common WCAG accessibility issues: missing alt text, unlabeled inputs, bad heading order, missing lang, duplicate ids, and ARIA problems."
+tags          = ["html", "accessibility", "wcag", "a11y", "aria", "forms", "static analysis"]
+h1            = "HTML accessibility checker"
+hero_subtitle = "Run a local, browser-only accessibility pass over pasted HTML before a manual screen-reader, keyboard and contrast review."
+wasm          = "gizza_ai_html_accessibility_checker_web"
+export        = "run"
+live          = false
+output_label  = "Accessibility report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "html"
+label       = "HTML"
+placeholder = "<html lang=\"en\">\n<head><title>Contact</title></head>\n<body><main><h1>Contact</h1><img src=\"hero.png\"></main></body>\n</html>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "level"
+label  = "WCAG level"
+source = "field"
+labels = { a = "A", aa = "AA (default)", aaa = "AAA" }
+
+[[input]]
+name   = "min_severity"
+label  = "Minimum severity"
+source = "field"
+labels = { suggestion = "Suggestion and higher", warning = "Warning and error", error = "Errors only" }
+
+[[input]]
+name   = "format"
+label  = "Output format"
+source = "field"
+labels = { text = "Text report", markdown = "Markdown", json = "JSON", csv = "CSV" }
+
+[[input]]
+name   = "show_passed"
+label  = "Show passed checks"
+source = "field"
+
+[[input]]
+name        = "max_issues"
+label       = "Maximum findings"
+placeholder = "200"
+source      = "field"
+
+[[example]]
+label = "Missing alt + heading gap"
+params = { html = "<html><body>\n<h2>Welcome</h2>\n<img src=\"hero.png\">\n<form><input name=\"email\"></form>\n</body></html>", level = "aa", min_severity = "suggestion", format = "text", show_passed = "false", max_issues = "200" }
+
+[[example]]
+label = "Errors only"
+params = { html = "<html><body>\n<img src=\"hero.png\">\n<a href=\"/next\"></a>\n</body></html>", level = "aa", min_severity = "error", format = "text", show_passed = "false", max_issues = "200" }
+
+[[example]]
+label = "JSON audit"
+params = { html = "<html lang=\"en\"><head><title>Shop</title></head><body><main><h1>Shop</h1><button></button><iframe src=\"/map\"></iframe></main></body></html>", level = "aa", min_severity = "suggestion", format = "json", show_passed = "true", max_issues = "200" }
+
+[[example]]
+label = "CSV capped"
+params = { html = "<img src=\"a.png\"><img src=\"b.png\"><input name=\"q\"><a href=\"/x\">click here</a>", level = "aaa", min_severity = "warning", format = "csv", show_passed = "false", max_issues = "3" }

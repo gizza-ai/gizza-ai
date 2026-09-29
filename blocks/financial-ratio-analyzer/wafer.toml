@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "financial-ratio-analyzer"
+version = "0.1.0"
+abi = 1
+summary = "Compute liquidity, leverage, margin, return, efficiency and market ratios from pasted financial statements"

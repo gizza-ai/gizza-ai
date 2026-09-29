@@ -1,0 +1,93 @@
+{
+  "name": "gizza-ai/anova",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run a one-way ANOVA on pasted groups: full ANOVA table, F and p, effect sizes, Levene and Welch checks, and post-hoc pairs",
+  "role": "skill",
+  "tool": {
+    "description": "Run a one-way analysis of variance on pasted data and report whether the group means differ. Accepts long `group,value` rows, wide one-column-per-group tables with unequal group sizes, or per-group `name,n,mean,sd` summary statistics, and auto-detects the shape, the delimiter, and a header row. Returns per-group descriptive statistics, the between/within/total sums of squares, degrees of freedom and mean squares, the F statistic with its exact right-tail p-value and the critical F at your alpha, a reject / fail-to-reject verdict, eta-squared and omega-squared effect sizes, Levene's (Brown-Forsythe) homogeneity-of-variance test, Welch's unequal-variance ANOVA, and optional pairwise post-hoc comparisons (Tukey HSD, Fisher's LSD, Bonferroni, or Holm) with adjusted p-values and confidence intervals. Options control the input format, delimiter, header handling, significance level, decimal precision, post-hoc method, and whether to return a readable summary, markdown tables, or JSON. All statistics, including the F and studentized-range distributions, are computed locally in pure Rust; no data leaves the machine and no statistics service is called.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.05,
+          "description": "Significance level for the test, between 0.0001 and 0.5. Default 0.05. Sets the critical F reported next to the F statistic, decides the reject / fail-to-reject verdict, and is the family-wise error rate used for the post-hoc confidence intervals and adjusted p-values. Use 0.01 for a stricter test, 0.1 for an exploratory one.",
+          "maximum": 0.5,
+          "minimum": 0.0001,
+          "type": "number"
+        },
+        "data": {
+          "description": "The observations to compare, one row per line, in any of three shapes. Long: a group label and a value per row, for example `Control,6` / `Control,8` / `Drug A,13`. Wide: one column per group, one row per observation, for example `6,8,13` / `8,12,9` — blank cells are allowed for unequal group sizes. Summary: per-group statistics as `name,n,mean,sd`, for example `Control,5,5.2,1.9235`, when you only have published means and standard deviations. Comma, tab, semicolon, pipe, and space separated rows all work, a header row is detected automatically, and `#` starts a comment. Needs at least 2 groups, at least 2 total observations more than there are groups, and some within-group variation. Up to 200000 values and 1000 groups.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for every number in the text and table output, 0-10. Default 4, which matches how ANOVA tables are usually reported. p-values smaller than the chosen resolution print as `< 0.0001` rather than rounding to 0. Also controls the rounding applied to json output.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "How each row is split into columns. auto (default) picks the separator that appears consistently across the rows, preferring tab, then semicolon, then pipe, then comma, and falling back to runs of whitespace. Force one when a label itself contains the auto-detected separator — for example choose tab for `Site A, north<TAB>12` rows.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read the pasted rows. auto (default) infers the shape: a `name,n,mean,sd` table is read as summary, a two-column table whose first column repeats non-numeric labels is read as long, anything else is read as wide. Set long, wide, or summary explicitly when the guess is wrong — most often with numeric group labels like `1,23.5`, which auto reads as wide but you may mean as long.",
+          "enum": [
+            "auto",
+            "long",
+            "wide",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row names the columns or groups rather than holding data. auto (default) treats it as a header when its cells are not all numeric, and then uses those names as the group names in wide format. yes always skips it, no always treats it as data — use no when your groups really are labelled with numbers.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output format. summary (default) is a readable report: per-group n / mean / sd / sem, the full ANOVA table, F with its p-value and critical value, the reject verdict, eta-squared and omega-squared effect sizes, Levene's homogeneity-of-variance test, Welch's unequal-variance ANOVA, and any post-hoc pairs. table returns the same content as GitHub-flavoured markdown tables you can paste into a document or issue. json returns the whole result as a machine-readable object with every statistic rounded to decimals.",
+          "enum": [
+            "summary",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "posthoc": {
+          "default": "none",
+          "description": "Pairwise follow-up test run when the omnibus F says at least one mean differs, since F alone does not say which pair. none (default) reports only the ANOVA table. tukey is Tukey's HSD, the usual choice for all pairwise comparisons with equal variances, and reports a q statistic with family-wise confidence intervals. lsd is Fisher's LSD, unadjusted t-tests with the pooled error term — the most powerful and the least protected. bonferroni multiplies each p-value by the number of pairs, simple and conservative. holm is the step-down Bonferroni: same protection, uniformly more power.",
+          "enum": [
+            "none",
+            "tukey",
+            "lsd",
+            "bonferroni",
+            "holm"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

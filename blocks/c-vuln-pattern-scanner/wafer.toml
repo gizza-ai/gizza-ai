@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "c-vuln-pattern-scanner"
+version = "0.1.0"
+abi = 1
+summary = "Scan C/C++ source for vulnerability patterns with CWE ids and severities"

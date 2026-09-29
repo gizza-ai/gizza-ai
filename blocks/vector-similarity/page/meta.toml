@@ -1,0 +1,122 @@
+slug          = "vector-similarity"
+title         = "Vector Similarity Calculator"
+description   = "Rank candidate vectors against a query by cosine similarity, dot product, Euclidean, Manhattan, Chebyshev or Hamming distance, with a top-k list."
+tags          = ["vector similarity", "cosine similarity calculator", "dot product calculator", "euclidean distance", "manhattan distance", "nearest neighbour search", "embedding similarity"]
+h1            = "Vector Similarity Calculator"
+hero_subtitle = "Paste a query vector and a list of labelled candidates, then rank the nearest ones by cosine similarity, dot product or a distance metric. Every companion metric is shown alongside. Runs locally in your browser."
+wasm          = "gizza_ai_vector_similarity_web"
+export        = "run"
+live          = false
+output_label  = "Ranked neighbours"
+format        = "text"
+
+[[input]]
+name        = "query"
+label       = "Query vector"
+placeholder = "3, 2, 1"
+source      = "field"
+
+[[input]]
+name        = "vectors"
+label       = "Candidate vectors (one per line)"
+placeholder = "apple: 1, 2, 3\nbanana: 3, 2, 1\ncherry: -3, -2, -1"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "metric"
+label   = "Ranking metric"
+source  = "field"
+default = "cosine"
+[input.labels]
+cosine          = "Cosine similarity (higher is better)"
+cosine_distance = "Cosine distance (1 − cosine)"
+dot             = "Dot product (higher is better)"
+euclidean       = "Euclidean distance (L2)"
+manhattan       = "Manhattan distance (L1)"
+chebyshev       = "Chebyshev distance (L-inf)"
+hamming         = "Hamming distance (differing coordinates)"
+
+[[input]]
+name        = "top_k"
+label       = "Neighbours to return"
+placeholder = "5"
+source      = "field"
+default     = "5"
+
+[[input]]
+name    = "normalize"
+label   = "L2-normalize before comparing"
+source  = "field"
+default = "false"
+
+[[input]]
+name        = "hamming_tolerance"
+label       = "Hamming tolerance"
+placeholder = "0"
+source      = "field"
+default     = "0"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "6"
+source      = "field"
+default     = "6"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name    = "show_all_metrics"
+label   = "Show every metric column"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "output"
+label   = "Output format"
+source  = "field"
+default = "table"
+[input.labels]
+table = "Aligned text table"
+json  = "JSON"
+csv   = "CSV"
+
+[[example]]
+label = "Cosine nearest neighbours"
+[example.params]
+query = "3, 2, 1"
+vectors = "apple: 1, 2, 3\nbanana: 3, 2, 1\ncherry: -3, -2, -1"
+metric = "cosine"
+top_k = "5"
+normalize = "false"
+hamming_tolerance = "0"
+decimals = "6"
+show_all_metrics = "true"
+output = "table"
+
+[[example]]
+label = "Euclidean top 2 as CSV"
+[example.params]
+query = "3, 2, 1"
+vectors = "apple: 1, 2, 3\nbanana: 3, 2, 1\ncherry: -3, -2, -1"
+metric = "euclidean"
+top_k = "2"
+normalize = "false"
+hamming_tolerance = "0"
+decimals = "3"
+show_all_metrics = "false"
+output = "csv"
+
+[[example]]
+label = "Hamming with tolerance"
+[example.params]
+query = "1, 2, 3"
+vectors = "near: 1.05, 2, 3\nfar: 9, 9, 9"
+metric = "hamming"
+top_k = "5"
+normalize = "false"
+hamming_tolerance = "0.1"
+decimals = "2"
+show_all_metrics = "false"
+output = "csv"

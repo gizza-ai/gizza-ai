@@ -1,0 +1,98 @@
+slug          = "scale-chord-finder"
+title         = "Scale Chord Finder"
+description   = "Find scales and modes from notes or spell any scale with notes, degrees, steps, triads, sevenths and related modes."
+tags          = ["scale finder", "chord finder", "music theory", "modes", "diatonic chords", "scale lookup"]
+h1            = "Scale Chord Finder"
+hero_subtitle = "Enter the notes in a chord or melody to find matching scales, or choose a tonic and scale to list its notes and diatonic chords."
+wasm          = "gizza_ai_scale_chord_finder_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+wide          = true
+
+[[input]]
+name   = "action"
+label  = "Action"
+source = "field"
+labels = { auto = "Auto", find = "Find scales from notes", list = "List one scale" }
+
+[[input]]
+name        = "notes"
+label       = "Notes to find"
+placeholder = "C E G B"
+default     = ""
+source      = "field"
+
+[[input]]
+name   = "root"
+label  = "Search root"
+source = "field"
+labels = { any = "Any root", C = "C", "C#" = "C#", Db = "Db", D = "D", "D#" = "D#", Eb = "Eb", E = "E", F = "F", "F#" = "F#", Gb = "Gb", G = "G", "G#" = "G#", Ab = "Ab", A = "A", "A#" = "A#", Bb = "Bb", B = "B" }
+
+[[input]]
+name   = "key"
+label  = "Scale key"
+source = "field"
+labels = { C = "C", "C#" = "C#", Db = "Db", D = "D", "D#" = "D#", Eb = "Eb", E = "E", F = "F", "F#" = "F#", Gb = "Gb", G = "G", "G#" = "G#", Ab = "Ab", A = "A", "A#" = "A#", Bb = "Bb", B = "B" }
+
+[[input]]
+name   = "scale"
+label  = "Scale"
+source = "field"
+labels = { major = "Major", minor = "Natural minor", dorian = "Dorian", phrygian = "Phrygian", lydian = "Lydian", mixolydian = "Mixolydian", locrian = "Locrian", major-pentatonic = "Major pentatonic", minor-pentatonic = "Minor pentatonic", egyptian-pentatonic = "Egyptian pentatonic", blues = "Blues", major-blues = "Major blues", harmonic-minor = "Harmonic minor", locrian-natural6 = "Locrian natural 6", ionian-augmented = "Ionian augmented", ukrainian-dorian = "Ukrainian Dorian", phrygian-dominant = "Phrygian dominant", lydian-sharp2 = "Lydian #2", altered-diminished = "Altered diminished", melodic-minor = "Melodic minor", dorian-flat2 = "Dorian b2", lydian-augmented = "Lydian augmented", lydian-dominant = "Lydian dominant", mixolydian-flat6 = "Mixolydian b6", locrian-natural2 = "Locrian natural 2", altered = "Altered", harmonic-major = "Harmonic major", double-harmonic = "Double harmonic", hungarian-minor = "Hungarian minor", neapolitan-minor = "Neapolitan minor", neapolitan-major = "Neapolitan major", whole-tone = "Whole tone", augmented = "Augmented", diminished-whole-half = "Diminished whole-half", diminished-half-whole = "Diminished half-whole", bebop-dominant = "Bebop dominant", bebop-major = "Bebop major", hirajoshi = "Hirajoshi", in-sen = "In sen", iwato = "Iwato", kumoi = "Kumoi", chromatic = "Chromatic" }
+
+[[input]]
+name   = "fit"
+label  = "Fit"
+source = "field"
+labels = { contains = "Contains all notes", exact = "Exact note set", near = "Allow one missing note" }
+
+[[input]]
+name   = "spelling"
+label  = "Spelling"
+source = "field"
+labels = { auto = "Auto", sharps = "Force sharps", flats = "Force flats" }
+
+[[input]]
+name   = "include_chords"
+label  = "Include chords"
+source = "field"
+
+[[input]]
+name   = "include_modes"
+label  = "Include related modes"
+source = "field"
+
+[[input]]
+name   = "chord_type"
+label  = "Chord type"
+source = "field"
+labels = { triads = "Triads", sevenths = "Sevenths", both = "Triads and sevenths" }
+
+[[input]]
+name        = "max_results"
+label       = "Max results"
+placeholder = "12"
+default     = "12"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "output"
+label  = "Output"
+source = "field"
+labels = { text = "Full report", names = "Names only", csv = "CSV", json = "JSON" }
+
+[[example]]
+label  = "Find Cmaj7 scales"
+params = { action = "find", notes = "C E G B", root = "any", fit = "contains", max_results = "8", output = "text" }
+
+[[example]]
+label  = "Spell G lydian"
+params = { action = "list", key = "G", scale = "lydian", chord_type = "triads", output = "text" }
+
+[[example]]
+label  = "Exact pentatonic CSV"
+params = { action = "find", notes = "C D E G A", fit = "exact", include_modes = "false", output = "csv" }

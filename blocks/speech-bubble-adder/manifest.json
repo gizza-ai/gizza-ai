@@ -1,0 +1,146 @@
+{
+  "name": "gizza-ai/speech-bubble-adder",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Add comic speech, thought, shout, whisper or caption bubbles to an image",
+  "role": "skill",
+  "tool": {
+    "description": "Add comic-style speech, thought, shout, whisper, oval, or caption bubbles to an input image and return a PNG. Provide the image by url or ref, set the caption text, position the bubble with x/y, optionally force width/height or leave them at 0 for auto-sizing, choose a style and tail direction or exact tail_x/tail_y aim point, customize fill/text/outline colors and outline width, uppercase the text, add a drop shadow, and pass a bubbles JSON array for multiple balloons. Runs locally after the image is resolved and emits an image/png media envelope.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bubbles": {
+          "default": "",
+          "description": "Optional JSON array of additional bubbles. Each object must have text and may override x, y, width, height, style, tail, tail_x, tail_y, fill_color, text_color, outline_color, outline_width, font_size, uppercase, and shadow; omitted fields inherit the top-level defaults.",
+          "type": "string"
+        },
+        "fill_color": {
+          "default": "#ffffff",
+          "description": "Bubble fill color as #rgb, #rrggbb, or #rrggbbaa. Default #ffffff.",
+          "type": "string"
+        },
+        "font_size": {
+          "default": 0.0,
+          "description": "Caption font size in pixels, 0 to 512. Set 0 (default) to auto-fit the text inside the bubble.",
+          "maximum": 512,
+          "minimum": 0,
+          "type": "number"
+        },
+        "height": {
+          "default": 0.0,
+          "description": "Bubble height in pixels. Set 0 (default) to auto-size from the wrapped text. Positive values force the bubble box and allow text auto-fit.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "outline_color": {
+          "default": "#000000",
+          "description": "Bubble outline color as #rgb, #rrggbb, or #rrggbbaa. Default #000000.",
+          "type": "string"
+        },
+        "outline_width": {
+          "default": 3.0,
+          "description": "Outline width in pixels, 0 to 64. Set 0 for no outline. Default 3.",
+          "maximum": 64,
+          "minimum": 0,
+          "type": "number"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "shadow": {
+          "default": false,
+          "description": "Draw a soft dark drop shadow behind each bubble. Default false.",
+          "type": "boolean"
+        },
+        "style": {
+          "default": "speech",
+          "description": "Bubble shape: speech (rounded balloon, default), oval, thought (cloud with puffs), shout (jagged starburst), whisper (dashed outline), or caption (narrator box without a tail).",
+          "enum": [
+            "speech",
+            "oval",
+            "thought",
+            "shout",
+            "whisper",
+            "caption"
+          ],
+          "type": "string"
+        },
+        "tail": {
+          "default": "bottom-left",
+          "description": "Tail direction preset: bottom-left, bottom-center, bottom-right, top-left, top-center, top-right, left, right, or none. Ignored by caption style; thought style draws trailing puffs instead of a triangle.",
+          "enum": [
+            "bottom-left",
+            "bottom-center",
+            "bottom-right",
+            "top-left",
+            "top-center",
+            "top-right",
+            "left",
+            "right",
+            "none"
+          ],
+          "type": "string"
+        },
+        "tail_x": {
+          "description": "Optional exact x coordinate for the tail tip / thought-puff aim point. Provide tail_y too; when both are set they override the tail direction preset.",
+          "type": "number"
+        },
+        "tail_y": {
+          "description": "Optional exact y coordinate for the tail tip / thought-puff aim point. Provide tail_x too; when both are set they override the tail direction preset.",
+          "type": "number"
+        },
+        "text": {
+          "description": "Caption text for the first bubble. Use plain text or explicit \\n line breaks. The bubble can auto-size around this text when width, height, or font_size are 0.",
+          "type": "string"
+        },
+        "text_color": {
+          "default": "#000000",
+          "description": "Caption text color as #rgb, #rrggbb, or #rrggbbaa. Default #000000.",
+          "type": "string"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "Uppercase caption text before layout for a comic lettering feel. Default false.",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        },
+        "width": {
+          "default": 0.0,
+          "description": "Bubble width in pixels. Set 0 (default) to auto-size from the text. Positive values force the bubble box and allow text auto-fit.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "x": {
+          "default": 20.0,
+          "description": "Left pixel coordinate for the first bubble's bounding box, measured from the image's top-left corner. Default 20.",
+          "type": "number"
+        },
+        "y": {
+          "default": 20.0,
+          "description": "Top pixel coordinate for the first bubble's bounding box, measured from the image's top-left corner. Default 20.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

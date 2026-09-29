@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "date-add-subtract"
+version = "0.1.0"
+abi = 1
+summary = "Add or subtract calendar and business-day durations from a date."

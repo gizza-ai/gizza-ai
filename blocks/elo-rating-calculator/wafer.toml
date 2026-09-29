@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "elo-rating-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Compute Elo expected scores, rating deltas and new ratings for a two-player match or same-opponent series."

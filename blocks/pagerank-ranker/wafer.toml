@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "pagerank-ranker"
+version = "0.1.0"
+abi = 1
+summary = "Compute PageRank scores from an edge list or adjacency matrix"

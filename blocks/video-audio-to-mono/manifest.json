@@ -1,0 +1,67 @@
+{
+  "name": "gizza-ai/video-audio-to-mono",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Downmix a video's audio to a single mono channel",
+  "role": "skill",
+  "tool": {
+    "description": "Downmix a video's audio to one mono channel, keeping the picture untouched (the video stream is copied losslessly; only the audio is re-encoded). Fixes a clip where sound only came out of one side, and shrinks the file because mono needs about half the bits of stereo. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). channel picks what feeds the mono track: mix (default), left, right, or difference (L-R). bitrate sets the mono track's kbps (16-320, default 128) and sample_rate optionally resamples (keep|48000|44100|32000|22050|16000). The output keeps the input container (mp4/mov/mkv stay AAC, webm stays Opus). Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "bitrate": {
+          "default": 128,
+          "description": "Audio bitrate of the mono track in kbps (16-320, default 128). Mono needs about half of what the same stereo track did, so lowering this is the main way to shrink the file: 64 is fine for speech, 32 for voice memos.",
+          "maximum": 320,
+          "minimum": 16,
+          "type": "integer"
+        },
+        "channel": {
+          "default": "mix",
+          "description": "Which source audio ends up in the mono track: mix downmixes every channel (default, correct for stereo and 5.1); left/right keep just that side, the fix for a recording where only one channel has usable sound; difference is L-R, which cancels centred content.",
+          "enum": [
+            "mix",
+            "left",
+            "right",
+            "difference"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "sample_rate": {
+          "default": "keep",
+          "description": "Audio sample rate in Hz, or keep (default) to leave the source rate alone. Lowering it shrinks the file further; 16000 is speech-grade. WebM output snaps to the nearest rate libopus accepts (8000/12000/16000/24000/48000).",
+          "enum": [
+            "keep",
+            "48000",
+            "44100",
+            "32000",
+            "22050",
+            "16000"
+          ],
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

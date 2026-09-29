@@ -1,0 +1,102 @@
+slug          = "convert-quotes"
+title         = "Convert Quotes — Single ⇄ Double Quote Converter for Text & Code"
+description   = "Convert single quotes to double quotes (or back) in text and code. Respects backslash escapes, keeps apostrophes, straightens curly quotes. Free, in-browser."
+tags          = ["convert quotes", "single to double quotes", "double to single quotes", "quote converter", "swap quotes", "escape quotes", "quote style converter", "curly to straight quotes", "code quote formatter", "apostrophe safe quote converter"]
+h1            = "Quote Converter"
+hero_subtitle = "Switch quoted text and code between single, double and curly quote styles. Backslash escapes are respected, inner quotes are re-escaped for the new delimiter, and apostrophes like don't stay put. Runs entirely in your browser, no server, no sign-up."
+wasm          = "gizza_ai_convert_quotes_web"
+export        = "run"
+live          = false
+output_label  = "Converted text"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "Text or code"
+placeholder = "print('hello, world')\nname = 'O\\'Hara'\nHe said “hi” and ‘bye’."
+source      = "field"
+multiline   = true
+
+# direction/escape_style/on_unbalanced render as <select> and
+# preserve_apostrophes/include_report as checkboxes — the control type and the
+# option lists are derived from the descriptor's schema (manifest.json), so they
+# are not duplicated here.
+[[input]]
+name   = "direction"
+label  = "Convert"
+source = "field"
+
+[input.labels]
+"single-to-double" = "Single → double   'x' → \"x\""
+"double-to-single" = "Double → single   \"x\" → 'x'"
+"smart-to-double"  = "Curly → double   “x” → \"x\""
+"smart-to-single"  = "Curly → single   “x” → 'x'"
+"auto-to-double"   = "Any style → double"
+"auto-to-single"   = "Any style → single"
+"swap"             = "Swap ' and \" both ways"
+
+[[input]]
+name   = "escape_style"
+label  = "Escape inner quotes as"
+source = "field"
+
+[input.labels]
+backslash = "Backslash — \\\" (JS, Python, JSON, Rust)"
+doubled   = "Doubled — \"\" (SQL, CSV, Pascal)"
+bare      = "Leave bare (prose only)"
+
+[[input]]
+name   = "preserve_apostrophes"
+label  = "Keep apostrophes (don't, it’s, O'Hara)"
+source = "field"
+
+[[input]]
+name   = "on_unbalanced"
+label  = "Quote with no partner"
+source = "field"
+
+[input.labels]
+keep  = "Leave it as-is"
+error = "Report an error"
+
+[[input]]
+name   = "include_report"
+label  = "Show a JSON report with counts"
+source = "field"
+
+[[example]]
+label = "Python single → double"
+
+[example.params]
+input     = "print('hello, world')\ngreeting = 'it\\'s a test'\npath = 'C:\\\\tmp'"
+direction = "single-to-double"
+
+[[example]]
+label = "JS double → single"
+
+[example.params]
+input     = "const msg = \"it's here\";\nconst raw = \"a \\\" b\";"
+direction = "double-to-single"
+
+[[example]]
+label = "Curly → straight"
+
+[example.params]
+input     = "He said “hi” and ‘bye’ — it’s fine."
+direction = "smart-to-double"
+
+[[example]]
+label = "SQL-style doubling"
+
+[example.params]
+input        = "INSERT INTO t VALUES (\"it's here\", \"O'Hara\");"
+direction    = "double-to-single"
+escape_style = "doubled"
+
+[[example]]
+label = "Normalize a mixed file"
+
+[example.params]
+input     = "'a' \"b\" “c” ‘d’"
+direction = "auto-to-double"

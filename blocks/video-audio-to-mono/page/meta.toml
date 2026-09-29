@@ -1,0 +1,67 @@
+slug          = "video-audio-to-mono"
+title         = "Convert a Video's Audio to Mono Online"
+description   = "Downmix a video's audio to mono in your browser — fix one-sided sound or shrink the file. The picture is copied untouched and nothing is uploaded."
+tags          = ["video audio to mono", "stereo to mono video", "downmix video audio", "one sided audio fix", "mono video sound", "shrink video audio", "ffmpeg"]
+h1            = "Convert a Video's Audio to Mono"
+hero_subtitle = "Pick a video and its audio is downmixed to a single mono channel in your browser — the picture is copied through untouched. Nothing is uploaded."
+wasm          = "gizza_ai_video_audio_to_mono_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Mono-audio video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video"
+
+[[input]]
+name   = "channel"
+source = "field"
+label  = "Source channel"
+
+[input.labels]
+mix        = "Mix all channels (standard downmix)"
+left       = "Left channel only"
+right      = "Right channel only"
+difference = "Difference (L − R)"
+
+[[input]]
+name        = "bitrate"
+source      = "field"
+kind        = "slider"
+label       = "Audio bitrate (kbps)"
+placeholder = "128"
+min         = "16"
+max         = "320"
+step        = "16"
+
+[[input]]
+name   = "sample_rate"
+source = "field"
+label  = "Sample rate (Hz)"
+
+[input.labels]
+keep  = "Keep the source rate"
+"48000" = "48000 (video standard)"
+"44100" = "44100 (CD standard)"
+"32000" = "32000"
+"22050" = "22050"
+"16000" = "16000 (speech)"
+
+[[example]]
+label  = "Standard downmix"
+params = { channel = "mix", bitrate = "128", sample_rate = "keep" }
+
+[[example]]
+label  = "Only the left mic works"
+params = { channel = "left", bitrate = "128", sample_rate = "keep" }
+
+[[example]]
+label  = "Only the right mic works"
+params = { channel = "right", bitrate = "128", sample_rate = "keep" }
+
+[[example]]
+label  = "Shrink for speech"
+params = { channel = "mix", bitrate = "32", sample_rate = "16000" }

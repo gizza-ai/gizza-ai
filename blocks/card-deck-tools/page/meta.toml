@@ -1,0 +1,157 @@
+slug          = "card-deck-tools"
+title         = "Card Deck Tools — shuffle, deal and draw playing cards"
+description   = "Shuffle a playing-card deck with a seeded, reproducible shuffle, then deal hands round-robin, draw cards off the top, or list the whole shuffled order."
+tags          = ["cards", "card shuffler", "playing cards", "deal cards", "poker hands", "deck of cards", "random"]
+h1            = "Shuffle, deal and draw a card deck"
+hero_subtitle = "A reproducible Fisher–Yates shuffle of 1–8 decks, with or without jokers. List the shuffled order, deal hands round-robin, or draw off the top — and get the same deck back any time you reuse the seed."
+wasm          = "gizza_ai_card_deck_tools_web"
+export        = "run"
+live          = false
+output_label  = "Cards"
+format        = "text"
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+
+[input.labels]
+shuffle = "Shuffle — list the whole deck in its new order"
+deal    = "Deal — hands round-robin to each player"
+draw    = "Draw — take cards off the top"
+
+[[input]]
+name        = "players"
+label       = "Players (deal)"
+placeholder = "4"
+source      = "field"
+
+[[input]]
+name        = "cards_per_player"
+label       = "Cards per player (deal)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "count"
+label       = "Cards to draw (draw)"
+placeholder = "5"
+source      = "field"
+
+[[input]]
+name        = "decks"
+label       = "Decks shuffled together"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name        = "jokers"
+label       = "Jokers per deck"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "seed"
+label       = "Seed"
+placeholder = "table-3"
+source      = "field"
+
+[[input]]
+name   = "notation"
+label  = "Card notation"
+source = "field"
+
+[input.labels]
+short  = "Short — AS, TD, 7H"
+symbol = "Symbol — A♠, 10♦, 7♥"
+long   = "Long — Ace of Spades"
+
+[[input]]
+name   = "replacement"
+label  = "Draw with replacement"
+source = "field"
+
+[[input]]
+name   = "sort_hands"
+label  = "Sort hands high to low"
+source = "field"
+
+[[input]]
+name   = "evaluate"
+label  = "Label the best poker ranking"
+source = "field"
+
+[[example]]
+label = "Poker night — 4 hands"
+[example.params]
+mode = "deal"
+players = "4"
+cards_per_player = "5"
+count = "5"
+decks = "1"
+jokers = "0"
+seed = "42"
+notation = "short"
+replacement = "false"
+sort_hands = "true"
+evaluate = "true"
+
+[[example]]
+label = "Texas hold'em hole cards"
+[example.params]
+mode = "deal"
+players = "6"
+cards_per_player = "2"
+count = "5"
+decks = "1"
+jokers = "0"
+seed = "table-3"
+notation = "symbol"
+replacement = "false"
+sort_hands = "true"
+evaluate = "false"
+
+[[example]]
+label = "Bridge — 4 × 13"
+[example.params]
+mode = "deal"
+players = "4"
+cards_per_player = "13"
+count = "5"
+decks = "1"
+jokers = "0"
+seed = "42"
+notation = "short"
+replacement = "false"
+sort_hands = "true"
+evaluate = "false"
+
+[[example]]
+label = "Draw one card"
+[example.params]
+mode = "draw"
+players = "4"
+cards_per_player = "5"
+count = "1"
+decks = "1"
+jokers = "0"
+seed = "42"
+notation = "long"
+replacement = "false"
+sort_hands = "false"
+evaluate = "false"
+
+[[example]]
+label = "Six-deck shoe with jokers"
+[example.params]
+mode = "shuffle"
+players = "4"
+cards_per_player = "5"
+count = "5"
+decks = "6"
+jokers = "2"
+seed = "shoe-1"
+notation = "short"
+replacement = "false"
+sort_hands = "false"
+evaluate = "false"

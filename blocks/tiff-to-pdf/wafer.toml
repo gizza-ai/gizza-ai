@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tiff-to-pdf"
+version = "0.1.0"
+abi = 1
+summary = "Convert a multi-page TIFF into a multi-page PDF, one PDF page per TIFF page."

@@ -1,0 +1,76 @@
+{
+  "name": "gizza-ai/obj-to-gltf",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert pasted Wavefront OBJ and optional MTL text into self-contained glTF or GLB.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert pasted Wavefront OBJ model text, plus optional pasted MTL material text, into a self-contained glTF 2.0 JSON asset or GLB data URL. Handles v/vt/vn/f/usemtl, relative OBJ indices, fan-triangulates quads and n-gons, groups primitives by material, embeds the binary buffer in glTF JSON, and can emit GLB as data:model/gltf-binary;base64. Options include output format (gltf/glb), source up axis (y/z), scale, normals mode (auto/flat/none), scene name, KHR_materials_unlit, and double-sided materials. Texture image files, Draco/meshopt compression, scene hierarchy, and batch/multi-file upload are out of scope for this single pasted-text tool. Runs offline with no network access.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "double_sided": {
+          "default": false,
+          "description": "When true, sets doubleSided on emitted materials so viewers render both front and back faces. Useful for single-plane or thin-sheet OBJ meshes. Default false.",
+          "type": "boolean"
+        },
+        "mtl": {
+          "default": "",
+          "description": "Optional Wavefront MTL text pasted alongside the OBJ. Supports newmtl, Kd, d/Tr, Ke, Ks, Ns and texture-reference detection. Texture file contents are not accepted; map_* references are ignored after materials are colored.",
+          "type": "string"
+        },
+        "name": {
+          "default": "model",
+          "description": "Scene, node and mesh name written into the glTF asset. Blank falls back to model. Default model.",
+          "type": "string"
+        },
+        "normals": {
+          "default": "auto",
+          "description": "Normal generation. auto uses OBJ vn normals when present and computes flat face normals for missing faces. flat ignores vn and recomputes flat normals. none omits NORMAL attributes. Default auto.",
+          "enum": [
+            "auto",
+            "flat",
+            "none"
+          ],
+          "type": "string"
+        },
+        "obj": {
+          "description": "Wavefront OBJ text to convert. Paste the OBJ contents, including v/vt/vn/f/usemtl lines. Faces may be triangles, quads, or n-gons; polygons are fan-triangulated. Relative negative indices are supported. Texture image files referenced by map_* lines cannot be embedded here.",
+          "type": "string"
+        },
+        "scale": {
+          "default": 1.0,
+          "description": "Uniform scale factor applied to every vertex before export. Use 0.001 for millimetres to metres or 100 for metres to centimetres. Must be finite and non-zero. Default 1.",
+          "type": "number"
+        },
+        "to": {
+          "default": "gltf",
+          "description": "Output container. gltf returns pretty-printed glTF 2.0 JSON with its binary buffer embedded as a data URI. glb returns a data:model/gltf-binary;base64 URL that can be saved as a .glb file. Default gltf.",
+          "enum": [
+            "gltf",
+            "glb"
+          ],
+          "type": "string"
+        },
+        "unlit": {
+          "default": false,
+          "description": "When true, marks every material with KHR_materials_unlit and adds the extension to extensionsUsed. Useful for CAD or icon-like assets where colors should not be shaded. Default false.",
+          "type": "boolean"
+        },
+        "up_axis": {
+          "default": "y",
+          "description": "Which axis is up in the source OBJ. y leaves coordinates in glTF's native Y-up frame. z rotates Z-up CAD/3D-print models into glTF's Y-up frame. Default y.",
+          "enum": [
+            "y",
+            "z"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "obj"
+      ],
+      "type": "object"
+    }
+  }
+}

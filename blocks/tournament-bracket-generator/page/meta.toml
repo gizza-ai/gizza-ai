@@ -1,0 +1,159 @@
+slug          = "tournament-bracket-generator"
+title         = "Tournament Bracket Generator"
+description   = "Build single- or double-elimination brackets from teams or players, with seeding, byes, third-place matches and text, markdown, CSV or JSON output."
+tags          = ["tournament bracket generator", "single elimination bracket", "double elimination bracket", "bracket maker", "seeding and byes", "playoff bracket", "knockout bracket", "printable bracket"]
+h1            = "Tournament Bracket Generator"
+hero_subtitle = "Paste your teams or players and get a complete knockout bracket — standard seeding, automatic byes, an optional third-place match, and full double-elimination losers bracket with grand final. Export as text, markdown, CSV or JSON. Runs locally in your browser."
+wasm          = "gizza_ai_tournament_bracket_generator_web"
+export        = "run"
+live          = false
+output_label  = "Bracket"
+format        = "text"
+
+[[input]]
+name        = "participants"
+label       = "Teams or players (one per line)"
+placeholder = "Lions\nTigers\nBears\nSharks"
+default     = "Lions\nTigers\nBears\nSharks\nEagles\nWolves\nHawks\nFalcons"
+source      = "field"
+multiline   = true
+
+[[input]]
+name    = "bracket_type"
+label   = "Bracket type"
+default = "single"
+source  = "field"
+[input.labels]
+single = "Single elimination"
+double = "Double elimination"
+
+[[input]]
+name    = "seeding"
+label   = "Seeding"
+default = "standard"
+source  = "field"
+[input.labels]
+standard = "Standard (1 vs N, entered order is the seeding)"
+ordered  = "As entered (entry 1 plays entry 2)"
+random   = "Random draw (reproducible)"
+
+[[input]]
+name    = "output_format"
+label   = "Output format"
+default = "text"
+source  = "field"
+[input.labels]
+text     = "Bracket sheet (text)"
+markdown = "Markdown table"
+csv      = "CSV"
+json     = "JSON"
+
+[[input]]
+name    = "third_place_match"
+label   = "Add third-place match (single elimination)"
+default = "false"
+source  = "field"
+
+[[input]]
+name    = "grand_final_reset"
+label   = "Include grand-final reset (double elimination)"
+default = "true"
+source  = "field"
+
+[[input]]
+name        = "tournament_name"
+label       = "Tournament name (optional)"
+placeholder = "Spring Cup"
+default     = ""
+source      = "field"
+
+[[input]]
+name    = "include_summary"
+label   = "Show summary and seed list"
+default = "true"
+source  = "field"
+
+[[input]]
+name        = "seed"
+label       = "Draw seed (random seeding only)"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[example]]
+label = "8 teams, single elimination"
+[example.params]
+participants      = "Lions\nTigers\nBears\nSharks\nEagles\nWolves\nHawks\nFalcons"
+bracket_type      = "single"
+seeding           = "standard"
+output_format     = "text"
+third_place_match = "false"
+grand_final_reset = "true"
+tournament_name   = ""
+include_summary   = "true"
+seed              = "0"
+
+[[example]]
+label = "11 players with byes"
+[example.params]
+participants      = "11"
+bracket_type      = "single"
+seeding           = "standard"
+output_format     = "text"
+third_place_match = "false"
+grand_final_reset = "true"
+tournament_name   = ""
+include_summary   = "true"
+seed              = "0"
+
+[[example]]
+label = "Double elimination"
+[example.params]
+participants      = "Lions\nTigers\nBears\nSharks\nEagles\nWolves\nHawks\nFalcons"
+bracket_type      = "double"
+seeding           = "standard"
+output_format     = "text"
+third_place_match = "false"
+grand_final_reset = "true"
+tournament_name   = ""
+include_summary   = "true"
+seed              = "0"
+
+[[example]]
+label = "Random draw"
+[example.params]
+participants      = "Lions\nTigers\nBears\nSharks\nEagles\nWolves\nHawks\nFalcons"
+bracket_type      = "single"
+seeding           = "random"
+output_format     = "text"
+third_place_match = "false"
+grand_final_reset = "true"
+tournament_name   = ""
+include_summary   = "true"
+seed              = "7"
+
+[[example]]
+label = "With third-place match"
+[example.params]
+participants      = "Lions\nTigers\nBears\nSharks"
+bracket_type      = "single"
+seeding           = "standard"
+output_format     = "text"
+third_place_match = "true"
+grand_final_reset = "true"
+tournament_name   = "Spring Cup"
+include_summary   = "true"
+seed              = "0"
+
+[[example]]
+label = "CSV export"
+[example.params]
+participants      = "Lions\nTigers\nBears\nSharks\nEagles\nWolves\nHawks\nFalcons"
+bracket_type      = "single"
+seeding           = "standard"
+output_format     = "csv"
+third_place_match = "false"
+grand_final_reset = "true"
+tournament_name   = ""
+include_summary   = "true"
+seed              = "0"

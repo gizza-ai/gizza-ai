@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "file-hash-dedupe"
+version = "0.1.0"
+abi = 1
+summary = "Find byte-identical duplicate files in a set by content hash"

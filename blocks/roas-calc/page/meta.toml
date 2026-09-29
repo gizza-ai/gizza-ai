@@ -1,0 +1,199 @@
+slug          = "roas-calc"
+title         = "ROAS Calculator — Break-Even ROAS, ACOS, CAC and LTV"
+description   = "Calculate ROAS, ACOS, break-even and target ROAS, CAC, LTV and the ad budget a revenue goal needs, from spend, revenue and per-order costs."
+tags          = ["roas calculator", "return on ad spend", "break-even roas", "target roas", "acos calculator", "cac calculator", "ltv cac ratio", "ad spend calculator", "marketing roi", "ecommerce margin"]
+h1            = "ROAS calculator"
+hero_subtitle = "Turn one period of ad spend and revenue into gross, net, break-even and target ROAS — plus CAC, LTV, break-even ad spend and the budget your revenue goal needs."
+wasm          = "gizza_ai_roas_calc_web"
+export        = "run"
+live          = false
+output_label  = "ROAS report"
+format        = "markdown"
+wide          = true
+
+[[input]]
+name        = "ad_spend"
+label       = "Ad spend"
+placeholder = "10000"
+source      = "field"
+
+[[input]]
+name        = "revenue"
+label       = "Revenue from ads"
+placeholder = "35000"
+source      = "field"
+
+[[input]]
+name        = "conversions"
+label       = "Orders / customers from ads"
+placeholder = "350"
+source      = "field"
+
+[[input]]
+name        = "aov"
+label       = "Average order value"
+placeholder = "100"
+source      = "field"
+
+[[input]]
+name   = "margin_basis"
+label  = "Margin model"
+source = "field"
+
+[input.labels]
+percent   = "Single gross margin percentage"
+per_order = "Build margin from per-order costs"
+
+[[input]]
+name        = "gross_margin"
+label       = "Gross margin (%)"
+placeholder = "50"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "cogs_per_order"
+label       = "Cost of goods per order"
+placeholder = "28"
+source      = "field"
+
+[[input]]
+name        = "shipping_per_order"
+label       = "Shipping & fulfilment per order"
+placeholder = "7"
+source      = "field"
+
+[[input]]
+name        = "payment_rate"
+label       = "Payment processing rate (%)"
+placeholder = "2.9"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "payment_fixed"
+label       = "Payment fixed fee per order"
+placeholder = "0.30"
+source      = "field"
+
+[[input]]
+name        = "refund_rate"
+label       = "Refund / return rate (%)"
+placeholder = "3"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "other_cost_per_order"
+label       = "Other variable cost per order"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "target_net_margin"
+label       = "Target net margin (%)"
+placeholder = "15"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "fixed_costs"
+label       = "Other fixed costs for the period"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "clicks"
+label       = "Clicks"
+placeholder = "5000"
+source      = "field"
+
+[[input]]
+name        = "cpc"
+label       = "Cost per click"
+placeholder = "2"
+source      = "field"
+
+[[input]]
+name        = "conversion_rate"
+label       = "Conversion rate (%)"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "purchases_per_customer"
+label       = "Lifetime purchases per customer"
+placeholder = "1"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name        = "purchase_interval_months"
+label       = "Months between repeat purchases"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "revenue_goal"
+label       = "Revenue goal for the period"
+placeholder = "70000"
+source      = "field"
+
+[[input]]
+name   = "scenarios"
+label  = "Show the what-if ROAS table"
+source = "field"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol / prefix"
+placeholder = "$"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+markdown = "Markdown tables"
+text     = "Aligned plain text"
+csv      = "CSV"
+json     = "JSON"
+
+[[example]]
+label  = "Quick ROAS check"
+params = { ad_spend = "10000", revenue = "35000", gross_margin = "50", format = "markdown" }
+
+[[example]]
+label  = "Ecommerce break-even from per-order costs"
+params = { ad_spend = "4000", conversions = "250", aov = "80", margin_basis = "per_order", cogs_per_order = "28", shipping_per_order = "7", payment_rate = "2.9", payment_fixed = "0.30", refund_rate = "3", format = "markdown" }
+
+[[example]]
+label  = "Target a 15% net margin"
+params = { ad_spend = "10000", revenue = "35000", conversions = "350", gross_margin = "50", target_net_margin = "15", revenue_goal = "70000", format = "markdown" }
+
+[[example]]
+label  = "Forecast a campaign before launch"
+params = { ad_spend = "5000", aov = "100", cpc = "2", conversion_rate = "4", gross_margin = "60", format = "markdown" }
+
+[[example]]
+label  = "LTV, CAC and payback"
+params = { ad_spend = "10000", revenue = "35000", conversions = "350", gross_margin = "50", purchases_per_customer = "3", purchase_interval_months = "2", format = "markdown" }

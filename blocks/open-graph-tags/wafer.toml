@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "open-graph-tags"
+version = "0.1.0"
+abi = 1
+summary = "Generate Open Graph and Twitter Card meta tags for rich link previews."

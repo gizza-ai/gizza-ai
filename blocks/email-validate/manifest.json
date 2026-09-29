@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/email-validate",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Validate email syntax and check MX deliverability over DNS-over-HTTPS",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "Validate one email address, then use DNS-over-HTTPS to check whether its domain publishes MX records (or an RFC 5321 implicit A/AAAA fallback). Reports MX priority, TTL, optional host IPs, risk, and an explicit no-SMTP caveat.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Email address to validate before looking up its domain's MX records." },
+        "resolver": { "type": "string", "enum": ["google", "cloudflare"], "default": "google", "description": "DNS-over-HTTPS resolver to query for MX records." },
+        "fallback_a": { "type": "boolean", "default": true, "description": "When a domain has no MX, also query A/AAAA records and apply RFC 5321's implicit-MX fallback." },
+        "resolve_ips": { "type": "boolean", "default": false, "description": "Also resolve A/AAAA addresses for each reported MX host (one extra lookup per host)." },
+        "max_records": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10, "description": "Maximum MX records to list after sorting by preference (1-50, default 10)." },
+        "format": { "type": "string", "enum": ["report", "summary", "json"], "default": "report", "description": "Output format: human report, one-line summary, or machine-readable JSON." }
+      },
+      "required": ["email"],
+      "additionalProperties": false
+    }
+  }
+}

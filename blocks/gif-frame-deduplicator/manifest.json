@@ -1,0 +1,43 @@
+{
+  "name": "gizza-ai/gif-frame-deduplicator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Remove near-duplicate frames from an animated GIF",
+  "role": "skill",
+  "tool": {
+    "description": "Remove near-duplicate consecutive frames from an animated GIF to shrink it. Provide the GIF as either url (HTTP/HTTPS) or ref (id from a prior tool call). Optional threshold (0-100 percent, default 98) sets how similar two frames must be to count as duplicates — 100 drops only essentially identical frames, lower values drop frames that merely look alike. Kept frames stay at their original timestamps, so the animation still runs for the same length of time, and the GIF is re-encoded with a palette built from the surviving frames (palettegen/paletteuse) for quality.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref."
+        },
+        "ref": {
+          "type": "string",
+          "description": "Reference id from a prior tool call. Use either url or ref."
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 98,
+          "description": "How similar two consecutive frames must be to count as duplicates, in percent 0-100 (default 98). 100 removes only essentially identical frames; lower values also remove frames that merely look alike; below ~90 the animation starts collapsing."
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ]
+    }
+  }
+}

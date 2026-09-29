@@ -1,0 +1,108 @@
+{
+  "name": "gizza-ai/t-test-calculator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Run one-sample, paired, pooled or Welch t-tests on pasted data: t, df, exact p, critical t, confidence interval, Cohen's d and power",
+  "role": "skill",
+  "tool": {
+    "description": "Run a Student's t-test on pasted data and report whether the means differ. Handles the one-sample test, the pooled two-sample (Student) test, Welch's unequal-variance test, and the paired test, choosing one automatically when you do not. Accepts one column of values, two side-by-side columns, long `group,value` rows, or published `name,n,mean,sd` summary statistics, and auto-detects the shape, the delimiter, and a header row. Returns per-sample descriptive statistics, the estimate and its standard error, the t statistic with its degrees of freedom (fractional Welch-Satterthwaite where applicable), the exact two-, left- or right-tailed p-value, the critical t at your alpha, a reject / fail-to-reject verdict, the confidence interval for the mean or the mean difference, Cohen's d and Hedges' g with an approximate interval and the standardiser named, observed power from the noncentral t distribution, and a variance-ratio check that says whether the pooled or the Welch test fits. Options control the test, input format, delimiter, header handling, the hypothesised mean or difference, the number of tails, the significance level, decimal precision, and whether to return a readable summary, markdown tables, or JSON. Every statistic, including the incomplete beta and the noncentral t distribution, is computed locally in pure Rust; no data leaves the machine and no statistics service is called.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "alpha": {
+          "default": 0.05,
+          "description": "Significance level for the test, between 0.0001 and 0.5. Default 0.05. Sets the critical t reported next to the t statistic, decides the reject / fail-to-reject verdict, sets the confidence level of the interval at 100 * (1 - alpha), and is the threshold used by the equal-variance check and the observed-power figure. Use 0.01 for a stricter test, 0.1 for an exploratory one.",
+          "maximum": 0.5,
+          "minimum": 0.0001,
+          "type": "number"
+        },
+        "data": {
+          "description": "The observations to test, one row per line, in any of four shapes. One column of numbers for a one-sample test, for example `5.1` / `4.8` / `5.4`. Two columns for a two-sample or paired test, one sample per column, for example `12,10` / `14,11` — blank cells are allowed for unequal sample sizes in an independent-samples test. Long rows pairing a group label with a value, for example `Control,6` / `Drug,13`, with exactly two distinct labels. Summary rows as `name,n,mean,sd`, for example `Control,12,5.2,1.9235`, when you only have published means and standard deviations; convert a standard error with `sd = sem * sqrt(n)`. Comma, tab, semicolon, pipe, and space separated rows all work, a header row is detected automatically, and `#` starts a comment. Up to 200000 values.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 4,
+          "description": "Decimal places for every number in the text and table output, 0-10. Default 4, which matches how t-tests are usually reported. p-values smaller than the chosen resolution print as `< 0.0001` rather than rounding to 0. Also controls the rounding applied to json output.",
+          "maximum": 10,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "delimiter": {
+          "default": "auto",
+          "description": "How each row is split into columns. auto (default) picks the separator that appears across the first rows, preferring tab, then comma, then semicolon, then pipe, and falling back to runs of whitespace. Force one when a label itself contains the auto-detected separator — for example choose tab for `Site A, north<TAB>12` rows.",
+          "enum": [
+            "auto",
+            "comma",
+            "tab",
+            "semicolon",
+            "pipe",
+            "space"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "auto",
+          "description": "How to read the pasted rows. auto (default) infers the shape: a `name,n,mean,sd` table is read as summary, a two-column table whose label column repeats non-numeric names is read as long, anything else is read as wide (one column per sample). Set wide, long, or summary explicitly when the guess is wrong — most often with numeric group labels like `1,23.5`, which auto reads as two wide columns but you may mean as long.",
+          "enum": [
+            "auto",
+            "wide",
+            "long",
+            "summary"
+          ],
+          "type": "string"
+        },
+        "header": {
+          "default": "auto",
+          "description": "Whether the first row names the columns or groups rather than holding data. auto (default) treats it as a header when its cells are not all numeric, and then uses those names as the sample names. yes always skips it, no always treats it as data — use no when your samples really are labelled with numbers.",
+          "enum": [
+            "auto",
+            "yes",
+            "no"
+          ],
+          "type": "string"
+        },
+        "mu": {
+          "default": 0.0,
+          "description": "The value the null hypothesis claims. Default 0. For a one-sample test this is the hypothesised population mean, so set it to 100 to test a sample against a published norm of 100. For a two-sample or paired test it is the hypothesised mean difference, so set it to 5 to test whether one group beats the other by more than 5 rather than by any amount at all. It shifts the t statistic, the p-value, and the effect size, while the confidence interval stays centred on the observed estimate.",
+          "type": "number"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output format. summary (default) is a readable report: per-sample n / mean / sd / sem / min / max, the estimate and its standard error, t with its degrees of freedom and exact p-value, the critical t, the reject verdict, the confidence interval, Cohen's d and Hedges' g with their standardiser named, observed power, and the variance-ratio assumption check. table returns the same content as GitHub-flavoured markdown tables you can paste into a document or issue. json returns the whole result as a machine-readable object with every statistic rounded to decimals.",
+          "enum": [
+            "summary",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "tails": {
+          "default": "two",
+          "description": "Which alternative hypothesis to test. two (default) is the two-tailed test: the mean or difference is not equal to mu, and the reported interval is two-sided. right tests only that the estimate is greater than mu, left only that it is less than mu; both halve the p-value when the effect points that way and report a one-sided bound instead of an interval. Pick a one-tailed test only when the direction was chosen before seeing the data.",
+          "enum": [
+            "two",
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
+        "test": {
+          "default": "auto",
+          "description": "Which t-test to run. auto (default) picks the one-sample test for a single column and Welch's unequal-variance test for two samples, which is the modern default recommendation. one-sample compares one column's mean against mu. two-sample is the pooled Student test, which assumes the two populations share a variance. welch is the unequal-variance test with Welch-Satterthwaite fractional degrees of freedom. paired tests matched observations: give two equal-length columns and it tests their differences, or one column of pre-computed differences.",
+          "enum": [
+            "auto",
+            "one-sample",
+            "two-sample",
+            "welch",
+            "paired"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "type": "object"
+    }
+  }
+}

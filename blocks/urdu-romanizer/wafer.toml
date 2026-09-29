@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "urdu-romanizer"
+version = "0.1.0"
+abi = 1
+summary = "Transliterate Urdu script into Roman Urdu"

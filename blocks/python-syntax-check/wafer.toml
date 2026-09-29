@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "python-syntax-check"
+version = "0.1.0"
+abi = 1
+summary = "Check Python 3 syntax and pinpoint the error line and column"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "apk-permission-explainer"
+version = "0.1.0"
+abi = 1
+summary = "Explain APK permissions from an AndroidManifest.xml with risk categories and plain-English descriptions."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "drum-pattern-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate deterministic drum grooves as MIDI, WAV preview audio and an ASCII step grid"

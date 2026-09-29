@@ -1,0 +1,13 @@
+[package]
+name = "gizza-ai-xml-structure-analyzer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# quick-xml pull parser: a single streaming pass over the document, no DOM, no std::fs —
+# instantiates under both wasm32-wasip1 (chat/CLI) and wasm32-unknown-unknown (page).
+# Same version the sibling XML blocks (xml-to-csv, xml-namespace-stripper) are proven on.
+quick-xml = "0.36"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

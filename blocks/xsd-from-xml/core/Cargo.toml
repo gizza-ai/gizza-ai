@@ -1,0 +1,11 @@
+[package]
+name = "gizza-ai-xsd-from-xml-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# quick-xml pull parser: one streaming pass, no DOM helpers, no std::fs — instantiates under
+# both wasm32-wasip1 (chat/CLI) and wasm32-unknown-unknown (page). Same version the sibling
+# XML blocks (xsd-to-json-schema, xml-structure-analyzer, xml-to-csv) are proven on.
+quick-xml = "0.36"

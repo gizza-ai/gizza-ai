@@ -1,0 +1,207 @@
+slug          = "calorie-burn"
+title         = "Calories Burned Calculator — MET Values for 59 Activities"
+description   = "Estimate the calories burned by any activity from its MET value, your body weight and how long you moved. Net or gross, kg or lb, minutes or hours."
+tags          = ["calories burned calculator", "calorie burn", "met values", "exercise calories", "calories burned walking", "calories burned running", "met minutes", "activity energy expenditure", "fitness"]
+h1            = "Calories burned calculator"
+hero_subtitle = "Pick an activity, enter your weight and how long you moved, and get the calories, the per-hour rate, the MET-minutes and an oxygen-uptake estimate — computed in your browser from standard MET values."
+wasm          = "gizza_ai_calorie_burn_web"
+export        = "run"
+live          = false
+output_label  = "Energy cost"
+format        = "text"
+
+[[input]]
+name        = "weight"
+label       = "Body weight"
+placeholder = "70"
+source      = "field"
+
+[[input]]
+name   = "weight_unit"
+label  = "Weight unit"
+source = "field"
+
+[input.labels]
+kg = "Kilograms (kg)"
+lb = "Pounds (lb)"
+
+[[input]]
+name        = "duration"
+label       = "Duration"
+placeholder = "30"
+source      = "field"
+
+[[input]]
+name   = "duration_unit"
+label  = "Duration unit"
+source = "field"
+
+[input.labels]
+minutes = "Minutes"
+hours   = "Hours"
+
+[[input]]
+name   = "activity"
+label  = "Activity"
+source = "field"
+
+[input.labels]
+sleeping                 = "Everyday — sleeping (MET 0.95)"
+sitting-desk-work        = "Everyday — sitting, desk work (MET 1.5)"
+standing-light-work      = "Everyday — standing, light work (MET 2)"
+stretching               = "Gym — stretching or mobility (MET 2.3)"
+yoga-hatha               = "Gym — yoga, hatha (MET 2.5)"
+walking-slow             = "Walking — slow, 2 mph / 3.2 km/h (MET 2.8)"
+pilates                  = "Gym — pilates (MET 3)"
+tai-chi                  = "Gym — tai chi (MET 3)"
+cooking                  = "Everyday — cooking and washing up (MET 3.3)"
+walking-moderate         = "Walking — moderate, 3 mph / 4.8 km/h (MET 3.5)"
+house-cleaning           = "Everyday — house cleaning (MET 3.5)"
+weight-training-light    = "Gym — weight training, light (MET 3.5)"
+gardening                = "Everyday — gardening (MET 3.8)"
+bowling                  = "Sport — bowling (MET 3.8)"
+volleyball               = "Sport — volleyball, recreational (MET 4)"
+table-tennis             = "Sport — table tennis (MET 4)"
+cycling-leisure          = "Cycling — leisurely, under 10 mph (MET 4)"
+dancing-social           = "Sport — dancing, social or ballroom (MET 4.5)"
+golf-walking             = "Sport — golf, walking with clubs (MET 4.8)"
+walking-brisk            = "Walking — brisk, 4 mph / 6.4 km/h (MET 5)"
+mowing-lawn              = "Everyday — mowing the lawn (MET 5)"
+kayaking                 = "Water — kayaking or canoeing (MET 5)"
+elliptical               = "Gym — elliptical trainer (MET 5)"
+badminton                = "Sport — badminton, social (MET 5.5)"
+boxing-bag               = "Sport — boxing, punching bag (MET 5.5)"
+water-aerobics           = "Water — water aerobics (MET 5.5)"
+moving-furniture         = "Everyday — moving furniture and boxes (MET 5.8)"
+hiking                   = "Walking — hiking, cross-country (MET 6)"
+shoveling-snow           = "Everyday — shovelling snow (MET 6)"
+swimming-leisure         = "Water — swimming, leisurely (MET 6)"
+tennis-doubles           = "Sport — tennis, doubles (MET 6)"
+weight-training-vigorous = "Gym — weight training, vigorous (MET 6)"
+walking-uphill           = "Walking — uphill, moderate pace (MET 6.3)"
+backpacking              = "Walking — backpacking with a load (MET 7)"
+jogging                  = "Running — jogging, general (MET 7)"
+rowing-water             = "Water — rowing on water, moderate (MET 7)"
+rowing-machine           = "Gym — rowing machine, moderate (MET 7)"
+soccer-casual            = "Sport — football/soccer, casual (MET 7)"
+circuit-training         = "Gym — circuit training (MET 7.2)"
+dancing-aerobic          = "Sport — dancing, aerobic (MET 7.3)"
+cycling-moderate         = "Cycling — moderate, 12-14 mph (MET 8)"
+calisthenics-vigorous    = "Gym — calisthenics, vigorous (MET 8)"
+basketball-game          = "Sport — basketball, game (MET 8)"
+tennis-singles           = "Sport — tennis, singles (MET 8)"
+rock-climbing            = "Sport — rock climbing, ascending (MET 8)"
+swimming-laps-moderate   = "Water — swimming laps, moderate (MET 8.3)"
+mountain-biking          = "Cycling — mountain biking (MET 8.5)"
+indoor-cycling-class     = "Cycling — indoor cycling class (MET 8.5)"
+stairs-climbing          = "Everyday — climbing stairs (MET 8.8)"
+running-trail            = "Running — trail or cross-country (MET 9)"
+stair-stepper            = "Gym — stair stepper machine (MET 9)"
+running-6mph             = "Running — 6 mph / 9.7 km/h, 10 min/mi (MET 9.8)"
+swimming-laps-vigorous   = "Water — swimming laps, vigorous (MET 9.8)"
+soccer-competitive       = "Sport — football/soccer, competitive (MET 10)"
+martial-arts             = "Sport — martial arts or kickboxing (MET 10.3)"
+jump-rope                = "Gym — jumping rope, moderate (MET 11)"
+running-8mph             = "Running — 8 mph / 12.9 km/h, 7.5 min/mi (MET 11.8)"
+cycling-vigorous         = "Cycling — vigorous, 16-19 mph (MET 12)"
+running-10mph            = "Running — 10 mph / 16.1 km/h, 6 min/mi (MET 14.5)"
+custom                   = "Custom — use my own MET value below"
+
+[[input]]
+name        = "met"
+label        = "MET override (0 = use the activity's own value)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "0.1"
+
+[[input]]
+name   = "basis"
+label  = "Energy basis"
+source = "field"
+
+[input.labels]
+gross = "Gross — all energy used (what trackers show)"
+net   = "Net — only the energy above resting"
+
+[[input]]
+name   = "output"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+summary = "Readable summary"
+table   = "Markdown tables"
+json    = "JSON"
+
+[[example]]
+label = "30-min walk, 70 kg"
+[example.params]
+weight = "70"
+weight_unit = "kg"
+duration = "30"
+duration_unit = "minutes"
+activity = "walking-moderate"
+met = "0"
+basis = "gross"
+output = "summary"
+
+[[example]]
+label = "5 km run in 30 min"
+[example.params]
+weight = "72"
+weight_unit = "kg"
+duration = "30"
+duration_unit = "minutes"
+activity = "running-6mph"
+met = "0"
+basis = "gross"
+output = "summary"
+
+[[example]]
+label = "1-hour gym session (lb)"
+[example.params]
+weight = "185"
+weight_unit = "lb"
+duration = "1"
+duration_unit = "hours"
+activity = "weight-training-vigorous"
+met = "0"
+basis = "gross"
+output = "summary"
+
+[[example]]
+label = "45-min lap swim, net only"
+[example.params]
+weight = "68"
+weight_unit = "kg"
+duration = "45"
+duration_unit = "minutes"
+activity = "swimming-laps-moderate"
+met = "0"
+basis = "net"
+output = "summary"
+
+[[example]]
+label = "8-hour desk day"
+[example.params]
+weight = "70"
+weight_unit = "kg"
+duration = "8"
+duration_unit = "hours"
+activity = "sitting-desk-work"
+met = "0"
+basis = "gross"
+output = "table"
+
+[[example]]
+label = "Custom MET 7.5 as JSON"
+[example.params]
+weight = "80"
+weight_unit = "kg"
+duration = "40"
+duration_unit = "minutes"
+activity = "custom"
+met = "7.5"
+basis = "gross"
+output = "json"

@@ -1,0 +1,114 @@
+slug          = "round-robin-scheduler"
+title         = "Round Robin Scheduler — Balanced Fixture List Generator"
+description   = "Paste your teams or players and get a balanced round-robin schedule: every pair meets, byes rotate, home and away stay even. Text, Markdown, CSV or JSON."
+tags          = ["round robin scheduler", "round robin generator", "fixture list generator", "tournament schedule maker", "league schedule generator", "circle method", "bye rotation", "double round robin"]
+h1            = "Generate a Round-Robin Schedule"
+hero_subtitle = "Enter your teams or players and get every fixture, grouped by round — byes rotate fairly, home and away stay balanced, and courts are assigned for you. Deterministic and private."
+wasm          = "gizza_ai_round_robin_scheduler_web"
+export        = "run"
+live          = false
+output_label  = "Schedule"
+format        = "text"
+
+[[input]]
+name        = "participants"
+label       = "Participants (one per line — or just a count)"
+placeholder = "Lions\nTigers\nBears\nWolves\nHawks\nSharks"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "schedule_type"
+label  = "Format"
+source = "field"
+
+[input.labels]
+single = "Single round robin — everyone plays once"
+double = "Double round robin — home and away"
+
+[[input]]
+name   = "output_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+text     = "Text — grouped by round"
+markdown = "Markdown table"
+csv      = "CSV for spreadsheets"
+json     = "JSON array of fixtures"
+
+[[input]]
+name        = "courts"
+label       = "Courts or venues (count or names — optional)"
+placeholder = "2   or   North Field, South Field"
+source      = "field"
+
+[[input]]
+name        = "start_round"
+label       = "First round number"
+placeholder = "1"
+source      = "field"
+
+[[input]]
+name   = "include_byes"
+label  = "Show byes (who sits out each round)"
+source = "field"
+
+[[input]]
+name   = "include_summary"
+label  = "Show summary (rounds, matches, byes)"
+source = "field"
+
+[[input]]
+name        = "seed"
+label       = "Draw seed (0 keeps the entered order)"
+placeholder = "0"
+source      = "field"
+
+[[example]]
+label = "6 teams, single round robin"
+[example.params]
+participants = "Lions\nTigers\nBears\nWolves\nHawks\nSharks"
+schedule_type = "single"
+output_format = "text"
+courts = ""
+start_round = "1"
+include_byes = "true"
+include_summary = "true"
+seed = "0"
+
+[[example]]
+label = "5 players with rotating byes"
+[example.params]
+participants = "Alice\nBob\nCarol\nDave\nEve"
+schedule_type = "single"
+output_format = "text"
+courts = ""
+start_round = "1"
+include_byes = "true"
+include_summary = "true"
+seed = "0"
+
+[[example]]
+label = "8 unnamed teams on 2 courts"
+[example.params]
+participants = "8"
+schedule_type = "single"
+output_format = "text"
+courts = "2"
+start_round = "1"
+include_byes = "true"
+include_summary = "true"
+seed = "0"
+
+[[example]]
+label = "Double round robin as CSV"
+[example.params]
+participants = "Alice\nBob\nCarol\nDave"
+schedule_type = "double"
+output_format = "csv"
+courts = ""
+start_round = "1"
+include_byes = "true"
+include_summary = "false"
+seed = "0"

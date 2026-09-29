@@ -1,0 +1,177 @@
+{
+  "name": "gizza-ai/roas-calc",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute ROAS, ACOS, break-even and target ROAS, CAC, LTV and required ad budget",
+  "role": "skill",
+  "tool": {
+    "description": "Turn one period of ad spend and attributed revenue into the full return-on-ad-spend picture. Reports gross ROAS, ROAS as a percentage, ACOS, net ROAS, break-even ROAS, a target ROAS for a chosen net margin, and an LTV-adjusted ROAS. The contribution margin can be a single gross-margin percentage or built from real per-order costs — cost of goods, shipping, payment rate plus fixed fee, a refund allowance and other variable costs. Adds profit after ad spend, net profit after fixed costs, net margin, profit per unit of spend, break-even ad spend and break-even revenue, CAC, the most you can pay per order at break-even and at your target margin, LTV, the LTV:CAC ratio, CAC payback, cost per click, break-even CPC, the budget a revenue goal needs at each ROAS, and a what-if table of profit at other ROAS levels. Forecasts an unlaunched campaign from aov, conversion_rate and cpc. Outputs markdown, text, CSV or JSON and runs locally. Educational planning arithmetic, not financial advice.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "ad_spend": {
+          "description": "Total amount spent on the campaign for one reporting period, in your chosen currency. Every other figure must cover the same period. Example: 10000.",
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "aov": {
+          "default": 0.0,
+          "description": "Average order value. 0 means derive it as revenue divided by conversions. Required when margin_basis is 'per_order' and conversions are unknown. Example: 100.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "clicks": {
+          "default": 0.0,
+          "description": "Clicks the ad spend bought. 0 means derive them from ad_spend divided by cpc, or skip the traffic section. Example: 5000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "cogs_per_order": {
+          "default": 0.0,
+          "description": "Landed cost of goods for an average order, used when margin_basis is 'per_order'. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "conversion_rate": {
+          "default": 0.0,
+          "description": "Share of clicks that become orders, 0 to 100. 0 means derive it from conversions divided by clicks. Example: 4 for 4 percent. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "conversions": {
+          "default": 0.0,
+          "description": "Orders or customers the ad spend produced. Needed for CAC, LTV and per-order figures. 0 means derive it from clicks and conversion_rate, or skip those sections. Example: 350.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "cpc": {
+          "default": 0.0,
+          "description": "Average cost per click. 0 means derive it from ad_spend divided by clicks. Supplying cpc with aov and conversion_rate forecasts a campaign that has not run yet. Example: 2.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency prefix or symbol used to label amounts, such as '$', '€', '£' or 'CHF '. Display only; no exchange rates are fetched. Default '$'.",
+          "type": "string"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for money and percentages, 0 to 6. ROAS multiples and ratios always show 2. Default 2.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "fixed_costs": {
+          "default": 0.0,
+          "description": "Non-ad fixed costs for the same period — agency retainers, tooling, overhead — subtracted after the ad spend to give net profit. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output format: markdown tables (default), aligned plain text, CSV rows, or JSON with every computed field.",
+          "enum": [
+            "markdown",
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "gross_margin": {
+          "default": 50.0,
+          "description": "Gross margin on ad-driven revenue as a percentage, 0 to 100. Used only when margin_basis is 'percent'. Break-even ROAS is 1 divided by this margin, so 50 means a 2.00x break-even. Default 50.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "margin_basis": {
+          "default": "percent",
+          "description": "How the contribution margin is established. 'percent' uses the single gross_margin percentage. 'per_order' builds it from the real per-order costs: cogs_per_order, shipping_per_order, payment_rate, payment_fixed, refund_rate and other_cost_per_order.",
+          "enum": [
+            "percent",
+            "per_order"
+          ],
+          "type": "string"
+        },
+        "other_cost_per_order": {
+          "default": 0.0,
+          "description": "Any other variable cost per order — inserts, affiliate fees, per-order app fees — used when margin_basis is 'per_order'. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "payment_fixed": {
+          "default": 0.3,
+          "description": "Flat per-transaction payment fee charged on top of payment_rate, used when margin_basis is 'per_order'. Default 0.3.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "payment_rate": {
+          "default": 2.9,
+          "description": "Payment-processing percentage charged on each order, 0 to 100, used when margin_basis is 'per_order'. Default 2.9.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "purchase_interval_months": {
+          "default": 0.0,
+          "description": "Average months between repeat purchases. Combined with the purchases needed to repay CAC it gives a CAC payback period in months. 0 means no payback estimate. Default 0.",
+          "maximum": 120,
+          "minimum": 0,
+          "type": "number"
+        },
+        "purchases_per_customer": {
+          "default": 1.0,
+          "description": "Lifetime purchases an acquired customer makes, including the first — the LTV multiplier. Drives LTV, the LTV:CAC ratio and the LTV-adjusted ROAS. 1 means first order only. Default 1.",
+          "maximum": 1000,
+          "minimum": 1,
+          "type": "number"
+        },
+        "refund_rate": {
+          "default": 0.0,
+          "description": "Share of orders refunded or returned, 0 to 100. Deducted from the per-order margin as refund_rate percent of the order value. Used when margin_basis is 'per_order'. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        },
+        "revenue": {
+          "default": 0.0,
+          "description": "Revenue attributed to that ad spend in the same period. Leave at 0 to derive it from aov multiplied by conversions. Example: 35000.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "revenue_goal": {
+          "default": 0.0,
+          "description": "Ad-driven revenue you want for the period. Adds the budget the goal needs at the current, break-even and target ROAS, plus the profit it would leave. 0 means no goal. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "scenarios": {
+          "default": true,
+          "description": "Include the what-if table showing profit per unit of spend, ad cost per order, profit per order and net profit at ROAS levels of 1x through 4x plus your break-even, current and target ROAS. Default true.",
+          "type": "boolean"
+        },
+        "shipping_per_order": {
+          "default": 0.0,
+          "description": "Shipping, packaging and fulfilment cost for an average order, used when margin_basis is 'per_order'. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "target_net_margin": {
+          "default": 0.0,
+          "description": "Net margin you want the ad-driven revenue to leave, as a percentage. Sets the target ROAS to 1 divided by (contribution margin minus this target), and the most you can pay per order. Must stay below the contribution margin. 0 means no target. Default 0.",
+          "maximum": 100,
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "ad_spend",
+        "revenue"
+      ],
+      "type": "object"
+    }
+  }
+}

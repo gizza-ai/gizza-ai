@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "isolation-forest-anomaly"
+version = "0.1.0"
+abi = 1
+summary = "Score every row of a pasted table with an isolation forest and flag the outliers."

@@ -1,0 +1,139 @@
+slug          = "shadcn-theme-generator"
+title         = "shadcn/ui Theme Generator"
+description   = "Turn a seed color into a complete shadcn/ui theme: light and dark CSS variables in oklch, hsl or hex, with every foreground contrast-checked against WCAG AA."
+tags          = ["shadcn theme generator", "shadcn ui theme", "tailwind css variables", "oklch theme", "globals.css theme", "dark mode css variables", "shadcn colors", "design tokens generator"]
+h1            = "shadcn/ui Theme Generator"
+hero_subtitle = "Pick a brand color and get a paste-ready shadcn/ui theme — :root and .dark blocks, the Tailwind v4 @theme inline map, chart and sidebar tokens, and a measured WCAG contrast report for every foreground pair. Runs locally in your browser."
+wasm          = "gizza_ai_shadcn_theme_generator_web"
+export        = "run"
+live          = false
+output_label  = "globals.css"
+format        = "text"
+
+[[input]]
+name        = "primary"
+label       = "Primary / brand color"
+placeholder = "#6366f1"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name        = "accent"
+label       = "Accent color (optional)"
+placeholder = "#10b981"
+source      = "field"
+kind        = "color"
+
+[[input]]
+name    = "neutral"
+label   = "Neutral grey family"
+source  = "field"
+default = "zinc"
+[input.labels]
+slate   = "Slate (cool blue)"
+gray    = "Gray"
+zinc    = "Zinc (shadcn default)"
+neutral = "Neutral (pure grey)"
+stone   = "Stone (warm)"
+
+[[input]]
+name    = "format"
+label   = "Value notation"
+source  = "field"
+default = "oklch"
+[input.labels]
+oklch = "oklch() — Tailwind v4 default"
+hsl   = "hsl()"
+hex   = "Hex"
+
+[[input]]
+name    = "tailwind"
+label   = "Tailwind version"
+source  = "field"
+default = "v4"
+[input.labels]
+v4 = "v4 — :root/.dark + @theme inline"
+v3 = "v3 — @layer base + bare HSL triplets"
+
+[[input]]
+name        = "radius"
+label       = "Corner radius (rem)"
+placeholder = "0.625"
+source      = "field"
+default     = "0.625"
+kind        = "slider"
+step        = "0.125"
+
+[[input]]
+name    = "mode"
+label   = "Colour schemes to emit"
+source  = "field"
+default = "both"
+[input.labels]
+both  = "Light and dark"
+light = "Light only"
+dark  = "Dark only"
+
+[[input]]
+name    = "charts"
+label   = "Include --chart-1 … --chart-5"
+source  = "field"
+default = "true"
+
+[[input]]
+name    = "sidebar"
+label   = "Include the --sidebar-* group"
+source  = "field"
+default = "true"
+
+[[example]]
+label = "Indigo, Tailwind v4"
+[example.params]
+primary = "#6366f1"
+accent = ""
+neutral = "zinc"
+format = "oklch"
+tailwind = "v4"
+radius = "0.625"
+mode = "both"
+charts = "true"
+sidebar = "true"
+
+[[example]]
+label = "Emerald + amber accent"
+[example.params]
+primary = "#059669"
+accent = "#f59e0b"
+neutral = "stone"
+format = "oklch"
+tailwind = "v4"
+radius = "0.75"
+mode = "both"
+charts = "true"
+sidebar = "true"
+
+[[example]]
+label = "Tailwind v3 HSL triplets"
+[example.params]
+primary = "#0f172a"
+accent = ""
+neutral = "slate"
+format = "hsl"
+tailwind = "v3"
+radius = "0.5"
+mode = "both"
+charts = "true"
+sidebar = "false"
+
+[[example]]
+label = "Square corners, hex, light only"
+[example.params]
+primary = "#dc2626"
+accent = ""
+neutral = "neutral"
+format = "hex"
+tailwind = "v4"
+radius = "0"
+mode = "light"
+charts = "false"
+sidebar = "false"

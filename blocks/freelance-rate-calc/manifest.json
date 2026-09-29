@@ -1,0 +1,168 @@
+{
+  "name": "gizza-ai/freelance-rate-calc",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Compute freelance hourly and day rates from income goals, taxes, expenses and billable time",
+  "role": "skill",
+  "tool": {
+    "description": "Work backwards from an annual take-home income goal to the hourly, day, weekly and monthly freelance rates you need to charge. Add business expenses, health insurance, retirement contributions, an effective tax rate, an optional US self-employment tax layer, vacation, holidays, sick days, billable percentage and a slow-month buffer. The report shows the gross-up math, required annual revenue, working weeks/days/hours, billable hours, rate per worked hour, optional comparison to a current rate, and an optional fixed-price project quote with simple/standard/complex/rush multipliers and a 30/40/30 milestone split. Outputs markdown, text, CSV or JSON and runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "billable_percent": {
+          "default": 70.0,
+          "description": "Percent of worked hours you can invoice after sales, admin, learning and downtime. Default 70.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "number"
+        },
+        "buffer_percent": {
+          "default": 0.0,
+          "description": "Markup added to the final computed rate for slow months, risk or profit buffer. Default 0.",
+          "maximum": 200,
+          "minimum": 0,
+          "type": "number"
+        },
+        "business_expenses": {
+          "default": 0.0,
+          "description": "Annual business overhead before owner pay: software, equipment, bookkeeping, coworking, insurance, marketing and similar costs. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "complexity": {
+          "default": "standard",
+          "description": "Multiplier for the optional project quote: simple 0.85×, standard 1×, complex 1.5×, rush 2×.",
+          "enum": [
+            "simple",
+            "standard",
+            "complex",
+            "rush"
+          ],
+          "type": "string"
+        },
+        "currency": {
+          "default": "$",
+          "description": "Currency prefix or symbol to display, such as '$', '€', '£' or 'CHF '. It labels amounts only; no exchange rates are fetched.",
+          "type": "string"
+        },
+        "current_rate": {
+          "default": 0.0,
+          "description": "Optional hourly rate you already charge. When greater than 0, the report compares its annual revenue/take-home against the required rate. Default 0 = off.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "days_per_week": {
+          "default": 5.0,
+          "description": "Working days in a normal week. Holidays and sick days are converted to weeks using this value. Default 5.",
+          "maximum": 7,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "decimals": {
+          "default": 2,
+          "description": "Decimal places for money, hours and rates, 0 to 6. Default 2.",
+          "maximum": 6,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "markdown",
+          "description": "Output format: markdown tables (default), aligned text, CSV rows, or JSON.",
+          "enum": [
+            "markdown",
+            "text",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "health_insurance": {
+          "default": 0.0,
+          "description": "Annual health-insurance or benefits cost you need the business to cover separately from ordinary overhead. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "holidays": {
+          "default": 10.0,
+          "description": "Public holidays or company-closed days per year. Default 10.",
+          "maximum": 366,
+          "minimum": 0,
+          "type": "number"
+        },
+        "hours_per_day": {
+          "default": 8.0,
+          "description": "Hours in the day-rate basis. Day rate = hourly rate × this value. Default 8.",
+          "maximum": 24,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "hours_per_week": {
+          "default": 40.0,
+          "description": "Hours you expect to work in an ordinary week before non-billable time is removed. Default 40.",
+          "maximum": 168,
+          "minimum": 0.1,
+          "type": "number"
+        },
+        "project_hours": {
+          "default": 0.0,
+          "description": "Optional estimated project hours. When greater than 0, the report adds a fixed-price quote and 30/40/30 milestone split. Default 0 = off.",
+          "maximum": 100000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "retirement": {
+          "default": 0.0,
+          "description": "Annual retirement, pension or savings contribution you want the rate to fund before take-home pay. Default 0.",
+          "minimum": 0,
+          "type": "number"
+        },
+        "sick_days": {
+          "default": 5.0,
+          "description": "Sick, admin or contingency days per year to remove from the billable calendar. Default 5.",
+          "maximum": 366,
+          "minimum": 0,
+          "type": "number"
+        },
+        "target_income": {
+          "description": "Annual take-home income goal after taxes and business costs, in your chosen currency. Example: 80000 means you want 80,000 left for personal income over the year.",
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "tax_basis": {
+          "default": "income_only",
+          "description": "Tax model. 'income_only' uses only tax_rate. 'self_employment' adds the US self-employment layer (15.3% assessed on 92.35% of net profit) on top of tax_rate.",
+          "enum": [
+            "income_only",
+            "self_employment"
+          ],
+          "type": "string"
+        },
+        "tax_rate": {
+          "default": 30.0,
+          "description": "Effective income-tax percentage on profit, 0 to 95. Use a blended estimate for federal/state/local tax. Default 30.",
+          "maximum": 95,
+          "minimum": 0,
+          "type": "number"
+        },
+        "vacation_weeks": {
+          "default": 4.0,
+          "description": "Unpaid vacation or planned time off in weeks. Default 4.",
+          "maximum": 52,
+          "minimum": 0,
+          "type": "number"
+        },
+        "weeks_per_year": {
+          "default": 52.0,
+          "description": "Calendar weeks in the year used for the time budget. Default 52.",
+          "maximum": 53,
+          "minimum": 1,
+          "type": "number"
+        }
+      },
+      "required": [
+        "target_income"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,185 @@
+slug          = "freelance-rate-calc"
+title         = "Freelance Rate Calculator — Hourly, Day and Project Pricing"
+description   = "Compute the hourly and day rate needed to hit a freelance income goal after taxes, expenses, time off and non-billable time."
+tags          = ["freelance rate calculator", "hourly rate", "day rate", "consulting rate", "project quote", "billable hours", "self employment tax", "freelancer pricing", "contractor rate"]
+h1            = "Freelance rate calculator"
+hero_subtitle = "Work backwards from your take-home goal, expenses, taxes and real billable calendar to the hourly, day and project rates you need to charge."
+wasm          = "gizza_ai_freelance_rate_calc_web"
+export        = "run"
+live          = false
+output_label  = "Rate report"
+format        = "markdown"
+wide          = true
+
+[[input]]
+name        = "target_income"
+label       = "Annual take-home income goal"
+placeholder = "80000"
+source      = "field"
+
+[[input]]
+name        = "business_expenses"
+label       = "Annual business expenses"
+placeholder = "3000"
+source      = "field"
+
+[[input]]
+name        = "health_insurance"
+label       = "Annual health insurance / benefits"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "retirement"
+label       = "Annual retirement contribution"
+placeholder = "0"
+source      = "field"
+
+[[input]]
+name        = "tax_rate"
+label       = "Effective income tax rate (%)"
+placeholder = "30"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "tax_basis"
+label  = "Tax model"
+source = "field"
+
+[input.labels]
+income_only     = "Income tax only"
+self_employment = "Add US self-employment tax layer"
+
+[[input]]
+name        = "hours_per_week"
+label       = "Hours worked per week"
+placeholder = "40"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "days_per_week"
+label       = "Working days per week"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "hours_per_day"
+label       = "Hours in a day-rate day"
+placeholder = "8"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "weeks_per_year"
+label       = "Calendar weeks in year"
+placeholder = "52"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "vacation_weeks"
+label       = "Vacation / planned time off (weeks)"
+placeholder = "4"
+source      = "field"
+kind        = "slider"
+step        = "0.5"
+
+[[input]]
+name        = "holidays"
+label       = "Holidays per year (days)"
+placeholder = "10"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "sick_days"
+label       = "Sick / contingency days per year"
+placeholder = "5"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "billable_percent"
+label       = "Billable percent of worked hours"
+placeholder = "70"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "buffer_percent"
+label       = "Slow-month / profit buffer (%)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "current_rate"
+label       = "Current hourly rate to compare (optional)"
+placeholder = "50"
+source      = "field"
+
+[[input]]
+name        = "project_hours"
+label       = "Project hours for quote (optional)"
+placeholder = "40"
+source      = "field"
+
+[[input]]
+name   = "complexity"
+label  = "Project quote multiplier"
+source = "field"
+
+[input.labels]
+simple   = "Simple / low risk (0.85×)"
+standard = "Standard (1×)"
+complex  = "Complex (1.5×)"
+rush     = "Rush / high risk (2×)"
+
+[[input]]
+name        = "currency"
+label       = "Currency symbol / prefix"
+placeholder = "$"
+source      = "field"
+
+[[input]]
+name        = "decimals"
+label       = "Decimal places"
+placeholder = "2"
+source      = "field"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name   = "format"
+label  = "Output"
+source = "field"
+
+[input.labels]
+markdown = "Markdown tables"
+text     = "Aligned plain text"
+csv      = "CSV"
+json     = "JSON"
+
+[[example]]
+label  = "Solo consultant baseline"
+params = { target_income = "80000", business_expenses = "3000", tax_rate = "30", billable_percent = "70", format = "markdown" }
+
+[[example]]
+label  = "US self-employed with buffer"
+params = { target_income = "120000", business_expenses = "12000", health_insurance = "9000", retirement = "15000", tax_rate = "24", tax_basis = "self_employment", vacation_weeks = "5", holidays = "10", sick_days = "5", billable_percent = "65", buffer_percent = "10", current_rate = "125", format = "markdown" }
+
+[[example]]
+label  = "Quote a rush project"
+params = { target_income = "80000", business_expenses = "3000", tax_rate = "30", billable_percent = "70", project_hours = "40", complexity = "rush", format = "text" }

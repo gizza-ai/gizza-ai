@@ -1,0 +1,160 @@
+slug          = "pagerank-ranker"
+title         = "PageRank ranker"
+description   = "Rank graph nodes by PageRank from a pasted edge list or adjacency matrix, with damping, weights, dangling-node policy, personalization, and JSON/CSV output."
+tags          = ["graph", "ranking", "pagerank", "network", "centrality", "data"]
+h1            = "PageRank ranker"
+hero_subtitle = "Paste links, citations, dependencies, or any directed graph and rank the most important nodes by PageRank."
+wasm          = "gizza_ai_pagerank_ranker_web"
+export        = "run"
+live          = true
+output_label  = "Ranked nodes"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "Graph"
+placeholder = "home -> docs\nhome -> pricing\ndocs -> api\napi -> docs\npricing -> home"
+source      = "field"
+multiline   = true
+rows        = 10
+
+[[input]]
+name        = "input_format"
+label       = "Input format"
+source      = "field"
+
+[input.labels]
+auto = "Auto-detect"
+edge-list = "Edge list"
+matrix = "Adjacency matrix"
+
+[[input]]
+name        = "directed"
+label       = "Directed graph"
+source      = "field"
+default     = "true"
+
+[[input]]
+name        = "weighted"
+label       = "Use weights"
+source      = "field"
+default     = "false"
+
+[[input]]
+name        = "damping"
+label       = "Damping factor"
+placeholder = "0.85"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 0.999
+step        = "0.01"
+
+[[input]]
+name        = "max_iter"
+label       = "Max iterations"
+placeholder = "100"
+source      = "field"
+kind        = "slider"
+min         = 1
+max         = 10000
+step        = "1"
+
+[[input]]
+name        = "tolerance"
+label       = "Tolerance"
+placeholder = "0.000001"
+source      = "field"
+
+[[input]]
+name        = "dangling"
+label       = "Dangling nodes"
+source      = "field"
+
+[input.labels]
+redistribute = "Redistribute by teleportation"
+self-loop = "Keep mass as a self-loop"
+drop = "Drop dangling mass"
+
+[[input]]
+name        = "personalization"
+label       = "Personalization weights"
+placeholder = "home:0.7, docs:0.3"
+source      = "field"
+multiline   = true
+rows        = 3
+
+[[input]]
+name        = "top"
+label       = "Top N (0 = all)"
+placeholder = "0"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 100
+step        = "1"
+
+[[input]]
+name        = "decimals"
+label       = "Decimals"
+placeholder = "6"
+source      = "field"
+kind        = "slider"
+min         = 0
+max         = 12
+step        = "1"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+text = "Text report"
+json = "JSON"
+csv = "CSV"
+
+[[example]]
+label = "Website links"
+input = "home -> docs\nhome -> pricing\ndocs -> api\napi -> docs\npricing -> home"
+input_format = "edge-list"
+directed = "true"
+weighted = "false"
+damping = "0.85"
+max_iter = "100"
+tolerance = "0.000001"
+dangling = "redistribute"
+personalization = ""
+top = "0"
+decimals = "6"
+format = "text"
+
+[[example]]
+label = "Weighted citations"
+input = "paper-a -> paper-b : 3\npaper-a -> paper-c : 1\npaper-b -> paper-c : 4\npaper-c -> paper-a : 1\npaper-d -> paper-c : 2"
+input_format = "edge-list"
+directed = "true"
+weighted = "true"
+damping = "0.85"
+max_iter = "100"
+tolerance = "0.000001"
+dangling = "redistribute"
+personalization = ""
+top = "3"
+decimals = "6"
+format = "text"
+
+[[example]]
+label = "Adjacency matrix"
+input = "0 1 1\n0 0 1\n1 0 0"
+input_format = "matrix"
+directed = "true"
+weighted = "false"
+damping = "0.85"
+max_iter = "100"
+tolerance = "0.000001"
+dangling = "redistribute"
+personalization = ""
+top = "0"
+decimals = "6"
+format = "json"

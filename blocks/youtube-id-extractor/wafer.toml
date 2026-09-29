@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "youtube-id-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Extract the YouTube video ID and start timestamp from any link"

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "matrix-text-parser"
+version = "0.1.0"
+abi = 1
+summary = "Parse a pasted matrix into a normalized 2D array"

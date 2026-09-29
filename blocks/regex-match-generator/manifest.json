@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/regex-match-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate deterministic sample strings that match a regular expression.",
+  "role": "skill",
+  "tool": {
+    "description": "Generate sample strings that match a regular expression — the reverse of a regex tester, for building fixtures, seeding fuzzers and filling validated form fields. pattern takes literals, escapes, `.`, character classes and ranges, `\\d \\w \\s` plus negations, groups, alternation and the quantifiers ? * + {n} {n,} {n,m}; anchors are ignored and lookaround, backreferences and `\\b` are rejected with a specific message. count sets how many samples, style chooses random, sequential, shortest or longest, seed makes the random style reproducible, max_repeat caps unbounded quantifiers, max_length caps each sample, unique drops duplicates, and output selects lines, JSON or CSV. Runs locally.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "default": 5,
+          "description": "How many sample strings to generate, from 1 to 200. Default 5. With unique on, fewer may come back when the pattern has fewer distinct matches.",
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_length": {
+          "default": 200,
+          "description": "Maximum characters per generated sample, from 1 to 2000. Default 200. Repeat counts are reduced to fit; if even the shortest possible match is longer, the run fails and says so.",
+          "maximum": 2000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "max_repeat": {
+          "default": 4,
+          "description": "Cap on unbounded quantifiers `*`, `+` and {n,}, and on oversized {n,m} upper bounds, from 1 to 50. Default 4, so `a+` yields 1 to 4 letters. Never lowers a minimum the pattern itself demands.",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "output": {
+          "default": "lines",
+          "description": "Output format: lines (one sample per line, default), json (samples plus the run settings) or csv (index,sample with every sample quoted).",
+          "enum": [
+            "lines",
+            "json",
+            "csv"
+          ],
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Regular expression to generate matches for, written without delimiters or flags. Supports literals, escapes, `.`, character classes and ranges, `\\d \\w \\s` and their negations, groups, alternation and the quantifiers ? * + {n} {n,} {n,m}. Anchors are ignored; lookaround, backreferences and `\\b` are rejected. Example: [A-Z]{3}-\\d{4}.",
+          "type": "string"
+        },
+        "seed": {
+          "default": 42,
+          "description": "Seed for the random style, from 0 to 4294967295. The same pattern, seed and settings always produce the same samples, so fixtures stay stable. Default 42. Ignored by the other styles.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "style": {
+          "default": "random",
+          "description": "How choices are made: random picks seeded pseudo-random branches and repeat counts; sequential walks the pattern's choices in odometer order for systematic coverage; shortest always takes the first branch and the fewest repeats; longest takes the last branch and the most repeats allowed by max_repeat. shortest and longest produce one distinct string, so pair them with count 1.",
+          "enum": [
+            "random",
+            "sequential",
+            "shortest",
+            "longest"
+          ],
+          "type": "string"
+        },
+        "unique": {
+          "default": true,
+          "description": "Drop duplicate samples so every returned string is distinct. Turn off to get exactly count samples, duplicates included. Default on.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pattern"
+      ],
+      "type": "object"
+    }
+  }
+}

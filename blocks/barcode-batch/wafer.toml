@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "barcode-batch"
+version = "0.1.0"
+abi = 1
+summary = "Generate a ZIP or printable PDF sheet of 1D barcodes from a list or CSV"

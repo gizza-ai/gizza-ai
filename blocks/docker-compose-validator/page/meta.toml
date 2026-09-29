@@ -1,0 +1,76 @@
+slug          = "docker-compose-validator"
+title         = "Docker Compose Validator — catch compose.yml errors before docker compose up"
+description   = "Validate docker-compose.yml structure, references, ports, volumes, networks, dependency cycles and hardening warnings locally in your browser."
+tags          = ["docker compose validator", "docker-compose.yml lint", "compose yaml checker", "docker compose ports", "compose undefined volumes", "compose undefined networks", "docker compose lint"]
+h1            = "Docker Compose Validator"
+hero_subtitle = "Paste a compose.yaml and catch the mistakes YAML parsers miss: undefined services, networks and volumes, invalid port mappings, duplicate host ports, dependency cycles and optional hardening hints. Nothing is uploaded."
+wasm          = "gizza_ai_docker_compose_validator_web"
+export        = "run"
+live          = false
+output_label  = "Validation report"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "input"
+label       = "docker-compose.yml"
+placeholder = "services:\n  web:\n    image: nginx:alpine\n    ports:\n      - \"8080:80\"\n    depends_on:\n      - api\n  api:\n    image: ghcr.io/example/api:1.0\n    networks:\n      - appnet\nnetworks:\n  appnet:"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "preset"
+label  = "Rule preset"
+source = "field"
+
+[input.labels]
+"essential" = "Essential — compose-breaking errors only"
+"default"   = "Default — errors plus common warnings"
+"strict"    = "Strict — include hardening hints"
+
+[[input]]
+name        = "disable"
+label       = "Disable rules"
+placeholder = "image-tag, quote-ports"
+source      = "field"
+kind        = "tag-list"
+
+[[input]]
+name   = "strict_warnings"
+label  = "Treat warnings as errors"
+source = "field"
+
+[[input]]
+name   = "min_severity"
+label  = "Minimum severity"
+source = "field"
+
+[input.labels]
+"hint"    = "Hint — show everything"
+"warning" = "Warning — hide hints"
+"error"   = "Error — blocking problems only"
+
+[[input]]
+name   = "report_format"
+label  = "Output format"
+source = "field"
+
+[input.labels]
+"report" = "Readable report"
+"json"   = "JSON for CI"
+
+[[example]]
+label  = "Clean web + api"
+params = { input = "services:\n  web:\n    image: nginx:1.27-alpine\n    ports:\n      - \"127.0.0.1:8080:80\"\n    depends_on:\n      - api\n    networks:\n      - appnet\n  api:\n    build: ./api\n    restart: unless-stopped\n    networks:\n      - appnet\nnetworks:\n  appnet:\n", preset = "default" }
+
+[[example]]
+label  = "Undefined refs"
+params = { input = "services:\n  web:\n    image: nginx:latest\n    depends_on:\n      - api\n    networks:\n      - missing_net\n    volumes:\n      - data:/usr/share/nginx/html\n", preset = "default" }
+
+[[example]]
+label  = "Bad ports"
+params = { input = "services:\n  web:\n    image: nginx:alpine\n    ports:\n      - \"8080:80\"\n  admin:\n    image: nginx:alpine\n    ports:\n      - \"8080:8080\"\n  typo:\n    image: busybox:1.36\n    ports:\n      - \"70000:80\"\n", preset = "essential" }
+
+[[example]]
+label  = "Strict hardening"
+params = { input = "version: '3.9'\nname: demo\nservices:\n  db:\n    image: postgres:latest\n    ports:\n      - \"5432:5432\"\n    environment:\n      POSTGRES_PASSWORD: secret\n", preset = "strict", strict_warnings = "true" }

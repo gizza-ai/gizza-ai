@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "css-validate"
+version = "0.1.0"
+abi = 1
+summary = "Validate CSS syntax and flag malformed rules, unknown properties, and warnings"

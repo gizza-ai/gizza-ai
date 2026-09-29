@@ -1,0 +1,88 @@
+{
+  "name": "gizza-ai/splash-screen-generator",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Generate iOS, Android, and PWA splash screen image bundles from one logo.",
+  "role": "skill",
+  "tool": {
+    "description": "Create a ZIP bundle of launch/splash screen assets from one logo image. Provide the source as an image url or ref (PNG, JPEG, WebP, GIF or BMP). The bundle can include iOS/iPadOS PWA apple-touch-startup-image files with a ready HTML snippet, Android drawable density buckets, and an Android 12+ splash icon. Configure a background colour, optional dark-mode background, logo_scale from 0.05 to 0.9, orientation (portrait, landscape or both), output format (png or jpeg), JPEG quality, and ios/android platform toggles. The source image is capped at 16 MiB and the generated ZIP at 64 MiB.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "android": {
+          "default": true,
+          "description": "Emit Android drawable density buckets plus the Android 12+ splash icon. Default true.",
+          "type": "boolean"
+        },
+        "background": {
+          "default": "#ffffff",
+          "description": "Opaque splash background colour as #rgb, #rrggbb, #rrggbbaa, rgb(r,g,b), or a basic colour name. Default #ffffff.",
+          "type": "string"
+        },
+        "dark_background": {
+          "description": "Optional second background colour. When set, the ZIP also includes dark-mode iOS launch images and Android -night resources.",
+          "type": "string"
+        },
+        "format": {
+          "default": "png",
+          "description": "Image format for generated launch screens: png (default) or jpeg. ZIP wrapper is always application/zip.",
+          "enum": [
+            "png",
+            "jpeg"
+          ],
+          "type": "string"
+        },
+        "ios": {
+          "default": true,
+          "description": "Emit iOS/iPadOS PWA launch images plus apple-touch-startup-image.html. Default true.",
+          "type": "boolean"
+        },
+        "logo_scale": {
+          "default": 0.4,
+          "description": "Logo size as a fraction of the canvas's shorter edge, 0.05-0.9. Default 0.4 (40%).",
+          "maximum": 0.9,
+          "minimum": 0.05,
+          "type": "number"
+        },
+        "orientation": {
+          "default": "portrait",
+          "description": "Which screen orientations to emit: portrait, landscape, or both. Default portrait.",
+          "enum": [
+            "portrait",
+            "landscape",
+            "both"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 82,
+          "description": "JPEG quality, 1-100. Ignored for PNG output. Default 82.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "tournament-bracket-generator"
+version = "0.1.0"
+abi = 1
+summary = "Build a single- or double-elimination tournament bracket with seeding and byes"

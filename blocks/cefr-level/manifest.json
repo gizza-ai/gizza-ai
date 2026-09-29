@@ -1,0 +1,70 @@
+{
+  "name": "gizza-ai/cefr-level",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Estimate English text CEFR level with word breakdowns",
+  "role": "skill",
+  "tool": {
+    "description": "Estimate the CEFR reading difficulty of English text locally with a deterministic heuristic. Returns an overall A1-C2 band, decimal sublevel, vocabulary and grammar/sentence signals, per-band profile, and words above a chosen target level. Options choose output format (summary, annotated, table, json), target level, vocabulary coverage threshold, unknown-word handling, and whether proper nouns count.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage": {
+          "default": 90,
+          "description": "Vocabulary coverage percentage used for the vocabulary band. Default 90 means the smallest CEFR band covering 90% of recognised running words.",
+          "maximum": 100,
+          "minimum": 50,
+          "type": "integer"
+        },
+        "output": {
+          "default": "summary",
+          "description": "Output format: summary (readable report), annotated (report plus word list), table (TSV word breakdown), or json (machine-readable).",
+          "enum": [
+            "summary",
+            "annotated",
+            "table",
+            "json"
+          ],
+          "type": "string"
+        },
+        "proper_nouns": {
+          "default": false,
+          "description": "When true, capitalised proper-name-like words count toward difficulty; by default they are excluded so names do not inflate the estimate.",
+          "type": "boolean"
+        },
+        "target": {
+          "default": "B1",
+          "description": "Target learner level used to flag words above the intended CEFR band.",
+          "enum": [
+            "A1",
+            "A2",
+            "B1",
+            "B2",
+            "C1",
+            "C2"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "English text to estimate, from a sentence to a long reading passage.",
+          "type": "string"
+        },
+        "unknown": {
+          "default": "estimate",
+          "description": "How to treat words outside the built-in lexicon: estimate from length/shape, force C1, force C2, or exclude from the band profile.",
+          "enum": [
+            "estimate",
+            "c1",
+            "c2",
+            "exclude"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    }
+  }
+}

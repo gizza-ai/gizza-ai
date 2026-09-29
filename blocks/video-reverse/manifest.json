@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/video-reverse",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Reverse a video clip, with audio options",
+  "role": "skill",
+  "tool": {
+    "description": "Reverse a video clip locally with ffmpeg. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). mode controls straight reverse or boomerang output (reverse|forward-reverse|reverse-forward). audio controls the soundtrack (reverse|keep|mute). quality controls H.264 CRF (high|balanced|small). Output is MP4. Note: runs on the standalone page and the CLI (chat ffmpeg is unavailable).",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio": {
+          "default": "reverse",
+          "description": "How to handle sound: reverse matches the backwards picture, keep leaves a forward-playing copy of the original sound, and mute removes the audio track.",
+          "enum": [
+            "reverse",
+            "keep",
+            "mute"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "reverse",
+          "description": "Playback shape for the output video. reverse plays the clip backwards. forward-reverse makes a boomerang that plays forward then backward. reverse-forward starts with the reversed half, then returns forward.",
+          "enum": [
+            "reverse",
+            "forward-reverse",
+            "reverse-forward"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": "balanced",
+          "description": "H.264 output quality/size preset. high uses CRF 18, balanced uses CRF 23, and small uses CRF 28. Reversing always re-encodes because ffmpeg must reorder frames.",
+          "enum": [
+            "high",
+            "balanced",
+            "small"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

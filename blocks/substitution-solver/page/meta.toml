@@ -1,0 +1,88 @@
+slug          = "substitution-solver"
+title         = "Substitution Solver — Crack Monoalphabetic Cryptograms"
+description   = "Solve, decode, encode, and analyze monoalphabetic substitution ciphers with deterministic English-frequency scoring, optional cribs, and manual keys."
+tags          = ["substitution cipher", "cryptogram solver", "monoalphabetic cipher", "frequency analysis", "cipher solver", "cipher key", "cribs", "cryptanalysis"]
+h1            = "Substitution cipher solver"
+hero_subtitle = "Paste a cryptogram, add optional cribs such as X=e, and solve or analyze a monoalphabetic substitution cipher locally with deterministic English-frequency scoring."
+wasm          = "gizza_ai_substitution_solver_web"
+export        = "run"
+live          = false
+output_label  = "Result"
+format        = "text"
+
+# Field ORDER must match web run(): text, mode, key, cribs, effort, keep_layout.
+[[input]]
+name        = "text"
+label       = "Ciphertext or plaintext"
+placeholder = "Gsv jfrxp yildm ulc qfnkh levi gsv ozab wlt."
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "mode"
+label  = "Mode"
+source = "field"
+
+[input.labels]
+solve   = "Solve automatically"
+decode  = "Decode with key"
+encode  = "Encode with key"
+analyze = "Analyze frequencies"
+
+[[input]]
+name        = "key"
+label       = "Key (cipher A-Z → plaintext; blank for solve/analyze)"
+placeholder = "zyxwvutsrqponmlkjihgfedcba"
+source      = "field"
+
+[[input]]
+name        = "cribs"
+label       = "Cribs / known mappings"
+placeholder = "G=t, S=h, V=e"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "effort"
+label  = "Solve effort"
+source = "field"
+
+[input.labels]
+quick    = "Quick (3 restarts)"
+standard = "Standard (15 restarts)"
+thorough = "Thorough (50 restarts)"
+
+[[input]]
+name   = "keep_layout"
+label  = "Preserve spacing, punctuation, and case"
+source = "field"
+
+[[example]]
+label = "Decode Atbash"
+[example.params]
+text = "Gsv jfrxp yildm ulc."
+mode = "decode"
+key = "zyxwvutsrqponmlkjihgfedcba"
+cribs = ""
+effort = "standard"
+keep_layout = "true"
+
+[[example]]
+label = "Analyze a cryptogram"
+[example.params]
+text = "Qda coazqapq cilox fk ifufkc ifap klq fk kauao sziifkc."
+mode = "analyze"
+key = ""
+cribs = ""
+effort = "quick"
+keep_layout = "true"
+
+[[example]]
+label = "Solve with cribs"
+[example.params]
+text = "Gsv jfrxp yildm ulc qfnkh levi gsv ozab wlt."
+mode = "solve"
+key = ""
+cribs = "G=t, S=h, V=e"
+effort = "standard"
+keep_layout = "true"

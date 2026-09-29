@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "aspect-ratio-calc"
+version = "0.1.0"
+abi = 1
+summary = "Solve a missing width or height from an aspect ratio, or reduce a resolution to its ratio."

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "bmp-converter"
+version = "0.1.0"
+abi = 1
+summary = "Convert an image to an uncompressed BMP at a chosen bit depth (1, 8, 16, 24 or 32), or back out of BMP to PNG or JPEG."

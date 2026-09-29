@@ -1,0 +1,97 @@
+{
+  "name": "gizza-ai/harmony-format-renderer",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Render a conversation into OpenAI's Harmony response format for gpt-oss",
+  "role": "skill",
+  "tool": {
+    "description": "Render a system/developer/user/assistant/tool conversation into the Harmony response format that the gpt-oss open-weight models are trained on — the flat token string built from <|start|>, <|channel|>, <|constrain|>, <|message|>, <|end|> and <|call|>. Pass `messages` as a JSON array of {role, content, channel?, recipient?, name?} objects or as `role: content` lines. It builds the system metadata message (model identity, 'Knowledge cutoff:', optional 'Current date:', 'Reasoning: low|medium|high', and the valid-channels line), folds any system/developer turn plus the `instructions` param into the developer message's '# Instructions' section, renders `tools` (JSON Schema function definitions) as the 'namespace functions { … }' block and adds the commentary-channel clause, emits assistant turns on the analysis/commentary/final channels, renders tool calls as 'to=functions.NAME <|constrain|>json … <|call|>' and tool results as 'functions.NAME to=assistant', applies Harmony's drop-the-old-chain-of-thought rule via auto_drop_analysis, and appends the '<|start|>assistant' generation prompt when render_target is 'completion'. Set output_format to 'json' for a report with the prompt plus message and character counts. Fully deterministic string assembly — no tokenizer, no LLM, no network; it does not emit token IDs.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "auto_drop_analysis": {
+          "default": true,
+          "description": "Apply Harmony's chain-of-thought rule: drop assistant 'analysis' turns that come before the last 'final' answer, keeping analysis from the in-flight tool-calling chain. Turn off to render every turn verbatim.",
+          "type": "boolean"
+        },
+        "current_date": {
+          "default": "",
+          "description": "Value for the 'Current date:' line, normally YYYY-MM-DD (e.g. 2025-06-28). Leave empty to omit the line.",
+          "type": "string"
+        },
+        "include_system": {
+          "default": true,
+          "description": "Emit the system (metadata) message. Turn off to render only the developer and conversation turns — useful when appending to an existing prompt.",
+          "type": "boolean"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read `messages`: 'auto' (JSON if it starts with [ or {, else lines), 'json' (force a JSON array), or 'lines' (force the `role: content` form).",
+          "enum": [
+            "auto",
+            "json",
+            "lines"
+          ],
+          "type": "string"
+        },
+        "instructions": {
+          "default": "",
+          "description": "Developer instructions — the text that would be an OpenAI 'system prompt'. Rendered under '# Instructions' in the developer message. Any system/developer turn found in `messages` is appended after this. Leave empty to omit the section.",
+          "type": "string"
+        },
+        "knowledge_cutoff": {
+          "default": "2024-06",
+          "description": "Value for the 'Knowledge cutoff:' line, normally YYYY-MM. Defaults to 2024-06, the gpt-oss default.",
+          "type": "string"
+        },
+        "messages": {
+          "description": "The conversation to render. Either a JSON array of message objects — [{\"role\":\"user\",\"content\":\"hi\"}] with optional \"channel\" (analysis|commentary|final), \"recipient\" (the function an assistant turn calls) and \"name\" (the function a tool turn came from) — or one turn per line as `role: content`, e.g. `assistant[analysis]: thinking…` and `assistant[commentary] to=get_weather: {\"city\":\"Oslo\"}`. Roles: system, developer, user, assistant, tool. Max 200000 characters and 500 turns.",
+          "type": "string"
+        },
+        "model_identity": {
+          "default": "",
+          "description": "First line of the system message. Blank uses the gpt-oss default, 'You are ChatGPT, a large language model trained by OpenAI.'",
+          "type": "string"
+        },
+        "output_format": {
+          "default": "text",
+          "description": "'text' returns the rendered prompt; 'json' returns a report object with the prompt plus message_count, rendered_message_count, dropped_analysis_count, tool_count, char_count and the stop tokens.",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "reasoning_effort": {
+          "default": "medium",
+          "description": "Value for the system message's 'Reasoning:' line — 'low', 'medium' or 'high'. Use 'none' to omit the line entirely.",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "none"
+          ],
+          "type": "string"
+        },
+        "render_target": {
+          "default": "completion",
+          "description": "'completion' appends the '<|start|>assistant' generation prompt so the result is ready to sample from; 'conversation' renders the turns only.",
+          "enum": [
+            "completion",
+            "conversation"
+          ],
+          "type": "string"
+        },
+        "tools": {
+          "default": "",
+          "description": "Function tools as JSON: an array of {\"name\":…,\"description\":…,\"parameters\":{JSON Schema}}. The Chat Completions wrapper {\"type\":\"function\",\"function\":{…}} is also accepted. Rendered as the 'namespace functions { … }' TypeScript-style block and adds the commentary-channel clause to the system message. Max 50000 characters.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "messages"
+      ],
+      "type": "object"
+    }
+  }
+}

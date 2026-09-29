@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "hashtag-extractor"
+version = "0.1.0"
+abi = 1
+summary = "Turn text into ranked, paste-ready hashtags and keep the ones already written in it."

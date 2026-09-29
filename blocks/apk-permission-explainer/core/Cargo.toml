@@ -1,0 +1,17 @@
+[package]
+name = "gizza-ai-apk-permission-explainer-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# zip with deflate only (flate2/miniz_oxide backend) — an APK is a ZIP, and its
+# AndroidManifest.xml entry is deflated. The default time/aes/bzip2/zstd
+# features pull in non-wasm C deps, so they stay off.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# base64: the APK arrives as Base64 text (page field / chat argument).
+base64 = "0.22"
+# quick-xml: parse an already-decoded plain-text AndroidManifest.xml. The binary
+# AXML format is decoded by the local `axml` module — no crate needed.
+quick-xml = { version = "0.40", default-features = false }
+serde_json = "1"

@@ -1,0 +1,171 @@
+slug          = "amortization-schedule"
+title         = "Amortization Schedule Calculator"
+description   = "Generate a loan amortization table with each payment's principal, interest, extra principal and remaining balance, plus total interest and savings from extra payments."
+tags          = ["amortization schedule", "loan calculator", "principal and interest", "payment schedule", "extra payment", "interest saved", "CSV amortization", "annual summary"]
+h1            = "Amortization Schedule Calculator"
+hero_subtitle = "Enter a loan amount, rate, term and payment frequency to generate a period-by-period or annual amortization table. Model recurring or one-time extra payments, export CSV, and see total interest saved. Runs locally in your browser."
+wasm          = "gizza_ai_amortization_schedule_web"
+export        = "run"
+live          = false
+output_label  = "Amortization schedule"
+format        = "text"
+
+[[input]]
+name        = "loan_amount"
+label       = "Loan amount"
+placeholder = "300000"
+default     = "300000"
+source      = "field"
+
+[[input]]
+name        = "annual_interest_rate_percent"
+label       = "Annual interest rate (%)"
+placeholder = "6"
+default     = "6"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "20"
+step        = "0.1"
+[input.labels]
+low  = "0%"
+high = "20%"
+
+[[input]]
+name        = "loan_years"
+label       = "Loan term (years)"
+placeholder = "30"
+default     = "30"
+source      = "field"
+kind        = "slider"
+min         = "0"
+max         = "40"
+step        = "1"
+[input.labels]
+low  = "0 yr"
+high = "40 yr"
+
+[[input]]
+name        = "loan_months"
+label       = "Additional months"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "payment_frequency"
+label       = "Payment frequency"
+default     = "monthly"
+source      = "field"
+
+[[input]]
+name        = "start_date"
+label       = "First payment date"
+placeholder = "2026-01-01"
+default     = "2026-01-01"
+source      = "field"
+kind        = "date"
+
+[[input]]
+name        = "extra_payment"
+label       = "Extra payment each period"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "extra_one_time"
+label       = "One-time extra payment"
+placeholder = "0"
+default     = "0"
+source      = "field"
+
+[[input]]
+name        = "extra_one_time_period"
+label       = "One-time extra period #"
+placeholder = "1"
+default     = "1"
+source      = "field"
+
+[[input]]
+name        = "schedule_view"
+label       = "Schedule view"
+default     = "period"
+source      = "field"
+
+[[input]]
+name        = "format"
+label       = "Output format"
+default     = "table"
+source      = "field"
+
+[[input]]
+name        = "currency_symbol"
+label       = "Currency symbol"
+placeholder = "$"
+default     = "$"
+source      = "field"
+
+[[example]]
+label = "$300k, 30 years @ 6%"
+[example.params]
+loan_amount = "300000"
+annual_interest_rate_percent = "6"
+loan_years = "30"
+loan_months = "0"
+payment_frequency = "monthly"
+start_date = "2026-01-01"
+extra_payment = "0"
+extra_one_time = "0"
+extra_one_time_period = "1"
+schedule_view = "period"
+format = "table"
+currency_symbol = "$"
+
+[[example]]
+label = "+$200 monthly extra"
+[example.params]
+loan_amount = "300000"
+annual_interest_rate_percent = "6"
+loan_years = "30"
+loan_months = "0"
+payment_frequency = "monthly"
+start_date = "2026-01-01"
+extra_payment = "200"
+extra_one_time = "0"
+extra_one_time_period = "1"
+schedule_view = "period"
+format = "table"
+currency_symbol = "$"
+
+[[example]]
+label = "Annual summary CSV"
+[example.params]
+loan_amount = "300000"
+annual_interest_rate_percent = "6"
+loan_years = "30"
+loan_months = "0"
+payment_frequency = "monthly"
+start_date = "2026-01-01"
+extra_payment = "0"
+extra_one_time = "0"
+extra_one_time_period = "1"
+schedule_view = "annual"
+format = "csv"
+currency_symbol = "$"
+
+[[example]]
+label = "5-year auto loan"
+[example.params]
+loan_amount = "25000"
+annual_interest_rate_percent = "7.5"
+loan_years = "5"
+loan_months = "0"
+payment_frequency = "monthly"
+start_date = "2026-01-01"
+extra_payment = "0"
+extra_one_time = "1000"
+extra_one_time_period = "12"
+schedule_view = "period"
+format = "table"
+currency_symbol = "$"

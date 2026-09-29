@@ -1,0 +1,66 @@
+slug          = "apk-permission-explainer"
+title         = "APK Permission Explainer"
+description   = "Decode an Android APK or manifest and explain each requested permission with risk categories and plain-English impact notes."
+tags          = ["android", "apk", "privacy", "security", "permissions"]
+h1            = "APK permission explainer"
+hero_subtitle = "Paste APK bytes as Base64 or a decoded AndroidManifest.xml to see what permissions the app requests and why they matter."
+wasm          = "gizza_ai_apk_permission_explainer_web"
+export        = "run"
+live          = false
+output_label  = "Permission report"
+format        = "text"
+
+[[input]]
+name        = "input"
+label       = "APK Base64 or AndroidManifest.xml"
+placeholder = "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"com.example.demo\"><uses-permission android:name=\"android.permission.CAMERA\"/><uses-permission android:name=\"android.permission.INTERNET\"/></manifest>"
+source      = "field"
+multiline   = true
+
+[[input]]
+name        = "mode"
+label       = "Output format"
+source      = "field"
+
+[input.labels]
+report = "Readable report"
+list = "Compact list"
+csv = "CSV"
+json = "JSON"
+
+[[input]]
+name        = "risk"
+label       = "Risk filter"
+source      = "field"
+
+[input.labels]
+all = "All permissions"
+risky = "Risky only"
+dangerous = "Dangerous"
+privacy-sensitive = "Privacy-sensitive"
+signature = "Signature/system"
+normal = "Normal"
+unknown = "Unknown/app-defined"
+
+[[input]]
+name        = "sort"
+label       = "Sort"
+source      = "field"
+
+[input.labels]
+risk = "Risk first"
+name = "Name A-Z"
+
+[[example]]
+label = "Decoded manifest sample"
+input = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"com.example.demo\">\n  <uses-sdk android:minSdkVersion=\"24\" android:targetSdkVersion=\"34\" />\n  <uses-permission android:name=\"android.permission.CAMERA\" />\n  <uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />\n  <uses-permission android:name=\"android.permission.INTERNET\" />\n</manifest>"
+mode = "report"
+risk = "all"
+sort = "risk"
+
+[[example]]
+label = "Risky permissions only"
+input = "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"com.example.maps\"><uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/><uses-permission android:name=\"android.permission.INTERNET\"/><uses-permission android:name=\"com.google.android.gms.permission.AD_ID\"/></manifest>"
+mode = "list"
+risk = "risky"
+sort = "name"

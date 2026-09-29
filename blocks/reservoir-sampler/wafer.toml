@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "reservoir-sampler"
+version = "0.1.0"
+abi = 1
+summary = "Draw a uniform random sample of fixed size from a dataset in one pass"

@@ -1,0 +1,75 @@
+slug          = "video-reverse"
+title         = "Reverse Video Online"
+description   = "Reverse a video in your browser, with options to reverse, keep or mute audio and create boomerang loops. Nothing is uploaded."
+tags          = ["reverse video", "video reverser", "backwards video", "boomerang video", "reverse audio", "mute video audio", "ffmpeg"]
+h1            = "Reverse a Video"
+hero_subtitle = "Pick a clip and play it backwards locally in your browser. Reverse the sound too, keep it forward, mute it, or make a boomerang loop."
+wasm          = "gizza_ai_video_reverse_web"
+export        = "build_argv"
+runtime       = "ffmpeg"
+output_label  = "Reversed video"
+format        = "video"
+
+[[input]]
+name   = "file"
+source = "file"
+accept = "video/*"
+label  = "Video file"
+
+[[input]]
+name   = "mode"
+source = "field"
+label  = "Playback mode"
+
+[input.labels]
+reverse         = "Reverse"
+forward-reverse = "Boomerang: forward then reverse"
+reverse-forward = "Build-up: reverse then forward"
+
+[[input]]
+name   = "audio"
+source = "field"
+label  = "Audio"
+
+[input.labels]
+reverse = "Reverse audio with the picture"
+keep    = "Keep original forward audio"
+mute    = "Mute / remove audio"
+
+[[input]]
+name   = "quality"
+source = "field"
+label  = "Quality"
+
+[input.labels]
+high     = "High quality (larger)"
+balanced = "Balanced"
+small    = "Small file"
+
+[[example]]
+label = "Backwards video + sound"
+[example.params]
+mode = "reverse"
+audio = "reverse"
+quality = "balanced"
+
+[[example]]
+label = "Silent reverse"
+[example.params]
+mode = "reverse"
+audio = "mute"
+quality = "balanced"
+
+[[example]]
+label = "Boomerang loop"
+[example.params]
+mode = "forward-reverse"
+audio = "reverse"
+quality = "high"
+
+[[example]]
+label = "Reverse with original audio"
+[example.params]
+mode = "reverse"
+audio = "keep"
+quality = "small"

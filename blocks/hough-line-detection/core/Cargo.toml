@@ -1,0 +1,15 @@
+[package]
+name = "gizza-ai-hough-line-detection-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+# image: pure-Rust decode of the input + PNG/JPEG encode of the overlay.
+# default-features off keeps the wasm small; common web formats only. NOTE:
+# deliberately NOT imageproc / fast_image_resize — they bake v128 SIMD that
+# wafer's wasmi runtime rejects (same note as document-scan / collage-splitter),
+# and imageproc::hough returns only infinite polar lines, no segments. The
+# Canny pass, accumulator, peak suppression, segment walk and line rasterizer
+# are all hand-rolled here.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }

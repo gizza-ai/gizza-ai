@@ -1,0 +1,63 @@
+slug          = "json-to-types"
+title         = "JSON to types generator"
+description   = "Infer TypeScript interfaces, Rust structs, Go structs, or Python dataclasses from a JSON sample, with nested types and nullable fields."
+tags          = ["json", "types", "typescript", "rust", "go", "python", "dataclass", "struct", "interface", "schema"]
+h1            = "JSON to types generator"
+hero_subtitle = "Paste a representative JSON object or array and generate deterministic TypeScript interfaces, Rust structs, Go structs, or Python dataclasses."
+wasm          = "gizza_ai_json_to_types_web"
+export        = "run"
+live          = false
+output_label  = "Generated types"
+format        = "text"
+wide          = true
+
+[[input]]
+name        = "json"
+label       = "JSON sample"
+placeholder = "{\"id\":1,\"name\":\"Ada\",\"email\":null,\"tags\":[\"admin\"],\"profile\":{\"active\":true}}"
+source      = "field"
+multiline   = true
+
+[[input]]
+name   = "output_language"
+label  = "Output language"
+source = "field"
+labels = { typescript = "TypeScript interfaces", rust = "Rust structs", go = "Go structs", python = "Python dataclasses" }
+
+[[input]]
+name        = "root_name"
+label       = "Root type name"
+placeholder = "User"
+source      = "field"
+
+[[input]]
+name   = "optional_strategy"
+label  = "Null and missing fields"
+source = "field"
+labels = { optional = "Optional when null or missing", nullable = "Nullable when null", required = "Require every key" }
+
+[[input]]
+name   = "json_annotations"
+label  = "Include JSON/serde annotations"
+source = "field"
+
+[[input]]
+name   = "export"
+label  = "Export/public types"
+source = "field"
+
+[[example]]
+label = "TypeScript user"
+params = { json = "{\"id\":1,\"name\":\"Ada\",\"email\":null,\"tags\":[\"admin\"],\"profile\":{\"active\":true}}", output_language = "typescript", root_name = "User", optional_strategy = "optional", json_annotations = "true", export = "true" }
+
+[[example]]
+label = "Rust structs"
+params = { json = "{\"user_id\":1,\"displayName\":\"Ada\",\"roles\":[{\"name\":\"admin\",\"level\":2}]}", output_language = "rust", root_name = "User", optional_strategy = "optional", json_annotations = "true", export = "true" }
+
+[[example]]
+label = "Go structs"
+params = { json = "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Grace\",\"email\":\"g@example.com\"}]", output_language = "go", root_name = "User", optional_strategy = "optional", json_annotations = "true", export = "true" }
+
+[[example]]
+label = "Python dataclass"
+params = { json = "{\"id\":1,\"class\":\"gold\",\"settings\":{\"newsletter\":false}}", output_language = "python", root_name = "Account", optional_strategy = "optional", json_annotations = "true", export = "true" }

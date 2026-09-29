@@ -1,0 +1,77 @@
+{
+  "name": "gizza-ai/mxf-to-mp4",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Convert a broadcast MXF file into a playable MP4.",
+  "role": "skill",
+  "tool": {
+    "description": "Convert a broadcast SMPTE MXF video (XDCAM, P2 AVC-Intra, XAVC, IMX/D-10, DNxHD) into a playable MP4. Provide either url (HTTP/HTTPS) or ref (id from a prior tool call). picture 'h264' (default) re-encodes the picture with libx264 at quality 1-100 (default 75, maps to CRF) and always works; picture 'rewrap' stream-copies MP4-legal essence (AVC-Intra/XAVC/H.264/HEVC) with no generation loss and errors on MPEG-2 or DNxHD. Audio is always re-encoded to AAC because copying MXF's PCM would write ipcm, which plays silent: audio 'stereo' (default) keeps the first track, 'merge' combines the first merge_tracks (2-16) channel-per-track mono tracks into one stereo track, 'all' keeps every track, 'none' drops audio. audio_bitrate is 32-320 kbps (default 192). Output is a faststart MP4; the MXF timecode track is dropped.",
+    "parameters": {
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "audio": {
+          "default": "stereo",
+          "description": "How the MXF's audio tracks become MP4 audio. Always re-encoded to AAC — a stream copy would write MXF's PCM as ipcm, which browsers and most players cannot decode, so the file would play silent. stereo (default) = first track only, as one 2-channel AAC track. merge = combine the first merge_tracks tracks and downmix to stereo, which is what broadcast MXF needs because it stores audio as separate MONO tracks (one channel per track). all = keep every track as its own AAC stream at its native channel count. none = drop audio, picture-only MP4.",
+          "enum": [
+            "stereo",
+            "merge",
+            "all",
+            "none"
+          ],
+          "type": "string"
+        },
+        "audio_bitrate": {
+          "default": 192,
+          "description": "AAC audio bitrate in kbps (32-320, default 192). 192 is transparent for a stereo delivery copy; drop to 96-128 for speech-only material, raise to 256 or 320 for music. Ignored when audio=none.",
+          "maximum": 320,
+          "minimum": 32,
+          "type": "integer"
+        },
+        "merge_tracks": {
+          "default": 2,
+          "description": "How many audio tracks to combine when audio=merge (2-16, default 2). Set it to the number of discrete mono tracks the MXF carries — 2 for an L/R pair, 4 or 8 for a multi-channel broadcast layout; the merged result is downmixed to stereo. Ignored unless audio=merge. Asking for more tracks than the file has is an error rather than a silent partial mix.",
+          "maximum": 16,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "picture": {
+          "default": "h264",
+          "description": "What happens to the picture. h264 (default) = re-encode with libx264 to yuv420p 8-bit MP4 — always playable, and the only option for the MPEG-2 essence in XDCAM HD / IMX MXF or for DNxHD. rewrap = -c:v copy, moving the picture into the MP4 untouched with no generation loss; works only when the MXF already holds MP4-legal essence (AVC-Intra, XAVC, plain H.264, HEVC) and ffmpeg errors out on anything else. Audio is re-encoded either way.",
+          "enum": [
+            "h264",
+            "rewrap"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "default": 75,
+          "description": "Picture quality 1-100 (default 75; higher = better quality, larger file). Maps to ffmpeg's libx264 CRF: 100 = CRF 18 (visually lossless), 75 = CRF 24, 1 = CRF 40. Only used when picture=h264; ignored for rewrap, which never re-encodes the picture.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Video URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "chord-progression-generator"
+version = "0.1.0"
+abi = 1
+summary = "Generate a chord progression in any key, mode and style"

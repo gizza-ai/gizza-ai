@@ -1,0 +1,6 @@
+[package]
+org = "gizza-ai"
+name = "npv-irr-calculator"
+version = "0.1.0"
+abi = 1
+summary = "Discount a cash-flow series: NPV, IRR, MIRR, profitability index, payback and a per-period discounted table"
