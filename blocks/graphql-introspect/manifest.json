@@ -1,0 +1,80 @@
+{
+  "name": "gizza-ai/graphql-introspect",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Introspect a live GraphQL endpoint and return its SDL schema and type list",
+  "role": "skill",
+  "tool": {
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "descriptions": {
+          "default": true,
+          "description": "Request and print type/field descriptions (default true). Set false for a compact schema.",
+          "type": "boolean"
+        },
+        "format": {
+          "default": "sdl",
+          "description": "Output shape: 'sdl' (default) prints the schema in GraphQL SDL; 'types' prints just the type list; 'markdown' prints per-type documentation tables; 'json' returns the raw {\"__schema\": ...} introspection object for other tooling.",
+          "enum": [
+            "sdl",
+            "types",
+            "markdown",
+            "json"
+          ],
+          "type": "string"
+        },
+        "headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Request headers as a name->value map, for endpoints that need auth — e.g. {\"Authorization\": \"Bearer <token>\"}. Content-Type and Accept default to application/json.",
+          "type": "object"
+        },
+        "include_builtins": {
+          "default": false,
+          "description": "Include built-in scalars (Int, Float, String, Boolean, ID), the __Schema/__Type introspection types, and the spec directives @skip/@include/@deprecated/@specifiedBy (default false).",
+          "type": "boolean"
+        },
+        "include_deprecated": {
+          "default": true,
+          "description": "Include deprecated fields and enum values, annotated with @deprecated (default true).",
+          "type": "boolean"
+        },
+        "method": {
+          "default": "POST",
+          "description": "How to send the introspection query: POST with a JSON body (default), or GET with the query in the ?query= parameter for endpoints that only allow GET.",
+          "enum": [
+            "POST",
+            "GET"
+          ],
+          "type": "string"
+        },
+        "repeatable_directives": {
+          "default": false,
+          "description": "Ask for each directive's isRepeatable flag and print the 'repeatable' keyword (default false — older servers reject this field).",
+          "type": "boolean"
+        },
+        "sort": {
+          "default": false,
+          "description": "Sort types, fields, arguments and enum values alphabetically for stable diffs (default false keeps the server's own order).",
+          "type": "boolean"
+        },
+        "specified_by_url": {
+          "default": false,
+          "description": "Ask for each custom scalar's specifiedByURL and print it as @specifiedBy(url: \"...\") (default false — older servers reject this field).",
+          "type": "boolean"
+        },
+        "url": {
+          "description": "Absolute http(s) URL of the GraphQL endpoint, e.g. https://countries.trevorblades.com/graphql. Point it at the API endpoint itself, not at an HTML playground page.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
+    },
+    "description": "Introspect a live GraphQL endpoint: send the introspection query to an http(s) GraphQL URL and get its schema back as SDL (default), a flat type list, Markdown documentation tables, or the raw {\"__schema\": ...} introspection JSON. Every response also includes the type list and the query/mutation/subscription root type names. Supports custom headers for authenticated APIs, POST (default) or GET transport, optional descriptions, deprecated members, built-in scalars and directives, alphabetical sorting, @specifiedBy URLs and repeatable directives. Only public URLs are allowed — loopback and private addresses are blocked, and the endpoint must have introspection enabled."
+  }
+}
