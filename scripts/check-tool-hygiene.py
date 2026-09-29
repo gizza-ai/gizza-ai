@@ -35,6 +35,14 @@ to real regressions:
      manifest.json is not usable for this: the blocks that call do_request do not
      declare it, and 144 that never call it do.
 
+  10. Required services need matching capabilities. The CLI loads every skill
+     with the capabilities its `#[wafer_block]` declares as the bound the runtime
+     enforces, so a block whose `requires` names a service block but whose
+     `capabilities(...)` omits it can never use that service: every name in
+     `requires` must appear in `capabilities(callable_blocks = [...])`, and
+     requiring `wafer-run/network` also needs the `network` capability (the
+     typed resource the network service checks).
+
   8. Site branding. Pages must be generic: the site injects branding at render
      time (`SiteConfig` `title_suffix`/header/footer — `tools/generator/src/site.rs`).
      A literal `gizza.ai`/`gizza-ai.pages.dev` string in `page/meta.toml`,
@@ -59,8 +67,8 @@ aggregated advisory so CI stays green until the corpus is backfilled:
      require 50-170 chars (truncation starts ~160; shorter than 50 wastes the slot).
 
 Usage:
-  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4+8-9 gate, 5-7 advisory
-  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-9 all gate
+  scripts/check-tool-hygiene.py                 # repo-wide: checks 1-4+8-10 gate, 5-7 advisory
+  scripts/check-tool-hygiene.py <slug> [<slug>] # per-slug STRICT: checks 1-10 all gate
 
 Exit code 0 = clean, 1 = violations found (prints each), 2 = usage error.
 """
@@ -130,6 +138,64 @@ def unescape_rust(s: str) -> str:
             out.append(s[i])
             i += 1
     return "".join(out)
+
+
+def wafer_block_args(src: str) -> str | None:
+    """The argument text of the `#[wafer_block(...)]` attribute, with string
+    literals kept verbatim (a description may contain parentheses), or None."""
+    start = src.find("#[wafer_block(")
+    if start < 0:
+        return None
+    i = start + len("#[wafer_block(")
+    depth, in_str, out = 1, False, []
+    while i < len(src):
+        c = src[i]
+        if in_str:
+            if c == "\\":
+                out.append(src[i : i + 2])
+                i += 2
+                continue
+            if c == '"':
+                in_str = False
+        elif c == '"':
+            in_str = True
+        elif c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return "".join(out)
+        out.append(c)
+        i += 1
+    return None
+
+
+def top_level_group(args: str, name: str) -> str | None:
+    """The text inside `name(...)` at the attribute's top level, or None."""
+    m = re.search(rf"\b{name}\s*\(", args)
+    if not m:
+        return None
+    i, depth, in_str = m.end(), 1, False
+    for j in range(i, len(args)):
+        c = args[j]
+        if in_str:
+            if c == '"' and args[j - 1] != "\\":
+                in_str = False
+        elif c == '"':
+            in_str = True
+        elif c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return args[i:j]
+    return None
+
+
+def str_list(args: str, key: str) -> list[str]:
+    """The string literals of `key = [ ... ]` in `args` (empty if absent)."""
+    m = re.search(rf"\b{key}\s*=\s*\[([^\]]*)\]", args)
+    return STR_LIT_RE.findall(m.group(1)) if m else []
 
 
 def strip_line_comments(src: str) -> str:
@@ -295,6 +361,30 @@ def check_block(slug_dir: Path) -> list[str]:
                         f"{slug}: network = true but {name} claims {m.group(0)!r} "
                         "— a tool that fetches over the network is not local-only."
                     )
+
+    # 10. Required services need matching capabilities (see header).
+    if src_lib.is_file():
+        args = wafer_block_args(strip_line_comments(src_lib.read_text(encoding="utf-8", errors="replace")))
+        if args is not None:
+            caps = top_level_group(args, "capabilities") or ""
+            # `requires` lives outside `capabilities(...)`; drop the group so its
+            # `callable_blocks` list is not read as the block's `requires`.
+            outer = args.replace(caps, "") if caps else args
+            requires = str_list(outer, "requires")
+            callable_blocks = set(str_list(caps, "callable_blocks"))
+            flags = {f.strip() for f in re.sub(r"\w+\s*=\s*\[[^\]]*\]", "", caps).split(",")}
+            for req in requires:
+                if req not in callable_blocks:
+                    problems.append(
+                        f"{slug}: #[wafer_block] requires {req!r} but capabilities(callable_blocks = [...]) "
+                        f"does not list it — the runtime bounds the block to its declared capabilities, "
+                        f"so the call is refused."
+                    )
+            if "wafer-run/network" in requires and "network" not in flags:
+                problems.append(
+                    f"{slug}: #[wafer_block] requires \"wafer-run/network\" but does not declare the "
+                    f"`network` capability — add capabilities(network, callable_blocks = [\"wafer-run/network\"])."
+                )
 
     return problems
 

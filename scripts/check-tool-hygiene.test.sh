@@ -286,4 +286,25 @@ python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
   python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
   exit 1; }
 
+# Required services need matching capabilities (check #10): a block that
+# requires wafer-run/network but declares no capabilities must fail, naming both
+# the missing callable_blocks entry and the missing `network` capability. The
+# skill description carries parentheses so the attribute parser is exercised.
+cp "$dir/src/lib.rs" "$dir/src/lib.rs.bak"
+sed_inplace 's/^#\[wafer_block(/#[wafer_block(requires = ["wafer-run\/network"], skill(description = "Fetch (a thing)"), /' "$dir/src/lib.rs"
+out="$(python3 "$root/scripts/check-tool-hygiene.py" "$slug" 2>&1 || true)"
+case "$out" in
+  *"does not list it"*"network\` capability"*) ;;
+  *) echo "FAIL: expected check-10 violations, got: $out" >&2; exit 1 ;;
+esac
+
+# Fix: declare the capability the requirement needs — passes again.
+cp "$dir/src/lib.rs.bak" "$dir/src/lib.rs"
+sed_inplace 's/^#\[wafer_block(/#[wafer_block(requires = ["wafer-run\/network"], capabilities(network, callable_blocks = ["wafer-run\/network"]), skill(description = "Fetch (a thing)"), /' "$dir/src/lib.rs"
+rm "$dir/src/lib.rs.bak"
+python3 "$root/scripts/check-tool-hygiene.py" "$slug" >/dev/null 2>&1 || {
+  echo "FAIL: gate rejected a block whose capabilities match its requires" >&2
+  python3 "$root/scripts/check-tool-hygiene.py" "$slug" >&2 || true
+  exit 1; }
+
 echo "check-tool-hygiene.test.sh OK"

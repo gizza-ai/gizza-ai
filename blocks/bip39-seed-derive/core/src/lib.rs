@@ -20,7 +20,6 @@ use hmac::Hmac;
 use serde::Serialize;
 use sha2::{Digest, Sha256, Sha512};
 
-
 /// Valid BIP39 word counts.
 pub const WORD_COUNTS: [usize; 5] = [12, 15, 18, 21, 24];
 
