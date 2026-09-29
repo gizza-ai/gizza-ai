@@ -36,7 +36,7 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["audio"],
         slug_words: &[
             "audio", "waveform", "midi", "fft", "clipping", "peak", "spectral", "wav", "guitar",
-            "tempo",
+            "tempo", "chord", "drum",
         ],
     },
     Category {
@@ -55,7 +55,8 @@ pub const CATEGORIES: &[Category] = &[
         tags: &["image", "photo", "svg", "png", "webp"],
         slug_words: &[
             "image", "photo", "svg", "color", "gradient", "mindmap", "vignette", "slider",
-            "levels", "mesh", "grayscale", "stl",
+            "levels", "mesh", "grayscale", "stl", "gltf", "barcode", "pareto", "radar",
+            "treemap",
         ],
     },
     Category {
@@ -101,7 +102,7 @@ pub const CATEGORIES: &[Category] = &[
             "cryptography", "crypto", "cipher", "hash", "checksum", "digest", "password", "2fa",
             "otp", "threat intelligence", "malware analysis", "key derivation", "kdf",
             "json web token", "jws", "security", "privacy", "stream cipher", "block cipher",
-            "legacy cipher",
+            "legacy cipher", "cryptanalysis",
         ],
         slug_words: &[
             "hash", "hashes", "cipher", "encrypt", "decrypt", "jwt", "jwk", "password", "totp",
@@ -112,6 +113,7 @@ pub const CATEGORIES: &[Category] = &[
             "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
             "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum", "amcache",
             "cyberchef", "pkcs12", "registry", "hive", "sbom", "shellbags", "usnjrnl", "xpub",
+            "dkim",
         ],
     },
     Category {
@@ -137,7 +139,7 @@ pub const CATEGORIES: &[Category] = &[
             "urls", "uri", "mac", "ethernet", "grpc", "magnet", "email", "eml", "domains", "link",
             "header", "query", "har", "curl", "contact", "phone", "calendar", "freebusy", "nmap",
             "address", "domain", "wireguard", "network-config", "cookie", "cookieless", "contacts",
-            "mbox", "visitor",
+            "mbox", "visitor", "port",
         ],
     },
     Category {
@@ -164,7 +166,8 @@ pub const CATEGORIES: &[Category] = &[
             "calculator", "stats", "average", "sum", "percentage", "geometry", "matrix", "graph",
             "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
             "egfr", "calc", "round", "nearest", "capita", "cumulative", "gpa", "grade", "rent",
-            "salary",
+            "salary", "amortization", "financial", "fraction", "combinations", "permutations",
+            "logit", "vector", "calorie", "heart", "ideal-weight",
         ],
     },
     Category {
@@ -180,7 +183,7 @@ pub const CATEGORIES: &[Category] = &[
             "readability", "summarize", "keywords", "chars", "tweet", "cleaner", "diff",
             "frequency", "count", "ansi", "spell", "action", "item", "extractor", "deduplicator",
             "dedup", "fuzzy", "name", "empty", "tokenizer", "stemmer", "prose", "sentence", "pad",
-            "stream-editor",
+            "stream-editor", "cefr", "romanizer",
         ],
     },
     Category {
@@ -200,6 +203,7 @@ pub const CATEGORIES: &[Category] = &[
             "index", "enum", "glob", "filter", "pairwise", "test", "syslog", "patch", "trie",
             "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
             "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
+            "release", "shadcn",
         ],
     },
     Category {
