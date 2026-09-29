@@ -14,7 +14,7 @@ async fn image_resize_dispatch_does_not_panic() {
         eprintln!("skipping: ffmpeg not installed");
         return;
     }
-    let rt = runtime::boot_full().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     // bad url → structured error, must not panic
     let r = rt
         .run_tool(
@@ -34,7 +34,7 @@ async fn video_silence_cut_is_registered_and_dispatches() {
         eprintln!("skipping: ffmpeg not installed");
         return;
     }
-    let rt = runtime::boot_full().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     // The two-pass tool must be registered (embedded skill wasm).
     assert!(
         rt.tool("gizza-ai/video-silence-cut").is_some(),

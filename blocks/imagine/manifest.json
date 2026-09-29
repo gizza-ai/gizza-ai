@@ -2,17 +2,22 @@
   "name": "gizza-ai/imagine",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Generate an image from a text prompt.",
+  "summary": "Generate an image from a text prompt",
   "role": "skill",
   "tool": {
-    "description": "Generate an image from a text prompt using Janus-Pro-1B on WebGPU. Renders inline in the chat as PNG. Requires WebGPU with shader-f16.",
+    "description": "Generate an image from a text prompt. Renders inline in the chat. Requires WebGPU in the browser (uses shader-f16 when available, falls back to fp32 otherwise). Output is a PNG.",
     "parameters": {
-      "type": "object",
-      "required": ["prompt"],
+      "additionalProperties": false,
       "properties": {
-        "prompt": { "type": "string", "description": "Description of the image to generate (e.g. 'a cat reading a book in a sunlit window')." }
+        "prompt": {
+          "description": "Description of the image to generate.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "prompt"
+      ],
+      "type": "object"
     }
   }
 }

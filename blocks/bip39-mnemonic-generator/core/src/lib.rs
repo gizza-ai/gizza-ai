@@ -40,7 +40,9 @@ pub struct Mnemonic {
 /// All BIP39-valid entropy strengths (bits) and their word counts.
 pub const STRENGTHS: [usize; 5] = [128, 160, 192, 224, 256];
 
-fn words() -> Vec<&'static str> {
+/// The BIP39 English wordlist, in index order. `bip39-seed-derive` reads its
+/// words from here, so both tools share one list.
+pub fn words() -> Vec<&'static str> {
     WORDLIST.lines().map(|w| w.trim()).filter(|w| !w.is_empty()).collect()
 }
 

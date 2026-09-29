@@ -5,15 +5,32 @@
   "summary": "Generate a BIP39 mnemonic seed phrase",
   "role": "skill",
   "tool": {
-    "description": "Generate a BIP39 mnemonic seed phrase (12–24 words) from cryptographically secure entropy, with the BIP39 checksum word, and derive the 512-bit BIP39 seed. Optional explicit entropy_hex for deterministic recovery and an optional passphrase mixed into the seed.",
+    "description": "Generate a BIP39 mnemonic seed phrase (12–24 words) from cryptographically secure entropy, with the correct BIP39 checksum word, and derive the 512-bit BIP39 seed. Set strength to 128/160/192/224/256 bits for 12/15/18/21/24 words (default 128 → 12 words). Optionally supply entropy_hex (16–32 bytes of hex) to derive the mnemonic deterministically (recovery / test vectors) instead of random entropy, and a passphrase (the BIP39 \"25th word\") which is mixed into the derived seed. Returns the mnemonic, word count, entropy (hex), and the BIP39 seed (hex). Used by Bitcoin and most HD crypto wallets (BIP32/BIP44).",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "strength": { "type": "string", "enum": ["128", "160", "192", "224", "256"], "default": "128" },
-        "entropy_hex": { "type": "string" },
-        "passphrase": { "type": "string" }
+        "entropy_hex": {
+          "description": "Optional explicit entropy as a hex string of 16/20/24/28/32 bytes (128–256 bits). When set, the mnemonic is derived deterministically from it (for recovery or test vectors); when blank, secure random entropy is used.",
+          "type": "string"
+        },
+        "passphrase": {
+          "description": "Optional BIP39 passphrase (the \"25th word\"). It does not change the words but is mixed into the derived 512-bit seed. Leave blank for none.",
+          "type": "string"
+        },
+        "strength": {
+          "default": "128",
+          "description": "Entropy strength in bits: 128→12 words, 160→15, 192→18, 224→21, 256→24. Default 128. Ignored when entropy_hex is supplied.",
+          "enum": [
+            "128",
+            "160",
+            "192",
+            "224",
+            "256"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "type": "object"
     }
   }
 }

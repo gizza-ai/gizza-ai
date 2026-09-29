@@ -2,7 +2,7 @@ use gizza_cli::runtime;
 
 #[tokio::test]
 async fn imagine_is_unsupported_in_cli() {
-    let rt = runtime::boot_full().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     let body = rt
         .run_tool("gizza-ai/imagine", serde_json::json!({"prompt": "a cat"}))
         .await
@@ -14,7 +14,7 @@ async fn imagine_is_unsupported_in_cli() {
 
 #[tokio::test]
 async fn background_removal_is_unsupported_in_cli() {
-    let rt = runtime::boot_full().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     let body = rt
         .run_tool(
             "gizza-ai/image-background-remove-ai",

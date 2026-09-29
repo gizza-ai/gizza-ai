@@ -1,7 +1,7 @@
 //! The full runtime must authorize skill network egress at the WRAP layer.
 //!
 //! WRAP default-denies typed service resources unless the host grants them;
-//! `boot_full` installs a network grant so tools like web-fetch can reach the
+//! `boot` installs a network grant so tools like web-fetch can reach the
 //! network service at all. These tests don't need working internet: a DNS
 //! failure on an RFC 2606 `.invalid` host proves the request got PAST
 //! authorization and into the network stack.
@@ -15,7 +15,7 @@ fn is_authorization_failure(text: &str) -> bool {
 
 #[tokio::test]
 async fn web_fetch_egress_is_wrap_authorized() {
-    let rt = runtime::boot_full().await.expect("boot");
+    let rt = runtime::boot().await.expect("boot");
     let body = rt
         .run_tool(
             "gizza-ai/web-fetch",

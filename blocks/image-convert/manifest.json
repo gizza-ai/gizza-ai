@@ -5,15 +5,50 @@
   "summary": "Convert an image to a different format (JPEG, PNG, WebP).",
   "role": "skill",
   "tool": {
-    "description": "Convert an image at the given URL to a different format. Supported formats: jpeg, png, webp. Optional quality (1-100) controls JPEG/WebP compression; ignored for PNG. Use when the user asks to change the file format or compress an image.",
+    "description": "Convert an image to a different format (jpeg, png, webp). Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
     "parameters": {
-      "type": "object",
-      "required": ["url", "format"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
       "properties": {
-        "url":     { "type": "string",  "description": "Absolute http(s) URL to an image." },
-        "format":  { "type": "string",  "enum": ["jpeg", "png", "webp"], "description": "Target image format." },
-        "quality": { "type": "integer", "description": "Quality 1-100 for jpeg/webp; ignored for png. Default 85." }
-      }
+        "format": {
+          "description": "Target image format.",
+          "enum": [
+            "jpeg",
+            "png",
+            "webp"
+          ],
+          "type": "string"
+        },
+        "quality": {
+          "description": "Output quality 1-100 (default 85, ignored for png).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "type": "object"
     }
   }
 }

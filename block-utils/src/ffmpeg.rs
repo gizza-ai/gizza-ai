@@ -171,7 +171,10 @@ impl Block for FfmpegBlock {
             ));
         }
 
-        let body = input.collect_to_bytes().await;
+        let body = match input.collect_to_bytes().await {
+            Ok(body) => body,
+            Err(e) => return OutputStream::error(e),
+        };
         let args: ExecArgs = match serde_json::from_slice(&body) {
             Ok(v) => v,
             Err(e) => {

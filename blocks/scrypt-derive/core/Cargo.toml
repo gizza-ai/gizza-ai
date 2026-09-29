@@ -5,4 +5,4 @@ edition = "2021"
 rust-version = "1.82"
 
 [dependencies]
-scrypt = { version = "0.11", default-features = false }
+scrypt = { version = "0.12", default-features = false }

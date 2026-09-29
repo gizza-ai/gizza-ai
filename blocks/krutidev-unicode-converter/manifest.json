@@ -5,12 +5,19 @@
   "summary": "Convert Hindi text between Kruti Dev 010 and Unicode Devanagari.",
   "role": "skill",
   "tool": {
-    "description": "Converts legacy Hindi Kruti Dev text to Unicode Devanagari and vice versa.",
+    "description": "Converts Hindi text between the legacy Kruti Dev 010 font layout and standard Unicode Devanagari.",
     "parameters": {
-      "type": "object",
-      "required": ["input"],
-      "properties": { "input": { "type": "string", "description": "The Hindi Kruti Dev or Unicode Devanagari text to convert." } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "description": "The Hindi Kruti Dev or Unicode text to convert.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "type": "object"
     }
   }
 }

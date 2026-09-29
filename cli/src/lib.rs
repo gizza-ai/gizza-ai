@@ -14,7 +14,7 @@ use anyhow::Result;
 /// Boot the full runtime, run a tool by short or full name with JSON args,
 /// return the response body bytes.
 pub async fn run_tool(name: &str, args: serde_json::Value) -> Result<Vec<u8>> {
-    let rt = runtime::boot_full().await?;
+    let rt = runtime::boot().await?;
     let full = if name.starts_with("gizza-ai/") {
         name.to_string()
     } else {
@@ -25,12 +25,12 @@ pub async fn run_tool(name: &str, args: serde_json::Value) -> Result<Vec<u8>> {
 
 /// List all available tools (name, description, parameters).
 pub async fn list_tools() -> Result<Vec<runtime::ToolMeta>> {
-    Ok(runtime::boot_minimal().await?.tools().to_vec())
+    Ok(runtime::boot().await?.tools().to_vec())
 }
 
 /// Describe one tool by short or full name.
 pub async fn describe_tool(name: &str) -> Result<Option<runtime::ToolMeta>> {
-    Ok(runtime::boot_minimal().await?.tool(name).cloned())
+    Ok(runtime::boot().await?.tool(name).cloned())
 }
 
 mod skill_wasms {

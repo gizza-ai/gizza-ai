@@ -7,6 +7,7 @@
   "tool": {
     "description": "Resize an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
     "parameters": {
+      "additionalProperties": false,
       "oneOf": [
         {
           "required": [
@@ -35,11 +36,11 @@
           "type": "integer"
         },
         "ref": {
-          "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref.",
+          "description": "Reference id from a prior tool call. Use either url or ref.",
           "type": "string"
         },
         "url": {
-          "description": "Image URL (HTTP/HTTPS).",
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
           "type": "string"
         },
         "width": {

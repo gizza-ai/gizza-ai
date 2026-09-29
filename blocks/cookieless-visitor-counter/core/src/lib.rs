@@ -602,7 +602,7 @@ fn digest(parts: &[&str], hash_length: u32) -> String {
         }
         h.update(p.as_bytes());
     }
-    let hex = format!("{:x}", h.finalize());
+    let hex: String = h.finalize().iter().map(|b| format!("{b:02x}")).collect();
     hex[..hash_length as usize].to_string()
 }
 

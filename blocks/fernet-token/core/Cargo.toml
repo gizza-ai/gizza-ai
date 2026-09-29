@@ -9,6 +9,6 @@ base64 = "0.22"
 aes = "0.8"
 cbc = { version = "0.1", features = ["block-padding"] }
 cipher = { version = "0.4", features = ["block-padding", "alloc"] }
-hmac = "0.12"
-sha2 = "0.10"
+hmac = "0.13"
+sha2 = "0.11"
 subtle = "2"

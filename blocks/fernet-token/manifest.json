@@ -5,16 +5,38 @@
   "summary": "Create or read Fernet tokens (AES-128-CBC + HMAC-SHA256)",
   "role": "skill",
   "tool": {
-    "description": "Create, read, or inspect Fernet symmetric tokens (AES-128-CBC + HMAC-SHA256 with an embedded timestamp). encrypt turns text into a url-safe token (blank key = generate one); decrypt verifies and reads it back, with optional TTL; inspect shows the token structure without the key.",
+    "description": "Create, read, or inspect Fernet symmetric tokens (the Fernet spec: AES-128-CBC for confidentiality + HMAC-SHA256 for authentication, with an embedded creation timestamp). mode=encrypt (default) turns text into a url-safe-base64 Fernet token; leave 'key' blank to generate a fresh 32-byte key (returned so you can save it). mode=decrypt verifies the HMAC and decrypts a token back to text; pass the same 'key', and optionally 'ttl' (max age in seconds) to reject expired tokens. mode=inspect shows a token's structure (version, timestamp, IV, ciphertext size, HMAC) without the key, and reports HMAC validity if a key is supplied. Tokens carry their creation time, returned as created_at. A wrong key or tampered token fails cleanly. Runs locally — text and keys never leave the device.",
     "parameters": {
       "type": "object",
       "properties": {
-        "text": { "type": "string", "description": "On encrypt: the text to protect. On decrypt: the Fernet token to read." },
-        "key": { "type": "string", "description": "The Fernet key: url-safe base64 of 32 bytes. Required for decrypt. On encrypt, leave blank to generate a fresh key (returned in the response)." },
-        "mode": { "type": "string", "enum": ["encrypt", "decrypt", "inspect"], "default": "encrypt", "description": "encrypt (default) turns text into a Fernet token; decrypt reads a token back into text; inspect shows a token's structure (version, timestamp, IV, sizes) without the key, and validates the HMAC if a key is given." },
-        "ttl": { "type": "integer", "minimum": 0, "default": 0, "description": "Decrypt only: max token age in seconds. 0 (default) disables the age check; a positive value rejects tokens older than this (or with a future timestamp)." }
+        "text": {
+          "type": "string",
+          "description": "On encrypt: the text to protect. On decrypt: the Fernet token to read."
+        },
+        "key": {
+          "type": "string",
+          "description": "The Fernet key: url-safe base64 of 32 bytes. Required for decrypt. On encrypt, leave blank to generate a fresh key (returned in the response)."
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "encrypt",
+            "decrypt",
+            "inspect"
+          ],
+          "default": "encrypt",
+          "description": "encrypt (default) turns text into a Fernet token; decrypt reads a token back into text; inspect shows a token's structure (version, timestamp, IV, sizes) without the key, and validates the HMAC if a key is given."
+        },
+        "ttl": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Decrypt only: max token age in seconds. 0 (default) disables the age check; a positive value rejects tokens older than this (or with a future timestamp)."
+        }
       },
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "additionalProperties": false
     }
   }

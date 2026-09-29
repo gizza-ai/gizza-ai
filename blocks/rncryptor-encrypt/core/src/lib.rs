@@ -26,7 +26,7 @@ use base64::Engine;
 use cbc::{Decryptor, Encryptor};
 use cipher::block_padding::Pkcs7;
 use cipher::{BlockDecryptMut, BlockEncryptMut, KeyIvInit};
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use sha1::Sha1;
 use sha2::Sha256;
 use subtle::ConstantTimeEq;
@@ -101,7 +101,7 @@ pub fn encrypt_with(
         .encrypt_padded_vec_mut::<Pkcs7>(plaintext);
     out.extend_from_slice(&ciphertext);
 
-    let mut mac = <Hmac<Sha256> as Mac>::new_from_slice(&hmac_key)
+    let mut mac = <Hmac<Sha256> as KeyInit>::new_from_slice(&hmac_key)
         .expect("HMAC accepts any key length");
     mac.update(&out);
     out.extend_from_slice(&mac.finalize().into_bytes());
@@ -148,7 +148,7 @@ pub fn decrypt_container(container: &[u8], password: &str) -> Result<Vec<u8>, St
     let iv = &container[2 + 2 * SALT_LEN..HEADER_LEN];
 
     let hmac_key = derive_key(password, hmac_salt);
-    let mut mac = <Hmac<Sha256> as Mac>::new_from_slice(&hmac_key)
+    let mut mac = <Hmac<Sha256> as KeyInit>::new_from_slice(&hmac_key)
         .expect("HMAC accepts any key length");
     mac.update(&container[..body_len]);
     let expected = mac.finalize().into_bytes();

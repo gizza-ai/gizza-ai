@@ -5,25 +5,53 @@
   "summary": "Verify that data matches an expected checksum (auto-detects the algorithm)",
   "role": "skill",
   "tool": {
-    "description": "Verify that a piece of data matches an expected checksum. Provide the input `text` and the `expected` checksum (hex or base64); the tool hashes the input and reports MATCH or MISMATCH along with the algorithm used. By default `algorithm`='auto' infers the hash from the expected digest's byte length; set it explicitly to check one algorithm. Set input_encoding='hex' or 'base64' to decode the input before hashing.",
+    "description": "Verify that a piece of data matches an expected checksum. Provide the input `text` and the `expected` checksum (hex, optionally 0x-prefixed and any case, or standard base64); the tool hashes the input and reports MATCH or MISMATCH along with the algorithm used and the computed digest. By default `algorithm`='auto' infers the hash from the expected digest's byte length (e.g. 32 hex chars → MD5, 64 → SHA-256/SHA3-256/BLAKE2s/BLAKE3); set it explicitly (md5, sha1, sha224, sha256, sha384, sha512, sha3-256, sha3-512, blake2b-512, blake2s-256, blake3) to check one algorithm. Set input_encoding='hex' or 'base64' to decode the input to raw bytes before hashing. To just compute a hash use the hash-text tool; to identify an unknown hash's format use the hash-identifier tool.",
     "parameters": {
-      "type": "object",
-      "required": ["text", "expected"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
-        "expected": { "type": "string" },
         "algorithm": {
-          "type": "string",
-          "enum": ["auto", "md5", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3-256", "sha3-512", "blake2b-512", "blake2s-256", "blake3"],
-          "default": "auto"
+          "default": "auto",
+          "description": "Hash algorithm. 'auto' (default) infers it from the expected digest's byte length, trying every algorithm of that width. Otherwise pick one explicitly: 'md5'/'sha1' are legacy checksums; 'sha256' is the modern standard; 'sha3-256'/'sha3-512' are SHA-3; 'blake2b-512'/'blake2s-256'/'blake3' are fast modern hashes.",
+          "enum": [
+            "auto",
+            "md5",
+            "sha1",
+            "sha224",
+            "sha256",
+            "sha384",
+            "sha512",
+            "sha3-256",
+            "sha3-512",
+            "blake2b-512",
+            "blake2s-256",
+            "blake3"
+          ],
+          "type": "string"
+        },
+        "expected": {
+          "description": "The expected checksum to compare against, as hex (optionally 0x-prefixed, any case) or standard base64.",
+          "type": "string"
         },
         "input_encoding": {
-          "type": "string",
-          "enum": ["text", "hex", "base64"],
-          "default": "text"
+          "default": "text",
+          "description": "How to interpret `text` before hashing. 'text' (default) hashes the UTF-8 bytes as-is; 'hex' decodes it from hexadecimal first; 'base64' decodes it from standard base64 first.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The input data to hash and check.",
+          "type": "string"
         }
       },
-      "additionalProperties": false
+      "required": [
+        "text",
+        "expected"
+      ],
+      "type": "object"
     }
   }
 }

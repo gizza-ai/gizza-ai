@@ -2,17 +2,27 @@
   "name": "gizza-ai/web-fetch",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Fetch a URL and return its body.",
+  "summary": "Fetch a URL and return its body",
   "role": "skill",
   "tool": {
-    "description": "Fetch the given http(s) URL with GET and return the response body as text. Returns up to max_bytes (default 1048576) of the body.",
+    "description": "Fetch a URL and return its body as text. Optionally limit the response size.",
     "parameters": {
-      "type": "object",
-      "required": ["url"],
+      "additionalProperties": false,
       "properties": {
-        "url":       { "type": "string",  "description": "Absolute http or https URL." },
-        "max_bytes": { "type": "integer", "description": "Maximum response body bytes to return (default 1048576)." }
-      }
+        "max_bytes": {
+          "description": "Maximum number of bytes to return (default: 1048576). Response is truncated if larger.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "url": {
+          "description": "HTTP/HTTPS URL to fetch.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
     }
   }
 }

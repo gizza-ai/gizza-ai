@@ -7,4 +7,4 @@ rust-version = "1.82"
 # Hand-rolled bencode parsing (no parser dep); `sha1` for the BitTorrent v1
 # info-hash — both instantiate clean in wasm32.
 [dependencies]
-sha1 = "0.10"
+sha1 = "0.11"

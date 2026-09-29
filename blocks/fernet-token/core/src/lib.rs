@@ -12,7 +12,7 @@
 use aes::cipher::{BlockDecryptMut, BlockEncryptMut, KeyIvInit};
 use base64::engine::general_purpose::{STANDARD, URL_SAFE};
 use base64::Engine;
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use sha2::Sha256;
 use subtle::ConstantTimeEq;
 

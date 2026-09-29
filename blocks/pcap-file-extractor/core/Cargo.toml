@@ -11,6 +11,6 @@ rust-version = "1.82"
 [dependencies]
 base64 = "0.22"
 flate2 = "1"
-md-5 = "0.10"
+md-5 = "0.11"
 serde = { version = "1", features = ["derive"] }
-sha2 = "0.10"
+sha2 = "0.11"

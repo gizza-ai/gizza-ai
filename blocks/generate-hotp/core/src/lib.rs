@@ -4,7 +4,7 @@
 //! HOTP is event/counter-based (unlike TOTP, which derives the counter from
 //! the current time). Works identically on every backend.
 
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 
 /// HMAC hash algorithm for the HOTP.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

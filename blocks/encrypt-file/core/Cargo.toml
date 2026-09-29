@@ -9,7 +9,7 @@ rust-version = "1.82"
 # pure-Rust (wasm32-safe). getrandom provides the CSPRNG for the salt + nonce
 # (uses wasi random_get on wasm32-wasip1 and the OS RNG natively).
 aes-gcm = "0.10"
-pbkdf2 = { version = "0.12", default-features = false }
-hmac = "0.12"
-sha2 = "0.10"
+pbkdf2 = { version = "0.13", default-features = false }
+hmac = "0.13"
+sha2 = "0.11"
 getrandom = "0.2"

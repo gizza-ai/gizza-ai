@@ -7,18 +7,71 @@
   "tool": {
     "description": "Compute a keyed-hash message authentication code (HMAC) of a message with a secret key and a selectable underlying hash. Supports HMAC-MD5, HMAC-SHA1, HMAC-SHA224, HMAC-SHA256 (default), HMAC-SHA384, HMAC-SHA512, HMAC-SHA3-256 and HMAC-SHA3-512. By default the message and key are read as UTF-8 text and the tag is returned as lowercase hex; set message_encoding/key_encoding to 'hex' or 'base64' to decode binary inputs first, output_format='base64' for a base64 tag, or uppercase=true for uppercase hex. Use this to sign API requests, verify webhook signatures (e.g. Stripe/GitHub), or derive a key-bound integrity tag. For an UNKEYED hash (no secret key) use the hash-text tool instead.",
     "parameters": {
-      "type": "object",
-      "required": ["message", "key"],
+      "additionalProperties": false,
       "properties": {
-        "message": { "type": "string" },
-        "key": { "type": "string" },
-        "algorithm": { "type": "string", "enum": ["md5", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3-256", "sha3-512"], "default": "sha256" },
-        "message_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text" },
-        "key_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text" },
-        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" },
-        "uppercase": { "type": "boolean", "default": false }
+        "algorithm": {
+          "default": "sha256",
+          "description": "Underlying hash for the HMAC. 'sha256' (default) is the standard modern choice; 'sha1' and 'md5' are legacy (HMAC-SHA1/HMAC-MD5 are still seen in older APIs); 'sha224'/'sha384'/'sha512' are the wider SHA-2 family; 'sha3-256'/'sha3-512' are the Keccak SHA-3 family.",
+          "enum": [
+            "md5",
+            "sha1",
+            "sha224",
+            "sha256",
+            "sha384",
+            "sha512",
+            "sha3-256",
+            "sha3-512"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The secret key. Interpreted per key_encoding (UTF-8 text by default). An empty string is allowed.",
+          "type": "string"
+        },
+        "key_encoding": {
+          "default": "text",
+          "description": "How to interpret `key`. 'text' (default) uses the UTF-8 bytes as-is; 'hex' decodes from hexadecimal first; 'base64' decodes from standard base64 first. Use hex/base64 for binary keys.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "message": {
+          "description": "The message to authenticate.",
+          "type": "string"
+        },
+        "message_encoding": {
+          "default": "text",
+          "description": "How to interpret `message` before MAC-ing. 'text' (default) uses the UTF-8 bytes as-is; 'hex' decodes from hexadecimal first; 'base64' decodes from standard base64 first.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "hex",
+          "description": "Tag representation. 'hex' (default) is lowercase hex; 'base64' is standard base64.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When output_format is hex, emit uppercase hex. No effect on base64. Default false.",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "message",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }

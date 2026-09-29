@@ -9,9 +9,9 @@ rust-version = "1.82"
 # document. All pure-Rust and wasm32-safe; getrandom supplies the salt + IVs
 # (wasi random_get on wasm32-wasip1, the OS RNG natively).
 aes-gcm = "0.10"
-pbkdf2 = { version = "0.12", default-features = false }
-hmac = "0.12"
-sha2 = "0.10"
+pbkdf2 = { version = "0.13", default-features = false }
+hmac = "0.13"
+sha2 = "0.11"
 getrandom = { version = "0.2", features = ["js"] }
 base64 = "0.22"
 regex = "1"

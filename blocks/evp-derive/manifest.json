@@ -5,21 +5,71 @@
   "summary": "Reproduce OpenSSL's legacy EVP_BytesToKey key/IV derivation",
   "role": "skill",
   "tool": {
-    "description": "Reproduce OpenSSL's legacy EVP_BytesToKey key/IV derivation from a password, salt, and hash — the KDF behind `openssl enc -pass pass:… [-S salt]` without -pbkdf2. Returns the derived key (and IV) as hex (default) or base64.",
+    "description": "Reproduce OpenSSL's legacy EVP_BytesToKey key/IV derivation from a password, salt, and hash — the KDF behind `openssl enc -pass pass:… [-S salt]` without -pbkdf2. Returns the derived key (and IV) as hex (default) or base64. Choose the digest (md5 default, sha1, sha256, sha512), the salt (with salt_encoding utf8/hex/base64), the key length in bytes (default 32 = AES-256), the IV length in bytes (default 16; use 0 for none), and the iteration count (default 1). Deterministic — the same inputs always produce the same key and IV. Use it to recover the exact key/IV OpenSSL used to encrypt a file so you can decrypt it elsewhere. Runs locally; the password never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["password"],
+      "additionalProperties": false,
       "properties": {
-        "password": { "type": "string" },
-        "salt": { "type": "string" },
-        "salt_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8" },
-        "hash": { "type": "string", "enum": ["md5", "sha1", "sha256", "sha512"], "default": "md5" },
-        "key_length": { "type": "integer", "minimum": 0, "maximum": 1024 },
-        "iv_length": { "type": "integer", "minimum": 0, "maximum": 1024 },
-        "count": { "type": "integer", "minimum": 1, "maximum": 10000000 },
-        "encoding": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+        "count": {
+          "description": "Iteration count (OpenSSL's -iter, default 1). Each digest block is hashed count times.",
+          "maximum": 10000000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "encoding": {
+          "default": "hex",
+          "description": "Output encoding of the key and IV: hex (default) or base64.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "hash": {
+          "default": "md5",
+          "description": "Message digest used by EVP_BytesToKey (OpenSSL's -md). md5 is the historical default; modern OpenSSL defaults to sha256.",
+          "enum": [
+            "md5",
+            "sha1",
+            "sha256",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "iv_length": {
+          "description": "Derived IV length in bytes (default 16 = AES block size). Use 0 for ciphers/modes that need no IV.",
+          "maximum": 1024,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "key_length": {
+          "description": "Derived key length in bytes (default 32 = AES-256). 16 = AES-128, 24 = AES-192, 8 = DES.",
+          "maximum": 1024,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "password": {
+          "description": "The password (passphrase) to derive the key and IV from.",
+          "type": "string"
+        },
+        "salt": {
+          "description": "The salt. Defaults to empty (OpenSSL's -nosalt). With OpenSSL's -S flag the salt is 8 bytes; give those bytes here (e.g. as hex).",
+          "type": "string"
+        },
+        "salt_encoding": {
+          "default": "utf8",
+          "description": "How to interpret the salt string: utf8 text (default), hex, or base64.",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "password"
+      ],
+      "type": "object"
     }
   }
 }

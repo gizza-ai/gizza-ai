@@ -8,10 +8,10 @@ rust-version = "1.82"
 aes = "0.8"
 cbc = { version = "0.1", features = ["alloc"] }
 cipher = { version = "0.4", features = ["block-padding", "alloc"] }
-pbkdf2 = { version = "0.12", default-features = false }
-hmac = "0.12"
-sha1 = "0.10"
-sha2 = "0.10"
+pbkdf2 = { version = "0.13", default-features = false }
+hmac = "0.13"
+sha1 = "0.11"
+sha2 = "0.11"
 subtle = "2"
 hex = "0.4"
 base64 = "0.22"

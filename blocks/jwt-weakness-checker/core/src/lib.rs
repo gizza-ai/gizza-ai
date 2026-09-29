@@ -192,21 +192,21 @@ fn claim_i64(payload: &Value, key: &str) -> Option<i64> {
 }
 
 fn hmac_sha256(key: &[u8], data: &[u8]) -> Vec<u8> {
-    use hmac::{Hmac, Mac};
+    use hmac::{Hmac, KeyInit, Mac};
     use sha2::Sha256;
     let mut m = <Hmac<Sha256>>::new_from_slice(key).expect("HMAC accepts any key length");
     m.update(data);
     m.finalize().into_bytes().to_vec()
 }
 fn hmac_sha384(key: &[u8], data: &[u8]) -> Vec<u8> {
-    use hmac::{Hmac, Mac};
+    use hmac::{Hmac, KeyInit, Mac};
     use sha2::Sha384;
     let mut m = <Hmac<Sha384>>::new_from_slice(key).expect("HMAC accepts any key length");
     m.update(data);
     m.finalize().into_bytes().to_vec()
 }
 fn hmac_sha512(key: &[u8], data: &[u8]) -> Vec<u8> {
-    use hmac::{Hmac, Mac};
+    use hmac::{Hmac, KeyInit, Mac};
     use sha2::Sha512;
     let mut m = <Hmac<Sha512>>::new_from_slice(key).expect("HMAC accepts any key length");
     m.update(data);

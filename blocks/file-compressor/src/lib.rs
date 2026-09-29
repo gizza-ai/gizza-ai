@@ -92,6 +92,7 @@ struct FileCompressor;
     interface = "handler@v1",
     summary = "Compress or decompress a file (gzip, xz, brotli, zstd)",
     requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
     skill(
         description = "Compress or decompress a file with a chosen general-purpose codec, returned for download. operation is compress or decompress (default compress). format is gzip (.gz), xz (.xz / LZMA2, usually the smallest), brotli (.br), or zstd (.zst). level sets the compression level 1-9 (default 6; higher = smaller but slower; ignored when decompressing). On compress the output is named <input><suffix>; on decompress the matching suffix is stripped. zstd is decompress-only — zstd + compress returns an error (compress with gzip, xz, or brotli instead). Provide the file as either url (HTTP/HTTPS) or ref (id from a prior tool call).",
         parameters = schema_json()

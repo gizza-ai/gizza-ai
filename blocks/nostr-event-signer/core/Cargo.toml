@@ -12,7 +12,7 @@ rust-version = "1.82"
 # deterministic and no RNG import is pulled into the block.
 k256 = { version = "0.13", default-features = false, features = ["arithmetic", "schnorr"] }
 # SHA-256: the event id, and the proof-of-work (NIP-13) mining loop.
-sha2 = { version = "0.10", default-features = false }
+sha2 = { version = "0.11", default-features = false }
 hex = { version = "0.4", default-features = false, features = ["alloc"] }
 # Struct-ordered serialization keeps the emitted event's keys in the canonical
 # id/pubkey/created_at/kind/tags/content/sig order relays and clients expect.

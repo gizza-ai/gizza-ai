@@ -5,13 +5,19 @@
   "summary": "Inspect a media file's codec/duration/dimensions via ffmpeg.",
   "role": "skill",
   "tool": {
-    "description": "Fetch a media file at the given URL and return its metadata (codec, container, duration, dimensions, bitrate, etc.) as printed by ffmpeg. Use this to describe audio or video files to the user.",
+    "description": "Run ffprobe on a media URL and return format/stream metadata.",
     "parameters": {
-      "type": "object",
-      "required": ["url"],
+      "additionalProperties": false,
       "properties": {
-        "url": { "type": "string", "description": "Absolute http(s) URL to a media file." }
-      }
+        "url": {
+          "description": "HTTP/HTTPS URL of the media file to inspect.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "type": "object"
     }
   }
 }

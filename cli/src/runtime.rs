@@ -8,10 +8,36 @@ use wafer_block::{
     meta::{META_REQ_ACTION, META_REQ_RESOURCE},
     streams::{input::InputStream, output::TerminalNotResponse},
 };
-use wafer_block::Block;
-use wafer_run::{FuelLimit, Wafer, WasmiBlock};
+use wafer_block::{Block, ConfigVar};
+use wafer_core::interfaces::network::service::NetworkLimits;
+use wafer_run::{
+    resolve_declared, ConfigError, ConfigSource, EnvBlockConfig, FuelLimit, Wafer, WasmiBlock,
+};
 
 use crate::SKILL_WASMS;
+
+/// Block config read from the process environment.
+///
+/// A block's declared config keys (e.g. `wafer-run/network`'s
+/// `WAFER_RUN__NETWORK__MAX_RESPONSE_BYTES`) are what a user of the CLI sets
+/// in their shell. The runtime resolves them through this source at each
+/// block's lazy `lifecycle(Init)`; an invalid value fails that block's Init,
+/// naming the key. A value that is not valid UTF-8 is passed on lossily, so
+/// the block rejects it as invalid instead of it reading as unset.
+struct EnvConfigSource;
+
+#[wafer_block::wafer_async_trait]
+impl ConfigSource for EnvConfigSource {
+    async fn load_for_block(
+        &self,
+        block: &str,
+        declared_keys: &[ConfigVar],
+    ) -> Result<EnvBlockConfig, ConfigError> {
+        resolve_declared(block, declared_keys, |key| {
+            std::env::var_os(key).map(|v| v.to_string_lossy().into_owned())
+        })
+    }
+}
 
 /// Tool metadata extracted from a block's `info().tool` at boot time.
 #[derive(Clone, Debug)]
@@ -26,12 +52,20 @@ pub struct ToolMeta {
     pub parameters: serde_json::Value,
 }
 
-/// A booted runtime with all embedded skill blocks registered.
+/// A booted runtime with the embedded skill blocks registered.
 pub struct ToolRuntime {
     wafer: Wafer,
     names: Vec<String>,
     metas: Vec<ToolMeta>,
+    /// Skills listed but not registered, each with the block it `requires`
+    /// that the CLI does not host (e.g. `gizza-ai/imagine` → `wafer-run/image`).
+    unhosted: Vec<(String, String)>,
 }
+
+/// The host service blocks [`boot`] registers. A skill whose `requires` names
+/// any other block is listed but not registered: `seal()` refuses to boot a
+/// block whose required dependency is missing.
+const HOSTED_SERVICES: &[&str] = &["gizza-ai/ffmpeg-runtime", "wafer-run/network"];
 
 impl ToolRuntime {
     /// Returns the sorted list of registered block names.
@@ -59,13 +93,24 @@ impl ToolRuntime {
     ///
     /// Returns the raw response body bytes, or an error if dispatch failed.
     pub async fn run_tool(&self, name: &str, args: serde_json::Value) -> Result<Vec<u8>> {
-        // Browser-model capabilities the CLI cannot provide yet.
-        if matches!(name, "gizza-ai/imagine" | "gizza-ai/image-background-remove-ai") {
-            let message = if name == "gizza-ai/imagine" {
-                "text-to-image needs a browser GPU; use the browser app"
-            } else {
+        // Browser-only capabilities the CLI cannot provide: a skill that
+        // requires a service block the CLI does not host, and background
+        // removal, whose model runs only on its browser tool page.
+        let unsupported = if let Some((_, service)) =
+            self.unhosted.iter().find(|(skill, _)| skill == name)
+        {
+            Some(format!(
+                "{name} needs the `{service}` service, which only the browser app provides"
+            ))
+        } else if name == "gizza-ai/image-background-remove-ai" {
+            Some(
                 "AI image background removal currently runs on its standalone browser tool page"
-            };
+                    .to_string(),
+            )
+        } else {
+            None
+        };
+        if let Some(message) = unsupported {
             let body = serde_json::json!({
                 "error": "unsupported_in_cli",
                 "message": message
@@ -97,86 +142,24 @@ impl ToolRuntime {
     }
 }
 
-/// Register all embedded skill WASMs into a pre-built `Wafer`, collecting
-/// block names and tool metadata. Called by both `boot_minimal` and `boot_full`
-/// so the loop lives in exactly one place.
-fn register_skills(
-    wafer: &mut Wafer,
-    names: &mut Vec<String>,
-    metas: &mut Vec<ToolMeta>,
-) -> Result<()> {
-    for bytes in SKILL_WASMS {
-        // gizza is a single-user, trusted CLI: opt skill calls out of the
-        // default 100M fuel cap AND raise the 256-page / 16 MiB memory cap so
-        // heavy tools run to completion instead of trapping with `all fuel
-        // consumed` (fuel) or `unreachable`/OOM (memory). Both bounds are set
-        // on the builder (`fuel_per_call` + `max_wasm_memory_pages`) and read
-        // back here so every load site expresses the same policy.
-        let block = WasmiBlock::load_from_bytes_with_limits(bytes, wafer.resource_limits())
-            .context("load skill wasm")?;
-        let info = block.info();
-        let name = info.name.clone();
-        // Capture SkillTool metadata if the block exposes one.
-        if let Some(tool) = &info.tool {
-            let short = name
-                .strip_prefix("gizza-ai/")
-                .unwrap_or(&name)
-                .to_string();
-            metas.push(ToolMeta {
-                name: name.clone(),
-                short,
-                description: tool.description.clone(),
-                parameters: tool.parameters.clone(),
-            });
-        }
-        wafer
-            .register_block(&name, Arc::new(block))
-            .map_err(|e| anyhow::anyhow!("register {name}: {e}"))?;
-        names.push(name);
-    }
-    Ok(())
-}
-
-/// Boot a minimal native `Wafer` with all embedded skill WASMs registered.
-///
-/// No host service blocks are registered — suitable for pure-compute tools
-/// (calculator, clock) and for fast unit tests that don't need network or
-/// ffmpeg.
-pub async fn boot_minimal() -> Result<ToolRuntime> {
+/// Boot a native `Wafer` hosting every embedded skill WASM plus the host
+/// service blocks the skills call (`gizza-ai/ffmpeg-runtime`, backed by the
+/// system `ffmpeg`, and `wafer-run/network`). Both services are lazy: nothing
+/// is spawned or connected until a skill calls them.
+pub async fn boot() -> Result<ToolRuntime> {
     let mut wafer = Wafer::builder()
         .disable_inventory()
         .disable_lockfile()
+        .config_source(Arc::new(EnvConfigSource))
         // Trusted single-user CLI: skill calls run unmetered with a raised
-        // memory cap (see register_skills).
-        .fuel_per_call(FuelLimit::Unmetered)
-        .max_wasm_memory_pages(GIZZA_MAX_WASM_MEMORY_PAGES)
-        .build()
-        .context("build wafer")?;
-    let mut names = Vec::new();
-    let mut metas = Vec::new();
-    register_skills(&mut wafer, &mut names, &mut metas)?;
-    wafer.seal().await.context("seal wafer")?;
-    names.sort();
-    metas.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(ToolRuntime { wafer, names, metas })
-}
-
-/// Boot a full native `Wafer` with skill WASMs plus host service blocks
-/// (ffmpeg-runtime, wafer-run/network). Use this for the CLI binary so that
-/// image/video/web-fetch tools work. Pure tools still function under boot_full
-/// — the extra services are harmless when not called.
-pub async fn boot_full() -> Result<ToolRuntime> {
-    let mut wafer = Wafer::builder()
-        .disable_inventory()
-        .disable_lockfile()
-        // Trusted single-user CLI: skill calls run unmetered with a raised
-        // memory cap (see register_skills).
+        // memory cap, so heavy tools run to completion instead of trapping
+        // with `all fuel consumed` (fuel) or `unreachable`/OOM (memory).
         .fuel_per_call(FuelLimit::Unmetered)
         .max_wasm_memory_pages(GIZZA_MAX_WASM_MEMORY_PAGES)
         .build()
         .context("build wafer")?;
 
-    // --- Host service blocks ---
+    // --- Host service blocks (the names in HOSTED_SERVICES) ---
 
     // ffmpeg-runtime: delegates to the system `ffmpeg` binary on PATH.
     wafer
@@ -189,13 +172,11 @@ pub async fn boot_full() -> Result<ToolRuntime> {
         .map_err(|e| anyhow::anyhow!("register ffmpeg-runtime: {e}"))?;
 
     // wafer-run/network: HTTP client backed by reqwest with SSRF protection.
-    // Block name comes from service_blocks/network.rs ("wafer-run/network").
-    // Constructor: NetworkBlock::new(Arc<dyn NetworkService>).
-    // Source: wafer-run/crates/wafer-core/src/service_blocks/network.rs:10.
-    // from_env(): the response-size cap comes from the environment; an
-    // invalid value is a boot error rather than a silently-applied default.
-    let network_service = wafer_block_network::service::HttpNetworkService::from_env()
-        .map_err(|e| anyhow::anyhow!("construct network service: {e}"))?;
+    // The service starts under the default limits; the block's Init replaces
+    // them with the `WAFER_RUN__NETWORK__*` limits it declares, resolved from
+    // the environment by `EnvConfigSource`.
+    let network_service =
+        wafer_block_network::service::HttpNetworkService::new(NetworkLimits::default());
     wafer
         .register_block(
             "wafer-run/network",
@@ -213,18 +194,61 @@ pub async fn boot_full() -> Result<ToolRuntime> {
     // `gizza tool web-fetch url=…` IS the user's authorization for that
     // egress, so grant network to all blocks; per-block capability
     // declarations still decide which blocks may use it.
-    wafer.add_wrap_grants(vec![wafer_block::types::ResourceGrant::read_write(
-        "*", "*",
-    )
-    .typed(wafer_block::types::ResourceType::Network)]);
+    wafer
+        .add_wrap_grants(vec![wafer_block::types::ResourceGrant::read_write(
+            "*", "*",
+        )
+        .typed(wafer_block::types::ResourceType::Network)])
+        .map_err(|e| anyhow::anyhow!("add network grant: {e}"))?;
 
-    // --- Skill WASMs (same loop as boot_minimal) ---
+    // --- Skill WASMs ---
     let mut names = Vec::new();
     let mut metas = Vec::new();
-    register_skills(&mut wafer, &mut names, &mut metas)?;
+    let mut unhosted = Vec::new();
+    for bytes in SKILL_WASMS {
+        // The embedded skills are built from this repository, so the CLI
+        // approves exactly the capabilities each one declares (e.g. network +
+        // `callable_blocks = ["wafer-run/network"]`): the declaration is the
+        // bound the runtime enforces. Fuel and memory limits come from the
+        // builder settings above.
+        let block = WasmiBlock::load_approving_declaration(bytes, wafer.resource_limits())
+            .context("load skill wasm")?;
+        let info = block.info();
+        let name = info.name.clone();
+        // Capture SkillTool metadata if the block exposes one.
+        if let Some(tool) = &info.tool {
+            let short = name
+                .strip_prefix("gizza-ai/")
+                .unwrap_or(&name)
+                .to_string();
+            metas.push(ToolMeta {
+                name: name.clone(),
+                short,
+                description: tool.description.clone(),
+                parameters: tool.parameters.clone(),
+            });
+        }
+        if let Some(missing) = info
+            .requires
+            .iter()
+            .find(|required| !HOSTED_SERVICES.contains(&required.as_str()))
+        {
+            unhosted.push((name, missing.clone()));
+            continue;
+        }
+        wafer
+            .register_block(&name, Arc::new(block))
+            .map_err(|e| anyhow::anyhow!("register {name}: {e}"))?;
+        names.push(name);
+    }
 
     wafer.seal().await.context("seal wafer")?;
     names.sort();
     metas.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(ToolRuntime { wafer, names, metas })
+    Ok(ToolRuntime {
+        wafer,
+        names,
+        metas,
+        unhosted,
+    })
 }

@@ -5,18 +5,61 @@
   "summary": "Hash text with a selectable algorithm (MD5/SHA-1/SHA-2/SHA-3/BLAKE)",
   "role": "skill",
   "tool": {
-    "description": "Compute a cryptographic hash of text with a selectable algorithm. Supports MD5, SHA-1, SHA-224, SHA-256 (default), SHA-384, SHA-512, SHA3-256, SHA3-512, BLAKE2b-512, BLAKE2s-256, and BLAKE3. By default the input is hashed as UTF-8 text and the digest is returned as lowercase hex; set input_encoding='hex' or 'base64' to decode the input first, output_format='base64' for a base64 digest, or uppercase=true for uppercase hex. To hash a whole FILE, use the file-hash tool.",
+    "description": "Compute a cryptographic hash of text with a selectable algorithm. Supports MD5, SHA-1, SHA-224, SHA-256 (default), SHA-384, SHA-512, SHA3-256, SHA3-512, BLAKE2b-512, BLAKE2s-256, and BLAKE3. By default the input is hashed as UTF-8 text and the digest is returned as lowercase hex; set input_encoding='hex' or 'base64' to decode the input to raw bytes before hashing, output_format='base64' for a base64 digest, or uppercase=true for uppercase hex. Use this to verify integrity, fingerprint content, or derive identifiers. To hash a whole FILE (and get several digests at once) use the file-hash tool.",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string", "description": "The text to hash." },
-        "algorithm": { "type": "string", "enum": ["md5", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3-256", "sha3-512", "blake2b-512", "blake2s-256", "blake3"], "default": "sha256", "description": "Hash algorithm." },
-        "input_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to interpret `text` before hashing." },
-        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex", "description": "Digest representation: hex (default) or base64." },
-        "uppercase": { "type": "boolean", "default": false, "description": "Emit uppercase hex (no effect on base64). Default false." }
+        "algorithm": {
+          "default": "sha256",
+          "description": "Hash algorithm. 'sha256' (default) is the standard modern choice; 'md5'/'sha1' are legacy/non-cryptographic (checksums only); 'sha3-256'/'sha3-512' are the Keccak SHA-3 family; 'blake2b-512'/'blake2s-256'/'blake3' are fast modern hashes.",
+          "enum": [
+            "md5",
+            "sha1",
+            "sha224",
+            "sha256",
+            "sha384",
+            "sha512",
+            "sha3-256",
+            "sha3-512",
+            "blake2b-512",
+            "blake2s-256",
+            "blake3"
+          ],
+          "type": "string"
+        },
+        "input_encoding": {
+          "default": "text",
+          "description": "How to interpret `text` before hashing. 'text' (default) hashes the UTF-8 bytes as-is; 'hex' decodes it from hexadecimal first; 'base64' decodes it from standard base64 first.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "hex",
+          "description": "Digest representation. 'hex' (default) is lowercase hex; 'base64' is standard base64.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to hash.",
+          "type": "string"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When output_format is hex, emit uppercase hex. No effect on base64. Default false.",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }
