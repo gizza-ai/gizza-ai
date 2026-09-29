@@ -5,13 +5,32 @@
   "summary": "Fetch an image URL and return it for inline display.",
   "role": "skill",
   "tool": {
-    "description": "Fetch an image at the given URL and display it inline in the chat. Use this when the user shares an image URL or asks to see an image. Only image/* content types are supported.",
+    "description": "Fetch an image and render it inline. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
     "parameters": {
-      "type": "object",
-      "required": ["url"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
       "properties": {
-        "url": { "type": "string", "description": "Absolute http(s) URL to an image file." }
-      }
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
   }
 }

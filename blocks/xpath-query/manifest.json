@@ -5,16 +5,33 @@
   "summary": "Evaluate an XPath 1.0 expression against XML or XHTML",
   "role": "skill",
   "tool": {
-    "description": "Evaluate an XPath 1.0 expression against an XML or XHTML document and return matching nodes or values. Supports XPath 1.0 location paths, attributes, predicates, functions, scalar results, and node-set output as string values or serialized XML.",
+    "description": "Evaluate an XPath 1.0 expression against an XML or XHTML document and return the matching nodes or values, using a pure-Rust engine (sxd-xpath). Supports location paths (//book/title), attributes (//a/@href), predicates and filters (//book[price < 10]), axes (ancestor/following-sibling/…), and the XPath function library (count(), name(), text(), contains(), substring(), …). A node-set query returns one result per matched node (in document order) — set output='value' for each node's text content or output='xml' for its serialized outer XML. A scalar expression (count(//x), name(/*), //a > 1) returns a single value. Example: '//book[@category=\"fiction\"]/title'.",
     "parameters": {
-      "type": "object",
-      "required": ["expression", "xml"],
+      "additionalProperties": false,
       "properties": {
-        "expression": { "type": "string", "description": "The XPath 1.0 expression, e.g. '//book/title', '//a/@href', or 'count(//item)'." },
-        "xml": { "type": "string", "description": "The XML or XHTML document to query." },
-        "output": { "type": "string", "enum": ["value", "xml"], "default": "value", "description": "What to return for each matched node: value = its string value; xml = serialized outer XML." }
+        "expression": {
+          "description": "The XPath 1.0 expression, e.g. '//book/title', '//a/@href', or 'count(//item)'.",
+          "type": "string"
+        },
+        "output": {
+          "default": "value",
+          "description": "What to return for each matched node: 'value' = its string value (text content), 'xml' = its serialized outer XML. Default 'value'.",
+          "enum": [
+            "value",
+            "xml"
+          ],
+          "type": "string"
+        },
+        "xml": {
+          "description": "The XML or XHTML document to query.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "expression",
+        "xml"
+      ],
+      "type": "object"
     }
   }
 }

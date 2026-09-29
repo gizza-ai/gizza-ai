@@ -7,17 +7,55 @@
   "tool": {
     "description": "Build a linked table of contents from the headings of a Markdown or HTML document. Reads ATX ('#'…'######') and setext Markdown headings or HTML <h1>…<h6> tags (input_format='auto' detects which, or force 'markdown'/'html'), and emits a nested list of links to GitHub-style heading anchors. output_format='markdown' (default) returns a nested [text](#anchor) bullet list; 'html' returns a nested <ul>/<ol> of <a href=\"#anchor\"> links. min_level/max_level (1-6) limit which heading levels appear; set ordered=true for a numbered list. HTML headings with an existing id keep that id as the anchor; duplicate headings get unique -1, -2 suffixes. Pass the document as `document`.",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "document": { "type": "string", "description": "The Markdown or HTML document to build a table of contents from." },
-        "input_format": { "type": "string", "enum": ["auto", "markdown", "html"], "default": "auto", "description": "How to read the document: auto-detect, or force markdown/html." },
-        "output_format": { "type": "string", "enum": ["markdown", "html"], "default": "markdown", "description": "Table-of-contents format: markdown list or nested HTML list." },
-        "min_level": { "type": "integer", "minimum": 1, "maximum": 6, "default": 1, "description": "Shallowest heading level to include (1-6)." },
-        "max_level": { "type": "integer", "minimum": 1, "maximum": 6, "default": 6, "description": "Deepest heading level to include (1-6)." },
-        "ordered": { "type": "boolean", "default": false, "description": "Use a numbered list instead of bullets." }
+        "document": {
+          "description": "The Markdown or HTML document to build a table of contents from. Headings (Markdown '#'…'######' / setext, or HTML <h1>…<h6>) become linked entries.",
+          "type": "string"
+        },
+        "input_format": {
+          "default": "auto",
+          "description": "How to read the document. 'auto' (default) detects HTML when an <h1>…<h6> tag is present, otherwise treats it as Markdown; 'markdown' or 'html' force the parser.",
+          "enum": [
+            "auto",
+            "markdown",
+            "html"
+          ],
+          "type": "string"
+        },
+        "max_level": {
+          "default": 6,
+          "description": "Deepest heading level to include (1-6). Default 6. Lower it (e.g. 3) to keep the table of contents short.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "min_level": {
+          "default": 1,
+          "description": "Shallowest heading level to include (1-6). Default 1. Use 2 to skip the document's single top <h1> title.",
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "ordered": {
+          "default": false,
+          "description": "Use a numbered list (Markdown '1.' / HTML <ol>) instead of bullets (Markdown '-' / HTML <ul>). Default false.",
+          "type": "boolean"
+        },
+        "output_format": {
+          "default": "markdown",
+          "description": "The table-of-contents format. 'markdown' (default) is a nested bullet/number list of [text](#anchor) links; 'html' is a nested <ul>/<ol> of <a href=\"#anchor\"> links.",
+          "enum": [
+            "markdown",
+            "html"
+          ],
+          "type": "string"
+        }
       },
-      "required": ["document"],
-      "additionalProperties": false
+      "required": [
+        "document"
+      ],
+      "type": "object"
     }
   }
 }

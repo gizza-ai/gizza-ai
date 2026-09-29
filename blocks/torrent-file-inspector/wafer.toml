@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "torrent-file-inspector"
 version = "0.1.0"
 abi = 1
-summary = "Parse a .torrent file and show its name, files, trackers, and info-hash."
+summary = "Parse a .torrent file and show its name, files, trackers, and info-hash"

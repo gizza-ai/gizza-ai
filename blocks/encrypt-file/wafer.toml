@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "encrypt-file"
 version = "0.1.0"
 abi = 1
-summary = "Encrypt or decrypt a file with a passphrase (AES-256-GCM)."
+summary = "Encrypt or decrypt a file with a passphrase (AES-256-GCM)"

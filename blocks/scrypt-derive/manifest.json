@@ -7,21 +7,77 @@
   "tool": {
     "description": "Derive a cryptographic key from a password using the scrypt memory-hard key-derivation function (RFC 7914), or verify a password reproduces a key. mode=derive (default) produces a key; mode=verify checks the password+params against the `expected` key. Configure the cost parameters N (power of two, default 16384), r (block size, default 8) and p (parallelization, default 1), the salt (with salt_encoding utf8/hex/base64), the output length in bytes (default 32), and the output encoding (hex default or base64). scrypt is memory-hard, resisting GPU/ASIC brute-force better than PBKDF2. Deterministic — the same inputs always produce the same key. Runs locally; the password never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["password"],
+      "additionalProperties": false,
       "properties": {
-        "password": { "type": "string" },
-        "mode": { "type": "string", "enum": ["derive", "verify"], "default": "derive" },
-        "salt": { "type": "string" },
-        "salt_encoding": { "type": "string", "enum": ["utf8", "hex", "base64"], "default": "utf8" },
-        "n": { "type": "integer", "minimum": 2, "maximum": 1073741824 },
-        "r": { "type": "integer", "minimum": 1, "maximum": 1024 },
-        "p": { "type": "integer", "minimum": 1, "maximum": 1024 },
-        "length": { "type": "integer", "minimum": 1, "maximum": 1024 },
-        "encoding": { "type": "string", "enum": ["hex", "base64"], "default": "hex" },
-        "expected": { "type": "string" }
+        "encoding": {
+          "default": "hex",
+          "description": "Output encoding of the derived key (derive mode): hex (default) or base64.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "expected": {
+          "description": "The expected derived key (hex or base64, auto-detected) to check against (verify mode only). Its byte length sets the derived length.",
+          "type": "string"
+        },
+        "length": {
+          "description": "Derived key length in bytes (default 32).",
+          "maximum": 1024,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mode": {
+          "default": "derive",
+          "description": "derive (default) produces a key; verify checks the password+params against the `expected` key.",
+          "enum": [
+            "derive",
+            "verify"
+          ],
+          "type": "string"
+        },
+        "n": {
+          "description": "scrypt cost parameter N (CPU/memory cost). Must be a power of two greater than 1; default 16384. Memory used is about 128*N*r bytes.",
+          "maximum": 1073741824,
+          "minimum": 2,
+          "type": "integer"
+        },
+        "p": {
+          "description": "scrypt parallelization parameter p (default 1).",
+          "maximum": 1024,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "password": {
+          "description": "The password (passphrase) to derive a key from, or to verify.",
+          "type": "string"
+        },
+        "r": {
+          "description": "scrypt block size parameter r (default 8).",
+          "maximum": 1024,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "salt": {
+          "description": "The salt. Defaults to empty; for real key derivation use a unique random salt per key.",
+          "type": "string"
+        },
+        "salt_encoding": {
+          "default": "utf8",
+          "description": "How to interpret the salt string: utf8 text (default), hex, or base64.",
+          "enum": [
+            "utf8",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "password"
+      ],
+      "type": "object"
     }
   }
 }

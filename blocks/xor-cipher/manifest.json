@@ -5,18 +5,54 @@
   "summary": "XOR text, hex, or Base64 data against a repeating key; output hex, Base64, or UTF-8",
   "role": "skill",
   "tool": {
-    "description": "Repeating-key XOR cipher: XOR `data` against a repeating `key`, byte by byte. XOR is symmetric — the same operation encrypts and decrypts. Use it for CTFs, obfuscation, interop, and learning only; it is not secure encryption.",
+    "description": "Repeating-key XOR cipher: XOR `data` against a repeating `key`, byte by byte. XOR is symmetric — the same operation encrypts and decrypts (feed the ciphertext back with the same key to recover the plaintext). input = how to read data (text, hex or base64; default text). key_format = how to read the key (text, hex or base64; default text). output = how to encode the result (hex default, base64, or utf8 to get plaintext back). WARNING: repeating-key XOR is NOT secure — use it for CTFs, obfuscation, interop and learning only. For real encryption use aes-cipher or text-encrypt.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string", "description": "The data to XOR. Read as UTF-8 text by default, or decoded from hex/base64 when input=hex/base64." },
-        "input": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to read data: text, hex, or base64." },
-        "key": { "type": "string", "description": "The non-empty repeating XOR key, read according to key_format." },
-        "key_format": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text", "description": "How to read the key: text, hex, or base64." },
-        "output": { "type": "string", "enum": ["hex", "base64", "utf8"], "default": "hex", "description": "How to encode the XOR result: hex, base64, or utf8." }
+        "data": {
+          "description": "The data to XOR. Read as plain UTF-8 text (input=text, default), or decoded from hex/base64 when input=hex/base64. To decrypt, pass the ciphertext here with the matching input encoding.",
+          "type": "string"
+        },
+        "input": {
+          "default": "text",
+          "description": "How to read `data`: text = UTF-8 (default); hex or base64 = decode to bytes first.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The XOR key (must be non-empty). It repeats over the data (repeating-key XOR). Read as a UTF-8 passphrase when key_format=text (default), or decoded from hex/base64.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "text",
+          "description": "How to read `key`: text = UTF-8 passphrase (default); hex or base64 = decode to bytes.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "output": {
+          "default": "hex",
+          "description": "Encoding for the XORed result: hex (default), base64, or utf8 (decode bytes as UTF-8 text — fails if the result isn't valid UTF-8). Use utf8 to recover plaintext when decrypting.",
+          "enum": [
+            "hex",
+            "base64",
+            "utf8"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }

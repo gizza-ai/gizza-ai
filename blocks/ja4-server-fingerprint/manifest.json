@@ -5,15 +5,24 @@
   "summary": "Compute the JA4S TLS server fingerprint from a ServerHello",
   "role": "skill",
   "tool": {
-    "description": "Compute the JA4S TLS server fingerprint from a raw ServerHello given as a hex string. Returns the JA4S string (transport + version + extension count + ALPN, the chosen cipher, and a truncated SHA256 of the extension list), the raw JA4S_r variant, the negotiated TLS version, the cipher, the extension list, and the selected ALPN protocol.",
+    "description": "Compute the JA4S TLS server fingerprint from a raw ServerHello given as a hex string. JA4S (FoxIO, part of the JA4+ suite) fingerprints a TLS server's response. The fingerprint has the form a_b_c: a = transport char (t = TCP, q = QUIC) + TLS version (13,12,11,10,s3,s2 — from the supported_versions extension if present, else legacy_version) + the 2-digit extension count + the ALPN field (first+last char of the chosen ALPN protocol, 00 if none); b = the single chosen cipher suite as 4 hex chars; c = the first 12 hex chars of the SHA256 of the comma-joined extension type list (4-char hex, wire order, GREASE kept; 000000000000 if there are no extensions). Input may begin at the TLS record header (16 03 ...), the handshake header (02 ...), or the ServerHello body, and may contain spaces, colons, dashes, dots, commas, or a 0x prefix. Set quic=true for a QUIC handshake. Returns the JA4S string, the raw JA4S_r variant (extension list un-hashed), the negotiated TLS version, the chosen cipher, the extension list, and the selected ALPN protocol. Runs locally; nothing is uploaded.",
     "parameters": {
-      "type": "object",
-      "required": ["server_hello"],
+      "additionalProperties": false,
       "properties": {
-        "server_hello": { "type": "string" },
-        "quic": { "type": "boolean", "default": false }
+        "quic": {
+          "default": false,
+          "description": "Set true if this ServerHello came over QUIC (uses the 'q' transport prefix); leave false for TCP ('t').",
+          "type": "boolean"
+        },
+        "server_hello": {
+          "description": "The TLS ServerHello as a hex string. It may start at the 5-byte TLS record header (begins '16 03 ...'), the handshake header (begins '02 ...'), or directly at the ServerHello body. Spaces, colons, dashes, dots, commas, and a 0x prefix are ignored.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "server_hello"
+      ],
+      "type": "object"
     }
   }
 }

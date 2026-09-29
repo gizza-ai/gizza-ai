@@ -5,15 +5,11 @@
   "summary": "Get the current wall-clock time.",
   "role": "skill",
   "tool": {
-    "description": "Return the current date and time in UTC (ISO 8601). Optional tz argument is accepted but ignored in v1.",
+    "description": "Get the current UTC time. Returns ISO 8601 timestamp.",
     "parameters": {
-      "type": "object",
-      "properties": {
-        "tz": {
-          "type": "string",
-          "description": "IANA timezone name (e.g. 'America/Los_Angeles'). Ignored in v1; always returns UTC."
-        }
-      }
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
     }
   }
 }
