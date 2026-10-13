@@ -95,11 +95,12 @@ else
   (
     cd "$block_dir"
     [[ -f Cargo.lock ]] || cargo generate-lockfile
-    # Keep the three Wafer crates aligned with the runtime pin. Some blocks do
-    # not depend on every crate directly, so a missing package is harmless.
-    for crate in wafer-sdk wafer-block wafer-block-macro; do
-      cargo update -p "$crate" --precise "$pin" 2>/dev/null || true
-    done
+    # The manifest pins wafer-run (scripts/set-wafer-run-rev.sh writes
+    # `rev = "<pin>"`). Re-sync a committed lock to the manifest after a pin
+    # bump; other locked packages move only where the new wafer-run requires
+    # it. The check below refuses a lock that resolves wafer-run anywhere but
+    # the pin.
+    cargo update --workspace
   )
 fi
 

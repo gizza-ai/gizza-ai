@@ -24,6 +24,13 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 dir="$root/blocks/$slug"
 [[ -e "$dir" ]] && { echo "blocks/$slug already exists — refusing to overwrite" >&2; exit 2; }
 
+# New blocks pin wafer-run at the repo-wide rev, spelled exactly as
+# scripts/set-wafer-run-rev.sh writes it. A `branch = "main"` dependency would be
+# a second wafer-run source next to block-utils' pinned one, i.e. two copies of
+# wafer-block in the block's graph, and CI's pin gate rejects it.
+pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
+[[ "$pin" =~ ^[0-9a-f]{40}$ ]] || { echo "wafer-run-pin.txt must hold a full 40-character sha, got '$pin'" >&2; exit 2; }
+
 under="${slug//-/_}"
 crate="gizza-ai-$slug"
 ucrate="gizza_ai_${under}"
@@ -45,8 +52,8 @@ rust-version = "1.82"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
-wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
+wafer-sdk = { git = "https://github.com/wafer-run/wafer-run", rev = "${pin}" }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run", rev = "${pin}" }
 ${crate}-core = { path = "core" }
 gizza-ai-block-utils = { path = "../../block-utils" }
 serde = { version = "1", features = ["derive"] }
@@ -353,19 +360,5 @@ fi
 # The quoted ('EOF') heredocs above can't expand $slug, so their templates use a
 # literal __SLUG__ token — substitute it everywhere in one pass here.
 grep -rl '__SLUG__' "$dir" | while read -r f; do sed_inplace "s/__SLUG__/${slug}/g" "$f"; done
-
-# Pin the fresh block's wafer-run deps to wafer-run-pin.txt so its very first
-# build resolves the same runtime rev as the committed CLI — an unlocked crate
-# resolves wafer-run at today's main, and that rev drift is what breaks
-# `wafer build` validation with `__wafer_info()` JSON parse errors. Block locks
-# are ignored by default to avoid a corpus-wide migration, but every new or
-# changed block force-stages Cargo.lock with target/block.wasm via
-# build-block-wasm.sh.
-if command -v cargo >/dev/null 2>&1 && [ -f "$root/wafer-run-pin.txt" ]; then
-  pin="$(tr -d '[:space:]' < "$root/wafer-run-pin.txt")"
-  for c in wafer-sdk wafer-block wafer-block-macro; do
-    (cd "$dir" && cargo update -p "$c" --precise "$pin" >/dev/null 2>&1) || true
-  done
-fi
 
 echo "scaffolded blocks/$slug ($type). Next: implement core/src/lib.rs, src/lib.rs (skill schema), web/src/lib.rs, page/meta.toml, page/content.md."
