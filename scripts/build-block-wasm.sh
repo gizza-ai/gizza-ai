@@ -109,14 +109,17 @@ fi
   exit 1
 }
 
+# The exact source scripts/set-wafer-run-rev.sh pins: same URL spelling, a
+# full-sha rev, resolved at that sha. Anything else is a second wafer-run.
+expected_source="git+https://github.com/wafer-run/wafer-run?rev=$pin#$pin"
 stray="$(
-  grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lockfile" \
-    | sed 's/.*#//' \
+  grep -o 'source = "git+[^"]*github.com/wafer-run/wafer-run[^"]*"' "$lockfile" \
+    | sed -e 's/^source = "//' -e 's/"$//' \
     | sort -u \
-    | grep -v "^$pin\$" || true
+    | grep -vxF "$expected_source" || true
 )"
 if [[ -n "$stray" ]]; then
-  echo "::error::blocks/$slug/Cargo.lock resolves wafer-run at '$stray'; expected '$pin'." >&2
+  echo "::error::blocks/$slug/Cargo.lock resolves wafer-run from '$stray'; expected '$expected_source'." >&2
   if [[ "$mode" == "--check" ]]; then
     echo "Run scripts/build-block-wasm.sh $slug to refresh the canonical artifact." >&2
   fi

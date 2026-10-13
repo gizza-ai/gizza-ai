@@ -39,9 +39,9 @@ if [ -d "$parent/wafer-run" ]; then
   git -C "$parent/wafer-run" fetch --depth 1 origin "$wafer_sha" 2>/dev/null || true
   git -C "$parent/wafer-run" checkout "$wafer_sha" 2>/dev/null || true
 else
-  echo "no ../wafer-run checkout — skipping pin sync. Blocks, cli/, and tools/generator" \
-       "all pull wafer-sdk/wafer-block/wafer-run straight from git, pinned via" \
-       "wafer-run-pin.txt in committed locks and canonical block builds — a tools-only" \
+  echo "no ../wafer-run checkout — skipping pin sync. Blocks, block-utils/ and cli/" \
+       "pull wafer-sdk/wafer-block/wafer-run from git at rev = <wafer-run-pin.txt>," \
+       "written into every Cargo.toml by scripts/set-wafer-run-rev.sh — a tools-only" \
        "clone builds fine without this sibling; it's only needed to build the" \
        "optional 'wafer' CLI from source."
 fi
