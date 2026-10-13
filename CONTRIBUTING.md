@@ -55,7 +55,12 @@ the locks and the artifacts disagree:
    ```
    This rewrites every wafer-run dependency (keeping its other keys) and
    writes `wafer-run-pin.txt`. Commit the result on its own.
-2. Refresh the root locks, then run their suites:
+2. Check the toolchain. If the new wafer-run needs a newer rustc than
+   `rust-toolchain.toml` pins, move `rust-toolchain.toml` and every
+   `toolchain:` in `.github/workflows/` to the same version in this PR. CI
+   byte-compares each committed `target/block.wasm` with its own rebuild on
+   that toolchain, so every artifact has to be built with the same rustc.
+3. Refresh the root locks, then run their suites:
    ```bash
    cargo update --workspace --manifest-path cli/Cargo.toml
    cargo update --workspace --manifest-path block-utils/Cargo.toml
@@ -64,17 +69,22 @@ the locks and the artifacts disagree:
    ```
    List every breaking wafer-run CHANGELOG entry since the old pin in the PR
    body, with how each was checked against this repo.
-3. Rebuild every block's `Cargo.lock` and `target/block.wasm`. Each block's
+4. Rebuild every block's `Cargo.lock` and `target/block.wasm`. Each block's
    manifest changed, so each is a changed block. Dispatch the "Refresh block
-   WASM" workflow with `target_branch` set to the PR branch and `blocks` empty
-   (it takes every block changed against main); for a handful of blocks,
-   `scripts/build-block-wasm.sh <slug>` locally does the same.
-4. Every changed block falls under the descriptor-drift gate. With the CLI
+   WASM" workflow with `target_branch` set to the PR branch, `blocks` empty
+   (it takes every block changed against main) and `shards` at 20–30: the
+   default of 15 puts about 100 blocks on each shard of a full-corpus
+   refresh. For a handful of blocks, `scripts/build-block-wasm.sh <slug>`
+   locally does the same.
+5. Every changed block falls under the descriptor-drift gate. With the CLI
    rebuilt from the refreshed artifacts (`cargo install --path cli --force`),
    run `scripts/sync-tool-manifest.py --check <slug> ...` over the refreshed
    blocks and regenerate any that drifted with
    `scripts/sync-tool-manifest.py <slug> ...`.
-5. The workflow's bot commits do not start a CI run. Push a commit of your own
+6. The CLI embeds every `target/block.wasm`, so rerun
+   `cargo test --manifest-path cli/Cargo.toml` against the refreshed
+   artifacts; the run in step 3 tested the old ones.
+7. The workflow's bot commits do not start a CI run. Push a commit of your own
    afterwards so CI tests the final head, and confirm
    `scripts/set-wafer-run-rev.sh --check` passes.
 

@@ -105,11 +105,14 @@ jobs:
 
           # One shard per ~3 blocks, capped at 16 so a 300-block batch still
           # fits the runner concurrency budget (~19 blocks/shard, ~1h). Past
-          # 16 shards the cap grows so no shard owns more than 60 blocks: a
-          # wafer-run pin bump changes every block's manifest (1440 blocks ->
-          # 24 shards). Sized from the 886-block bump (#235): 16 shards of
-          # ~55 blocks took 54-78 min in `blocks` and 15-24 min in `drift`, so
-          # 60 blocks stay near 85 and 26 min, well inside 330 and 90.
+          # 960 blocks the cap is exceeded on purpose so no shard owns more
+          # than 60 blocks: a wafer-run pin bump changes every block's
+          # manifest (1440 blocks -> 24 shards). Sized from the 886-block bump
+          # (#235): 16 shards of ~55 blocks took 54-78 min in `blocks` and
+          # 15-24 min in `drift`, so 60 blocks stay near 85 and 26 min, well
+          # inside 330 and 90. 24 shards plus the repo job exceed a 20-job
+          # concurrency limit, so a few shards queue behind the first wave:
+          # wall time grows, nothing fails.
           if [ "$count" -eq 0 ]; then
             shards=0
             matrix='[]'
@@ -163,6 +166,12 @@ jobs:
         shell: bash
         run: bash -n scripts/build-block-wasm.sh
 
+      - name: wafer-run pin gate self-test
+        # Before the gate it proves, and independent of the repo's pin state,
+        # so it still runs while a bump is half-landed and the gate is red.
+        shell: bash
+        run: bash scripts/set-wafer-run-rev.test.sh
+
       - name: Verify wafer-run pin consistency
         # Guards against a half-bumped or split pin. Cargo identifies a git
         # source by URL + reference, so `branch = "main"`, a short rev or the
@@ -181,10 +190,6 @@ jobs:
         # Bump procedure: CONTRIBUTING.md, "Bumping wafer-run".
         shell: bash
         run: scripts/set-wafer-run-rev.sh --check
-
-      - name: wafer-run pin gate self-test
-        shell: bash
-        run: bash scripts/set-wafer-run-rev.test.sh
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
