@@ -5,21 +5,64 @@
   "summary": "Build an otpauth:// provisioning URI for an authenticator app",
   "role": "skill",
   "tool": {
-    "description": "Build a standard otpauth:// provisioning URI (the Key Uri Format used by authenticator apps) from an issuer, account name, and base32 secret. Supports totp (default) and hotp, with configurable digits, period, algorithm, and HOTP counter. Returns the otpauth:// URI string. Runs locally — the secret never leaves the device.",
+    "description": "Build a standard otpauth:// provisioning URI (the Key Uri Format used by Google Authenticator, Authy, 1Password, and other authenticator apps) from an issuer, account name, and base32 secret. Encode this URI as a QR code and scan it to set up 2FA. Supports totp (time-based, default) and hotp (counter-based), with configurable digits (6-8), period (seconds), algorithm (sha1 default / sha256 / sha512), and HOTP counter. Returns the otpauth:// URI string. Runs locally — the secret never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["account", "secret"],
+      "additionalProperties": false,
       "properties": {
-        "type": { "type": "string", "enum": ["totp", "hotp"], "default": "totp" },
-        "issuer": { "type": "string" },
-        "account": { "type": "string" },
-        "secret": { "type": "string" },
-        "digits": { "type": "integer", "minimum": 6, "maximum": 8 },
-        "period": { "type": "integer", "minimum": 1, "maximum": 600 },
-        "algorithm": { "type": "string", "enum": ["sha1", "sha256", "sha512"], "default": "sha1" },
-        "counter": { "type": "integer", "minimum": 0 }
+        "account": {
+          "description": "The account name / username the code is for (e.g. an email address). Must not contain a colon.",
+          "type": "string"
+        },
+        "algorithm": {
+          "default": "sha1",
+          "description": "HMAC hash algorithm (default sha1, the standard for authenticator apps).",
+          "enum": [
+            "sha1",
+            "sha256",
+            "sha512"
+          ],
+          "type": "string"
+        },
+        "counter": {
+          "description": "HOTP initial counter value (default 0; ignored for totp).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "digits": {
+          "description": "Number of digits in the generated codes (6, 7, or 8; default 6).",
+          "maximum": 8,
+          "minimum": 6,
+          "type": "integer"
+        },
+        "issuer": {
+          "description": "The provider/organization name shown in the authenticator app (e.g. 'GitHub'). Recommended.",
+          "type": "string"
+        },
+        "period": {
+          "description": "TOTP time step in seconds (default 30; ignored for hotp).",
+          "maximum": 600,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "secret": {
+          "description": "The shared secret, base32-encoded (RFC 4648; spaces and case are ignored).",
+          "type": "string"
+        },
+        "type": {
+          "default": "totp",
+          "description": "OTP type: totp (time-based, default — the usual 2FA codes) or hotp (counter-based).",
+          "enum": [
+            "totp",
+            "hotp"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "account",
+        "secret"
+      ],
+      "type": "object"
     }
   }
 }

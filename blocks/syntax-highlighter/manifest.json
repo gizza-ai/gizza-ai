@@ -5,17 +5,36 @@
   "summary": "Syntax-highlight a code snippet to styled HTML or ANSI",
   "role": "skill",
   "tool": {
-    "description": "Highlight a code snippet for a given language and return styled output (inline-styled HTML or ANSI terminal escape codes).",
+    "description": "Highlight a code snippet for a given language and return styled output. format='html' (default) returns self-contained inline-styled HTML (a <pre> with colored <span>s, no external stylesheet) ready to embed; format='ansi' returns ANSI 24-bit terminal escape codes for printing in a terminal. Set 'language' to a hint like 'rust', 'python', 'javascript', 'bash', or 'json' (unknown/omitted falls back to uncolored plain text), and 'theme' to a syntect theme such as 'base16-ocean.dark' (default), 'Solarized (dark)', or 'InspiredGitHub'.",
     "parameters": {
-      "type": "object",
-      "required": ["code"],
+      "additionalProperties": false,
       "properties": {
-        "code": { "type": "string", "description": "The source code to highlight. Required." },
-        "language": { "type": "string", "description": "Language hint for highlighting (e.g. rust, python, javascript, bash, json). Optional — unknown or omitted falls back to plain text." },
-        "theme": { "type": "string", "description": "Color theme name (e.g. base16-ocean.dark, Solarized (dark), InspiredGitHub). Optional — defaults to a dark theme." },
-        "format": { "type": "string", "enum": ["html", "ansi"], "default": "html", "description": "Output format: html (default) returns inline-styled HTML; ansi returns ANSI 24-bit terminal escape codes." }
+        "code": {
+          "description": "The source code to highlight. Required.",
+          "type": "string"
+        },
+        "format": {
+          "default": "html",
+          "description": "Output format. 'html' (default) returns inline-styled HTML (a self-contained <pre> with colored <span>s, no external CSS); 'ansi' returns ANSI 24-bit terminal escape codes for printing in a terminal.",
+          "enum": [
+            "html",
+            "ansi"
+          ],
+          "type": "string"
+        },
+        "language": {
+          "description": "Language hint for highlighting (e.g. \"rust\", \"python\", \"javascript\", \"bash\", \"json\"). Optional — unknown or omitted falls back to plain (uncolored) text.",
+          "type": "string"
+        },
+        "theme": {
+          "description": "Color theme name (e.g. \"base16-ocean.dark\", \"Solarized (dark)\", \"InspiredGitHub\"). Optional — defaults to a dark theme; unknown names fall back to the default.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "code"
+      ],
+      "type": "object"
     }
   }
 }

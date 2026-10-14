@@ -2,9 +2,11 @@
   "name": "gizza-ai/create-zip",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Bundle multiple files into a ZIP archive.",
+  "summary": "Bundle multiple files into a ZIP archive",
   "role": "skill",
-  "requires": ["wafer-run/network"],
+  "requires": [
+    "wafer-run/network"
+  ],
   "tool": {
     "description": "Bundle multiple files into a single downloadable ZIP archive (deflate-compressed). Provide at least one file; each is a URL or a `ref` to an uploaded attachment. Entry names come from each file's name; duplicate names are made unique.",
     "parameters": {
@@ -17,14 +19,22 @@
           "items": {
             "type": "object",
             "properties": {
-              "url": { "type": "string", "description": "URL (HTTP/HTTPS). Use either url or ref." },
-              "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+              "url": {
+                "type": "string",
+                "description": "URL (HTTP/HTTPS). Use either url or ref."
+              },
+              "ref": {
+                "type": "string",
+                "description": "Reference id from a prior tool call. Use either url or ref."
+              }
             },
             "additionalProperties": false
           }
         }
       },
-      "required": ["files"],
+      "required": [
+        "files"
+      ],
       "additionalProperties": false
     }
   }

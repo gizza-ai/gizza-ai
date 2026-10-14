@@ -7,15 +7,35 @@
   "tool": {
     "description": "Render a Handlebars/Mustache template against supplied JSON data and return the output text. Supports {{variable}} substitution, nested paths ({{user.email}}), loops ({{#each}}), and conditionals ({{#if}}). Useful for generating emails, config files, code, or any text from a template + data.",
     "parameters": {
-      "type": "object",
-      "required": ["template"],
+      "additionalProperties": false,
       "properties": {
-        "template": { "type": "string" },
-        "data": { "type": "string" },
-        "engine": { "type": "string", "enum": ["handlebars", "mustache"], "default": "handlebars" },
-        "strict": { "type": "boolean", "default": false }
+        "data": {
+          "description": "JSON object (or array) supplying the template variables, e.g. {\"name\":\"Ada\"}. Defaults to an empty object.",
+          "type": "string"
+        },
+        "engine": {
+          "default": "handlebars",
+          "description": "Template dialect. Handlebars is a superset of Mustache; both support {{var}}, nested paths, {{#each}} and {{#if}}.",
+          "enum": [
+            "handlebars",
+            "mustache"
+          ],
+          "type": "string"
+        },
+        "strict": {
+          "default": false,
+          "description": "When true, referencing a missing variable is an error; when false (default) it renders as empty.",
+          "type": "boolean"
+        },
+        "template": {
+          "description": "The Handlebars/Mustache template, e.g. \"Hello {{name}}!\" or \"{{#each items}}- {{this}}\\n{{/each}}\".",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "template"
+      ],
+      "type": "object"
     }
   }
 }

@@ -5,15 +5,24 @@
   "summary": "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS.",
   "role": "skill",
   "tool": {
-    "description": "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS for the properties and values that still need them in modern browsers. Inserts prefixed clones before each original declaration (standard last). Covers property prefixes, renames (tab-size), and value prefixes (display:flex, position:sticky). Comments, strings and custom properties are untouched.",
+    "description": "Add vendor prefixes (-webkit-, -moz-, -ms-, -o-) to CSS for the properties and values that still need them in modern browsers. Pass the CSS in `css`; the tool inserts the needed prefixed clones immediately before each original declaration (standard form last, so a fully-supporting browser wins). It covers property prefixes (e.g. user-select, appearance, backdrop-filter, clip-path, mask, hyphens, text-size-adjust, background-clip:text), property renames (tab-size -> -moz-/-o-tab-size), and value prefixes (display:flex -> -webkit-box/-webkit-flex/-ms-flexbox, position:sticky -> -webkit-sticky, width:max-content -> -webkit-/-moz-). Declarations inside /* comments */ and strings, and CSS custom properties (--vars), are left untouched. Set dedup=false to also emit a prefix that already appears in the rule. The prefix set is curated for current browser targets, not an exhaustive historical list.",
     "parameters": {
-      "type": "object",
-      "required": ["css"],
+      "additionalProperties": false,
       "properties": {
-        "css": { "type": "string" },
-        "dedup": { "type": "boolean", "default": true }
+        "css": {
+          "description": "The CSS source to add vendor prefixes to. Pass one or more rules (selectors + { … } bodies); declarations inside comments and strings are left untouched.",
+          "type": "string"
+        },
+        "dedup": {
+          "default": true,
+          "description": "When true (default), do not emit a prefixed declaration that already appears verbatim in the same rule body, so re-running the tool is idempotent.",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "css"
+      ],
+      "type": "object"
     }
   }
 }

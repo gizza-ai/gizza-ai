@@ -5,16 +5,33 @@
   "summary": "Convert a LaTeX math expression to MathML markup.",
   "role": "skill",
   "tool": {
-    "description": "Convert a LaTeX math expression into MathML markup (a <math> element). Accessible, selectable and reusable in HTML, EPUB and Office documents. Supports fractions, roots, super/subscripts, Greek letters, big operators, delimiters and matrices; block or inline display; optional pretty-print.",
+    "description": "Convert a LaTeX math expression into MathML markup (a <math xmlns=\"http://www.w3.org/1998/Math/MathML\"> element). MathML is the W3C standard for math in HTML — it's accessible to screen readers, selectable/searchable as text, and reusable in EPUB, DocBook and Office documents, unlike a rendered image. Pass `latex` as math-mode source with no surrounding $ (e.g. \\frac{a}{b}, x^2, \\sqrt{x+1}, \\sum_{i=1}^{n} i, \\alpha+\\beta, \\left(\\frac{a}{b}\\right)). Covers fractions, super/subscripts, roots, Greek letters, big operators with limits, relations/arrows, scalable delimiters, font styles (\\mathbb/\\mathbf), and matrix/align environments. Set display='inline' for an inline equation (default 'block' is a centred standalone equation), or pretty=true to indent the output. Runs locally on the device.",
     "parameters": {
-      "type": "object",
-      "required": ["latex"],
+      "additionalProperties": false,
       "properties": {
-        "latex": { "type": "string" },
-        "display": { "type": "string", "enum": ["block", "inline"], "default": "block" },
-        "pretty": { "type": "boolean", "default": false }
+        "display": {
+          "default": "block",
+          "description": "MathML display mode. 'block' (default) renders a centred standalone equation (display=\"block\"); 'inline' flows the equation within a line of text (display=\"inline\").",
+          "enum": [
+            "block",
+            "inline"
+          ],
+          "type": "string"
+        },
+        "latex": {
+          "description": "The LaTeX math expression to convert, in math mode and with no surrounding $ … $ (e.g. \\frac{a}{b}, x^2, \\sqrt{x+1}, \\sum_{i=1}^{n} i, \\alpha + \\beta).",
+          "type": "string"
+        },
+        "pretty": {
+          "default": false,
+          "description": "When true, indent the MathML with one element per line for readability. Default false (compact single line).",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "latex"
+      ],
+      "type": "object"
     }
   }
 }

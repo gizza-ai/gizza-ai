@@ -7,17 +7,47 @@
   "tool": {
     "description": "Run a classic graph algorithm on a user-supplied edge list. Provide `edges` (one edge per line, e.g. `a -> b`, `a - b`, `a,b`, or weighted `a -> b : 3`), choose `algorithm` = bfs | dfs | shortest-path | topological-sort | cycle-detection, and set `directed`/`weighted` as needed. bfs/dfs/shortest-path need a `start` node; shortest-path also needs `end`. Returns a human-readable report (visit order, shortest path + distance, topological order, or an example cycle).",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "edges": { "type": "string", "description": "The graph as an edge list, one edge per line." },
-        "algorithm": { "type": "string", "enum": ["bfs", "dfs", "shortest-path", "topological-sort", "cycle-detection"], "default": "bfs", "description": "Which algorithm to run." },
-        "directed": { "type": "boolean", "default": false, "description": "Treat edges as directed." },
-        "weighted": { "type": "boolean", "default": false, "description": "Parse a trailing number on each edge as its weight." },
-        "start": { "type": "string", "description": "Start node for bfs, dfs, and shortest-path." },
-        "end": { "type": "string", "description": "End node for shortest-path." }
+        "algorithm": {
+          "default": "bfs",
+          "description": "Which algorithm to run: 'bfs' (breadth-first traversal), 'dfs' (depth-first traversal), 'shortest-path' (Dijkstra / unit-weight BFS from start to end), 'topological-sort' (linear order of a directed acyclic graph), or 'cycle-detection' (find a cycle).",
+          "enum": [
+            "bfs",
+            "dfs",
+            "shortest-path",
+            "topological-sort",
+            "cycle-detection"
+          ],
+          "type": "string"
+        },
+        "directed": {
+          "default": false,
+          "description": "Treat edges as directed (a → b only). Default false (undirected). Topological sort requires directed = true.",
+          "type": "boolean"
+        },
+        "edges": {
+          "description": "The graph as an edge list, one edge per line. Use `a -> b`, `a - b`, `a b`, or `a,b` for an edge; add a trailing number for a weight (`a -> b : 3`); a bare label on its own line is an isolated node. Blank lines and `#` comments are ignored.",
+          "type": "string"
+        },
+        "end": {
+          "description": "End (target) node for shortest-path.",
+          "type": "string"
+        },
+        "start": {
+          "description": "Start node for bfs, dfs, and shortest-path.",
+          "type": "string"
+        },
+        "weighted": {
+          "default": false,
+          "description": "Parse a trailing number on each edge as its weight, used by shortest-path. Default false (every edge has weight 1). Weights must be non-negative.",
+          "type": "boolean"
+        }
       },
-      "required": ["edges"],
-      "additionalProperties": false
+      "required": [
+        "edges"
+      ],
+      "type": "object"
     }
   }
 }

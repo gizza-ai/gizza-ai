@@ -5,19 +5,45 @@
   "summary": "Parse and build BitTorrent magnet links",
   "role": "skill",
   "tool": {
-    "description": "Parse a BitTorrent magnet: link into its structured parts (info-hash, display name, trackers, web seeds, sources, keywords, length), or build a magnet: link from parts. parse mode reads magnet; build mode reads info_hash plus optional fields.",
+    "description": "Parse a BitTorrent magnet: link into its structured parts, or build a magnet: link from parts. In parse mode (default) set magnet='magnet:?xt=urn:btih:...' and get back JSON with the v1 info-hash (normalised to lower-case hex, from 40-hex or 32-base32), v2 info-hash (urn:btmh), display name (dn), trackers (tr), web seeds (ws), acceptable/exact sources (as/xs), keywords (kt), exact length (xl) and any other parameters; percent- and '+'-encoding are decoded and indexed keys like tr.1/tr.2 are collapsed. In build mode set mode='build' and info_hash (40 hex chars, 32 base32 chars, or a urn:btih:… value) plus optional display_name, trackers and web_seeds (newline- or comma-separated), and exact_length (bytes), and get back the assembled magnet:?… URI. Runs locally; nothing is uploaded.",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "mode": { "type": "string", "enum": ["parse", "build"], "default": "parse", "description": "Direction: 'parse' (default) decodes a magnet: link; 'build' assembles one from parts." },
-        "magnet": { "type": "string", "description": "Parse mode: the magnet: URI to decode. A bare query string is also accepted." },
-        "info_hash": { "type": "string", "description": "Build mode: the v1 info-hash — 40 hex chars, 32 base32 chars, or a urn:btih:<hash>. Required to build." },
-        "display_name": { "type": "string", "description": "Build mode: the display name (dn). Optional." },
-        "trackers": { "type": "string", "description": "Build mode: tracker URLs (tr), newline- or comma-separated. Optional." },
-        "web_seeds": { "type": "string", "description": "Build mode: web-seed URLs (ws), newline- or comma-separated. Optional." },
-        "exact_length": { "type": "integer", "description": "Build mode: exact total length in bytes (xl). Optional." }
+        "display_name": {
+          "description": "Build mode: the display name (dn) for the file or torrent. Optional.",
+          "type": "string"
+        },
+        "exact_length": {
+          "description": "Build mode: the exact total length in bytes (xl). Optional.",
+          "type": "integer"
+        },
+        "info_hash": {
+          "description": "Build mode: the BitTorrent v1 info-hash — 40 hex characters, 32 base32 characters, or a full 'urn:btih:<hash>'. Required to build a link.",
+          "type": "string"
+        },
+        "magnet": {
+          "description": "Parse mode: the magnet: URI to decode, e.g. 'magnet:?xt=urn:btih:c12fe1c06bba254a9dc9f519b335aa7c1367a88a&dn=...'. A bare query string without the 'magnet:?' prefix is also accepted.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "parse",
+          "description": "Direction: 'parse' (default) decodes a magnet: link into its parts; 'build' assembles a magnet: link from an info-hash and optional fields.",
+          "enum": [
+            "parse",
+            "build"
+          ],
+          "type": "string"
+        },
+        "trackers": {
+          "description": "Build mode: tracker announce URLs (tr), separated by newlines or commas. Optional.",
+          "type": "string"
+        },
+        "web_seeds": {
+          "description": "Build mode: web-seed URLs (ws, BEP 19), separated by newlines or commas. Optional.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "type": "object"
     }
   }
 }

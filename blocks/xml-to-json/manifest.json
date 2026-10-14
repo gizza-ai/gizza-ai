@@ -5,18 +5,39 @@
   "summary": "Convert XML into an equivalent JSON structure",
   "role": "skill",
   "tool": {
-    "description": "Convert an XML document into an equivalent JSON structure, preserving attributes and nesting.",
+    "description": "Convert an XML document into an equivalent JSON structure, preserving attributes and nesting. Each element becomes a JSON object keyed by its tag; the document's single root element becomes the sole top-level key. XML attributes become object members prefixed by `attribute_prefix` (default '@', so id=\"1\" becomes \"@id\":\"1\"); set attributes=false to drop them. Repeated sibling tags collapse into a JSON array in document order. An element with only text becomes a plain string; when it also has attributes or children its text is stored under `text_key` (default '#text'). XML entities and CDATA are decoded, comments and processing-instructions are ignored, and namespace prefixes are stripped to local names. With coerce_types=true, text that looks like an integer, float, boolean, or null is emitted as the matching JSON scalar (leading-zero strings like '007' stay strings). Output is pretty-printed JSON. Fully local and deterministic — no AI model.",
     "parameters": {
-      "type": "object",
-      "required": ["xml"],
+      "additionalProperties": false,
       "properties": {
-        "xml": { "type": "string" },
-        "attribute_prefix": { "type": "string", "default": "@" },
-        "text_key": { "type": "string", "default": "#text" },
-        "attributes": { "type": "boolean", "default": true },
-        "coerce_types": { "type": "boolean", "default": false }
+        "attribute_prefix": {
+          "default": "@",
+          "description": "Prefix added to JSON keys that come from XML attributes (e.g. '@id'). Default '@'.",
+          "type": "string"
+        },
+        "attributes": {
+          "default": true,
+          "description": "Include XML attributes in the JSON output. When false, attributes are dropped. Default true.",
+          "type": "boolean"
+        },
+        "coerce_types": {
+          "default": false,
+          "description": "Coerce text that looks like a number, boolean, or null into the matching JSON scalar instead of a string. Default false (everything stays a string).",
+          "type": "boolean"
+        },
+        "text_key": {
+          "default": "#text",
+          "description": "Key under which an element's text is stored when it also has attributes or child elements. Default '#text'.",
+          "type": "string"
+        },
+        "xml": {
+          "description": "The XML document to convert to JSON.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "xml"
+      ],
+      "type": "object"
     }
   }
 }

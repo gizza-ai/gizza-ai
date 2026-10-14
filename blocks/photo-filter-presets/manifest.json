@@ -5,14 +5,48 @@
   "summary": "Apply a photo filter preset (sepia, vintage, warm, cool, noir, and more) to an image.",
   "role": "skill",
   "tool": {
-    "description": "Apply a named photographic filter preset to an image at the given URL. Presets: sepia, vintage, warm, cool, noir, grayscale, vivid, invert, fade. Use when the user asks to add a filter, tint, or vintage/sepia/black-and-white look to a photo.",
+    "description": "Apply a named photographic filter preset (sepia, vintage, warm, cool, noir, grayscale, vivid, invert, fade) to an image. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call), and optional preset (default sepia).",
     "parameters": {
-      "type": "object",
-      "required": ["url"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
       "properties": {
-        "url":    { "type": "string", "description": "Absolute http(s) URL to an image (PNG, JPEG, or WebP)." },
-        "preset": { "type": "string", "enum": ["sepia", "vintage", "warm", "cool", "noir", "grayscale", "vivid", "invert", "fade"], "default": "sepia", "description": "Filter preset to apply. Default: sepia." }
-      }
+        "preset": {
+          "default": "sepia",
+          "description": "Photographic filter preset to apply. One of sepia, vintage, warm, cool, noir, grayscale, vivid, invert, fade. Default: sepia.",
+          "enum": [
+            "sepia",
+            "vintage",
+            "warm",
+            "cool",
+            "noir",
+            "grayscale",
+            "vivid",
+            "invert",
+            "fade"
+          ],
+          "type": "string"
+        },
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
   }
 }

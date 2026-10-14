@@ -5,16 +5,29 @@
   "summary": "Convert between units of measure",
   "role": "skill",
   "tool": {
-    "description": "Convert a numeric value between two units of the same category: length, mass, temperature, volume, area, speed, data size, or time. Unit names, plurals, and symbols/aliases are accepted.",
+    "description": "Convert a numeric value between two units of the same category. Supports length (m, km, cm, mm, mile, yard, foot, inch, nautical-mile), mass (kg, g, mg, tonne, pound, ounce, stone, ton), temperature (celsius, fahrenheit, kelvin, rankine, reaumur), volume (litre, ml, gallon-us/uk, quart, pint, cup, fluid-ounce, tbsp, tsp), area (m2, km2, hectare, acre, sq-mile/yard/foot/inch), speed (m/s, km/h, mph, ft/s, knot), data size (byte, bit, KB/MB/GB/TB decimal and KiB/MiB/GiB/TiB binary), and time (s, ms, min, hour, day, week, month, year). Unit names, plurals, and symbols/aliases are accepted. 'from' and 'to' must be the same category. Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["value", "from", "to"],
+      "additionalProperties": false,
       "properties": {
-        "value": { "type": "number", "description": "The numeric quantity to convert." },
-        "from": { "type": "string", "description": "Source unit." },
-        "to": { "type": "string", "description": "Target unit (same category as 'from')." }
+        "from": {
+          "description": "Source unit, e.g. km, miles, lb, celsius, gallon, mph, GB, hours. Names and symbols/aliases accepted.",
+          "type": "string"
+        },
+        "to": {
+          "description": "Target unit (must be the same category as 'from', e.g. both length, both temperature).",
+          "type": "string"
+        },
+        "value": {
+          "description": "The numeric quantity to convert.",
+          "type": "number"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "value",
+        "from",
+        "to"
+      ],
+      "type": "object"
     }
   }
 }

@@ -5,17 +5,40 @@
   "summary": "Re-decode garbled text from a legacy charset into clean UTF-8 (fix mojibake).",
   "role": "skill",
   "tool": {
-    "description": "Re-decode garbled text ('mojibake') from a legacy charset into clean UTF-8. Leave 'from' as 'auto' (default) to detect the charset, or set it to the charset the text was wrongly decoded as (WHATWG label, e.g. 'windows-1252', 'iso-8859-1'/'latin1', 'shift_jis'/'sjis', 'euc-jp', 'euc-kr', 'gbk', 'big5', 'windows-1251', 'koi8-r'). Use this to fix text where 'é' shows as 'Ã©' or '“' shows as 'â€œ'. Set 'passes'>1 to un-nest double-encoded mojibake. The 'errors' option is 'replace' (default) or 'strict'.",
+    "description": "Re-decode garbled text ('mojibake') from a legacy charset into clean UTF-8. Leave 'from' as 'auto' (default) to detect the charset automatically, or set it to the charset the text was wrongly decoded as (WHATWG label, e.g. 'windows-1252', 'iso-8859-1'/'latin1', 'shift_jis'/'sjis', 'euc-jp', 'euc-kr', 'gbk', 'big5', 'windows-1251', 'koi8-r'). The tool re-encodes the input under that charset and decodes the bytes as UTF-8. Use this to fix text where 'é' shows as 'Ã©' or '“' shows as 'â€œ'. Set 'passes'>1 to un-nest double-encoded mojibake. The 'errors' option is 'replace' (default — undecodable bytes become U+FFFD) or 'strict' (fail instead).",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string", "description": "The garbled / mis-decoded text to re-decode into clean UTF-8." },
-        "from": { "type": "string", "default": "auto", "description": "Source charset the text was wrongly decoded as, a WHATWG label, or 'auto'." },
-        "errors": { "type": "string", "enum": ["replace", "strict"], "default": "replace", "description": "How to handle bytes that aren't valid in 'from'." },
-        "passes": { "type": "integer", "minimum": 1, "maximum": 8, "default": 1, "description": "Apply the repair this many times to un-nest double mojibake." }
+        "errors": {
+          "default": "replace",
+          "description": "How to handle bytes that aren't valid in 'from'. 'replace' (default) substitutes the Unicode replacement character (U+FFFD) and continues; 'strict' fails instead.",
+          "enum": [
+            "replace",
+            "strict"
+          ],
+          "type": "string"
+        },
+        "from": {
+          "default": "auto",
+          "description": "Source charset the text was wrongly decoded AS, a WHATWG label (case-insensitive). Examples: 'windows-1252', 'iso-8859-1' (alias 'latin1'), 'iso-8859-15', 'windows-1251', 'koi8-r', 'shift_jis' (alias 'sjis'), 'euc-jp', 'euc-kr', 'gbk', 'big5'. Use 'auto' (default) to try the common charsets and keep the cleanest result.",
+          "type": "string"
+        },
+        "passes": {
+          "default": 1,
+          "description": "Apply the repair this many times, 1-8. Use >1 to un-nest double-encoded ('double mojibake') input. A pass that no longer changes the text stops early. Default 1.",
+          "maximum": 8,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The garbled / mis-decoded text to re-decode into clean UTF-8.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

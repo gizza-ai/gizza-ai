@@ -5,10 +5,12 @@
   "summary": "Flag whether an email uses a known disposable / throwaway-inbox domain.",
   "role": "skill",
   "tool": {
-    "description": "Flag whether an email address (or a bare domain) uses a known disposable, temporary, or throwaway-inbox provider (Mailinator, Guerrilla Mail, 10 Minute Mail, YOPmail, Temp-Mail, and more). Lookup-only against a built-in domain list plus a conservative throwaway-keyword heuristic; no DNS/MX/SMTP. Reports the parsed domain, whether it is disposable, the matched provider, and a reason.",
+    "description": "Flag whether an email address (or a bare domain) uses a known disposable, temporary, or throwaway-inbox provider such as Mailinator, Guerrilla Mail, 10 Minute Mail, YOPmail, or Temp-Mail. Runs entirely offline against a built-in list of well-known disposable domains (and their alias domains and subdomains) plus a conservative throwaway-keyword heuristic — it never performs a DNS, MX, or SMTP lookup. Accepts a full address (name@domain.tld) or just a domain; unwraps a 'Name <addr>' / 'mailto:addr' wrapper first. Reports the parsed domain, whether it is disposable, the specific matched domain when applicable, and a short reason. A 'disposable: no' result means the domain is not on the known list, which is a signal rather than a guarantee that the mailbox is real.",
     "parameters": {
       "type": "object",
-      "required": ["email"],
+      "required": [
+        "email"
+      ],
       "properties": {
         "email": {
           "type": "string",

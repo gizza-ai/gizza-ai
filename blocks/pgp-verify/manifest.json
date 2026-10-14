@@ -5,16 +5,28 @@
   "summary": "Verify an OpenPGP (PGP/GPG) signature",
   "role": "skill",
   "tool": {
-    "description": "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Accepts a detached signature or a clearsigned block (auto-detected); returns {valid, mode, signer_key_id, signer_fingerprint, signer_user_id, signed_at, hash_algorithm, signed_text, error}. Runs locally.",
+    "description": "Verify an OpenPGP (PGP/GPG) signature against a message and the signer's public key. Accepts a detached signature ('-----BEGIN PGP SIGNATURE-----', paired with the original 'message') or a clearsigned block ('-----BEGIN PGP SIGNED MESSAGE-----', which embeds its own text so 'message' is ignored) — the shape is auto-detected. Tries the public key's primary key and every subkey, so subkey-signed messages still verify. Returns {valid, mode, signer_key_id, signer_fingerprint, signer_user_id, signed_at, hash_algorithm, signed_text, error}: valid is true only when the signature checks out; signer_user_id is the key's primary UID (name/email), signed_at is the signature's creation time, hash_algorithm is e.g. SHA256; on failure error explains why (tampered message or wrong key). Runs locally — the message and key never leave the device.",
     "parameters": {
-      "type": "object",
-      "required": ["signature", "public_key"],
+      "additionalProperties": false,
       "properties": {
-        "signature": { "type": "string" },
-        "public_key": { "type": "string" },
-        "message": { "type": "string" }
+        "message": {
+          "description": "The original signed message. Required for a detached signature (must be the exact, unmodified bytes that were signed); ignored for a clearsigned block, which carries its own text.",
+          "type": "string"
+        },
+        "public_key": {
+          "description": "The signer's OpenPGP public key, ASCII-armored ('-----BEGIN PGP PUBLIC KEY BLOCK-----' block).",
+          "type": "string"
+        },
+        "signature": {
+          "description": "The OpenPGP signature to verify, ASCII-armored: either a detached '-----BEGIN PGP SIGNATURE-----' block, or a clearsigned '-----BEGIN PGP SIGNED MESSAGE-----' block (which embeds the signed text).",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "signature",
+        "public_key"
+      ],
+      "type": "object"
     }
   }
 }

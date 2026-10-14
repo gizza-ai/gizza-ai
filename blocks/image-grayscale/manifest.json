@@ -5,17 +5,32 @@
   "summary": "Convert an image to grayscale",
   "role": "skill",
   "tool": {
-    "description": "Convert an image to grayscale. Provide url (HTTP/HTTPS) or ref from a prior image tool call.",
+    "description": "Convert an image to grayscale. Provide either url (HTTP/HTTPS) or ref (id from a prior image tool call).",
     "parameters": {
-      "type": "object",
-      "properties": {
-        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS)." },
-        "ref": { "type": "string", "description": "Reference id from a prior image tool call (e.g. \"call_42\"). Use either url or ref." }
-      },
+      "additionalProperties": false,
       "oneOf": [
-        { "required": ["url"] },
-        { "required": ["ref"] }
-      ]
+        {
+          "required": [
+            "url"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "ref": {
+          "description": "Reference id from a prior tool call. Use either url or ref.",
+          "type": "string"
+        },
+        "url": {
+          "description": "Image URL (HTTP/HTTPS). Use either url or ref.",
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
   }
 }

@@ -5,40 +5,44 @@
   "summary": "Classical cipher (Caesar / Vigenère / Atbash / rail-fence)",
   "role": "skill",
   "tool": {
-    "description": "Encrypt or decrypt text with classic pre-computer ciphers: Caesar (fixed shift), Vigenère (keyword), Atbash (alphabet mirror, keyless), and rail-fence (zig-zag transposition). Supports encrypt, decrypt, and a Caesar-only brute-force that lists all 26 shifts. Educational/puzzle ciphers, not secure encryption.",
+    "description": "Encrypt or decrypt text with classic pre-computer ciphers. cipher='caesar' (default) shifts each letter by a fixed key (e.g. shift 3: 'Hello' -> 'Khoor'); cipher='vigenere' shifts by a repeating keyword (key='LEMON'); cipher='atbash' mirrors the alphabet A<->Z and needs no key; cipher='rail-fence' is a zig-zag transposition over `key` rails (2-64, default 3). operation='encrypt' (default) or 'decrypt'. operation='brute-force' works only for caesar and returns all 26 shifts so you can spot the readable plaintext. Letters are transformed with case preserved; digits/spaces/punctuation pass through (rail-fence transposes the whole string). Runs locally — these are educational/puzzle ciphers, NOT secure encryption.",
     "parameters": {
-      "type": "object",
-      "required": [
-        "text"
-      ],
+      "additionalProperties": false,
       "properties": {
-        "text": {
-          "type": "string"
-        },
         "cipher": {
-          "type": "string",
+          "default": "caesar",
+          "description": "Which classical cipher to use. 'caesar' shifts each letter by a fixed amount; 'vigenere' shifts by a repeating keyword; 'atbash' mirrors the alphabet (A<->Z) and is keyless; 'rail-fence' is a zig-zag transposition over N rails.",
           "enum": [
             "caesar",
             "vigenere",
             "atbash",
             "rail-fence"
           ],
-          "default": "caesar"
+          "type": "string"
+        },
+        "key": {
+          "description": "Cipher key. caesar: the integer shift (negative allowed, reduced mod 26; blank -> 3). vigenere: the keyword (letters only; at least one letter required). atbash: ignored. rail-fence: the number of rails, 2-64 (blank -> 3). Ignored for caesar brute-force.",
+          "type": "string"
         },
         "operation": {
-          "type": "string",
+          "default": "encrypt",
+          "description": "Direction: 'encrypt' (default), 'decrypt', or 'brute-force'. brute-force is only valid for caesar and returns all 26 candidate shifts as 'shift NN: <text>' lines.",
           "enum": [
             "encrypt",
             "decrypt",
             "brute-force"
           ],
-          "default": "encrypt"
+          "type": "string"
         },
-        "key": {
+        "text": {
+          "description": "The message to encrypt or decrypt. Letters are transformed; digits, spaces, and punctuation pass through unchanged (rail-fence transposes the whole string).",
           "type": "string"
         }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

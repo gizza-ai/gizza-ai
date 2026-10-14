@@ -5,22 +5,75 @@
   "summary": "Encrypt or decrypt data with ChaCha20 or ChaCha20-Poly1305 (RFC 8439)",
   "role": "skill",
   "tool": {
-    "description": "Encrypt or decrypt data with the ChaCha20 stream cipher or the ChaCha20-Poly1305 AEAD construction (RFC 8439). mode = stream or aead; key = 32 bytes, nonce = 12 bytes; optional AAD for aead.",
+    "description": "Encrypt or decrypt data with the ChaCha20 stream cipher or the ChaCha20-Poly1305 AEAD construction (RFC 8439, IETF variant: 256-bit key, 96-bit/12-byte nonce, 32-bit counter). operation = encrypt (default) or decrypt. mode = stream (raw ChaCha20 keystream XOR, unauthenticated; default) or aead (ChaCha20-Poly1305 — authenticated encryption that appends a 16-byte Poly1305 tag and authenticates optional `aad`; decryption verifies the tag and fails if anything was tampered with). key must be 32 bytes and nonce exactly 12 bytes, read as UTF-8 (key_format=text, default) or decoded from hex/base64 (key_format=encoded). counter is the initial 32-bit block counter for stream mode (default 0; ignored for aead). The ciphertext/tag (and an encoded key/nonce) use format = hex (default) or base64; the plaintext is UTF-8. The same key+nonce must be used to decrypt, and a key+nonce pair must never be reused for two different messages. For password-based file encryption use aes-cipher or text-encrypt instead.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key", "nonce"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string" },
-        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
-        "key": { "type": "string" },
-        "nonce": { "type": "string" },
-        "aad": { "type": "string" },
-        "mode": { "type": "string", "enum": ["stream", "aead"], "default": "stream" },
-        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
-        "counter": { "type": "integer", "default": 0, "minimum": 0 },
-        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+        "aad": {
+          "description": "Optional associated data (UTF-8) for aead mode — authenticated but not encrypted. Must match on encrypt and decrypt. Ignored in stream mode.",
+          "type": "string"
+        },
+        "counter": {
+          "default": 0,
+          "description": "Initial 32-bit block counter for stream mode (each block is 64 bytes). Default 0. Ignored in aead mode (RFC 8439 fixes the counter). Must match on encrypt and decrypt.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "data": {
+          "description": "For encrypt: the plaintext (UTF-8). For decrypt: the ciphertext, encoded with `format` (in aead mode the encoded value is ciphertext followed by the 16-byte Poly1305 tag).",
+          "type": "string"
+        },
+        "format": {
+          "default": "hex",
+          "description": "Encoding for the ciphertext/tag (and the key/nonce when key_format=encoded): hex (default) or base64. The plaintext is always UTF-8 text.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The 32-byte (256-bit) ChaCha20 key: a 32-char UTF-8 passphrase when key_format=text (default), or a 64-char hex (or base64) string when key_format=encoded.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "text",
+          "description": "How to read the key and nonce: text = UTF-8 (default); encoded = hex/base64 per `format`.",
+          "enum": [
+            "text",
+            "encoded"
+          ],
+          "type": "string"
+        },
+        "mode": {
+          "default": "stream",
+          "description": "stream = raw ChaCha20 (unauthenticated keystream XOR; default); aead = ChaCha20-Poly1305 authenticated encryption with a 16-byte tag and optional AAD.",
+          "enum": [
+            "stream",
+            "aead"
+          ],
+          "type": "string"
+        },
+        "nonce": {
+          "description": "The 12-byte (96-bit) nonce/IV (IETF/RFC 8439). A 12-char UTF-8 string when key_format=text, or a 24-char hex (or base64) value when key_format=encoded. Must match on encrypt and decrypt, and must be unique per message for a given key.",
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "encrypt (default) or decrypt.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key",
+        "nonce"
+      ],
+      "type": "object"
     }
   }
 }

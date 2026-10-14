@@ -5,16 +5,39 @@
   "summary": "Reformat MAC addresses between colon, hyphen, Cisco, and bare styles",
   "role": "skill",
   "tool": {
-    "description": "Reformat one or many MAC addresses (EUI-48 and EUI-64) between colon, hyphen, Cisco dotted-quad, and bare hex notations with a chosen hex case. Input may be in any notation; order is preserved and duplicates kept.",
+    "description": "Reformat one or many MAC addresses (EUI-48 and EUI-64) between the four common notations — colon (00:1A:2B:3C:4D:5E), hyphen (00-1A-2B-3C-4D-5E), Cisco dotted-quad (001a.2b3c.4d5e), and bare hex (001A2B3C4D5E) — with a chosen hex case. The input may be in any of those notations; set format='colon' (default), 'hyphen', 'cisco', or 'bare' and case='lower' (default) or 'upper'. Separate multiple addresses with whitespace, commas, or newlines; order is preserved and duplicates are kept (use extract-mac-addresses to pull MACs out of free text and dedupe). Every address is validated, so a token that isn't a 12- or 16-hex-digit MAC is reported as an error. Returns a macs list plus a count. Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["input"],
+      "additionalProperties": false,
       "properties": {
-        "input": { "type": "string", "description": "One or more MAC addresses to reformat, in any notation. Separate with whitespace, commas, or newlines." },
-        "format": { "type": "string", "enum": ["colon", "hyphen", "cisco", "bare"], "default": "colon", "description": "Output notation." },
-        "case": { "type": "string", "enum": ["lower", "upper"], "default": "lower", "description": "Hex case of the output." }
+        "case": {
+          "default": "lower",
+          "description": "Hex case of the output: 'lower' (default) or 'upper'.",
+          "enum": [
+            "lower",
+            "upper"
+          ],
+          "type": "string"
+        },
+        "format": {
+          "default": "colon",
+          "description": "Output notation: 'colon' (default) e.g. 00:1a:2b:3c:4d:5e; 'hyphen' 00-1a-2b-3c-4d-5e; 'cisco' dotted-quad 001a.2b3c.4d5e; 'bare' 001a2b3c4d5e.",
+          "enum": [
+            "colon",
+            "hyphen",
+            "cisco",
+            "bare"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "One or more MAC addresses to reformat, in any notation (colon, hyphen, Cisco dotted, or bare). Separate multiple addresses with whitespace, commas, or newlines.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "input"
+      ],
+      "type": "object"
     }
   }
 }
