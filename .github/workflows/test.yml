@@ -104,13 +104,24 @@ jobs:
           printf 'Changed blocks (%s): %s\n' "$count" "${blocks[*]:-(none)}"
 
           # One shard per ~3 blocks, capped at 16 so a 300-block batch still
-          # fits the runner concurrency budget (~19 blocks/shard, ~1h).
+          # fits the runner concurrency budget (~19 blocks/shard, ~1h). Past
+          # 960 blocks the cap is exceeded on purpose so no shard owns more
+          # than 60 blocks: a wafer-run pin bump changes every block's
+          # manifest (1440 blocks -> 24 shards). Sized from the 886-block bump
+          # (#235): 16 shards of ~55 blocks took 54-78 min in `blocks` and
+          # 15-24 min in `drift`, so 60 blocks stay near 85 and 26 min, well
+          # inside 330 and 90. 24 shards plus the repo job exceed a 20-job
+          # concurrency limit, so a few shards queue behind the first wave:
+          # wall time grows, nothing fails.
           if [ "$count" -eq 0 ]; then
             shards=0
             matrix='[]'
           else
+            max_per_shard=60
             shards=$(( (count + 2) / 3 ))
-            [ "$shards" -le 16 ] || shards=16
+            cap=$(( (count + max_per_shard - 1) / max_per_shard ))
+            [ "$cap" -ge 16 ] || cap=16
+            [ "$shards" -le "$cap" ] || shards="$cap"
             matrix="$(seq 0 $((shards - 1)) | python3 -c 'import sys, json; print(json.dumps([int(x) for x in sys.stdin.read().split()]))')"
           fi
           echo "Shards: $shards"
@@ -155,28 +166,30 @@ jobs:
         shell: bash
         run: bash -n scripts/build-block-wasm.sh
 
-      - name: Verify wafer-run pin consistency
-        # Guards against a half-bumped pin: wafer-run-pin.txt vs every
-        # committed Cargo.lock that pins the wafer-run git dependency. Legacy
-        # blocks may not have a tracked lock yet; new and changed blocks must.
+      - name: wafer-run pin gate self-test
+        # Before the gate it proves, and independent of the repo's pin state,
+        # so it still runs while a bump is half-landed and the gate is red.
         shell: bash
-        run: |
-          set -euo pipefail
-          pin="$(tr -d '[:space:]' < wafer-run-pin.txt)"
-          fail=0
-          for lock in cli/Cargo.lock block-utils/Cargo.lock $(git ls-files 'blocks/*/Cargo.lock'); do
-            shas="$(grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lock" | sed 's/.*#//' | sort -u)"
-            if [ "$shas" != "$pin" ]; then
-              echo "::error::$lock pins wafer-run at '${shas:-<none>}' but wafer-run-pin.txt says '$pin'."
-              fail=1
-            fi
-          done
-          if [ "$fail" -ne 0 ]; then
-            echo "Bump procedure: update wafer-run-pin.txt, then refresh cli/ and block-utils/ locks."
-            echo "For each affected block, run scripts/build-block-wasm.sh <slug> and commit its lock + artifact."
-            exit 1
-          fi
-          echo "All lockfiles agree with wafer-run-pin.txt ($pin)."
+        run: bash scripts/set-wafer-run-rev.test.sh
+
+      - name: Verify wafer-run pin consistency
+        # Guards against a half-bumped or split pin. Cargo identifies a git
+        # source by URL + reference, so `branch = "main"`, a short rev or the
+        # `.git` URL next to the pinned spelling is a second wafer-run package;
+        # every block reaches block-utils by path, so one stray manifest links
+        # two copies of wafer-block. The check fails on:
+        #   - wafer-run-pin.txt that is not a full 40-character sha;
+        #   - any wafer-run git dependency in any Cargo.toml not spelled
+        #     { git = "https://github.com/wafer-run/wafer-run", rev = "<pin>" };
+        #   - any git dependency at all on `branch =` (including "main");
+        #   - any tracked Cargo.lock resolving wafer-run from anything but
+        #     ?rev=<pin>#<pin> (cli/, block-utils/ and blocks/<slug>/ must
+        #     resolve it);
+        #   - any tracked Cargo.lock holding more than one wafer-block,
+        #     wafer-sdk or wafer-block-macro.
+        # Bump procedure: CONTRIBUTING.md, "Bumping wafer-run".
+        shell: bash
+        run: scripts/set-wafer-run-rev.sh --check
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -228,6 +241,13 @@ jobs:
 
       - name: CLI tests
         run: cargo test --manifest-path cli/Cargo.toml
+
+      - name: Tool scaffold self-test
+        # Scaffolds a pure and an ffmpeg tool, checks they pin wafer-run at
+        # wafer-run-pin.txt with one wafer-run source in their first lock, and
+        # that both templates still compile against block-utils.
+        shell: bash
+        run: bash scripts/scaffold-tool.test.sh
 
       - name: Tool-page generator tests
         run: cargo test --manifest-path tools/generator/Cargo.toml
@@ -382,6 +402,9 @@ jobs:
           for block in ${{ steps.shard.outputs.slugs }}; do
             echo "::group::verify $block"
             scripts/build-block-wasm.sh "$block" --check
+            # Disk is what runs out first on a full-corpus shard (shared
+            # target dir + a canonical staging dir per block); leave a trail.
+            df -h / | tail -1
             echo "::endgroup::"
           done
 
@@ -524,6 +547,10 @@ jobs:
   # Scoped to the PR's changed blocks: the corpus still carries pre-existing
   # description drift, so a repo-wide gate would be red until it is backfilled —
   # gating the changed blocks stops NEW/regressed drift from landing.
+  # A wafer-run pin bump rewrites every block's Cargo.toml, so on that PR this
+  # gate covers the whole corpus by construction (every block is "changed" and
+  # gets a fresh artifact, so its descriptor must match its manifest). The next
+  # PR is back to its own changed blocks; there is no repo-wide mode to undo.
   # `gizza describe` reads the descriptor embedded in the CLI (build.rs
   # statically includes blocks/*/target/block.wasm), so this runs only after the
   # `blocks` shards have proven every committed artifact is exactly the locked

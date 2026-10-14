@@ -800,6 +800,8 @@ checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
  "hashbrown 0.17.1",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -1320,6 +1322,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-transcode"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "590c0e25c2a5bb6e85bf5c1bce768ceb86b316e7a01bdf07d2cb4ec2271990e2"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_bytes"
 version = "0.11.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1825,13 +1836,15 @@ dependencies = [
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "async-trait",
  "chrono",
  "futures",
  "getrandom 0.2.17",
+ "indexmap",
  "linkme",
+ "percent-encoding",
  "rmp-serde",
  "serde",
  "serde_bytes",
@@ -1850,7 +1863,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1861,7 +1874,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-network"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "async-trait",
  "futures",
@@ -1880,13 +1893,12 @@ dependencies = [
 [[package]]
 name = "wafer-core"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "async-trait",
  "chrono",
  "futures",
  "parking_lot",
- "percent-encoding",
  "serde",
  "serde_json",
  "sha2",
@@ -1904,7 +1916,7 @@ dependencies = [
 [[package]]
 name = "wafer-flow"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "serde",
  "serde_json",
@@ -1914,7 +1926,7 @@ dependencies = [
 [[package]]
 name = "wafer-net-security"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "reqwest",
  "tokio",
@@ -1924,7 +1936,7 @@ dependencies = [
 [[package]]
 name = "wafer-run"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "async-trait",
  "base64ct",
@@ -1940,6 +1952,7 @@ dependencies = [
  "reqwest",
  "rmp-serde",
  "serde",
+ "serde-transcode",
  "serde_json",
  "sha2",
  "tar",
@@ -1962,7 +1975,7 @@ dependencies = [
 [[package]]
 name = "wafer-schema"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "serde",
  "serde_json",
@@ -1972,7 +1985,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "serde",
  "serde_json",
@@ -1982,7 +1995,7 @@ dependencies = [
 [[package]]
 name = "wafer-sql-utils"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "sea-query",
  "serde_json",

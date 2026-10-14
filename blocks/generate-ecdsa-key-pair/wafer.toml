@@ -3,4 +3,4 @@ org = "gizza-ai"
 name = "generate-ecdsa-key-pair"
 version = "0.1.0"
 abi = 1
-summary = "Generate an ECDSA key pair (PEM/JWK)."
+summary = "Generate an ECDSA key pair (PEM/JWK)"

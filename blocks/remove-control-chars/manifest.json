@@ -5,17 +5,34 @@
   "summary": "Strip null bytes and non-printable control characters from text",
   "role": "skill",
   "tool": {
-    "description": "Remove null bytes and non-printable control characters (Unicode category Cc) from text. Tabs and newlines are kept by default; replacement is substituted for each removed character.",
+    "description": "Remove null bytes and non-printable control characters (Unicode category Cc: U+0000–U+001F, U+007F–U+009F) from text. By default tabs (keep_tabs) and newlines/carriage returns (keep_newlines) are preserved as meaningful whitespace; set them false to strip those too. replacement is substituted for each removed character (empty string by default, which deletes it). Runs locally — the text never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
-        "keep_tabs": { "type": "boolean", "default": true },
-        "keep_newlines": { "type": "boolean", "default": true },
-        "replacement": { "type": "string", "default": "" }
+        "keep_newlines": {
+          "default": true,
+          "description": "When true (default), keep line feed (\\n) and carriage return (\\r) characters. Set false to remove them too.",
+          "type": "boolean"
+        },
+        "keep_tabs": {
+          "default": true,
+          "description": "When true (default), keep horizontal tab characters (\\t). Set false to remove them too.",
+          "type": "boolean"
+        },
+        "replacement": {
+          "default": "",
+          "description": "String to substitute for each removed control character. Defaults to an empty string, which deletes the character.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to strip control characters from.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

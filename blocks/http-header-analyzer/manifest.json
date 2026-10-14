@@ -5,12 +5,19 @@
   "summary": "Analyze pasted HTTP response headers and explain caching, compression, server hints, and missing security headers",
   "role": "skill",
   "tool": {
-    "description": "Parse a block of pasted HTTP response headers and explain each one (caching, compression, content, security, cookie, cors, server, redirect) plus list which recommended security headers are missing.",
+    "description": "Parse a block of pasted HTTP response headers and explain them. For each header it returns a plain-English explanation and a category (caching, compression, content, security, cookie, cors, server, redirect, or other): it decodes Cache-Control/Expires/ETag caching policy, Content-Encoding compression, Content-Type and other content headers, Set-Cookie hardening (flags missing Secure/HttpOnly/SameSite), CORS Access-Control-* headers, and server-fingerprinting headers. It lists which recommended SECURITY headers are MISSING (Strict-Transport-Security, Content-Security-Policy, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy) with a fix for each, and grades the VALUES of present ones (CSP unsafe-inline/unsafe-eval, short HSTS max-age that won't preload, weak Referrer-Policy, obsolete X-Frame-Options, deprecated X-XSS-Protection, and information-disclosure headers like Server/X-Powered-By/X-AspNet-Version). It returns an overall A+-to-F security_grade plus notes (no caching, no compression, charset missing). Accepts an optional leading status line and CRLF or bare-LF endings. Returns JSON. Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["headers"],
-      "properties": { "headers": { "type": "string" } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "headers": {
+          "description": "The HTTP response headers to analyze, one 'Name: value' per line (optionally preceded by a status line such as 'HTTP/2 200'). A blank line ends the header block. Obsolete line-folded headers are joined.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "headers"
+      ],
+      "type": "object"
     }
   }
 }

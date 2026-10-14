@@ -7,13 +7,27 @@
   "tool": {
     "description": "Create an in-memory SQL database from your statements and run queries against it, returning the result of the last statement. Pass one or more semicolon-separated SQL statements in 'sql' (e.g. a CREATE TABLE and INSERTs followed by a SELECT) — the database is fresh each call, so include the schema and data you want to query. Supports CREATE TABLE, INSERT, UPDATE, DELETE and SELECT with WHERE, ORDER BY, LIMIT, GROUP BY, aggregate functions and JOINs. Use format='table' (default) for an aligned grid, 'csv' for comma-separated rows, or 'json' for an array of row objects.",
     "parameters": {
-      "type": "object",
-      "required": ["sql"],
+      "additionalProperties": false,
       "properties": {
-        "sql": { "type": "string" },
-        "format": { "type": "string", "enum": ["table", "csv", "json"], "default": "table" }
+        "format": {
+          "default": "table",
+          "description": "Output format for a SELECT result: 'table' (default) is an aligned ASCII grid, 'csv' is comma-separated with a header row, 'json' is an array of row objects. Non-SELECT statements report rows affected.",
+          "enum": [
+            "table",
+            "csv",
+            "json"
+          ],
+          "type": "string"
+        },
+        "sql": {
+          "description": "One or more SQL statements separated by ';'. Runs against a fresh in-memory database (so include your CREATE TABLE / INSERT before the SELECT). Supports CREATE TABLE, INSERT, UPDATE, DELETE, SELECT with WHERE/ORDER BY/LIMIT/GROUP BY/JOIN and common functions. The result of the LAST statement is returned.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "sql"
+      ],
+      "type": "object"
     }
   }
 }

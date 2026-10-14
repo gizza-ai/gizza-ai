@@ -223,7 +223,7 @@ version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2e57e16b3fe8ff4364c0661fdaac543fb38b29ea9bc9c2f45612d90adf931d2b"
 dependencies = [
- "hashbrown",
+ "hashbrown 0.15.5",
  "ttf-parser",
 ]
 
@@ -395,6 +395,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.17.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+
+[[package]]
 name = "hybrid-array"
 version = "0.4.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -556,6 +562,18 @@ checksum = "525e9ff3e1a4be2fbea1fdf0e98686a6d98b4d8f937e1bf7402245af1909e8c3"
 dependencies = [
  "byteorder-lite",
  "quick-error",
+]
+
+[[package]]
+name = "indexmap"
+version = "2.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc4e190f5d26ca7051642629da2c52fc03bde85a03197c99408dcd291734c855"
+dependencies = [
+ "equivalent",
+ "hashbrown 0.17.1",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -1012,13 +1030,15 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "async-trait",
  "chrono",
  "futures",
  "getrandom",
+ "indexmap",
  "linkme",
+ "percent-encoding",
  "rmp-serde",
  "serde",
  "serde_bytes",
@@ -1037,7 +1057,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1048,7 +1068,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "serde",
  "serde_json",

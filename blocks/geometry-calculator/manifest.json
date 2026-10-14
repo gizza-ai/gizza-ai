@@ -2,34 +2,90 @@
   "name": "gizza-ai/geometry-calculator",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Area, perimeter, surface area, and volume of common shapes.",
+  "summary": "Area, perimeter, surface area, and volume of common shapes",
   "role": "skill",
   "tool": {
-    "description": "Calculate area and perimeter for 2D shapes or surface area and volume for 3D shapes from their dimensions.",
+    "description": "Calculate area and perimeter for 2D shapes (square, rectangle, triangle, circle, ellipse, trapezoid, parallelogram, regular_polygon) or surface area and volume for 3D shapes (cube, rectangular_prism, sphere, cylinder, cone, pyramid) from their dimensions. Pass the shape plus only the dimensions that shape needs (e.g. circle → radius; rectangle → width, height; cylinder → radius, height). Returns the shape, its dimensionality, the dimensions echoed back, the computed measures with unit suffixes, and a human-readable summary.",
     "parameters": {
-      "type": "object",
-      "required": ["shape"],
+      "additionalProperties": false,
       "properties": {
-        "shape": {
-          "type": "string",
-          "enum": ["square","rectangle","triangle","circle","ellipse","trapezoid","parallelogram","regular_polygon","cube","rectangular_prism","sphere","cylinder","cone","pyramid"],
-          "description": "The shape to measure."
+        "base": {
+          "description": "Base length. Used by triangle, trapezoid, parallelogram, and the square base of a pyramid.",
+          "type": "number"
         },
-        "side": { "type": "number", "description": "Edge length (square, cube, regular_polygon)." },
-        "width": { "type": "number", "description": "Width (rectangle, rectangular_prism)." },
-        "height": { "type": "number", "description": "Height (rectangle, triangle, trapezoid, parallelogram, rectangular_prism, cylinder, cone, pyramid)." },
-        "length": { "type": "number", "description": "Length / depth (rectangular_prism)." },
-        "radius": { "type": "number", "description": "Radius (circle, sphere, cylinder, cone)." },
-        "radius_a": { "type": "number", "description": "Semi-major axis (ellipse)." },
-        "radius_b": { "type": "number", "description": "Semi-minor axis (ellipse)." },
-        "base": { "type": "number", "description": "Base length (triangle, trapezoid, parallelogram, pyramid)." },
-        "top": { "type": "number", "description": "Top / shorter parallel side (trapezoid)." },
-        "sides": { "type": "number", "description": "Number of sides, >= 3 (regular_polygon)." },
-        "side_a": { "type": "number", "description": "Side A length (parallelogram slant; optional triangle/trapezoid edge)." },
-        "side_b": { "type": "number", "description": "Side B length (optional triangle/trapezoid edge)." },
-        "side_c": { "type": "number", "description": "Side C length (optional triangle edge)." }
+        "height": {
+          "description": "Height. Used by rectangle, triangle, trapezoid, parallelogram, rectangular_prism, cylinder, cone, and pyramid.",
+          "type": "number"
+        },
+        "length": {
+          "description": "Length (depth). Used by rectangular_prism.",
+          "type": "number"
+        },
+        "radius": {
+          "description": "Radius. Used by circle, sphere, cylinder, and cone.",
+          "type": "number"
+        },
+        "radius_a": {
+          "description": "Semi-major axis (longer radius). Used by ellipse.",
+          "type": "number"
+        },
+        "radius_b": {
+          "description": "Semi-minor axis (shorter radius). Used by ellipse.",
+          "type": "number"
+        },
+        "shape": {
+          "description": "The shape to measure. 2D shapes (square, rectangle, triangle, circle, ellipse, trapezoid, parallelogram, regular_polygon) return area and perimeter; 3D shapes (cube, rectangular_prism, sphere, cylinder, cone, pyramid) return surface area and volume.",
+          "enum": [
+            "square",
+            "rectangle",
+            "triangle",
+            "circle",
+            "ellipse",
+            "trapezoid",
+            "parallelogram",
+            "regular_polygon",
+            "cube",
+            "rectangular_prism",
+            "sphere",
+            "cylinder",
+            "cone",
+            "pyramid"
+          ],
+          "type": "string"
+        },
+        "side": {
+          "description": "Edge length. Used by square, cube, and regular_polygon.",
+          "type": "number"
+        },
+        "side_a": {
+          "description": "Side A length. The slant side of a parallelogram; one triangle/trapezoid edge (optional, enables perimeter).",
+          "type": "number"
+        },
+        "side_b": {
+          "description": "Side B length. A triangle/trapezoid edge (optional, enables perimeter).",
+          "type": "number"
+        },
+        "side_c": {
+          "description": "Side C length. The third triangle edge (optional, enables perimeter).",
+          "type": "number"
+        },
+        "sides": {
+          "description": "Number of sides (>= 3). Used by regular_polygon.",
+          "type": "number"
+        },
+        "top": {
+          "description": "Top (shorter parallel side). Used by trapezoid.",
+          "type": "number"
+        },
+        "width": {
+          "description": "Width. Used by rectangle and rectangular_prism.",
+          "type": "number"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "shape"
+      ],
+      "type": "object"
     }
   }
 }

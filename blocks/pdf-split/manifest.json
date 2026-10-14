@@ -2,7 +2,7 @@
   "name": "gizza-ai/pdf-split",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Extract or split specific pages out of a PDF.",
+  "summary": "Extract or split specific pages out of a PDF",
   "role": "skill",
   "requires": [
     "wafer-run/network"

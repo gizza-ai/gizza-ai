@@ -7,17 +7,59 @@
   "tool": {
     "description": "Convert a graph between an edge list, an adjacency matrix, an adjacency list, an incidence matrix, a degree matrix, and the graph Laplacian. Set from='edges' (default, one 'A B' edge per line, optional 3rd weight token) or from='adjacency' (a square numeric matrix with auto-detected label header). Set to='adjacency' (default), 'incidence' (vertices×edges; directed uses -1 for the tail and +1 for the head), 'edges', 'list' (adjacency list), 'degree' (diagonal degree matrix), or 'laplacian' (L=D-A, undirected only). Use directed=true so 'A B' is one-way, and weighted=true to read/emit edge weights (otherwise every edge is 1). Matrices are tab-separated with a label row and column.",
     "parameters": {
-      "type": "object",
-      "required": ["input"],
+      "additionalProperties": false,
       "properties": {
-        "input": { "type": "string" },
-        "from": { "type": "string", "enum": ["auto", "edges", "adjacency", "list", "incidence"], "default": "auto" },
-        "to": { "type": "string", "enum": ["adjacency", "incidence", "edges", "list", "degree", "laplacian", "stats", "power"], "default": "adjacency" },
-        "directed": { "type": "boolean", "default": false },
-        "weighted": { "type": "boolean", "default": false },
-        "power": { "type": "integer", "default": 2 }
+        "directed": {
+          "default": false,
+          "description": "Treat the graph as directed: 'A B' does NOT imply 'B A'. Default false (undirected).",
+          "type": "boolean"
+        },
+        "from": {
+          "default": "auto",
+          "description": "Input format: 'auto' (default) auto-detects structure; 'edges' an edge list; 'adjacency' a square adjacency matrix; 'list' an adjacency list; 'incidence' an incidence matrix.",
+          "enum": [
+            "auto",
+            "edges",
+            "adjacency",
+            "list",
+            "incidence"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The graph to convert. For from='edges': one edge per line as 'A B' (or 'A B 3' when weighted); endpoints are whitespace- or comma-separated; a single token declares an isolated vertex; '#' starts a comment. For from='adjacency': a square numeric matrix, one row per line, cells whitespace- or comma-separated; an optional header row/column of labels is auto-detected. For from='list': an adjacency list of neighbors. For from='incidence': a vertices×edges incidence matrix.",
+          "type": "string"
+        },
+        "power": {
+          "default": 2,
+          "description": "The power k to raise the adjacency matrix to when to='power' (calculates walk counts of length k). Range 1 to 10.",
+          "type": "integer"
+        },
+        "to": {
+          "default": "adjacency",
+          "description": "Output format: 'adjacency' (default) a labelled adjacency matrix; 'incidence' a vertices×edges incidence matrix (directed uses -1 tail / +1 head); 'edges' a normalized edge list; 'list' an adjacency list ('A: B C'); 'degree' the diagonal degree matrix; 'laplacian' the graph Laplacian L=D-A (undirected only); 'stats' analytical graph metrics; 'power' walk-count matrix raised to power k.",
+          "enum": [
+            "adjacency",
+            "incidence",
+            "edges",
+            "list",
+            "degree",
+            "laplacian",
+            "stats",
+            "power"
+          ],
+          "type": "string"
+        },
+        "weighted": {
+          "default": false,
+          "description": "Read/emit edge weights: the 3rd token of an edge line, or the matrix cell value. Default false (every present edge is 1).",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "input"
+      ],
+      "type": "object"
     }
   }
 }

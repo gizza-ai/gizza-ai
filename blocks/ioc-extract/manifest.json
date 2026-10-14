@@ -5,16 +5,29 @@
   "summary": "Extract IOCs (IPs, URLs, domains, emails, hashes) from text.",
   "role": "skill",
   "tool": {
-    "description": "Extract indicators of compromise (IOCs) from an arbitrary block of text — IPv4/IPv6 addresses, URLs, domains, emails, and MD5/SHA-1/SHA-256/SHA-512 hashes — de-duplicated, sorted and grouped by type. Recognizes and refangs defanged input; can optionally re-defang the output.",
+    "description": "Extract indicators of compromise (IOCs) from an arbitrary block of text — a log line, email, alert, or threat-intel report. It pulls out IPv4 and IPv6 addresses, URLs (http/https/ftp), domains/hostnames, email addresses, and file hashes (MD5, SHA-1, SHA-256, SHA-512), then de-duplicates, sorts, and groups them by type. Defanged input is recognized and refanged before matching, so you can paste indicators straight out of a CTI report (it understands hxxp[://]…, 1[.]2[.]3[.]4, bad[at]evil[dot]com, plus the round () and curly {} bracket variants). Use the 'types' parameter to restrict to specific categories (e.g. 'ipv4,url,sha256' or 'hash' for all hash types; 'all' is the default). Set 'defang' to true to re-defang the extracted indicators in the output so the result itself is safe to paste back into a ticket or email. URLs and email addresses are excluded from the 'domain' group so categories don't overlap.",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
-        "types": { "type": "string", "default": "all" },
-        "defang": { "type": "boolean", "default": false }
+        "defang": {
+          "default": false,
+          "description": "When true, re-defang the extracted indicators in the output (evil[.]com, hxxp[://]…, bad[at]evil[.]com) so the result is safe to paste into a report or ticket. Default false emits the real, clickable indicators.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text to scan for indicators of compromise — a log line, email, alert or threat report. Defanged input (hxxp[://]…, 1[.]2[.]3[.]4, bad[at]evil[dot]com) is refanged before matching.",
+          "type": "string"
+        },
+        "types": {
+          "default": "all",
+          "description": "Comma-separated list of indicator types to extract: any of 'ipv4', 'ipv6', 'url', 'domain', 'email', 'md5', 'sha1', 'sha256', 'sha512' (also 'hash' for all four hash types). 'all' (default) extracts every type.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

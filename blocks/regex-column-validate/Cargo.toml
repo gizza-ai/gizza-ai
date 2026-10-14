@@ -12,8 +12,8 @@ rust-version = "1.82"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
-wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
+wafer-sdk = { git = "https://github.com/wafer-run/wafer-run", rev = "f6132178467f2d93ce02a625e3220e30cfa278ee" }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run", rev = "f6132178467f2d93ce02a625e3220e30cfa278ee" }
 gizza-ai-regex-column-validate-core = { path = "core" }
 gizza-ai-block-utils = { path = "../../block-utils" }
 serde = { version = "1", features = ["derive"] }

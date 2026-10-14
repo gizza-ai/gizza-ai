@@ -599,6 +599,8 @@ checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
  "hashbrown",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -1333,13 +1335,15 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "async-trait",
  "chrono",
  "futures",
  "getrandom 0.2.17",
+ "indexmap",
  "linkme",
+ "percent-encoding",
  "rmp-serde",
  "serde",
  "serde_bytes",
@@ -1358,7 +1362,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1369,7 +1373,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f6132178467f2d93ce02a625e3220e30cfa278ee#f6132178467f2d93ce02a625e3220e30cfa278ee"
 dependencies = [
  "serde",
  "serde_json",

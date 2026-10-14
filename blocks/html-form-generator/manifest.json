@@ -7,16 +7,41 @@
   "tool": {
     "description": "Generate accessible, ready-to-paste HTML <form> markup from a plain-text description of fields. Describe one field per line as 'Label | type | options': end a label with '*' to make it required; type (default text) is one of text, email, password, number, tel, url, date, time, textarea, select, radio, checkbox, checkboxes; for select/radio/checkboxes give a comma-separated option list, otherwise the third part is a placeholder. Each field gets a slugified name/id, a properly bound <label for>, validation attributes (required, type=email/url/number/...), and unique names; output can include a small <style> block. Set method (post/get), action URL, and the submit button label.",
     "parameters": {
-      "type": "object",
-      "required": ["fields"],
+      "additionalProperties": false,
       "properties": {
-        "fields": { "type": "string", "description": "The form fields, one per line, pipe-separated as 'Label | type | options'." },
-        "method": { "type": "string", "enum": ["post", "get"], "default": "post", "description": "The form's HTTP method attribute: 'post' (default) or 'get'." },
-        "action": { "type": "string", "default": "", "description": "The form's 'action' URL where it submits. Blank (default) omits the attribute." },
-        "submit_label": { "type": "string", "default": "Submit", "description": "Text on the submit button. Default 'Submit'." },
-        "styled": { "type": "boolean", "default": true, "description": "When true (default), prepend a small <style> block and add the 'gizza-form' class." }
+        "action": {
+          "default": "",
+          "description": "The form's 'action' URL where it submits. Blank (default) omits the attribute.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "The form fields, one per line. Each line is pipe-separated: 'Label | type | options'. End a label with '*' to mark it required (e.g. 'Email*'). The type (default 'text') is one of: text, email, password, number, tel, url, date, time, textarea, select, radio, checkbox, checkboxes. For select/radio/checkboxes the third part is a comma-separated option list (e.g. 'Color | select | Red, Green, Blue'); for the other types it is used as the input's placeholder. Lines starting with '#' are comments.",
+          "type": "string"
+        },
+        "method": {
+          "default": "post",
+          "description": "The form's HTTP method attribute: 'post' (default) or 'get'.",
+          "enum": [
+            "post",
+            "get"
+          ],
+          "type": "string"
+        },
+        "styled": {
+          "default": true,
+          "description": "When true (default), prepend a small <style> block and add the 'gizza-form' class so the markup looks good standalone. Set false for unstyled, class-free markup.",
+          "type": "boolean"
+        },
+        "submit_label": {
+          "default": "Submit",
+          "description": "Text on the submit button. Default 'Submit'.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "fields"
+      ],
+      "type": "object"
     }
   }
 }

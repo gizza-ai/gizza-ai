@@ -5,16 +5,34 @@
   "summary": "Extract hostnames and registrable domains from text",
   "role": "skill",
   "tool": {
-    "description": "Scan text and extract every domain it references — from plain text, http(s)/ftp URLs, and email addresses. Each candidate is validated against the Public Suffix List, so IP addresses, version numbers, and bogus TLDs are dropped. Results are deduplicated in first-seen order. mode=hostname returns full hostnames, mode=registrable returns the registrable domain / eTLD+1, mode=both (default) returns both lists with counts. Set sort=true to order results alphabetically. Runs locally.",
+    "description": "Scan text and extract every domain it references — from plain text, http(s)/ftp URLs, and email addresses. Each candidate is validated against the Public Suffix List, so IP addresses, version numbers, and bogus TLDs are dropped. Results are deduplicated in first-seen order. mode=hostname returns full hostnames (www.blog.example.co.uk), mode=registrable returns the registrable domain / eTLD+1 (example.co.uk), mode=both (default) returns both lists with counts. Set sort=true to order the results alphabetically instead of first-seen. Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
-        "mode": { "type": "string", "enum": ["hostname", "registrable", "both"], "default": "both" },
-        "sort": { "type": "boolean", "default": false }
+        "mode": {
+          "default": "both",
+          "description": "Which domains to return: full hostnames, registrable domains (eTLD+1, e.g. example.co.uk), or both.",
+          "enum": [
+            "hostname",
+            "registrable",
+            "both"
+          ],
+          "type": "string"
+        },
+        "sort": {
+          "default": false,
+          "description": "When true, return the domains in alphabetical order instead of first-seen order.",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "The text to scan for domains (plain text, URLs, and email addresses are all supported).",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

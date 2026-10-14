@@ -5,19 +5,54 @@
   "summary": "Mask or obfuscate a string for screenshots and demos",
   "role": "skill",
   "tool": {
-    "description": "Mask or visually obfuscate a string for screenshots, demos, and docs. mode='mask' (default) redacts the middle of a value while keeping keep_start leading and keep_end trailing characters visible, replacing the rest with mask_char (default '*'). mode='rot' applies a Caesar/ROT-N rotation (rot_n, default 13). mode='leetspeak' swaps letters for look-alike digits/symbols. mode='homoglyph' swaps ASCII letters for identical-looking Unicode (mostly Cyrillic). Runs locally.",
+    "description": "Mask or visually obfuscate a string for screenshots, demos, and docs. mode='mask' (default) redacts the middle of a value while keeping keep_start leading and keep_end trailing characters visible, replacing the rest with mask_char (default '*') — e.g. an API key 'sk-1234…cdef'. mode='rot' applies a Caesar/ROT-N rotation (rot_n, default 13 = the self-inverse ROT13). mode='leetspeak' swaps letters for look-alike digits/symbols (a→4, e→3, i→1, o→0, s→5, t→7). mode='homoglyph' swaps ASCII letters for identical-looking Unicode (mostly Cyrillic) so the text looks the same but is a distinct string. Runs locally — the text never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
-        "mode": { "type": "string", "enum": ["mask", "rot", "leetspeak", "homoglyph"], "default": "mask" },
-        "mask_char": { "type": "string", "default": "*" },
-        "keep_start": { "type": "integer", "minimum": 0, "default": 0 },
-        "keep_end": { "type": "integer", "minimum": 0, "default": 0 },
-        "rot_n": { "type": "integer", "minimum": 0, "maximum": 25, "default": 13 }
+        "keep_end": {
+          "default": 0,
+          "description": "In 'mask' mode, how many trailing characters to keep visible. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "keep_start": {
+          "default": 0,
+          "description": "In 'mask' mode, how many leading characters to keep visible. Default 0.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "mask_char": {
+          "default": "*",
+          "description": "The character used to replace masked characters in 'mask' mode. Only the first character is used. Default '*'.",
+          "type": "string"
+        },
+        "mode": {
+          "default": "mask",
+          "description": "How to transform the text. 'mask' (default) keeps the first keep_start and last keep_end characters and replaces the middle with mask_char — for redacting secrets/PII in screenshots. 'rot' is a Caesar/ROT-N letter rotation (rot_n, default 13 = ROT13). 'leetspeak' swaps letters for look-alike digits (a→4, e→3, o→0…). 'homoglyph' swaps ASCII letters for identical-looking Unicode (Cyrillic) so the text looks the same but is a different string.",
+          "enum": [
+            "mask",
+            "rot",
+            "leetspeak",
+            "homoglyph"
+          ],
+          "type": "string"
+        },
+        "rot_n": {
+          "default": 13,
+          "description": "In 'rot' mode, the shift applied to each letter, 0-25 (taken mod 26). Default 13 (ROT13, which is self-inverse).",
+          "maximum": 25,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "description": "The text to mask or obfuscate.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

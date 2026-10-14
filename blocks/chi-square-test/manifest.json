@@ -2,7 +2,7 @@
   "name": "gizza-ai/chi-square-test",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Pearson's chi-square test (goodness-of-fit or contingency table).",
+  "summary": "Pearson's chi-square test (goodness-of-fit or contingency table)",
   "role": "skill",
   "tool": {
     "description": "Run Pearson's chi-square test. Mode 'goodness-of-fit' compares an observed frequency vector against an expected distribution (uniform by default, or explicit expected counts/ratios); mode 'contingency' tests independence in an r×c table of observed counts. Returns the chi-square statistic, degrees of freedom, p-value, expected counts, Cramér's V effect size (contingency), and a low-expected-count warning. Runs locally.",
@@ -11,7 +11,10 @@
       "properties": {
         "mode": {
           "type": "string",
-          "enum": ["goodness-of-fit", "contingency"],
+          "enum": [
+            "goodness-of-fit",
+            "contingency"
+          ],
           "default": "goodness-of-fit",
           "description": "Which test to run: 'goodness-of-fit' compares one observed frequency vector against an expected distribution; 'contingency' tests independence in an r×c table of observed counts."
         },
@@ -29,7 +32,9 @@
           "description": "Contingency only: apply Yates' continuity correction (only affects 2×2 tables). Default false."
         }
       },
-      "required": ["observed"],
+      "required": [
+        "observed"
+      ],
       "additionalProperties": false
     }
   }
