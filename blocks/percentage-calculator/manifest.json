@@ -5,26 +5,58 @@
   "summary": "Percent of, what percent, percent change, apply change, and share of total.",
   "role": "skill",
   "tool": {
-    "description": "Answer everyday percentage questions from plain numbers: percent of a base, what percent one number is of another, percent change, apply a percent change, or a value's share of a total.",
+    "description": "Answer everyday percentage questions from plain numbers. Choose a mode: percent_of (what is P% of a base — percent, base), what_percent (a part is what percent of a whole — part, whole), change (percent change from one value to another — from, to), apply_change (increase or decrease a base by a percent — base, percent), or percent_of_total (a value's share of a total — value, total). Pass mode plus only the numbers that mode needs. Returns the canonical mode, the inputs echoed back, the computed measures with unit suffixes, and a human-readable summary.",
     "parameters": {
-      "type": "object",
-      "required": ["mode"],
+      "additionalProperties": false,
       "properties": {
-        "mode": {
-          "type": "string",
-          "enum": ["percent_of","what_percent","change","apply_change","percent_of_total"],
-          "description": "Which percentage question to answer."
+        "base": {
+          "description": "The base amount the percentage acts on. Used by percent_of and apply_change.",
+          "type": "number"
         },
-        "percent": { "type": "number", "description": "Percentage value, e.g. 15 for 15% (percent_of, apply_change)." },
-        "base": { "type": "number", "description": "The base amount the percentage acts on (percent_of, apply_change)." },
-        "part": { "type": "number", "description": "The part amount (what_percent)." },
-        "whole": { "type": "number", "description": "The whole amount, non-zero (what_percent)." },
-        "from": { "type": "number", "description": "Starting (old) value, non-zero (change)." },
-        "to": { "type": "number", "description": "Ending (new) value (change)." },
-        "value": { "type": "number", "description": "The value whose share of the total you want (percent_of_total)." },
-        "total": { "type": "number", "description": "The total, non-zero (percent_of_total)." }
+        "from": {
+          "description": "Starting (old) value, must be non-zero. Used by change.",
+          "type": "number"
+        },
+        "mode": {
+          "description": "Which percentage question to answer. percent_of: P% of a base (percent, base). what_percent: part is what percent of whole (part, whole). change: percent change from one value to another (from, to). apply_change: increase or decrease a base by a percent (base, percent). percent_of_total: a value's share of a total (value, total).",
+          "enum": [
+            "percent_of",
+            "what_percent",
+            "change",
+            "apply_change",
+            "percent_of_total"
+          ],
+          "type": "string"
+        },
+        "part": {
+          "description": "The part amount. Used by what_percent.",
+          "type": "number"
+        },
+        "percent": {
+          "description": "Percentage value, e.g. 15 for 15%. Used by percent_of and apply_change.",
+          "type": "number"
+        },
+        "to": {
+          "description": "Ending (new) value. Used by change.",
+          "type": "number"
+        },
+        "total": {
+          "description": "The total (must be non-zero). Used by percent_of_total.",
+          "type": "number"
+        },
+        "value": {
+          "description": "The value whose share of the total you want. Used by percent_of_total.",
+          "type": "number"
+        },
+        "whole": {
+          "description": "The whole amount (must be non-zero). Used by what_percent.",
+          "type": "number"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "mode"
+      ],
+      "type": "object"
     }
   }
 }

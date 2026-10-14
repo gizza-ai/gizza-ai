@@ -5,19 +5,44 @@
   "summary": "Detect and strip invisible zero-width spaces, joiners, BOMs and other non-printing characters from text",
   "role": "skill",
   "tool": {
-    "description": "Remove invisible characters from text: zero-width spaces/joiners, word joiner, invisible math operators, byte-order mark (BOM), bidirectional formatting controls and soft hyphens. remove_zero_width, remove_bidi and remove_soft_hyphen default true; replace_nbsp (default false) normalizes non-breaking/odd spaces; replacement is substituted for each removed character.",
+    "description": "Remove invisible characters from text: zero-width spaces/joiners, the word joiner and invisible math operators, the byte-order mark (BOM), bidirectional formatting controls, and soft hyphens. remove_zero_width, remove_bidi and remove_soft_hyphen default true; replace_nbsp (default false) turns non-breaking and other odd Unicode spaces into a normal space; replacement is substituted for each removed character (empty string by default, which deletes it). Runs locally — the text never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["text"],
+      "additionalProperties": false,
       "properties": {
-        "text": { "type": "string" },
-        "remove_zero_width": { "type": "boolean", "default": true },
-        "remove_bidi": { "type": "boolean", "default": true },
-        "remove_soft_hyphen": { "type": "boolean", "default": true },
-        "replace_nbsp": { "type": "boolean", "default": false },
-        "replacement": { "type": "string", "default": "" }
+        "remove_bidi": {
+          "default": true,
+          "description": "When true (default), remove invisible bidirectional formatting controls (U+061C, U+200E/U+200F, U+202A–U+202E, U+2066–U+2069) that can visually reorder text.",
+          "type": "boolean"
+        },
+        "remove_soft_hyphen": {
+          "default": true,
+          "description": "When true (default), remove soft hyphens (U+00AD), the invisible optional line-break hint.",
+          "type": "boolean"
+        },
+        "remove_zero_width": {
+          "default": true,
+          "description": "When true (default), remove zero-width characters: zero-width space (U+200B), non-joiner (U+200C), joiner (U+200D), word joiner (U+2060), invisible math operators (U+2061–U+2064), Mongolian vowel separator (U+180E) and the byte-order mark / ZWNBSP (U+FEFF).",
+          "type": "boolean"
+        },
+        "replace_nbsp": {
+          "default": false,
+          "description": "When true, replace non-breaking and other unusual Unicode spaces (U+00A0, U+2000–U+200A, U+202F, U+205F, U+3000, U+1680) with a normal ASCII space. Off by default.",
+          "type": "boolean"
+        },
+        "replacement": {
+          "default": "",
+          "description": "String substituted for each removed zero-width, bidi or soft-hyphen character. Defaults to an empty string, which deletes the character.",
+          "type": "string"
+        },
+        "text": {
+          "description": "The text to strip invisible zero-width and formatting characters from.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "text"
+      ],
+      "type": "object"
     }
   }
 }

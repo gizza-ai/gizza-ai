@@ -5,12 +5,19 @@
   "summary": "Compute the JA3 TLS client fingerprint from a ClientHello",
   "role": "skill",
   "tool": {
-    "description": "Compute the JA3 (and normalized JA3N) TLS client fingerprint string and MD5 hash from a raw ClientHello given as a hex string (SSLVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats with GREASE removed).",
+    "description": "Compute the JA3 TLS client fingerprint from a raw ClientHello given as a hex string. JA3 fingerprints a TLS client by concatenating five decimal fields from its ClientHello in the order SSLVersion,Ciphers,Extensions,EllipticCurves,EllipticCurvePointFormats (cipher suites, extension types, supported_groups, and ec_point_formats joined by '-'), with GREASE values removed (RFC 8701). The MD5 of that string is the JA3 hash seen in IDS / proxy / threat-intel logs (e.g. Suricata, Zeek). Also returns JA3N, the normalized variant that sorts the extension list ascending so the fingerprint is stable across the TLS extension-order randomization used by modern browsers (Chrome 110+, Firefox 114+). Input may begin at the TLS record header (16 03 ...), the handshake header (01 ...), or the ClientHello body, and may contain spaces, colons, dashes, dots, commas, or a 0x prefix. Returns the JA3 and JA3N strings and their MD5 hashes, the legacy TLS version, the decimal cipher suites / extensions / elliptic curves / point formats, and any SNI server names. Runs locally; nothing is uploaded.",
     "parameters": {
-      "type": "object",
-      "required": ["client_hello"],
-      "properties": { "client_hello": { "type": "string" } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "client_hello": {
+          "description": "The TLS ClientHello as a hex string. It may start at the 5-byte TLS record header (begins '16 03 ...'), the handshake header (begins '01 ...'), or directly at the ClientHello body. Spaces, colons, dashes, dots, commas, and a 0x prefix are ignored.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "client_hello"
+      ],
+      "type": "object"
     }
   }
 }

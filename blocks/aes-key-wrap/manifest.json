@@ -5,18 +5,51 @@
   "summary": "Wrap or unwrap cryptographic keys with AES Key Wrap (RFC 3394 / RFC 5649)",
   "role": "skill",
   "tool": {
-    "description": "Wrap or unwrap cryptographic key material with the AES Key Wrap algorithm. operation = wrap (default) or unwrap. algorithm = kw (RFC 3394 / NIST SP 800-38F) or kwp (RFC 5649, with padding). The key (KEK) length selects AES-128/192/256 (16/24/32 bytes). data, key and wrapped output are hex or base64 (set format; default base64).",
+    "description": "Wrap or unwrap cryptographic key material with the AES Key Wrap algorithm. operation = wrap (default, protect a key under a key-encryption key) or unwrap (recover it, verifying the integrity check). algorithm = kw (default, RFC 3394 / NIST SP 800-38F; key material must be a multiple of 8 bytes and at least 16 bytes) or kwp (RFC 5649, \"with padding\"; any length >= 1 byte). The key (KEK) length selects AES-128/192/256 (16/24/32 bytes). The data, key and wrapped output are hex or base64 (set format; default base64). Wrapping adds 8 bytes of integrity check; unwrapping fails if the KEK, algorithm, or data is wrong. To encrypt arbitrary plaintext rather than a key, use aes-cipher or text-encrypt instead.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string" },
-        "operation": { "type": "string", "enum": ["wrap", "unwrap"], "default": "wrap" },
-        "key": { "type": "string" },
-        "algorithm": { "type": "string", "enum": ["kw", "kwp"], "default": "kw" },
-        "format": { "type": "string", "enum": ["base64", "hex"], "default": "base64" }
+        "algorithm": {
+          "default": "kw",
+          "description": "kw (default, RFC 3394 / NIST SP 800-38F) wraps key material a multiple of 8 bytes and ≥ 16 bytes; kwp (RFC 5649, \"with padding\") wraps any length ≥ 1 byte.",
+          "enum": [
+            "kw",
+            "kwp"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "description": "For wrap: the key material to protect, encoded with `format`. For unwrap: the wrapped blob.",
+          "type": "string"
+        },
+        "format": {
+          "default": "base64",
+          "description": "Encoding for the KEK, the key material, and the wrapped output (base64 default, or hex).",
+          "enum": [
+            "base64",
+            "hex"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The key-encryption key (KEK), encoded with `format`. Its length selects the cipher: 16 bytes = AES-128, 24 = AES-192, 32 = AES-256.",
+          "type": "string"
+        },
+        "operation": {
+          "default": "wrap",
+          "description": "wrap (default) protects a key under the KEK; unwrap recovers it and verifies the integrity check.",
+          "enum": [
+            "wrap",
+            "unwrap"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }

@@ -5,10 +5,12 @@
   "summary": "Decode a DNS wire-format message from hex or base64url",
   "role": "skill",
   "tool": {
-    "description": "Decode a DNS protocol message (RFC 1035 wire format) given as hex or base64url into the 12-byte header (id, QR, opcode, AA/TC/RD/RA/AD/CD flags, RCODE, counts), the question section, and the answer/authority/additional resource records — decompressing domain names and decoding A/AAAA/NS/CNAME/PTR/MX/TXT/SOA/SRV/CAA/OPT records. Returns JSON. Runs locally.",
+    "description": "Decode a DNS protocol message (RFC 1035 wire format) given as a hex string OR base64url into structured fields. Parses the 12-byte header — transaction id, QR (query/response), opcode (QUERY/IQUERY/STATUS/NOTIFY/UPDATE), the AA/TC/RD/RA/AD/CD flags, the RCODE (NOERROR/FORMERR/SERVFAIL/NXDOMAIN/REFUSED/…), and the QD/AN/NS/AR section counts — then the question section and the answer, authority, and additional resource records. Domain names are decompressed (the 0xC0 message-compression pointers are followed back to their target). Common record types are decoded to readable RDATA: A (IPv4), AAAA (IPv6, zero-run compressed), NS/CNAME/PTR/DNAME (a name), MX (preference + exchange), TXT/SPF (quoted strings), SOA (mname rname serial refresh retry expire minimum), SRV (priority weight port target), CAA (flags tag value), and OPT/EDNS0 (UDP payload size, version, DO bit); unknown types fall back to a hex dump. Accepts the base64url form used by DNS-over-HTTPS (the GET ?dns= parameter). Returns JSON. Runs locally; nothing is sent to a server.",
     "parameters": {
       "type": "object",
-      "required": ["message"],
+      "required": [
+        "message"
+      ],
       "properties": {
         "message": {
           "type": "string",

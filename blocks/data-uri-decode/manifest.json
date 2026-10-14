@@ -5,12 +5,19 @@
   "summary": "Decode a data: URI into its MIME type and payload",
   "role": "skill",
   "tool": {
-    "description": "Parse and decode a data: URI (RFC 2397) into its MIME type, parameters (charset), encoding, byte size, and decoded payload (text or binary file-type + hex preview).",
+    "description": "Parse and decode a data: URI (RFC 2397) of the form data:[<mediatype>][;base64],<data>. Returns the MIME type (defaulting to text/plain when omitted), any media-type parameters such as charset, whether the payload was Base64 or percent-encoded, the decoded byte length, and the payload itself. A payload that decodes to printable UTF-8 is returned as text; a binary payload is reported with its detected file type (from magic bytes, e.g. image/png) and a hex preview. Tolerates whitespace/newlines inside Base64. Runs locally; nothing is uploaded.",
     "parameters": {
-      "type": "object",
-      "required": ["uri"],
-      "properties": { "uri": { "type": "string", "description": "The data: URI to decode." } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "description": "The data: URI to decode, e.g. 'data:text/plain;base64,SGVsbG8='.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "type": "object"
     }
   }
 }

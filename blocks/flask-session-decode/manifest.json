@@ -5,12 +5,19 @@
   "summary": "Decode a Flask session cookie into readable JSON (no secret key)",
   "role": "skill",
   "tool": {
-    "description": "Decode a Flask / itsdangerous session cookie into readable JSON WITHOUT the SECRET_KEY. Base64url-decodes the payload (inflating a '.'-prefixed zlib payload), parses it as JSON, and converts the itsdangerous timestamp to a Unix time + ISO-8601 UTC string. The signature is reported but not verified. Returns {payload, compressed, timestamp, timestamp_iso, signature, signature_verified}.",
+    "description": "Decode a Flask / itsdangerous session cookie into readable JSON WITHOUT the SECRET_KEY. Flask's default session uses itsdangerous URLSafeTimedSerializer, whose cookie value is three base64url segments 'payload.timestamp.signature'. This base64url-decodes the payload (transparently zlib-inflating a '.'-prefixed compressed payload), parses it as JSON, and converts the itsdangerous timestamp (offset from its 2011-01-01 epoch) to a Unix time + ISO-8601 UTC string. Pass 'cookie' as the bare value or a full 'session=...; Path=/' fragment — the name, quotes, and attributes are stripped. The signature is reported verbatim but NOT verified (no key is used, signature_verified is always false). Returns {payload, compressed, timestamp, timestamp_iso, signature, signature_verified}. Runs locally — the cookie never leaves the device.",
     "parameters": {
-      "type": "object",
-      "required": ["cookie"],
-      "properties": { "cookie": { "type": "string", "description": "The Flask session cookie value (bare or full 'session=...' fragment)." } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "cookie": {
+          "description": "The Flask session cookie value to decode. Paste the bare value or a full 'session=...' fragment (a leading name=, surrounding quotes, and trailing '; Path=/; HttpOnly' attributes are stripped automatically). Format is the itsdangerous signed 'payload.timestamp.signature'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cookie"
+      ],
+      "type": "object"
     }
   }
 }

@@ -5,68 +5,67 @@
   "summary": "Citation generator",
   "role": "skill",
   "tool": {
-    "description": "Format a single reference into APA 7th, MLA 9th, Chicago 17th, or Harvard style from structured fields.",
+    "description": "Format a single reference into APA 7th, MLA 9th, Chicago 17th, or Harvard style from structured fields. Set style='apa' (default), 'mla', 'chicago', or 'harvard'. Provide whatever fields you have: 'title', 'authors' (separate several with ';' or ' and '; write each 'Family, Given' or 'Given Family'; a single token like 'UNESCO' is treated as an organization), 'year', 'container' (journal/website/book name), 'publisher', 'volume', 'issue', 'pages', 'url', 'doi', and 'accessed'. Blank fields are omitted. With a 'container' the title is formatted as a part of a larger work (quoted in MLA/Chicago); without one it is treated as a standalone work. A DOI is preferred over a URL. Returns one ready-to-paste reference-list / works-cited / bibliography entry as plain text (italics that the styles call for cannot be rendered in plain text). At least a title or an author is required.",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
+        "accessed": {
+          "description": "Date the online source was accessed, free-form (e.g. '12 Mar. 2024'). Used by MLA for web pages.",
+          "type": "string"
+        },
+        "authors": {
+          "description": "Author(s). Separate multiple authors with ';' (recommended) or ' and '. Each author may be written 'Family, Given' or 'Given Family'. A single token with no space (e.g. 'UNESCO') is treated as an organization.",
+          "type": "string"
+        },
+        "container": {
+          "description": "The larger work the source appears in: journal name, website name, or book/anthology title. Omitting it formats the source as a standalone work (e.g. a whole book).",
+          "type": "string"
+        },
+        "doi": {
+          "description": "DOI of the source, with or without the leading 'https://doi.org/'. Preferred over 'url' when present.",
+          "type": "string"
+        },
+        "issue": {
+          "description": "Issue (number) within the volume.",
+          "type": "string"
+        },
+        "pages": {
+          "description": "Page range, e.g. '45-67' or '12'.",
+          "type": "string"
+        },
+        "publisher": {
+          "description": "Publisher name (for books / standalone works without a container).",
+          "type": "string"
+        },
         "style": {
-          "type": "string",
+          "default": "apa",
+          "description": "Citation style: 'apa' (APA 7th, default), 'mla' (MLA 9th works-cited), 'chicago' (Chicago 17th notes-bibliography entry), or 'harvard' (Harvard author-date reference).",
           "enum": [
             "apa",
             "mla",
             "chicago",
             "harvard"
           ],
-          "default": "apa",
-          "description": "Citation style."
+          "type": "string"
         },
         "title": {
-          "type": "string",
-          "description": "Title of the work."
-        },
-        "authors": {
-          "type": "string",
-          "description": "Author(s), separated with ';' or ' and '."
-        },
-        "year": {
-          "type": "string",
-          "description": "Publication year."
-        },
-        "container": {
-          "type": "string",
-          "description": "Journal/website/book the source appears in."
-        },
-        "publisher": {
-          "type": "string",
-          "description": "Publisher name."
-        },
-        "volume": {
-          "type": "string",
-          "description": "Volume number."
-        },
-        "issue": {
-          "type": "string",
-          "description": "Issue number."
-        },
-        "pages": {
-          "type": "string",
-          "description": "Page range."
+          "description": "Title of the work (article, chapter, page, or book). Required unless 'authors' is given.",
+          "type": "string"
         },
         "url": {
-          "type": "string",
-          "description": "URL of the online source."
+          "description": "URL of the online source (used when no DOI is given).",
+          "type": "string"
         },
-        "doi": {
-          "type": "string",
-          "description": "DOI of the source."
+        "volume": {
+          "description": "Volume number of the journal/series.",
+          "type": "string"
         },
-        "accessed": {
-          "type": "string",
-          "description": "Date accessed."
+        "year": {
+          "description": "Publication year (e.g. '2021'). Omit for an undated source; APA then prints '(n.d.)'.",
+          "type": "string"
         }
       },
-      "required": [],
-      "additionalProperties": false
+      "type": "object"
     }
   }
 }

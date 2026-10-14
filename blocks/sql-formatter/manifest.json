@@ -5,14 +5,34 @@
   "summary": "Pretty-print and standardize a SQL query's formatting",
   "role": "skill",
   "tool": {
-    "description": "Pretty-print (beautify) and standardize a SQL query — major clauses on their own lines, select-list items one per line, AND/OR broken and indented, function calls kept tight, string literals and comments preserved. indent sets spaces per level (0-8, default 2); keyword_case = upper (default), lower, or preserve. Dialect-agnostic and forgiving. Runs locally.",
+    "description": "Pretty-print (beautify) and standardize a SQL query — major clauses (SELECT/FROM/WHERE/JOIN/GROUP BY/ORDER BY/…) on their own lines, select-list and column items one per line, AND/OR conditions broken and indented, function calls kept tight, and string literals/comments preserved verbatim. indent sets spaces per level (0-8, default 2); keyword_case = upper (default), lower, or preserve. Dialect-agnostic and forgiving — it reformats the token stream rather than rejecting unusual SQL. Runs locally.",
     "parameters": {
       "type": "object",
-      "required": ["sql"],
+      "required": [
+        "sql"
+      ],
       "properties": {
-        "sql": { "type": "string", "description": "The SQL query to format." },
-        "indent": { "type": "integer", "minimum": 0, "maximum": 8, "default": 2, "description": "Spaces of indentation per nesting level (0-8, default 2)." },
-        "keyword_case": { "type": "string", "enum": ["upper", "lower", "preserve"], "default": "upper", "description": "Casing for SQL keywords: upper (default), lower, or preserve (keep as written)." }
+        "sql": {
+          "type": "string",
+          "description": "The SQL query to format."
+        },
+        "indent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8,
+          "default": 2,
+          "description": "Spaces of indentation per nesting level (0-8, default 2)."
+        },
+        "keyword_case": {
+          "type": "string",
+          "enum": [
+            "upper",
+            "lower",
+            "preserve"
+          ],
+          "default": "upper",
+          "description": "Casing for SQL keywords: upper (default), lower, or preserve (keep as written)."
+        }
       },
       "additionalProperties": false
     }

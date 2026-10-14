@@ -5,15 +5,24 @@
   "summary": "Render Graphviz DOT to SVG",
   "role": "skill",
   "tool": {
-    "description": "Render Graphviz DOT diagram source into a standalone, scalable SVG — no Graphviz install needed. Pass `dot` as DOT source for a directed (digraph) or undirected (graph) graph; optional `dark_mode` recolors for a dark background. Returns the SVG markup as text. Runs locally on the device.",
+    "description": "Render Graphviz DOT diagram source into a standalone, scalable SVG — no Graphviz install needed. Pass `dot` as DOT source, e.g. 'digraph { a -> b; b -> c; a -> c; }' for a directed graph, or 'graph { x -- y; y -- z; }' for an undirected one; node/edge labels and chained edges are supported. Optional `dark_mode` recolors the SVG (light text/edges/strokes) for a dark background. Returns the SVG markup as text. Runs locally on the device.",
     "parameters": {
-      "type": "object",
-      "required": ["dot"],
+      "additionalProperties": false,
       "properties": {
-        "dot": { "type": "string" },
-        "dark_mode": { "type": "boolean", "default": false }
+        "dark_mode": {
+          "default": false,
+          "description": "Recolor the SVG for a dark background: light text, edges and node strokes on a transparent canvas (default false).",
+          "type": "boolean"
+        },
+        "dot": {
+          "description": "Graphviz DOT source to render, e.g. 'digraph { a -> b; b -> c; a -> c; }'. Supports directed (digraph) and undirected (graph) graphs, node/edge labels, and chained edges.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "dot"
+      ],
+      "type": "object"
     }
   }
 }

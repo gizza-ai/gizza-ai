@@ -5,19 +5,55 @@
   "summary": "Encrypt or decrypt data with the Rabbit stream cipher (128-bit key, optional 64-bit IV)",
   "role": "skill",
   "tool": {
-    "description": "Encrypt or decrypt data with the Rabbit stream cipher (RFC 4503 / eSTREAM), a fast 128-bit-key, 64-bit-IV stream cipher. operation = encrypt (default) or decrypt — Rabbit is symmetric. key must resolve to exactly 16 bytes: a 16-char UTF-8 passphrase (key_format=text, default) or hex/base64 (key_format=encoded). iv is optional and, when given, must resolve to exactly 8 bytes; it must match on both sides. The ciphertext (and an encoded key/IV) use format = hex (default) or base64; the plaintext is UTF-8. Keys and IVs are read most-significant-byte first, matching the RFC 4503 test vectors.",
+    "description": "Encrypt or decrypt data with the Rabbit stream cipher (RFC 4503 / eSTREAM), a fast 128-bit-key, 64-bit-IV stream cipher. operation = encrypt (default) or decrypt — Rabbit is symmetric, so both apply the same keystream. key must resolve to exactly 16 bytes: a 16-char UTF-8 passphrase (key_format=text, default) or hex/base64 (key_format=encoded). iv is optional and, when given, must resolve to exactly 8 bytes; it must match on both sides. The ciphertext (and an encoded key/IV) use format = hex (default) or base64; the plaintext is UTF-8. Keys and IVs are read most-significant-byte first, matching the RFC 4503 test vectors.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string" },
-        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
-        "key": { "type": "string" },
-        "iv": { "type": "string" },
-        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
-        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+        "data": {
+          "description": "For encrypt: the plaintext (UTF-8). For decrypt: the ciphertext, encoded with `format`.",
+          "type": "string"
+        },
+        "format": {
+          "default": "hex",
+          "description": "Encoding for the ciphertext (and the key/IV when key_format=encoded): hex (default) or base64. The plaintext is always UTF-8 text.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "iv": {
+          "description": "Optional initialization vector. Must resolve to exactly 8 bytes (64 bits) when given: 8 UTF-8 chars (key_format=text) or 16 hex chars / 12 base64 chars (key_format=encoded). Leave empty for no IV. Must match on encrypt and decrypt.",
+          "type": "string"
+        },
+        "key": {
+          "description": "The Rabbit key. Must resolve to exactly 16 bytes (128 bits): a 16-character UTF-8 passphrase when key_format=text (default), or 32 hex chars / 24 base64 chars when key_format=encoded.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "text",
+          "description": "How to read the key and IV: text = UTF-8 bytes (default); encoded = hex/base64 per `format`.",
+          "enum": [
+            "text",
+            "encoded"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "encrypt (default) or decrypt. Rabbit is symmetric, so both apply the same keystream.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }

@@ -5,19 +5,57 @@
   "summary": "Encrypt or decrypt data with the RC4 stream cipher (optional drop-N)",
   "role": "skill",
   "tool": {
-    "description": "Encrypt or decrypt data with the RC4 stream cipher, with an optional drop-N (RC4-drop[n]) to skip the weak initial keystream bytes. operation = encrypt (default) or decrypt — RC4 is symmetric. key is 1–256 bytes, read as a UTF-8 passphrase (key_format=text, default) or decoded from hex/base64 (key_format=encoded). drop discards the first n keystream bytes; it must match on both sides. The ciphertext (and an encoded key) use format = hex (default) or base64; the plaintext is UTF-8. WARNING: RC4 is cryptographically broken — use for interop, CTFs, and legacy systems only.",
+    "description": "Encrypt or decrypt data with the RC4 stream cipher, with an optional drop-N (RC4-drop[n]) to skip the weak initial keystream bytes. operation = encrypt (default) or decrypt — RC4 is symmetric. key is 1–256 bytes, read as a UTF-8 passphrase (key_format=text, default) or decoded from hex/base64 (key_format=encoded). drop discards the first n keystream bytes (e.g. 768/3072); it must match on both sides. The ciphertext (and an encoded key) use format = hex (default) or base64; the plaintext is UTF-8. WARNING: RC4 is cryptographically broken — use this for interop, CTFs, and legacy systems only; for real encryption use aes-cipher or text-encrypt.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string" },
-        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
-        "key": { "type": "string" },
-        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
-        "drop": { "type": "integer", "default": 0, "minimum": 0 },
-        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+        "data": {
+          "description": "For encrypt: the plaintext (UTF-8). For decrypt: the ciphertext, encoded with `format`.",
+          "type": "string"
+        },
+        "drop": {
+          "default": 0,
+          "description": "RC4-drop[n]: discard the first n keystream bytes before use (e.g. 768/3072) to skip RC4's biased prefix. Must match on encrypt and decrypt. Default 0 (plain RC4).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "default": "hex",
+          "description": "Encoding for the ciphertext (and the key when key_format=encoded): hex (default) or base64. The plaintext is always UTF-8 text.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The RC4 key (1–256 bytes). Read as a UTF-8 passphrase when key_format=text (default), or decoded from `format` when key_format=encoded.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "text",
+          "description": "How to read the key: text = UTF-8 passphrase (default); encoded = hex/base64 per `format`.",
+          "enum": [
+            "text",
+            "encoded"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "encrypt (default) or decrypt. RC4 is symmetric, so both apply the same keystream.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }
