@@ -558,7 +558,7 @@ jobs:
   # gate covers the whole corpus by construction (every block is "changed" and
   # gets a fresh artifact, so its descriptor must match its manifest). The next
   # PR is back to its own changed blocks; there is no repo-wide mode to undo.
-  # `gizza describe` reads the descriptor embedded in the CLI (build.rs
+  # `gizza list` reads the descriptors embedded in the CLI (build.rs
   # statically includes blocks/*/target/block.wasm), so this runs only after the
   # `blocks` shards have proven every committed artifact is exactly the locked
   # build CI just produced.
