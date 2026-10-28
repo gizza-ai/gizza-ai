@@ -12,8 +12,8 @@ rust-version = "1.82"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wafer-sdk = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
-wafer-block = { git = "https://github.com/wafer-run/wafer-run.git", branch = "main" }
+wafer-sdk = { git = "https://github.com/wafer-run/wafer-run", rev = "f0ca9c79abbefb4647cc73d15b92bbcd4043e03b" }
+wafer-block = { git = "https://github.com/wafer-run/wafer-run", rev = "f0ca9c79abbefb4647cc73d15b92bbcd4043e03b" }
 gizza-ai-photo-gps-mapper-core = { path = "core" }
 gizza-ai-block-utils = { path = "../../block-utils" }
 serde = { version = "1", features = ["derive"] }
