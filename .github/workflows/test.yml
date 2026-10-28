@@ -244,6 +244,13 @@ jobs:
       - name: CLI tests
         run: cargo test --manifest-path cli/Cargo.toml
 
+      - name: Tool scaffold self-test
+        # Scaffolds a pure and an ffmpeg tool, checks they pin wafer-run at
+        # wafer-run-pin.txt with one wafer-run source in their first lock, and
+        # that both templates still compile against block-utils.
+        shell: bash
+        run: bash scripts/scaffold-tool.test.sh
+
       - name: Tool-page generator tests
         run: cargo test --manifest-path tools/generator/Cargo.toml
 
