@@ -187,6 +187,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "252afb9ae5eaa683babdc6a068b3f5726eb19e05070c731f9b2a23a7c3e8ed34"
 
 [[package]]
+name = "equivalent"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826"
+
+[[package]]
 name = "find-msvc-tools"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -361,6 +367,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.17.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -504,6 +516,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "indexmap"
+version = "2.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc4e190f5d26ca7051642629da2c52fc03bde85a03197c99408dcd291734c855"
+dependencies = [
+ "equivalent",
+ "hashbrown 0.17.1",
+ "serde",
+ "serde_core",
+]
+
+[[package]]
 name = "is-macro"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -608,7 +632,7 @@ version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ea0ed76adf7defc1a92240b5c36d5368cfe9251640dcce5bd2d0b7c1fd87aeb"
 dependencies = [
- "hashbrown",
+ "hashbrown 0.14.5",
  "itertools",
  "libm",
  "ryu",
@@ -1276,13 +1300,15 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 [[package]]
 name = "wafer-block"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f0ca9c79abbefb4647cc73d15b92bbcd4043e03b#f0ca9c79abbefb4647cc73d15b92bbcd4043e03b"
 dependencies = [
  "async-trait",
  "chrono",
  "futures",
  "getrandom",
+ "indexmap",
  "linkme",
+ "percent-encoding",
  "rmp-serde",
  "serde",
  "serde_bytes",
@@ -1301,7 +1327,7 @@ dependencies = [
 [[package]]
 name = "wafer-block-macro"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f0ca9c79abbefb4647cc73d15b92bbcd4043e03b#f0ca9c79abbefb4647cc73d15b92bbcd4043e03b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1312,7 +1338,7 @@ dependencies = [
 [[package]]
 name = "wafer-sdk"
 version = "0.1.0"
-source = "git+https://github.com/wafer-run/wafer-run.git?branch=main#914a0aad82a5e6af95a124de6ad841943499a5ad"
+source = "git+https://github.com/wafer-run/wafer-run?rev=f0ca9c79abbefb4647cc73d15b92bbcd4043e03b#f0ca9c79abbefb4647cc73d15b92bbcd4043e03b"
 dependencies = [
  "serde",
  "serde_json",
