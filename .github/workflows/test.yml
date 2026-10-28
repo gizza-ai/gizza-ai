@@ -141,6 +141,10 @@ jobs:
   # ---------------------------------------------------------------------------
   repo:
     runs-on: ubuntu-latest
+    # The CLI tests dominate (each boots the full tool catalogue in the debug
+    # test profile); the job took 36 min at 1440 tools. 90 leaves ~2.5x for a
+    # slow runner, and stops a hang well before the 360 min default.
+    timeout-minutes: 90
     steps:
       - name: Free Disk Space
         shell: bash
