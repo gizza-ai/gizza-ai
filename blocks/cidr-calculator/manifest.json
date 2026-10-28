@@ -5,15 +5,28 @@
   "summary": "Compute network address, broadcast, netmask, wildcard, host range and counts for a CIDR.",
   "role": "skill",
   "tool": {
-    "description": "Calculate the subnet properties of an IPv4 or IPv6 CIDR block (network address, broadcast, netmask, wildcard, usable host range, address/host counts, private-vs-public).",
+    "description": "Calculate the subnet properties of an IPv4 or IPv6 CIDR block. Set 'input' to a CIDR like '192.168.1.0/24', '10.0.0.0/8', '192.168.1.130/26', '2001:db8::/48', or '2001:db8::/64'. For IPv4 it returns the network address, broadcast address, netmask, wildcard mask, usable host range (first-last assignable host), total address count, usable host count, and whether the block is private (RFC 1918/loopback/link-local/CGNAT) or public. A non-aligned base is normalized to its network address (192.168.1.130/26 -> 192.168.1.128). /31 is treated as a point-to-point link (both addresses usable, RFC 3021) and /32 as a single host. For IPv6 it returns the network address, prefix length, first and last address, and the total address count (exact even for a /0 = 2^128). Set 'format' to 'text' (default, aligned report) or 'json' (machine-readable object).",
     "parameters": {
-      "type": "object",
-      "required": ["input"],
+      "additionalProperties": false,
       "properties": {
-        "input": { "type": "string" },
-        "format": { "type": "string", "enum": ["text", "json"], "default": "text" }
+        "format": {
+          "default": "text",
+          "description": "Output format. 'text' (default) is an aligned human-readable report. 'json' is a machine-readable object with the same fields (network, broadcast, netmask, wildcard, first_host, last_host, total_addresses, usable_hosts, is_private for IPv4; network, first_address, last_address, total_addresses for IPv6).",
+          "enum": [
+            "text",
+            "json"
+          ],
+          "type": "string"
+        },
+        "input": {
+          "description": "The CIDR block to analyze, as ADDRESS/PREFIX. IPv4 like '192.168.1.0/24', '10.0.0.0/8', or a non-aligned host such as '192.168.1.130/26' (normalized to its network '192.168.1.128'). IPv6 like '2001:db8::/48' or '2001:db8::/64'. Prefix is 0-32 for IPv4 and 0-128 for IPv6.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "input"
+      ],
+      "type": "object"
     }
   }
 }

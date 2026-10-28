@@ -11,7 +11,8 @@ use wafer_block::{
 use wafer_block::{Block, ConfigVar};
 use wafer_core::interfaces::network::service::NetworkLimits;
 use wafer_run::{
-    resolve_declared, ConfigError, ConfigSource, EnvBlockConfig, FuelLimit, Wafer, WasmiBlock,
+    resolve_declared, ConfigError, ConfigSource, EnvBlockConfig, FuelLimit, Wafer, WasmCompilation,
+    WasmiBlock,
 };
 
 use crate::SKILL_WASMS;
@@ -96,20 +97,19 @@ impl ToolRuntime {
         // Browser-only capabilities the CLI cannot provide: a skill that
         // requires a service block the CLI does not host, and background
         // removal, whose model runs only on its browser tool page.
-        let unsupported = if let Some((_, service)) =
-            self.unhosted.iter().find(|(skill, _)| skill == name)
-        {
-            Some(format!(
-                "{name} needs the `{service}` service, which only the browser app provides"
-            ))
-        } else if name == "gizza-ai/image-background-remove-ai" {
-            Some(
+        let unsupported =
+            if let Some((_, service)) = self.unhosted.iter().find(|(skill, _)| skill == name) {
+                Some(format!(
+                    "{name} needs the `{service}` service, which only the browser app provides"
+                ))
+            } else if name == "gizza-ai/image-background-remove-ai" {
+                Some(
                 "AI image background removal currently runs on its standalone browser tool page"
                     .to_string(),
             )
-        } else {
-            None
-        };
+            } else {
+                None
+            };
         if let Some(message) = unsupported {
             let body = serde_json::json!({
                 "error": "unsupported_in_cli",
@@ -123,7 +123,10 @@ impl ToolRuntime {
         let mut msg = Message::new("http");
         msg.set_meta(META_REQ_ACTION, "create");
         msg.set_meta(META_REQ_RESOURCE, format!("/b/{short}"));
-        let out = self.wafer.run_block(name, msg, InputStream::from_bytes(body)).await;
+        let out = self
+            .wafer
+            .run_block(name, msg, InputStream::from_bytes(body))
+            .await;
         match out.collect_buffered().await {
             Ok(resp) => Ok(resp.body),
             Err(TerminalNotResponse::Halt(buf)) => Ok(buf.body),
@@ -155,6 +158,15 @@ pub async fn boot() -> Result<ToolRuntime> {
         // memory cap, so heavy tools run to completion instead of trapping
         // with `all fuel consumed` (fuel) or `unreachable`/OOM (memory).
         .fuel_per_call(FuelLimit::Unmetered)
+        // Every command loads the whole embedded catalogue, so translating
+        // every function of every module up front dominated startup. Lazy
+        // translation is allowed because the calls are unmetered (wafer-run
+        // refuses it with metered fuel, where it would bill translation to
+        // whichever call first reaches a function). Each module is still
+        // validated when it loads, so a malformed artifact fails at boot, not
+        // mid-call. `gizza list` over the 1440 tools takes about 6 s instead
+        // of about 14.5 s with eager translation (release build).
+        .wasm_compilation(WasmCompilation::LazyTranslation)
         .max_wasm_memory_pages(GIZZA_MAX_WASM_MEMORY_PAGES)
         .build()
         .context("build wafer")?;
@@ -217,10 +229,7 @@ pub async fn boot() -> Result<ToolRuntime> {
         let name = info.name.clone();
         // Capture SkillTool metadata if the block exposes one.
         if let Some(tool) = &info.tool {
-            let short = name
-                .strip_prefix("gizza-ai/")
-                .unwrap_or(&name)
-                .to_string();
+            let short = name.strip_prefix("gizza-ai/").unwrap_or(&name).to_string();
             metas.push(ToolMeta {
                 name: name.clone(),
                 short,

@@ -5,18 +5,43 @@
   "summary": "Outline to mind-map SVG",
   "role": "skill",
   "tool": {
-    "description": "Turn an indented text outline into a mind-map SVG. Each line is a node; deeper indentation (spaces or tabs) nests it under the line above; leading bullet/number markers are stripped. A single top-level line is the central topic; multiple top-level lines hang under a synthetic center. Optional layout direction (right/down), per-branch color, and dark mode. Returns scalable SVG markup as text.",
+    "description": "Turn an indented text outline into a mind-map SVG. Pass `outline` as indented text — each line is a node and deeper indentation (spaces or tabs) nests it under the line above; leading bullet or number markers are stripped. A single top-level line is the central topic; multiple top-level lines hang under a synthetic center (label it with `title`). `direction` is 'right' (center on the left, branches rightward — default) or 'down' (center on top, branches downward). `colorful` colors each top-level branch (default true); `dark_mode` recolors for a dark background. Returns standalone, scalable SVG markup as text. Runs locally on the device.",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "outline": { "type": "string", "description": "The indented text outline to map." },
-        "direction": { "type": "string", "enum": ["right", "down"], "default": "right", "description": "Layout direction: right (default) or down." },
-        "colorful": { "type": "boolean", "default": true, "description": "Color each top-level branch (default true)." },
-        "dark_mode": { "type": "boolean", "default": false, "description": "Recolor for a dark background (default false)." },
-        "title": { "type": "string", "default": "Mind Map", "description": "Central node label for multi-root outlines." }
+        "colorful": {
+          "default": true,
+          "description": "Give each top-level branch (and its descendants) a distinct color (default true). Set false for a neutral monochrome map.",
+          "type": "boolean"
+        },
+        "dark_mode": {
+          "default": false,
+          "description": "Recolor for a dark background: dark canvas with light text (default false).",
+          "type": "boolean"
+        },
+        "direction": {
+          "default": "right",
+          "description": "Layout direction: 'right' (default) places the center on the left with branches growing rightward; 'down' places the center on top with branches growing downward.",
+          "enum": [
+            "right",
+            "down"
+          ],
+          "type": "string"
+        },
+        "outline": {
+          "description": "The indented text outline to map. Each line is a node; deeper indentation (spaces or tabs) nests it under the line above. Optional leading bullet/number markers (-, *, +, •, 1.) are stripped. A single top-level line becomes the central topic; multiple top-level lines hang under a synthetic center.",
+          "type": "string"
+        },
+        "title": {
+          "default": "Mind Map",
+          "description": "Label for the central node when the outline has more than one top-level item (default 'Mind Map'). Ignored when the outline already has a single root.",
+          "type": "string"
+        }
       },
-      "required": ["outline"],
-      "additionalProperties": false
+      "required": [
+        "outline"
+      ],
+      "type": "object"
     }
   }
 }

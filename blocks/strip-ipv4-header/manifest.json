@@ -7,10 +7,17 @@
   "tool": {
     "description": "Remove the IPv4 header from a raw packet given as a hex string and return the encapsulated payload (the transport segment, e.g. the TCP/UDP datagram). The header length is read from the IHL field, so any IP options are stripped too; the packet's Total Length field is honored to drop trailing link-layer padding. Returns JSON with the IP version, IHL, the number of header bytes removed, the payload's protocol number (named when known, e.g. TCP/UDP/ICMP), the payload length, and the payload as a lowercase hex string. Input may contain spaces, colons, dashes, dots, or a 0x prefix. Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["packet"],
-      "properties": { "packet": { "type": "string" } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "packet": {
+          "description": "The raw IPv4 packet as a hex string (the IPv4 header followed by its payload). Spaces, colons, dashes, dots, and a 0x prefix are ignored, e.g. '4500001c1c46400040 11 0000 c0a80068 c0a80001 0035003500080000'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "packet"
+      ],
+      "type": "object"
     }
   }
 }

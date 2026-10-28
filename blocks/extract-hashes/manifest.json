@@ -2,16 +2,25 @@
   "name": "gizza-ai/extract-hashes",
   "version": "0.1.0",
   "interface": "handler@v1",
-  "summary": "Extract hex hash strings from text, grouped by algorithm.",
+  "summary": "Extract hex hash strings from text, grouped by algorithm",
   "role": "skill",
   "tool": {
-    "description": "Scan a block of text and pull out every hexadecimal hash/digest string, grouped by the algorithm implied by its length: MD5 (32 hex chars), SHA-1 (40), SHA-256 (64), and SHA-512 (128). Hashes are de-duplicated case-insensitively and kept in first-seen order within each group; set lowercase=false to keep the original casing. Returns the total count and per-algorithm groups.",
+    "description": "Scan a block of text and pull out every hexadecimal hash/digest string, grouped by the algorithm implied by its length: MD5 (32 hex chars), SHA-1 (40), SHA-256 (64), and SHA-512 (128). Hashes are de-duplicated case-insensitively and kept in first-seen order within each group; set lowercase=false to keep the original casing in the output. Returns the total count and per-algorithm groups (algorithm, length, hashes). Useful for pulling IOCs out of malware reports, mining checksums from logs, or collecting digests from a manifest. Runs locally.",
     "parameters": {
       "type": "object",
-      "required": ["text"],
+      "required": [
+        "text"
+      ],
       "properties": {
-        "text": { "type": "string", "description": "The text to scan for hexadecimal hash strings." },
-        "lowercase": { "type": "boolean", "default": true, "description": "When true (default), normalize extracted hashes to lowercase; de-duplication is always case-insensitive." }
+        "text": {
+          "type": "string",
+          "description": "The text to scan for hexadecimal hash strings."
+        },
+        "lowercase": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true (default), normalize extracted hashes to lowercase; de-duplication is always case-insensitive."
+        }
       },
       "additionalProperties": false
     }

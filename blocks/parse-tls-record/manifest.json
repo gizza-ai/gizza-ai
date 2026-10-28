@@ -5,12 +5,19 @@
   "summary": "Decode TLS record-layer bytes from hex",
   "role": "skill",
   "tool": {
-    "description": "Decode one or more concatenated TLS record-layer bytes given as a hex string into the record header (content type, version, length) and, for handshake records, the handshake messages — fully decoding ClientHello and ServerHello (version, random, session id, cipher suites by IANA name, compression, and extensions: SNI, ALPN, supported_versions, supported_groups, signature_algorithms, key_share).",
+    "description": "Decode TLS record-layer bytes given as a hex string into structured fields. Handles one or more concatenated records (e.g. ServerHello followed by a Certificate record): for each, the 5-byte record header (content type — change_cipher_spec/alert/handshake/application_data/heartbeat, the record protocol version, and the declared length) and, for handshake records, the handshake messages. ClientHello and ServerHello are fully decoded: legacy/record version, the 32-byte random, the session id, the offered or selected cipher suites named by their IANA identifier (e.g. TLS_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256), the compression methods, and the extensions — including SNI server names, ALPN protocols, supported_versions, supported_groups, signature_algorithms, and key_share groups. Alert records are decoded to level + description. Input may contain spaces, colons, dashes, dots, commas, or a 0x prefix. Returns JSON (a single object for one record, an array for several). Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["record"],
-      "properties": { "record": { "type": "string" } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "record": {
+          "description": "The TLS record-layer bytes as a hex string, starting at the 5-byte record header (content type, version, length). Spaces, colons, dashes, dots, commas, and a 0x prefix are ignored, e.g. a handshake record beginning '160301...'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record"
+      ],
+      "type": "object"
     }
   }
 }

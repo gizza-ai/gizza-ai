@@ -5,16 +5,48 @@
   "summary": "Generate schema.org JSON-LD structured data from simple field inputs.",
   "role": "skill",
   "tool": {
-    "description": "Generate schema.org JSON-LD structured-data markup from simple field inputs. Pick a schema_type (Article, Product, FAQPage, Organization, LocalBusiness, Person, Event, Recipe, WebSite, BreadcrumbList, Review, VideoObject, HowTo, JobPosting, Course, SoftwareApplication) and pass 'fields' as newline-separated 'name = value' pairs. Dotted names build nested objects with an inferred @type; list fields split on commas; numeric fields become JSON numbers. For FAQPage, pass 'faq' as 'Question? | Answer' pairs. Set wrap_script=true to get a ready-to-paste <script type=\"application/ld+json\"> tag.",
+    "description": "Generate schema.org JSON-LD structured-data markup from simple field inputs. Pick a schema_type (Article, Product, FAQPage, Organization, LocalBusiness, Person, Event, Recipe, WebSite, BreadcrumbList, Review, VideoObject, HowTo, JobPosting, Course, SoftwareApplication) and pass 'fields' as newline-separated 'name = value' pairs. Dotted names build nested objects with an inferred @type (author.name, address.streetAddress, offers.price); list fields split on commas; numeric fields become JSON numbers. For FAQPage, pass 'faq' as 'Question? | Answer' pairs. Set wrap_script=true to get a ready-to-paste <script type=\"application/ld+json\"> tag. Output validates against Google's Rich Results requirements for the chosen type.",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "schema_type": { "type": "string", "enum": ["Article","Product","FAQPage","Organization","LocalBusiness","Person","Event","Recipe","WebSite","BreadcrumbList","Review","VideoObject","HowTo","JobPosting","Course","SoftwareApplication"], "default": "Article" },
-        "fields": { "type": "string" },
-        "faq": { "type": "string" },
-        "wrap_script": { "type": "boolean", "default": false }
+        "faq": {
+          "description": "For schema_type=FAQPage only: newline-separated 'Question? | Answer' pairs (or use '::' as the separator). Each pair becomes a Question/acceptedAnswer entry in mainEntity. Required when schema_type is FAQPage; ignored otherwise.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Newline-separated 'name = value' (or 'name: value') property pairs, e.g. 'headline = My Title'. Dotted names build nested objects with an inferred @type (author.name -> Person, address.streetAddress -> PostalAddress, offers.price -> Offer, publisher.name -> Organization). List fields (keywords, sameAs, ingredients) split on commas into arrays; numeric fields (price, ratingValue, reviewCount, latitude, longitude, calories) become JSON numbers. Blank lines and lines starting with # are ignored.",
+          "type": "string"
+        },
+        "schema_type": {
+          "default": "Article",
+          "description": "The schema.org @type to generate. Case-insensitive; defaults to Article.",
+          "enum": [
+            "Article",
+            "Product",
+            "FAQPage",
+            "Organization",
+            "LocalBusiness",
+            "Person",
+            "Event",
+            "Recipe",
+            "WebSite",
+            "BreadcrumbList",
+            "Review",
+            "VideoObject",
+            "HowTo",
+            "JobPosting",
+            "Course",
+            "SoftwareApplication"
+          ],
+          "type": "string"
+        },
+        "wrap_script": {
+          "default": false,
+          "description": "When true, wrap the JSON-LD in a <script type=\"application/ld+json\">...</script> tag ready to paste into a page's <head>. Default false (raw JSON only).",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "type": "object"
     }
   }
 }

@@ -8,14 +8,14 @@ steps below; `scripts/bootstrap-toolchain.sh` automates most of them.
 
 ## wafer-run pin
 
-Each block crate, the `gizza` CLI, and `tools/generator` pull `wafer-sdk`/
-`wafer-block`/`wafer-run` straight from git (`branch = "main"`). `cli/` and
-`block-utils/` commit their lockfiles, and every new or changed block now
-commits its own `Cargo.lock` alongside `target/block.wasm`. CI verifies that
-all tracked locks resolve Wafer at `wafer-run-pin.txt` and that changed block
-WASM byte-matches its locked canonical build. Bumping Wafer therefore requires
-updating the pin, the root lockfiles, and any block artifacts changed in the
-same PR.
+Each block crate, `block-utils`, and the `gizza` CLI pull `wafer-sdk`/
+`wafer-block`/`wafer-run` from git at one full commit sha,
+`rev = "<wafer-run-pin.txt>"`, never a branch. `cli/` and `block-utils/`
+commit their lockfiles, and every new or changed block commits its own
+`Cargo.lock` alongside `target/block.wasm`. CI verifies that every manifest and
+every tracked lock agree with `wafer-run-pin.txt` and that changed block WASM
+byte-matches its locked canonical build. To bump Wafer, follow "Bumping
+wafer-run" in `CONTRIBUTING.md`.
 
 ## Steps
 

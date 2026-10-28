@@ -95,11 +95,12 @@ else
   (
     cd "$block_dir"
     [[ -f Cargo.lock ]] || cargo generate-lockfile
-    # Keep the three Wafer crates aligned with the runtime pin. Some blocks do
-    # not depend on every crate directly, so a missing package is harmless.
-    for crate in wafer-sdk wafer-block wafer-block-macro; do
-      cargo update -p "$crate" --precise "$pin" 2>/dev/null || true
-    done
+    # The manifest pins wafer-run (scripts/set-wafer-run-rev.sh writes
+    # `rev = "<pin>"`). Re-sync a committed lock to the manifest after a pin
+    # bump; other locked packages move only where the new wafer-run requires
+    # it. The check below refuses a lock that resolves wafer-run anywhere but
+    # the pin.
+    cargo update --workspace
   )
 fi
 
@@ -108,14 +109,17 @@ fi
   exit 1
 }
 
+# The exact source scripts/set-wafer-run-rev.sh pins: same URL spelling, a
+# full-sha rev, resolved at that sha. Anything else is a second wafer-run.
+expected_source="git+https://github.com/wafer-run/wafer-run?rev=$pin#$pin"
 stray="$(
-  grep -o 'github.com/wafer-run/wafer-run[^"]*#[0-9a-f]*' "$lockfile" \
-    | sed 's/.*#//' \
+  grep -o 'source = "git+[^"]*github.com/wafer-run/wafer-run[^"]*"' "$lockfile" \
+    | sed -e 's/^source = "//' -e 's/"$//' \
     | sort -u \
-    | grep -v "^$pin\$" || true
+    | grep -vxF "$expected_source" || true
 )"
 if [[ -n "$stray" ]]; then
-  echo "::error::blocks/$slug/Cargo.lock resolves wafer-run at '$stray'; expected '$pin'." >&2
+  echo "::error::blocks/$slug/Cargo.lock resolves wafer-run from '$stray'; expected '$expected_source'." >&2
   if [[ "$mode" == "--check" ]]; then
     echo "Run scripts/build-block-wasm.sh $slug to refresh the canonical artifact." >&2
   fi

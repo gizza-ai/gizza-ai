@@ -5,20 +5,62 @@
   "summary": "Encrypt or decrypt data with the Salsa20 stream cipher (key + 8-byte nonce)",
   "role": "skill",
   "tool": {
-    "description": "Encrypt or decrypt data with the Salsa20 stream cipher (Salsa20/20). operation = encrypt (default) or decrypt — Salsa20 is symmetric. key must be 16 or 32 bytes and nonce exactly 8 bytes, read as UTF-8 (key_format=text, default) or decoded from hex/base64 (key_format=encoded). counter is the initial 64-bit block counter (default 0). The ciphertext (and an encoded key/nonce) use format = hex (default) or base64; the plaintext is UTF-8.",
+    "description": "Encrypt or decrypt data with the Salsa20 stream cipher (Salsa20/20, Daniel J. Bernstein's eSTREAM cipher). operation = encrypt (default) or decrypt — Salsa20 is symmetric. key must be 16 or 32 bytes and nonce exactly 8 bytes, read as UTF-8 (key_format=text, default) or decoded from hex/base64 (key_format=encoded). counter is the initial 64-bit block counter (default 0). The ciphertext (and an encoded key/nonce) use format = hex (default) or base64; the plaintext is UTF-8. The same key+nonce+counter must be used to decrypt, and a key+nonce pair must never be reused for two different messages. For password-based file encryption use aes-cipher or text-encrypt instead.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key", "nonce"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string" },
-        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
-        "key": { "type": "string" },
-        "nonce": { "type": "string" },
-        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
-        "counter": { "type": "integer", "default": 0, "minimum": 0 },
-        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+        "counter": {
+          "default": 0,
+          "description": "Initial 64-bit block counter (each block is 64 bytes). Default 0; set it to decrypt from an offset. Must match on encrypt and decrypt.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "data": {
+          "description": "For encrypt: the plaintext (UTF-8). For decrypt: the ciphertext, encoded with `format`.",
+          "type": "string"
+        },
+        "format": {
+          "default": "hex",
+          "description": "Encoding for the ciphertext (and the key/nonce when key_format=encoded): hex (default) or base64. The plaintext is always UTF-8 text.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "The Salsa20 key. Must be 16 or 32 bytes: a 16- or 32-char UTF-8 passphrase when key_format=text (default), or a 32-/64-char hex (or base64) string when key_format=encoded.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "text",
+          "description": "How to read the key and nonce: text = UTF-8 (default); encoded = hex/base64 per `format`.",
+          "enum": [
+            "text",
+            "encoded"
+          ],
+          "type": "string"
+        },
+        "nonce": {
+          "description": "The 8-byte nonce/IV. An 8-char UTF-8 string when key_format=text, or a 16-char hex (or base64) value when key_format=encoded. Must match on encrypt and decrypt, and must be unique per message for a given key.",
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "encrypt (default) or decrypt. Salsa20 is symmetric, so both apply the same keystream.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key",
+        "nonce"
+      ],
+      "type": "object"
     }
   }
 }

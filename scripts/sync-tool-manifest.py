@@ -6,14 +6,19 @@ Why: the page form (`tools/generator/src/control.rs`) reads `manifest.json` →
 hand-synced, and it drifted (enums lost → text boxes instead of <select>s; stale
 param descriptions). This script makes the manifest a GENERATED artifact:
 
-  tool.parameters  ←  `gizza describe <name> --json-out`   (the descriptor's schema_json())
-  tool.description ←  `gizza describe <name>` Description   (the skill() description)
+  tool.parameters  ←  `gizza list --json-out` `parameters`   (the descriptor's schema_json())
+  tool.description ←  `gizza list --json-out` `description` (the skill() description)
   summary          ←  `#[wafer_block(summary = "…")]` in src/lib.rs, propagated to
                       manifest.json `summary` AND wafer.toml `summary`
 
 Prereq: the tool must be in the INSTALLED CLI — run `cargo install --path cli --force`
 after `wafer build` and BEFORE this script. Run this BEFORE the page generator (which
 reads the manifest). `scripts/check-tool-hygiene.py` stays as the CI backstop.
+
+The live descriptors come from ONE `gizza list --json-out` per run. Every `gizza`
+invocation boots the whole runtime (it loads every embedded block), so a call per
+block would cost a full boot per block: at 1440 blocks that put a 60-block CI
+drift shard past its time limit.
 
 Usage:
   scripts/sync-tool-manifest.py <slug> [<slug>...]   # rewrite the manifest(s)
@@ -36,7 +41,6 @@ BLOCKS = ROOT / "blocks"
 # check-tool-hygiene.test.sh): the macro summary is what chat/the runtime shows.
 MACRO_SUMMARY_RE = re.compile(r'wafer_block\((?:.|\n)*?\bsummary\s*=\s*"((?:\\.|[^"\\])*)"')
 WAFER_SUMMARY_RE = re.compile(r'^(\s*summary\s*=\s*)"(?:\\.|[^"\\])*"', re.MULTILINE)
-DESCRIBE_DESC_RE = re.compile(r"^Description:\s*(.*?)\n(?:Parameters|Name):", re.MULTILINE | re.DOTALL)
 
 _RUST_ESCAPES = {"\\": "\\", '"': '"', "'": "'", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
 
@@ -56,7 +60,8 @@ def unescape_rust(s: str) -> str:
 
 def gizza(args: list[str]) -> str:
     try:
-        r = subprocess.run(["gizza", *args], capture_output=True, text=True, timeout=60)
+        # One call boots the runtime and loads all of the CLI's blocks.
+        r = subprocess.run(["gizza", *args], capture_output=True, text=True, timeout=300)
     except FileNotFoundError:
         sys.exit("error: `gizza` not on PATH — run `cargo install --path cli --force` first")
     if r.returncode != 0:
@@ -67,7 +72,13 @@ def gizza(args: list[str]) -> str:
     return r.stdout
 
 
-def sync_block(slug: str, check_only: bool) -> tuple[bool, list[str]]:
+def live_tools() -> dict[str, dict]:
+    """Every tool the installed CLI lists, keyed by full block name."""
+    tools = json.loads(gizza(["list", "--json-out"]))
+    return {tool["name"]: tool for tool in tools}
+
+
+def sync_block(slug: str, check_only: bool, live: dict[str, dict]) -> tuple[bool, list[str]]:
     """Returns (changed, messages). Raises RuntimeError on a hard failure."""
     slug_dir = BLOCKS / slug
     manifest_path = slug_dir / "manifest.json"
@@ -79,28 +90,28 @@ def sync_block(slug: str, check_only: bool) -> tuple[bool, list[str]]:
         return False, [f"{slug}: no `tool` section in manifest.json — nothing to sync (non-tool block)"]
 
     name = manifest.get("name", f"gizza-ai/{slug}")
-    short = name.split("/")[-1]
+    tool = live.get(name)
+    if tool is None:
+        raise RuntimeError(
+            f"`gizza list` does not list {name}\n"
+            f"  (is the block built + the CLI reinstalled? `wafer build` then `cargo install --path cli --force`)"
+        )
     msgs: list[str] = []
     changed = False
 
     # tool.parameters ← live schema_json()
-    params = json.loads(gizza(["describe", short, "--json-out"]))
+    params = tool["parameters"]
     if manifest["tool"].get("parameters") != params:
         changed = True
         msgs.append(f"{slug}: tool.parameters ← live descriptor schema")
         manifest["tool"]["parameters"] = params
 
-    # tool.description ← the skill() description from `gizza describe`
-    human = gizza(["describe", short])
-    m = DESCRIBE_DESC_RE.search(human)
-    if m:
-        desc = m.group(1).strip()
-        if desc and manifest["tool"].get("description") != desc:
-            changed = True
-            msgs.append(f"{slug}: tool.description ← live descriptor description")
-            manifest["tool"]["description"] = desc
-    else:
-        msgs.append(f"{slug}: WARN could not parse Description from `gizza describe {short}` — left as-is")
+    # tool.description ← the skill() description
+    desc = tool["description"].strip()
+    if desc and manifest["tool"].get("description") != desc:
+        changed = True
+        msgs.append(f"{slug}: tool.description ← live descriptor description")
+        manifest["tool"]["description"] = desc
 
     # summary ← wafer_block macro, propagated to manifest.json + wafer.toml
     src_lib = slug_dir / "src" / "lib.rs"
@@ -142,11 +153,17 @@ def main(argv: list[str]) -> int:
         print(__doc__, file=sys.stderr)
         return 2
 
+    try:
+        live = live_tools()
+    except (RuntimeError, json.JSONDecodeError, subprocess.TimeoutExpired) as e:
+        print(f"  ✗ gizza list --json-out: {e}", file=sys.stderr)
+        return 1
+
     any_drift = False
     failed = False
     for slug in slugs:
         try:
-            changed, msgs = sync_block(slug, check_only)
+            changed, msgs = sync_block(slug, check_only, live)
         except (RuntimeError, json.JSONDecodeError) as e:
             print(f"  ✗ {slug}: {e}", file=sys.stderr)
             failed = True

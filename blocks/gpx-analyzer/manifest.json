@@ -5,12 +5,19 @@
   "summary": "Analyze a GPX track: distance, elevation, duration, pace",
   "role": "skill",
   "tool": {
-    "description": "Parse a GPX file (GPS track from a watch, phone, or route planner) and report total distance (km and miles), elevation gain/loss and min/max altitude, duration, average speed (km/h and mph), and average pace (min/km and min/mi). Reads <trkpt>, <rtept>, and <wpt> points; distance is summed great-circle (haversine) between consecutive points. Runs locally.",
+    "description": "Parse a GPX file (GPS track from a watch, phone, or route planner) and report: total distance (km and miles), elevation gain/loss and min/max altitude, duration, average speed (km/h and mph), and average pace (min/km and min/mi). Reads <trkpt>, <rtept>, and <wpt> points; distance is summed great-circle (haversine) between consecutive points. Runs locally.",
     "parameters": {
-      "type": "object",
-      "required": ["gpx"],
-      "properties": { "gpx": { "type": "string" } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "gpx": {
+          "description": "The full GPX file contents (XML). Track points may include <ele> elevation and <time> timestamps for elevation-gain and pace/speed stats.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gpx"
+      ],
+      "type": "object"
     }
   }
 }

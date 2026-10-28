@@ -5,20 +5,61 @@
   "summary": "Encrypt or decrypt data with CipherSaber-2 (RC4 + random IV, repeated key setup)",
   "role": "skill",
   "tool": {
-    "description": "Encrypt or decrypt data with CipherSaber-2, a minimalist symmetric cipher built on RC4. Each message uses a session key = your key + a fresh random 10-byte IV (prepended to the ciphertext), and CipherSaber-2 repeats RC4's key-scheduling loop `rounds` times (spec recommends 20). operation = encrypt (default) or decrypt. key is a passphrase (key_format=text, default) or decoded bytes (key_format=encoded). On encrypt a random IV is generated unless an explicit 10-byte iv is given. rounds must match on both sides. format = hex (default) or base64. WARNING: RC4 is cryptographically broken — interop/CTF/learning use only.",
+    "description": "Encrypt or decrypt data with CipherSaber-2, a minimalist symmetric cipher built on RC4 (ARCFOUR). Each message uses a session key = your key + a fresh random 10-byte IV, and CipherSaber-2 repeats RC4's key-scheduling loop `rounds` times (the spec recommends 20) to resist the FMS attack. operation = encrypt (default) or decrypt — it is symmetric. key is a passphrase (key_format=text, default) or decoded bytes (key_format=encoded, hex/base64 per format). The IV is prepended to the ciphertext in the clear; on encrypt a random IV is generated unless you pass an explicit 10-byte `iv`. rounds must match on both sides. format = hex (default) or base64. WARNING: RC4 is cryptographically broken — use this for interop, CTFs and learning only; for real encryption use aes-cipher, text-encrypt or encrypt-file.",
     "parameters": {
-      "type": "object",
-      "required": ["data", "key"],
+      "additionalProperties": false,
       "properties": {
-        "data": { "type": "string" },
-        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
-        "key": { "type": "string" },
-        "key_format": { "type": "string", "enum": ["text", "encoded"], "default": "text" },
-        "rounds": { "type": "integer", "default": 20, "minimum": 1 },
-        "iv": { "type": "string" },
-        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+        "data": {
+          "description": "For encrypt: the plaintext (UTF-8). For decrypt: the ciphertext (encoded `IV || RC4(plaintext)`) per `format`.",
+          "type": "string"
+        },
+        "format": {
+          "default": "hex",
+          "description": "Encoding for the ciphertext (and the key/iv when encoded): hex (default) or base64. The plaintext is always UTF-8 text.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "iv": {
+          "description": "Optional explicit 10-byte IV, encoded per `format` (hex/base64). Leave empty to generate a fresh random IV (recommended). Used for deterministic/interop output. Ignored on decrypt (the IV is read from the ciphertext).",
+          "type": "string"
+        },
+        "key": {
+          "description": "The key (a passphrase, or encoded bytes). Read as a UTF-8 passphrase when key_format=text (default), or decoded from `format` when key_format=encoded.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "text",
+          "description": "How to read the key: text = UTF-8 passphrase (default); encoded = hex/base64 per `format`.",
+          "enum": [
+            "text",
+            "encoded"
+          ],
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "encrypt (default) or decrypt. CipherSaber is symmetric; both apply the same RC4 keystream.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        },
+        "rounds": {
+          "default": 20,
+          "description": "CipherSaber-2 key-setup iterations: the number of times RC4's KSA mixing loop runs (the spec recommends 20). Must match on encrypt and decrypt; 1 = CipherSaber-1.",
+          "minimum": 1,
+          "type": "integer"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "data",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }

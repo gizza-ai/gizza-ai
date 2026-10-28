@@ -5,15 +5,24 @@
   "summary": "Parse a URL query string into structured key/value data",
   "role": "skill",
   "tool": {
-    "description": "Parse a URL query string into JSON: ordered key/value pairs (duplicates preserved) plus a structured object where repeated keys become arrays and bracket notation (a[]=, a[0]=, user[name]=) is expanded into nested arrays/objects. Percent-decodes keys/values; optionally decodes + to a space.",
+    "description": "Parse a URL query string into JSON. Splits on `&` (and `;`), percent-decodes every key and value, and (by default) decodes `+` to a space. Returns: `count` (number of pairs); `pairs`, every `key`/`value` in source order with duplicates preserved (a bare key like `?flag` has no `value`, an empty `?k=` has `value` \"\"); and `structured`, an object where repeated keys collapse into arrays and PHP/Rails-style bracket notation is expanded — `a[]=1&a[]=2` becomes an array, `a[0]=x&a[2]=z` an indexed (null-padded) array, and `user[name]=Ann&user[age]=30` a nested object, including arrays of objects (`items[][id]=1`). Accepts a leading `?` or whole-URL query part. Set `plus_as_space` false to keep `+` literal. Runs locally; nothing is uploaded.",
     "parameters": {
-      "type": "object",
-      "required": ["query"],
+      "additionalProperties": false,
       "properties": {
-        "query": { "type": "string" },
-        "plus_as_space": { "type": "boolean", "default": true }
+        "plus_as_space": {
+          "default": true,
+          "description": "When true (default), a `+` decodes to a space (application/x-www-form-urlencoded form semantics). Set false to keep `+` literal (RFC 3986 percent-encoding only).",
+          "type": "boolean"
+        },
+        "query": {
+          "description": "The URL query string to parse, e.g. `name=John+Doe&color=red&color=blue&user[age]=30`. A leading `?` (or a full URL's `?...` part) is accepted and the `?` is stripped; surrounding whitespace is trimmed.",
+          "type": "string"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "query"
+      ],
+      "type": "object"
     }
   }
 }

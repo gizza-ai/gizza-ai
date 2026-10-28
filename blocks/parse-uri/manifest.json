@@ -5,12 +5,19 @@
   "summary": "Split a URI/URL into its RFC 3986 components",
   "role": "skill",
   "tool": {
-    "description": "Parse a URI or URL into its RFC 3986 components and return JSON: scheme, authority (username/password, host, port), path, raw query plus parsed percent-decoded key/value pairs, and fragment.",
+    "description": "Parse a URI or URL into its RFC 3986 components and return JSON. Extracts: the scheme (lowercased); the authority and its parts — userinfo split into percent-decoded username/password, host (registered names lowercased, IPv6 kept in brackets), and numeric port; the origin (scheme://authority); the path (plus a percent-decoded view when it differs), the path split into decoded segments, and the filename with its extension; the raw query and the query parsed into ordered, percent-decoded key/value pairs with duplicates preserved (a '+' decodes to a space, ';' also separates pairs, a bare key has a null value); and the percent-decoded fragment. Handles relative references (no scheme), mailto:, file:// and IPv6 hosts. Runs locally; nothing is uploaded.",
     "parameters": {
-      "type": "object",
-      "required": ["uri"],
-      "properties": { "uri": { "type": "string" } },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "description": "The URI or URL to split into components (e.g. https://user:pass@host:8443/path?a=1&b=2#frag). Absolute URIs and relative references are both accepted; surrounding whitespace is trimmed.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "type": "object"
     }
   }
 }

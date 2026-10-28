@@ -7,17 +7,56 @@
   "tool": {
     "description": "Compute an AES-CMAC (Cipher-based Message Authentication Code, NIST SP 800-38B / RFC 4493) of a message with a secret AES key. CMAC is a block-cipher MAC built on AES; the AES variant is selected by the key length — 16 bytes for AES-128, 24 for AES-192, 32 for AES-256 — and the tag is always 16 bytes. By default the message and key are read as UTF-8 text and the tag is returned as lowercase hex; set message_encoding/key_encoding to 'hex' or 'base64' to decode binary inputs first (a 16-byte key is 32 hex chars), output_format='base64' for a base64 tag, or uppercase=true for uppercase hex. Use this to authenticate messages with a symmetric key when a block cipher (rather than a hash) is the available primitive — e.g. AES-CMAC in IoT/smart-card and IEEE 802.1X / RFC 4493 contexts. For a HASH-based keyed MAC use the hmac-generate tool instead.",
     "parameters": {
-      "type": "object",
-      "required": ["message", "key"],
+      "additionalProperties": false,
       "properties": {
-        "message": { "type": "string" },
-        "key": { "type": "string" },
-        "message_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text" },
-        "key_encoding": { "type": "string", "enum": ["text", "hex", "base64"], "default": "text" },
-        "output_format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" },
-        "uppercase": { "type": "boolean", "default": false }
+        "key": {
+          "description": "The secret AES key. Its length selects the AES variant: 16 bytes → AES-128, 24 → AES-192, 32 → AES-256. Interpreted per key_encoding (UTF-8 text by default); use hex/base64 for a binary key.",
+          "type": "string"
+        },
+        "key_encoding": {
+          "default": "text",
+          "description": "How to interpret `key`. 'text' (default) uses the UTF-8 bytes as-is; 'hex' decodes from hexadecimal first; 'base64' decodes from standard base64 first. Use hex/base64 for binary keys (a 16-byte AES-128 key is 32 hex chars).",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "message": {
+          "description": "The message to authenticate. An empty message is allowed.",
+          "type": "string"
+        },
+        "message_encoding": {
+          "default": "text",
+          "description": "How to interpret `message` before MAC-ing. 'text' (default) uses the UTF-8 bytes as-is; 'hex' decodes from hexadecimal first; 'base64' decodes from standard base64 first.",
+          "enum": [
+            "text",
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "output_format": {
+          "default": "hex",
+          "description": "Tag representation. 'hex' (default) is lowercase hex; 'base64' is standard base64. The tag is always 16 bytes (128 bits).",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "uppercase": {
+          "default": false,
+          "description": "When output_format is hex, emit uppercase hex. No effect on base64. Default false.",
+          "type": "boolean"
+        }
       },
-      "additionalProperties": false
+      "required": [
+        "message",
+        "key"
+      ],
+      "type": "object"
     }
   }
 }

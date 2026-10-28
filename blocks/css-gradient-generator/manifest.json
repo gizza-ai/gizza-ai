@@ -5,54 +5,54 @@
   "summary": "CSS Gradient Generator",
   "role": "skill",
   "tool": {
-    "description": "Generate a CSS gradient declaration from color stops. Returns a ready-to-paste `background-image: linear-gradient(...);` (or radial/conic) line. Provide the `colors` as a comma- or newline-separated list of CSS colors, optionally with positions; with no positions, evenly-spaced percentages are added. Set gradient_type='linear' (default), 'radial', or 'conic'. For linear, `angle` is the direction in degrees; for radial, `shape` is 'ellipse'/'circle'. Set repeating=true for a repeating gradient.",
+    "description": "Generate a CSS gradient declaration from color stops. Returns a ready-to-paste `background-image: linear-gradient(...);` (or radial/conic) line. Provide the `colors` as a comma- or newline-separated list of CSS colors, optionally with positions (e.g. '#ff0000, #0000ff' or '#fff 0%, #000 100%'); with no positions, evenly-spaced percentages are added. Set gradient_type='linear' (default), 'radial', or 'conic'. For linear, `angle` is the direction in degrees (90 = left-to-right, 180 = top-to-bottom default); for conic it's the start angle. For radial, `shape` is 'ellipse' (default) or 'circle'. Set repeating=true for a repeating-*-gradient (stripes/tiles).",
     "parameters": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
+        "angle": {
+          "default": 180.0,
+          "description": "For 'linear', the direction in degrees (0 = up, 90 = to the right, 180 = down — the default). For 'conic', the starting angle ('from <angle>deg'). Ignored for 'radial'.",
+          "maximum": 360,
+          "minimum": -360,
+          "type": "number"
+        },
         "colors": {
-          "type": "string",
-          "description": "The color stops, separated by commas or newlines. Each is a CSS color optionally followed by a position. At least 2 stops are required."
+          "description": "The color stops, separated by commas or newlines. Each is a CSS color (#f00, #ff0000, #ff000080, red, rgb(255,0,0), hsl(...)) optionally followed by a position (#f00 25%, red 0px, blue 100). A bare number is read as a percentage. With 2+ colors and no explicit positions, evenly-spaced percentages are filled in. At least 2 stops are required.",
+          "type": "string"
         },
         "gradient_type": {
-          "type": "string",
+          "default": "linear",
+          "description": "The gradient function: 'linear' (default), 'radial', or 'conic'.",
           "enum": [
             "linear",
             "radial",
             "conic"
           ],
-          "default": "linear",
-          "description": "The gradient function."
+          "type": "string"
         },
-        "angle": {
-          "type": "number",
-          "minimum": -360.0,
-          "maximum": 360.0,
-          "default": 180.0,
-          "description": "Linear direction / conic start angle in degrees."
+        "interpolation": {
+          "description": "Optional color-interpolation color space for a perceptually-smoother blend, prepended as an 'in <space>' clause (e.g. linear-gradient(in oklch 90deg, ...)). Use a space such as 'srgb', 'oklab', 'oklch', 'hsl', 'lch', 'display-p3'. For the polar spaces (hsl/hwb/lch/oklch) you may append a hue method: 'oklch longer', 'hsl increasing' (shorter|longer|increasing|decreasing). Blank (default) = no clause.",
+          "type": "string"
+        },
+        "repeating": {
+          "default": false,
+          "description": "When true, emit a repeating-*-gradient() (tile the color stops). Most useful with explicit pixel positions, e.g. stripes. Default false.",
+          "type": "boolean"
         },
         "shape": {
-          "type": "string",
+          "default": "ellipse",
+          "description": "For 'radial' only: the gradient shape, 'ellipse' (default) or 'circle'. Ignored for linear/conic.",
           "enum": [
             "ellipse",
             "circle"
           ],
-          "default": "ellipse",
-          "description": "Radial shape."
-        },
-        "repeating": {
-          "type": "boolean",
-          "default": false,
-          "description": "Emit a repeating-*-gradient()."
-        },
-        "interpolation": {
-          "type": "string",
-          "description": "Optional 'in <space>' color-interpolation clause (e.g. oklch, hsl longer)."
+          "type": "string"
         }
       },
       "required": [
         "colors"
       ],
-      "additionalProperties": false
+      "type": "object"
     }
   }
 }
