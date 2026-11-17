@@ -26,7 +26,7 @@ XSalsa20 is strict: the key must be exactly **32 bytes** and the nonce exactly *
 <details>
 <summary>Is the output compatible with libsodium / NaCl?</summary>
 
-Yes for the raw stream cipher: the keystream matches libsodium's `crypto_stream_xsalsa20_xor_ic` for the same key, nonce and block counter. It is **not** a `crypto_secretbox` ciphertext. Secretbox adds a Poly1305 tag and starts encrypting 32 bytes into the keystream, so the two don't interoperate directly.
+Yes for the raw stream cipher: the keystream matches libsodium's `crypto_stream_xsalsa20_xor_ic` for the same key, nonce and block counter. The one difference is at the very end of the 2^64-block keystream: libsodium wraps back to block 0, which reuses keystream, while this tool returns an error instead. It is **not** a `crypto_secretbox` ciphertext. Secretbox adds a Poly1305 tag and starts encrypting 32 bytes into the keystream, so the two don't interoperate directly.
 
 </details>
 

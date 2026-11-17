@@ -15,14 +15,34 @@ struct Args {
     nonce: String,
     #[serde(default = "default_key_format")]
     key_format: String,
+    /// Kept as a raw JSON number so `1.0` (a common LLM serialisation) and
+    /// negatives get clear errors instead of a serde type error.
     #[serde(default)]
-    counter: u64,
+    counter: Option<serde_json::Number>,
     #[serde(default = "default_format")]
     format: String,
 }
 fn default_operation() -> String { "encrypt".into() }
 fn default_key_format() -> String { "encoded".into() }
 fn default_format() -> String { "hex".into() }
+
+/// Accepts any non-negative whole JSON number up to u64::MAX, including
+/// float-encoded integers like `3.0`.
+fn parse_counter(n: Option<&serde_json::Number>) -> Result<u64, String> {
+    let Some(n) = n else { return Ok(0) };
+    if let Some(u) = n.as_u64() {
+        return Ok(u);
+    }
+    if n.as_i64().is_some() {
+        return Err("counter must be >= 0".into());
+    }
+    match n.as_f64() {
+        Some(f) if f < 0.0 => Err("counter must be >= 0".into()),
+        // 2^64 is exactly representable; anything below it with no fraction fits u64
+        Some(f) if f.fract() == 0.0 && f < 18_446_744_073_709_551_616.0 => Ok(f as u64),
+        _ => Err("counter must be a whole number".into()),
+    }
+}
 
 #[derive(Serialize)]
 struct Resp { output: String }
@@ -34,7 +54,7 @@ fn descriptor() -> ToolDescriptor {
         .param(Param::string("key").required().describe("XSalsa20 key: exactly 32 bytes. By default key_format=encoded, so it is read as hex or base64 according to format."))
         .param(Param::string("nonce").required().describe("XSalsa20 nonce: exactly 24 bytes. Never reuse the same key+nonce pair for different messages."))
         .param(Param::enumv("key_format", ["encoded", "text"]).default("encoded").describe("How to read key and nonce: encoded = hex/base64 according to format; text = raw UTF-8 bytes."))
-        .param(Param::integer("counter").default(0).describe("Initial 64-byte block counter, default 0."))
+        .param(Param::integer("counter").default(0).min(0.0).describe("Initial 64-byte block counter, default 0."))
         .param(Param::enumv("format", ["hex", "base64"]).default("hex").describe("Ciphertext/key/nonce encoding when key_format=encoded: hex or base64."))
 }
 
@@ -56,9 +76,10 @@ impl Xsalsa20Cipher {
         match run_skill(&body, "xsalsa20-cipher", |a: Args| {
             let format = Encoding::parse(&a.format).map_err(SkillError::InvalidArgs)?;
             let key_format = KeyFormat::parse(&a.key_format).map_err(SkillError::InvalidArgs)?;
+            let counter = parse_counter(a.counter.as_ref()).map_err(SkillError::InvalidArgs)?;
             let output = match a.operation.trim().to_ascii_lowercase().as_str() {
-                "" | "encrypt" => encrypt(&a.data, &a.key, &a.nonce, key_format, a.counter, format),
-                "decrypt" => decrypt(&a.data, &a.key, &a.nonce, key_format, a.counter, format),
+                "" | "encrypt" => encrypt(&a.data, &a.key, &a.nonce, key_format, counter, format),
+                "decrypt" => decrypt(&a.data, &a.key, &a.nonce, key_format, counter, format),
                 other => Err(format!("unknown operation '{other}' (use encrypt or decrypt)")),
             }.map_err(SkillError::InvalidArgs)?;
             Ok(Resp { output })
@@ -81,11 +102,30 @@ mod tests {
             "key":{"type":"string","description":"XSalsa20 key: exactly 32 bytes. By default key_format=encoded, so it is read as hex or base64 according to format."},
             "nonce":{"type":"string","description":"XSalsa20 nonce: exactly 24 bytes. Never reuse the same key+nonce pair for different messages."},
             "key_format":{"type":"string","enum":["encoded","text"],"default":"encoded","description":"How to read key and nonce: encoded = hex/base64 according to format; text = raw UTF-8 bytes."},
-            "counter":{"type":"integer","default":0,"description":"Initial 64-byte block counter, default 0."},
+            "counter":{"type":"integer","default":0,"minimum":0,"description":"Initial 64-byte block counter, default 0."},
             "format":{"type":"string","enum":["hex","base64"],"default":"hex","description":"Ciphertext/key/nonce encoding when key_format=encoded: hex or base64."}
           },"required":["data","key","nonce"],"additionalProperties":false
         }"#).unwrap();
         let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
         assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
+
+    #[test]
+    fn counter_accepts_whole_numbers_and_rejects_the_rest() {
+        let num = |v: &str| serde_json::from_str::<serde_json::Number>(v).unwrap();
+        assert_eq!(parse_counter(None), Ok(0));
+        assert_eq!(parse_counter(Some(&num("7"))), Ok(7));
+        assert_eq!(parse_counter(Some(&num("1.0"))), Ok(1));
+        assert_eq!(parse_counter(Some(&num("18446744073709551615"))), Ok(u64::MAX));
+        assert_eq!(parse_counter(Some(&num("-1"))), Err("counter must be >= 0".into()));
+        assert_eq!(parse_counter(Some(&num("-1.5"))), Err("counter must be >= 0".into()));
+        assert_eq!(parse_counter(Some(&num("1.5"))), Err("counter must be a whole number".into()));
+        assert_eq!(parse_counter(Some(&num("1e30"))), Err("counter must be a whole number".into()));
+    }
+
+    #[test]
+    fn args_accept_float_counter() {
+        let a: Args = serde_json::from_str(r#"{"data":"x","key":"k","nonce":"n","counter":1.0}"#).unwrap();
+        assert_eq!(parse_counter(a.counter.as_ref()), Ok(1));
     }
 }

@@ -24,12 +24,12 @@ impl Encoding {
     }
 
     pub fn decode(self, input: &str) -> Result<Vec<u8>, String> {
+        // Both encodings ignore all ASCII whitespace, so line-wrapped input
+        // (e.g. `base64` / `openssl base64` output) decodes as pasted.
+        let cleaned: String = input.chars().filter(|c| !c.is_ascii_whitespace()).collect();
         match self {
-            Self::Hex => {
-                let cleaned: String = input.chars().filter(|c| !c.is_ascii_whitespace()).collect();
-                hex::decode(cleaned).map_err(|e| format!("invalid hex: {e}"))
-            }
-            Self::Base64 => B64.decode(input.trim()).map_err(|e| format!("invalid base64: {e}")),
+            Self::Hex => hex::decode(cleaned).map_err(|e| format!("invalid hex: {e}")),
+            Self::Base64 => B64.decode(cleaned).map_err(|e| format!("invalid base64: {e}")),
         }
     }
 
@@ -48,18 +48,20 @@ pub enum KeyFormat {
     Text,
     /// Decoded with the same encoding as the ciphertext (`format`).
     Encoded,
-    /// Decoded with an explicitly named encoding, regardless of `format`.
-    EncodedAs(Encoding),
 }
 
 impl KeyFormat {
-    /// Empty input means the documented default, `encoded`.
+    /// Empty input means the documented default, `encoded`. Only the two
+    /// values the schema and page offer are accepted; naming an encoding here
+    /// is an error rather than being silently ignored.
     pub fn parse(s: &str) -> Result<Self, String> {
         match s.trim().to_ascii_lowercase().as_str() {
             "" | "encoded" => Ok(Self::Encoded),
             "text" => Ok(Self::Text),
-            "hex" => Ok(Self::EncodedAs(Encoding::Hex)),
-            "base64" | "b64" => Ok(Self::EncodedAs(Encoding::Base64)),
+            enc @ ("hex" | "base64" | "b64") => Err(format!(
+                "key_format '{enc}' is not supported: use key_format=encoded and set format={enc} \
+                 to read the key and nonce as {enc}"
+            )),
             other => Err(format!("unknown key_format '{other}' (use encoded or text)")),
         }
     }
@@ -69,27 +71,32 @@ fn key_or_nonce_bytes(input: &str, key_format: KeyFormat, encoding: Encoding) ->
     match key_format {
         KeyFormat::Text => Ok(input.as_bytes().to_vec()),
         KeyFormat::Encoded => encoding.decode(input),
-        KeyFormat::EncodedAs(explicit) => explicit.decode(input),
     }
 }
 
-pub fn xsalsa20_apply(key: &[u8], nonce: &[u8], counter: u64, data: &[u8]) -> Result<Vec<u8>, String> {
+/// XOR `data` in place with the XSalsa20 keystream starting at block
+/// `counter`, returning it. Unlike libsodium, which wraps the block counter
+/// back to 0 (reusing keystream), this refuses data that would run past the
+/// last usable block (2^64 - 2).
+pub fn xsalsa20_apply(key: &[u8], nonce: &[u8], counter: u64, mut data: Vec<u8>) -> Result<Vec<u8>, String> {
     if key.len() != 32 {
         return Err(format!("XSalsa20 key must be exactly 32 bytes, got {}", key.len()));
     }
     if nonce.len() != 24 {
         return Err(format!("XSalsa20 nonce must be exactly 24 bytes, got {}", nonce.len()));
     }
-    let mut buf = data.to_vec();
     let mut cipher = XSalsa20::new(key.into(), nonce.into());
     // Seek in bytes as u128: block `counter` starts at counter * 64, which
     // overflows u64 for counter >= 2^58. Never saturate — that would map many
     // distinct counters onto the same keystream position.
-    let out_of_range =
-        || "counter too large: the data would run past the end of the XSalsa20 keystream".to_string();
+    let out_of_range = || {
+        "counter too large: the data would run past the end of the XSalsa20 keystream \
+         (the keystream is not wrapped around to block 0)"
+            .to_string()
+    };
     cipher.try_seek(u128::from(counter) * 64).map_err(|_| out_of_range())?;
-    cipher.try_apply_keystream(&mut buf).map_err(|_| out_of_range())?;
-    Ok(buf)
+    cipher.try_apply_keystream(&mut data).map_err(|_| out_of_range())?;
+    Ok(data)
 }
 
 pub fn encrypt(
@@ -102,7 +109,7 @@ pub fn encrypt(
 ) -> Result<String, String> {
     let key = key_or_nonce_bytes(key, key_format, format)?;
     let nonce = key_or_nonce_bytes(nonce, key_format, format)?;
-    let ct = xsalsa20_apply(&key, &nonce, counter, plaintext.as_bytes())?;
+    let ct = xsalsa20_apply(&key, &nonce, counter, plaintext.as_bytes().to_vec())?;
     Ok(format.encode(&ct))
 }
 
@@ -117,7 +124,7 @@ pub fn decrypt(
     let key = key_or_nonce_bytes(key, key_format, format)?;
     let nonce = key_or_nonce_bytes(nonce, key_format, format)?;
     let ct = format.decode(ciphertext)?;
-    let pt = xsalsa20_apply(&key, &nonce, counter, &ct)?;
+    let pt = xsalsa20_apply(&key, &nonce, counter, ct)?;
     String::from_utf8(pt).map_err(|_| "decrypted bytes are not valid UTF-8".to_string())
 }
 
@@ -167,7 +174,7 @@ mod tests {
     fn keystream(counter: u64, len: usize) -> String {
         let key = hex::decode(KEY_HEX).unwrap();
         let nonce = hex::decode(NONCE_HEX).unwrap();
-        hex::encode(xsalsa20_apply(&key, &nonce, counter, &vec![0u8; len]).unwrap())
+        hex::encode(xsalsa20_apply(&key, &nonce, counter, vec![0u8; len]).unwrap())
     }
 
     #[test]
@@ -193,29 +200,43 @@ mod tests {
 
     #[test]
     fn running_past_the_keystream_end_is_an_error() {
-        let err = xsalsa20_apply(&[0u8; 32], &[0u8; 24], u64::MAX, &[0u8; 65]).unwrap_err();
-        assert!(err.contains("counter too large"), "{err}");
+        // the last usable block is 2^64 - 2: one block there works, a byte more fails
+        assert_eq!(xsalsa20_apply(&[0u8; 32], &[0u8; 24], u64::MAX - 1, vec![0u8; 64]).unwrap().len(), 64);
+        for (counter, len) in [(u64::MAX - 1, 65), (u64::MAX, 1)] {
+            let err = xsalsa20_apply(&[0u8; 32], &[0u8; 24], counter, vec![0u8; len]).unwrap_err();
+            assert!(err.contains("counter too large"), "{err}");
+        }
     }
 
     #[test]
-    fn key_format_defaults_to_encoded_and_honours_explicit_encoding() {
+    fn key_format_defaults_to_encoded_and_rejects_encoding_names() {
         assert_eq!(KeyFormat::parse("").unwrap(), KeyFormat::Encoded);
         assert_eq!(KeyFormat::parse(" Encoded ").unwrap(), KeyFormat::Encoded);
         // empty key_format + the documented default hex key must work
         let ct = encrypt("hello xsalsa20", KEY_HEX, NONCE_HEX, KeyFormat::parse("").unwrap(), 0, Encoding::Hex).unwrap();
         assert_eq!(ct, "14d30cc3b2bebe35ee3bae0c1603");
-        // key_format=base64 decodes the key as base64 even when format=hex
+        // naming an encoding as key_format is rejected with a pointer to `format`
+        let err = KeyFormat::parse("base64").unwrap_err();
+        assert!(err.contains("format=base64"), "{err}");
+    }
+
+    #[test]
+    fn line_wrapped_base64_and_hex_decode() {
+        // format=base64 reads the key and nonce as base64 too
         let key = B64.encode(hex::decode(KEY_HEX).unwrap());
         let nonce = B64.encode(hex::decode(NONCE_HEX).unwrap());
-        let kf = KeyFormat::parse("base64").unwrap();
-        let ct = encrypt("hello xsalsa20", &key, &nonce, kf, 0, Encoding::Hex).unwrap();
-        assert_eq!(ct, "14d30cc3b2bebe35ee3bae0c1603");
+        let ct = encrypt("hello xsalsa20", &key, &nonce, KeyFormat::Encoded, 0, Encoding::Base64).unwrap();
+        let wrapped = format!("{}\n{}\r\n", &ct[..8], &ct[8..]);
+        let pt = decrypt(&wrapped, &key, &nonce, KeyFormat::Encoded, 0, Encoding::Base64).unwrap();
+        assert_eq!(pt, "hello xsalsa20");
+        let pt = decrypt("14d30cc3b2be\nbe35ee3bae0c1603", KEY_HEX, NONCE_HEX, KeyFormat::Encoded, 0, Encoding::Hex).unwrap();
+        assert_eq!(pt, "hello xsalsa20");
     }
 
     #[test]
     fn validates_lengths_and_formats() {
-        assert!(xsalsa20_apply(&[0u8; 31], &[0u8; 24], 0, b"x").is_err());
-        assert!(xsalsa20_apply(&[0u8; 32], &[0u8; 23], 0, b"x").is_err());
+        assert!(xsalsa20_apply(&[0u8; 31], &[0u8; 24], 0, b"x".to_vec()).is_err());
+        assert!(xsalsa20_apply(&[0u8; 32], &[0u8; 23], 0, b"x".to_vec()).is_err());
         assert!(Encoding::parse("base32").is_err());
         assert!(KeyFormat::parse("pem").is_err());
     }

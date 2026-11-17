@@ -4,14 +4,18 @@
 
 ## Surface verification
 
+Re-run on 2026-11-17 for PR #240, after the review fixes. Rows marked "not re-run" keep their 2026-06-30 result.
+
 | Surface | Check | Result |
 | --- | --- | --- |
-| Core + schema tests | `cd blocks/xsalsa20-cipher && CARGO_BUILD_JOBS=1 cargo test --workspace` | ✅ 4 core tests + 1 drift-guard schema test pass |
-| Chat block | `cd blocks/xsalsa20-cipher && CARGO_BUILD_JOBS=1 wafer build` | ✅ `target/block.wasm` validates |
-| Page wasm | `CARGO_BUILD_JOBS=1 wasm-pack build blocks/xsalsa20-cipher/web --target web --release --out-dir pkg` | ✅ pkg built |
-| Generator | `CARGO_BUILD_JOBS=1 cargo run --manifest-path tools/generator/Cargo.toml -- .` | ✅ rendered `tools/xsalsa20-cipher/` |
-| CLI | `gizza tool xsalsa20-cipher ...` encrypt/decrypt | ✅ encrypted `hello` then decrypted it |
-| Page | `cd tests && xvfb-run npx playwright test tool-page-xsalsa20-cipher.spec.ts` | ✅ 3 passed |
+| Core tests | `cd blocks/xsalsa20-cipher && cargo test --workspace` | ✅ 10 core tests (including libsodium `crypto_stream_xsalsa20_xor_ic` known-answer vectors at counters 0, 1 and 2^60) + 3 block tests (chat-schema drift guard, counter parsing) |
+| Lint | `cd blocks/xsalsa20-cipher && cargo clippy --workspace --all-targets` | ✅ clean |
+| Chat block | `scripts/build-block-wasm.sh xsalsa20-cipher --check` | ✅ canonical `target/block.wasm` reproduces from the committed `Cargo.lock` |
+| Page wasm | `wasm-pack build blocks/xsalsa20-cipher/web --target web --release --out-dir pkg` (wasm-pack 0.15.0) | ✅ pkg built |
+| Hygiene | `python3 scripts/check-tool-hygiene.py xsalsa20-cipher` | ✅ OK |
+| Generator | `cargo run --manifest-path tools/generator/Cargo.toml -- .` | not re-run (2026-06-30: ✅ rendered `tools/xsalsa20-cipher/`) |
+| CLI | `gizza tool xsalsa20-cipher ...` encrypt/decrypt | not re-run (2026-06-30: ✅ round trip) |
+| Page | `tests/tool-page-xsalsa20-cipher.spec.ts` | run by CI (4 tests, including the libsodium known answer and malformed-counter rejection) |
 
 ## Competitor landscape
 

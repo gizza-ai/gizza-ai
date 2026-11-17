@@ -15,7 +15,7 @@
         "key": { "type": "string" },
         "nonce": { "type": "string" },
         "key_format": { "type": "string", "enum": ["encoded", "text"], "default": "encoded" },
-        "counter": { "type": "integer", "default": 0 },
+        "counter": { "type": "integer", "default": 0, "minimum": 0 },
         "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
       },
       "additionalProperties": false
