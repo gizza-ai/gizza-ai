@@ -1,0 +1,56 @@
+slug          = "xsalsa20-cipher"
+title         = "XSalsa20 Cipher — Extended-nonce Salsa20 encrypt/decrypt — gizza.ai"
+description   = "Encrypt or decrypt UTF-8 data with XSalsa20 using a 32-byte key and 24-byte nonce. Hex or Base64 ciphertext."
+tags          = ["xsalsa20", "salsa20", "stream cipher", "extended nonce", "encrypt", "decrypt", "cryptography"]
+h1            = "XSalsa20 cipher"
+hero_subtitle = "Encrypt and decrypt with XSalsa20: a Salsa20 stream cipher variant with a 24-byte nonce. Runs locally in your browser."
+wasm          = "gizza_ai_xsalsa20_cipher_web"
+export        = "run"
+live          = false
+output_label  = "Output"
+format        = "text"
+
+[[input]]
+name = "operation"
+label = "Operation (encrypt | decrypt)"
+placeholder = "encrypt"
+source = "field"
+
+[[input]]
+name = "data"
+label = "Data"
+placeholder = "Plaintext for encrypt, ciphertext for decrypt…"
+source = "field"
+multiline = true
+
+[[input]]
+name = "key"
+label = "Key (32 bytes)"
+placeholder = "64 hex chars by default"
+source = "field"
+multiline = true
+
+[[input]]
+name = "nonce"
+label = "Nonce (24 bytes)"
+placeholder = "48 hex chars by default"
+source = "field"
+multiline = true
+
+[[input]]
+name = "key_format"
+label = "Key/nonce format (encoded | text)"
+placeholder = "encoded"
+source = "field"
+
+[[input]]
+name = "counter"
+label = "Initial block counter"
+placeholder = "0"
+source = "field"
+
+[[input]]
+name = "format"
+label = "Encoding (hex | base64)"
+placeholder = "hex"
+source = "field"

@@ -1,0 +1,24 @@
+{
+  "name": "gizza-ai/xsalsa20-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with XSalsa20 using a 32-byte key and 24-byte nonce",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt UTF-8 data with XSalsa20, the extended-nonce Salsa20 stream cipher. The key must be exactly 32 bytes and nonce exactly 24 bytes. Never reuse a key+nonce pair.",
+    "parameters": {
+      "type": "object",
+      "required": ["data", "key", "nonce"],
+      "properties": {
+        "operation": { "type": "string", "enum": ["encrypt", "decrypt"], "default": "encrypt" },
+        "data": { "type": "string" },
+        "key": { "type": "string" },
+        "nonce": { "type": "string" },
+        "key_format": { "type": "string", "enum": ["encoded", "text"], "default": "encoded" },
+        "counter": { "type": "integer", "default": 0 },
+        "format": { "type": "string", "enum": ["hex", "base64"], "default": "hex" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

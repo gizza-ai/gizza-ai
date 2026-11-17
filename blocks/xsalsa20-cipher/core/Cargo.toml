@@ -1,0 +1,10 @@
+[package]
+name = "gizza-ai-xsalsa20-cipher-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+base64 = "0.22"
+hex = "0.4"
+salsa20 = "0.10"
