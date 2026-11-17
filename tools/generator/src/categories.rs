@@ -167,7 +167,7 @@ pub const CATEGORIES: &[Category] = &[
             "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
             "egfr", "calc", "round", "nearest", "capita", "cumulative", "gpa", "grade", "rent",
             "salary", "amortization", "financial", "fraction", "combinations", "permutations",
-            "logit", "vector", "calorie", "heart", "ideal-weight", "growth",
+            "logit", "vector", "calorie", "heart", "ideal-weight", "growth-percentile",
         ],
     },
     Category {
@@ -203,7 +203,8 @@ pub const CATEGORIES: &[Category] = &[
             "index", "enum", "glob", "filter", "pairwise", "test", "syslog", "patch", "trie",
             "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
             "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
-            "release", "shadcn", "k8s", "stack-trace", "docstring",
+            "release", "shadcn", "k8s", "kubernetes", "helm", "stack-trace", "docstring",
+            "brotli", "zstd",
         ],
     },
     Category {
@@ -228,13 +229,15 @@ impl Category {
             .tags
             .iter()
             .any(|t| self.tags.contains(&t.trim().to_lowercase().as_str()));
+        // Keywords match whole hyphen-separated slug segments: a plain word
+        // must equal one segment, and a hyphenated keyword must equal a run
+        // of adjacent segments (so "stack-trace" matches stack-trace-analyzer
+        // but not haystack-tracer).
+        let segments: Vec<&str> = meta.slug.split('-').collect();
         tag_hit
             || self.slug_words.iter().any(|kw| {
-                if kw.contains('-') {
-                    meta.slug.contains(kw)
-                } else {
-                    meta.slug.split('-').any(|w| w == *kw)
-                }
+                let parts: Vec<&str> = kw.split('-').collect();
+                segments.windows(parts.len()).any(|w| w == parts.as_slice())
             })
     }
 }
@@ -332,14 +335,19 @@ format        = "text"
     }
 
     #[test]
-    fn hyphenated_keyword_matches_substring_only() {
-        // "data-uri" (hyphenated) matches data-uri-encode as a substring…
+    fn hyphenated_keyword_matches_adjacent_segments_only() {
+        // "data-uri" (hyphenated) matches data-uri-encode as adjacent segments…
         let m = tool("data-uri-encode", &[]);
         assert_eq!(primary_category(&m).slug, "encoding");
         // …while plain "uri" must NOT pull parse-uri into encoding: it lands
         // in network via its own word rule.
         let m = tool("parse-uri", &[]);
         assert_eq!(primary_category(&m).slug, "network");
+        // …and a hyphenated keyword never matches inside a longer word
+        let m = tool("haystack-tracer", &[]);
+        assert!(!categories_for(&m).iter().any(|c| c.slug == "developer"));
+        let m = tool("mywebhook-signatures", &[]);
+        assert!(!categories_for(&m).iter().any(|c| c.slug == "security"));
     }
 
     #[test]
@@ -458,6 +466,8 @@ format        = "text"
             ("docstring-stub-generator", &["developer"]),
             ("k8s-manifest-scaffold", &["developer"]),
             ("stack-trace-analyzer", &["developer"]),
+            ("brotli-decompress", &["developer"]),
+            ("zstd-decompress", &["developer"]),
             ("webhook-signature-generator", &["security"]),
         ];
         let mut mismatches = Vec::new();
