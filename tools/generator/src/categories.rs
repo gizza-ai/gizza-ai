@@ -37,7 +37,6 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "audio", "waveform", "midi", "fft", "clipping", "peak", "spectral", "wav", "guitar",
             "tempo", "chord", "drum",
-            "scale",
         ],
     },
     Category {
@@ -75,12 +74,11 @@ pub const CATEGORIES: &[Category] = &[
             "missing", "value", "report", "rebalancer", "numeric", "random", "monte", "regression",
             "currency", "spending", "categorizer", "order", "amazon", "hl7", "fit", "bson", "bin",
             "clusterer", "format", "converter", "feature", "pruner", "fastq", "fasta", "vcf",
-            "dna",
-            "tsv", "genomic", "geofence", "location", "portfolio", "allocation", "funnel",
+            "dna", "tsv", "genomic", "geofence", "location", "portfolio", "allocation", "funnel",
             "conversion", "beancount", "net", "worth", "subscription", "cohort", "churn",
             "retention", "drift", "downsample", "timeseries", "drawdown", "ledger", "likert",
             "mattermost", "ndjson", "npy", "pca", "principal", "twitter", "returns", "gap",
-            "json5", "canonicalize", "dropper", "decompose", "chart",
+            "json5", "canonicalize", "dropper", "decompose",
         ],
     },
     Category {
@@ -92,7 +90,6 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "markdown", "latex", "bibtex", "citation", "resume", "slides", "document", "toc",
             "pdf", "epub", "mail", "merge", "file", "files", "prompt", "filetype", "invoice",
-            "docstring",
             "worklog", "job", "posting", "archive", "tar",
         ],
     },
@@ -115,9 +112,8 @@ pub const CATEGORIES: &[Category] = &[
             "token", "safelink", "aes", "des", "passphrase", "diceware", "privacy", "pii",
             "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
             "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum", "amcache",
-            "webhook",
             "cyberchef", "pkcs12", "registry", "hive", "sbom", "shellbags", "usnjrnl", "xpub",
-            "dkim",
+            "dkim", "webhook-signature",
         ],
     },
     Category {
@@ -129,7 +125,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "base32", "base58", "base62", "base85", "base64", "bech32", "hex", "binary", "codec",
             "unicode", "charset", "morse", "encoder", "encode", "byte", "lz", "data-uri",
-            "decoder", "decompress",
+            "decoder",
         ],
     },
     Category {
@@ -171,8 +167,7 @@ pub const CATEGORIES: &[Category] = &[
             "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
             "egfr", "calc", "round", "nearest", "capita", "cumulative", "gpa", "grade", "rent",
             "salary", "amortization", "financial", "fraction", "combinations", "permutations",
-            "logit", "vector", "calorie", "heart", "ideal-weight",
-            "growth", "weight", "ratio", "pareto",
+            "logit", "vector", "calorie", "heart", "ideal-weight", "growth",
         ],
     },
     Category {
@@ -188,8 +183,7 @@ pub const CATEGORIES: &[Category] = &[
             "readability", "summarize", "keywords", "chars", "tweet", "cleaner", "diff",
             "frequency", "count", "ansi", "spell", "action", "item", "extractor", "deduplicator",
             "dedup", "fuzzy", "name", "empty", "tokenizer", "stemmer", "prose", "sentence", "pad",
-            "stream-editor", "cefr", "romanizer",
-            "accent",
+            "stream-editor", "cefr", "romanizer", "accent",
         ],
     },
     Category {
@@ -209,8 +203,7 @@ pub const CATEGORIES: &[Category] = &[
             "index", "enum", "glob", "filter", "pairwise", "test", "syslog", "patch", "trie",
             "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
             "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
-            "release", "shadcn",
-            "k8s", "stack",
+            "release", "shadcn", "k8s", "stack", "docstring",
         ],
     },
     Category {
@@ -414,6 +407,61 @@ format        = "text"
         assert_eq!(slugs.len(), CATEGORIES.len(), "duplicate category slug");
     }
 
+    #[test]
+    fn webhook_signature_keyword_does_not_claim_every_webhook_tool() {
+        // only signing/verification tools are security; a generic webhook tool
+        // must not be pulled into the security hub by a bare "webhook" word
+        let m = tool("webhook-signature-generator", &[]);
+        assert_eq!(primary_category(&m).slug, "security");
+        let m = tool("webhook-payload-viewer", &[]);
+        assert_ne!(primary_category(&m).slug, "security");
+    }
+
+    /// Pins the full category list of real tools whose placement is easy to
+    /// break with an over-broad slug word (e.g. "weight", "ratio", "chart",
+    /// "decompress" were all rejected for re-homing these). Tools missing
+    /// from blocks/ are skipped so block churn doesn't break the build.
+    #[test]
+    fn real_population_pins_sensitive_categories() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let blocks = root.join("blocks");
+        if !blocks.is_dir() {
+            return;
+        }
+        let metas = crate::collect_tool_metas(&blocks).expect("collect metas");
+        let expected: &[(&str, &[&str])] = &[
+            // must not drift into math / data via generic words
+            ("page-weight-analyzer", &["developer"]),
+            ("boxplot-chart", &["math"]),
+            ("histogram-chart", &["math"]),
+            ("pareto-chart", &["image"]),
+            ("radar-chart", &["image"]),
+            ("video-aspect-ratio-fix", &["video"]),
+            ("aspect-ratio-validator", &["data"]),
+            ("lznt1-decompress", &["security"]),
+            // rescued from the utilities fallback by this taxonomy
+            ("accent-stripper", &["text"]),
+            ("child-growth-percentile", &["math"]),
+            ("dna-reverse-complement", &["data"]),
+            ("docstring-stub-generator", &["developer"]),
+            ("k8s-manifest-scaffold", &["developer"]),
+            ("stack-trace-analyzer", &["developer"]),
+            ("webhook-signature-generator", &["security"]),
+        ];
+        let mut mismatches = Vec::new();
+        for (slug, want) in expected {
+            let Some((_, m)) = metas.iter().find(|(_, m)| m.slug == *slug) else {
+                eprintln!("skipping {slug}: not in blocks/");
+                continue;
+            };
+            let got: Vec<&str> = categories_for(m).iter().map(|c| c.slug).collect();
+            if got != *want {
+                mismatches.push(format!("{slug}: expected {want:?}, got {got:?}"));
+            }
+        }
+        assert!(mismatches.is_empty(), "category drift:\n{}", mismatches.join("\n"));
+    }
+
     /// Guard on the REAL tool population (skipped when blocks/ is absent,
     /// e.g. in a crate-only checkout): every tool must land somewhere, and
     /// the `utilities` fallback must stay small — a growing fallback means
@@ -439,7 +487,7 @@ format        = "text"
         let fallback = fallback_members.len();
         eprintln!("fallback (utilities): {fallback} — {fallback_members:?}");
         assert!(
-            fallback <= 40,
+            fallback <= 20,
             "{fallback} tools fell through to the utilities fallback — tighten the \
              category match rules in categories.rs"
         );
