@@ -33,7 +33,8 @@ test('xsalsa20-cipher page validates nonce length', async ({ page }) => {
 test('xsalsa20-cipher page honours query-param deep link', async ({ page }) => {
   await page.goto('/tools/xsalsa20-cipher/?operation=encrypt&data=hello&key=' + key + '&nonce=' + nonce + '&key_format=encoded&counter=0&format=hex');
   await expect(page.locator('#in-data')).toHaveValue('hello');
-  await expect(page.locator('#tool-output')).toHaveText(expectedHex, { timeout: 15000 });
+  // stream cipher: 'hello' encrypts to the first 5 bytes of the 'hello xsalsa20' answer
+  await expect(page.locator('#tool-output')).toHaveText(expectedHex.slice(0, 10), { timeout: 15000 });
 });
 
 test('xsalsa20-cipher page rejects a malformed counter', async ({ page }) => {
