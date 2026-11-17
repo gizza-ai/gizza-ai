@@ -74,7 +74,7 @@ pub const CATEGORIES: &[Category] = &[
             "missing", "value", "report", "rebalancer", "numeric", "random", "monte", "regression",
             "currency", "spending", "categorizer", "order", "amazon", "hl7", "fit", "bson", "bin",
             "clusterer", "format", "converter", "feature", "pruner", "fastq", "fasta", "vcf",
-            "tsv", "genomic", "geofence", "location", "portfolio", "allocation", "funnel",
+            "dna", "tsv", "genomic", "geofence", "location", "portfolio", "allocation", "funnel",
             "conversion", "beancount", "net", "worth", "subscription", "cohort", "churn",
             "retention", "drift", "downsample", "timeseries", "drawdown", "ledger", "likert",
             "mattermost", "ndjson", "npy", "pca", "principal", "twitter", "returns", "gap",
@@ -113,7 +113,7 @@ pub const CATEGORIES: &[Category] = &[
             "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
             "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum", "amcache",
             "cyberchef", "pkcs12", "registry", "hive", "sbom", "shellbags", "usnjrnl", "xpub",
-            "dkim",
+            "dkim", "webhook-signature",
         ],
     },
     Category {
@@ -167,7 +167,7 @@ pub const CATEGORIES: &[Category] = &[
             "product", "chi", "distribution", "math", "unit", "outlier", "normalize", "debt",
             "egfr", "calc", "round", "nearest", "capita", "cumulative", "gpa", "grade", "rent",
             "salary", "amortization", "financial", "fraction", "combinations", "permutations",
-            "logit", "vector", "calorie", "heart", "ideal-weight",
+            "logit", "vector", "calorie", "heart", "ideal-weight", "growth-percentile",
         ],
     },
     Category {
@@ -183,7 +183,7 @@ pub const CATEGORIES: &[Category] = &[
             "readability", "summarize", "keywords", "chars", "tweet", "cleaner", "diff",
             "frequency", "count", "ansi", "spell", "action", "item", "extractor", "deduplicator",
             "dedup", "fuzzy", "name", "empty", "tokenizer", "stemmer", "prose", "sentence", "pad",
-            "stream-editor", "cefr", "romanizer",
+            "stream-editor", "cefr", "romanizer", "accent",
         ],
     },
     Category {
@@ -203,7 +203,8 @@ pub const CATEGORIES: &[Category] = &[
             "index", "enum", "glob", "filter", "pairwise", "test", "syslog", "patch", "trie",
             "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
             "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
-            "release", "shadcn",
+            "release", "shadcn", "k8s", "kubernetes", "helm", "stack-trace", "docstring",
+            "brotli", "zstd",
         ],
     },
     Category {
@@ -228,13 +229,15 @@ impl Category {
             .tags
             .iter()
             .any(|t| self.tags.contains(&t.trim().to_lowercase().as_str()));
+        // Keywords match whole hyphen-separated slug segments: a plain word
+        // must equal one segment, and a hyphenated keyword must equal a run
+        // of adjacent segments (so "stack-trace" matches stack-trace-analyzer
+        // but not haystack-tracer).
+        let segments: Vec<&str> = meta.slug.split('-').collect();
         tag_hit
             || self.slug_words.iter().any(|kw| {
-                if kw.contains('-') {
-                    meta.slug.contains(kw)
-                } else {
-                    meta.slug.split('-').any(|w| w == *kw)
-                }
+                let parts: Vec<&str> = kw.split('-').collect();
+                segments.windows(parts.len()).any(|w| w == parts.as_slice())
             })
     }
 }
@@ -332,14 +335,19 @@ format        = "text"
     }
 
     #[test]
-    fn hyphenated_keyword_matches_substring_only() {
-        // "data-uri" (hyphenated) matches data-uri-encode as a substring…
+    fn hyphenated_keyword_matches_adjacent_segments_only() {
+        // "data-uri" (hyphenated) matches data-uri-encode as adjacent segments…
         let m = tool("data-uri-encode", &[]);
         assert_eq!(primary_category(&m).slug, "encoding");
         // …while plain "uri" must NOT pull parse-uri into encoding: it lands
         // in network via its own word rule.
         let m = tool("parse-uri", &[]);
         assert_eq!(primary_category(&m).slug, "network");
+        // …and a hyphenated keyword never matches inside a longer word
+        let m = tool("haystack-tracer", &[]);
+        assert!(!categories_for(&m).iter().any(|c| c.slug == "developer"));
+        let m = tool("mywebhook-signatures", &[]);
+        assert!(!categories_for(&m).iter().any(|c| c.slug == "security"));
     }
 
     #[test]
@@ -407,20 +415,82 @@ format        = "text"
         assert_eq!(slugs.len(), CATEGORIES.len(), "duplicate category slug");
     }
 
+    #[test]
+    fn webhook_signature_keyword_does_not_claim_every_webhook_tool() {
+        // only signing/verification tools are security; a generic webhook tool
+        // must not be pulled into the security hub by a bare "webhook" word
+        let m = tool("webhook-signature-generator", &[]);
+        assert_eq!(primary_category(&m).slug, "security");
+        // not merely non-primary: security must not appear at all
+        let m = tool("webhook-payload-viewer", &[]);
+        assert!(
+            !categories_for(&m).iter().any(|c| c.slug == "security"),
+            "a generic webhook tool must not join the security hub"
+        );
+    }
+
+    /// The real tool population, or `None` in a crate-only checkout where
+    /// blocks/ is absent (the real-population tests then skip).
+    fn real_metas() -> Option<Vec<ToolMeta>> {
+        let blocks = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../blocks");
+        if !blocks.is_dir() {
+            return None;
+        }
+        let metas = crate::collect_tool_metas(&blocks).expect("collect metas");
+        assert!(!metas.is_empty());
+        Some(metas.into_iter().map(|(_, m)| m).collect())
+    }
+
+    /// Pins the full category list of real tools whose placement is easy to
+    /// break with an over-broad slug word (e.g. "weight", "ratio", "chart",
+    /// "decompress" were all rejected for re-homing these). A pinned tool
+    /// that is renamed or removed fails the test, so the pin is updated
+    /// deliberately instead of silently checking nothing.
+    #[test]
+    fn real_population_pins_sensitive_categories() {
+        let Some(metas) = real_metas() else { return };
+        let expected: &[(&str, &[&str])] = &[
+            // must not drift into math / data via generic words
+            ("page-weight-analyzer", &["developer"]),
+            ("boxplot-chart", &["math"]),
+            ("histogram-chart", &["math"]),
+            ("pareto-chart", &["image"]),
+            ("radar-chart", &["image"]),
+            ("video-aspect-ratio-fix", &["video"]),
+            ("aspect-ratio-validator", &["data"]),
+            ("lznt1-decompress", &["security"]),
+            // rescued from the utilities fallback by this taxonomy
+            ("accent-stripper", &["text"]),
+            ("child-growth-percentile", &["math"]),
+            ("dna-reverse-complement", &["data"]),
+            ("docstring-stub-generator", &["developer"]),
+            ("k8s-manifest-scaffold", &["developer"]),
+            ("stack-trace-analyzer", &["developer"]),
+            ("brotli-decompress", &["developer"]),
+            ("zstd-decompress", &["developer"]),
+            ("webhook-signature-generator", &["security"]),
+        ];
+        let mut mismatches = Vec::new();
+        for (slug, want) in expected {
+            let Some(m) = metas.iter().find(|m| m.slug == *slug) else {
+                mismatches.push(format!("{slug}: pinned tool not found in blocks/ — update the pin"));
+                continue;
+            };
+            let got: Vec<&str> = categories_for(m).iter().map(|c| c.slug).collect();
+            if got != *want {
+                mismatches.push(format!("{slug}: expected {want:?}, got {got:?}"));
+            }
+        }
+        assert!(mismatches.is_empty(), "category drift:\n{}", mismatches.join("\n"));
+    }
+
     /// Guard on the REAL tool population (skipped when blocks/ is absent,
     /// e.g. in a crate-only checkout): every tool must land somewhere, and
     /// the `utilities` fallback must stay small — a growing fallback means
     /// the match rules need new keywords, not that tools are uncategorizable.
     #[test]
     fn real_population_fallback_stays_small() {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let blocks = root.join("blocks");
-        if !blocks.is_dir() {
-            return;
-        }
-        let metas = crate::collect_tool_metas(&blocks).expect("collect metas");
-        assert!(!metas.is_empty());
-        let metas: Vec<ToolMeta> = metas.into_iter().map(|(_, m)| m).collect();
+        let Some(metas) = real_metas() else { return };
         let hubs = build_hubs(&metas);
         for hub in &hubs {
             eprintln!("{:<12} {:>3} tools", hub.category.slug, hub.members.len());
@@ -432,7 +502,7 @@ format        = "text"
         let fallback = fallback_members.len();
         eprintln!("fallback (utilities): {fallback} — {fallback_members:?}");
         assert!(
-            fallback <= 40,
+            fallback <= 20,
             "{fallback} tools fell through to the utilities fallback — tighten the \
              category match rules in categories.rs"
         );
