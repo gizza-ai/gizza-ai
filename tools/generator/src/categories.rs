@@ -37,6 +37,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "audio", "waveform", "midi", "fft", "clipping", "peak", "spectral", "wav", "guitar",
             "tempo", "chord", "drum",
+            "scale",
         ],
     },
     Category {
@@ -74,11 +75,12 @@ pub const CATEGORIES: &[Category] = &[
             "missing", "value", "report", "rebalancer", "numeric", "random", "monte", "regression",
             "currency", "spending", "categorizer", "order", "amazon", "hl7", "fit", "bson", "bin",
             "clusterer", "format", "converter", "feature", "pruner", "fastq", "fasta", "vcf",
+            "dna",
             "tsv", "genomic", "geofence", "location", "portfolio", "allocation", "funnel",
             "conversion", "beancount", "net", "worth", "subscription", "cohort", "churn",
             "retention", "drift", "downsample", "timeseries", "drawdown", "ledger", "likert",
             "mattermost", "ndjson", "npy", "pca", "principal", "twitter", "returns", "gap",
-            "json5", "canonicalize", "dropper", "decompose",
+            "json5", "canonicalize", "dropper", "decompose", "chart",
         ],
     },
     Category {
@@ -90,6 +92,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "markdown", "latex", "bibtex", "citation", "resume", "slides", "document", "toc",
             "pdf", "epub", "mail", "merge", "file", "files", "prompt", "filetype", "invoice",
+            "docstring",
             "worklog", "job", "posting", "archive", "tar",
         ],
     },
@@ -112,6 +115,7 @@ pub const CATEGORIES: &[Category] = &[
             "token", "safelink", "aes", "des", "passphrase", "diceware", "privacy", "pii",
             "anonymizer", "hd-key", "aws", "sigv4", "signer", "bitcoin", "bot", "traffic",
             "secret", "scanner", "keypair", "keygen", "qr", "secp256k1", "checksum", "amcache",
+            "webhook",
             "cyberchef", "pkcs12", "registry", "hive", "sbom", "shellbags", "usnjrnl", "xpub",
             "dkim",
         ],
@@ -125,7 +129,7 @@ pub const CATEGORIES: &[Category] = &[
         slug_words: &[
             "base32", "base58", "base62", "base85", "base64", "bech32", "hex", "binary", "codec",
             "unicode", "charset", "morse", "encoder", "encode", "byte", "lz", "data-uri",
-            "decoder",
+            "decoder", "decompress",
         ],
     },
     Category {
@@ -168,6 +172,7 @@ pub const CATEGORIES: &[Category] = &[
             "egfr", "calc", "round", "nearest", "capita", "cumulative", "gpa", "grade", "rent",
             "salary", "amortization", "financial", "fraction", "combinations", "permutations",
             "logit", "vector", "calorie", "heart", "ideal-weight",
+            "growth", "weight", "ratio", "pareto",
         ],
     },
     Category {
@@ -184,6 +189,7 @@ pub const CATEGORIES: &[Category] = &[
             "frequency", "count", "ansi", "spell", "action", "item", "extractor", "deduplicator",
             "dedup", "fuzzy", "name", "empty", "tokenizer", "stemmer", "prose", "sentence", "pad",
             "stream-editor", "cefr", "romanizer",
+            "accent",
         ],
     },
     Category {
@@ -204,6 +210,7 @@ pub const CATEGORIES: &[Category] = &[
             "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
             "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
             "release", "shadcn",
+            "k8s", "stack",
         ],
     },
     Category {
