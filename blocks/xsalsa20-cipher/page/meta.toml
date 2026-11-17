@@ -28,14 +28,12 @@ name = "key"
 label = "Key (32 bytes)"
 placeholder = "64 hex chars by default"
 source = "field"
-multiline = true
 
 [[input]]
 name = "nonce"
 label = "Nonce (24 bytes)"
 placeholder = "48 hex chars by default"
 source = "field"
-multiline = true
 
 [[input]]
 name = "key_format"

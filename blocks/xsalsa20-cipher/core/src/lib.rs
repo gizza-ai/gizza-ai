@@ -41,18 +41,26 @@ impl Encoding {
     }
 }
 
+/// How the key and nonce strings are read.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KeyFormat {
+    /// Raw UTF-8 bytes of the string.
     Text,
+    /// Decoded with the same encoding as the ciphertext (`format`).
     Encoded,
+    /// Decoded with an explicitly named encoding, regardless of `format`.
+    EncodedAs(Encoding),
 }
 
 impl KeyFormat {
+    /// Empty input means the documented default, `encoded`.
     pub fn parse(s: &str) -> Result<Self, String> {
         match s.trim().to_ascii_lowercase().as_str() {
-            "" | "text" => Ok(Self::Text),
-            "encoded" | "hex" | "base64" => Ok(Self::Encoded),
-            other => Err(format!("unknown key_format '{other}' (use text or encoded)")),
+            "" | "encoded" => Ok(Self::Encoded),
+            "text" => Ok(Self::Text),
+            "hex" => Ok(Self::EncodedAs(Encoding::Hex)),
+            "base64" | "b64" => Ok(Self::EncodedAs(Encoding::Base64)),
+            other => Err(format!("unknown key_format '{other}' (use encoded or text)")),
         }
     }
 }
@@ -61,6 +69,7 @@ fn key_or_nonce_bytes(input: &str, key_format: KeyFormat, encoding: Encoding) ->
     match key_format {
         KeyFormat::Text => Ok(input.as_bytes().to_vec()),
         KeyFormat::Encoded => encoding.decode(input),
+        KeyFormat::EncodedAs(explicit) => explicit.decode(input),
     }
 }
 
@@ -73,8 +82,13 @@ pub fn xsalsa20_apply(key: &[u8], nonce: &[u8], counter: u64, data: &[u8]) -> Re
     }
     let mut buf = data.to_vec();
     let mut cipher = XSalsa20::new(key.into(), nonce.into());
-    cipher.seek(counter.saturating_mul(64));
-    cipher.apply_keystream(&mut buf);
+    // Seek in bytes as u128: block `counter` starts at counter * 64, which
+    // overflows u64 for counter >= 2^58. Never saturate — that would map many
+    // distinct counters onto the same keystream position.
+    let out_of_range =
+        || "counter too large: the data would run past the end of the XSalsa20 keystream".to_string();
+    cipher.try_seek(u128::from(counter) * 64).map_err(|_| out_of_range())?;
+    cipher.try_apply_keystream(&mut buf).map_err(|_| out_of_range())?;
     Ok(buf)
 }
 
@@ -139,6 +153,63 @@ mod tests {
         let ct = encrypt("abc", key, nonce, KeyFormat::Text, 0, Encoding::Hex).unwrap();
         let pt = decrypt(&ct, key, nonce, KeyFormat::Text, 0, Encoding::Hex).unwrap();
         assert_eq!(pt, "abc");
+    }
+
+    // Reference vectors generated with libsodium's
+    // crypto_stream_xsalsa20_xor_ic (key = 00..1f, nonce = 00..17).
+    const KS_IC0: &str = "7cb660afdd9ec6468f57dd6d2433f93428fd82cd7386c5471a24d8ad2a525b6e\
+        5eff384fc7caa210bb3c8f3e688f4a9752a546df8c253fef17a2679455c7a1e1\
+        83dbf5d545b0f502b98de0997a66ab432341689ff397dc4fbc1f27bd1a6197f5\
+        dc80ff190516c9ed14f281d1ca738882f6d3d2fb921e2ef899389e0a223be7ae";
+    const KS_IC_2_60: &str = "95c388ce610bbf2a46332ef0ef6c89c7772380d533cad7620be704db124e2455\
+        9565c46f1b8cb51a2924f009a97780c758eb54718253919bda5f7795fd6d5a03";
+
+    fn keystream(counter: u64, len: usize) -> String {
+        let key = hex::decode(KEY_HEX).unwrap();
+        let nonce = hex::decode(NONCE_HEX).unwrap();
+        hex::encode(xsalsa20_apply(&key, &nonce, counter, &vec![0u8; len]).unwrap())
+    }
+
+    #[test]
+    fn matches_libsodium_keystream() {
+        assert_eq!(keystream(0, 128), KS_IC0);
+        // counter 1 is the second 64-byte block of the counter-0 stream
+        assert_eq!(keystream(1, 64), &KS_IC0[128..]);
+        // counters past 2^58 must use the real block offset, not a saturated one
+        assert_eq!(keystream(1 << 60, 64), KS_IC_2_60);
+    }
+
+    #[test]
+    fn matches_libsodium_message() {
+        let ct = encrypt("hello xsalsa20", KEY_HEX, NONCE_HEX, KeyFormat::Encoded, 0, Encoding::Hex).unwrap();
+        assert_eq!(ct, "14d30cc3b2bebe35ee3bae0c1603");
+    }
+
+    #[test]
+    fn large_counters_do_not_collide() {
+        assert_ne!(keystream(1 << 58, 16), keystream(u64::MAX - 1, 16));
+        assert_ne!(keystream(1 << 58, 16), keystream((1 << 58) + 1, 16));
+    }
+
+    #[test]
+    fn running_past_the_keystream_end_is_an_error() {
+        let err = xsalsa20_apply(&[0u8; 32], &[0u8; 24], u64::MAX, &[0u8; 65]).unwrap_err();
+        assert!(err.contains("counter too large"), "{err}");
+    }
+
+    #[test]
+    fn key_format_defaults_to_encoded_and_honours_explicit_encoding() {
+        assert_eq!(KeyFormat::parse("").unwrap(), KeyFormat::Encoded);
+        assert_eq!(KeyFormat::parse(" Encoded ").unwrap(), KeyFormat::Encoded);
+        // empty key_format + the documented default hex key must work
+        let ct = encrypt("hello xsalsa20", KEY_HEX, NONCE_HEX, KeyFormat::parse("").unwrap(), 0, Encoding::Hex).unwrap();
+        assert_eq!(ct, "14d30cc3b2bebe35ee3bae0c1603");
+        // key_format=base64 decodes the key as base64 even when format=hex
+        let key = B64.encode(hex::decode(KEY_HEX).unwrap());
+        let nonce = B64.encode(hex::decode(NONCE_HEX).unwrap());
+        let kf = KeyFormat::parse("base64").unwrap();
+        let ct = encrypt("hello xsalsa20", &key, &nonce, kf, 0, Encoding::Hex).unwrap();
+        assert_eq!(ct, "14d30cc3b2bebe35ee3bae0c1603");
     }
 
     #[test]
