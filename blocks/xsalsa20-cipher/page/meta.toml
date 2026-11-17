@@ -1,5 +1,5 @@
 slug          = "xsalsa20-cipher"
-title         = "XSalsa20 Cipher — Extended-nonce Salsa20 encrypt/decrypt — gizza.ai"
+title         = "XSalsa20 Cipher — Extended-nonce Salsa20 encrypt/decrypt"
 description   = "Encrypt or decrypt UTF-8 data with XSalsa20 using a 32-byte key and 24-byte nonce. Hex or Base64 ciphertext."
 tags          = ["xsalsa20", "salsa20", "stream cipher", "extended nonce", "encrypt", "decrypt", "cryptography"]
 h1            = "XSalsa20 cipher"
