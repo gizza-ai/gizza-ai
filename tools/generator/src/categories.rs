@@ -203,7 +203,7 @@ pub const CATEGORIES: &[Category] = &[
             "index", "enum", "glob", "filter", "pairwise", "test", "syslog", "patch", "trie",
             "compose", "diagram", "mermaid", "dot", "docker", "ipynb", "license", "lua",
             "minifier", "linter", "console", "shell", "swagger2", "openapi", "mv-script",
-            "release", "shadcn", "k8s", "stack", "docstring",
+            "release", "shadcn", "k8s", "stack-trace", "docstring",
         ],
     },
     Category {
@@ -413,22 +413,34 @@ format        = "text"
         // must not be pulled into the security hub by a bare "webhook" word
         let m = tool("webhook-signature-generator", &[]);
         assert_eq!(primary_category(&m).slug, "security");
+        // not merely non-primary: security must not appear at all
         let m = tool("webhook-payload-viewer", &[]);
-        assert_ne!(primary_category(&m).slug, "security");
+        assert!(
+            !categories_for(&m).iter().any(|c| c.slug == "security"),
+            "a generic webhook tool must not join the security hub"
+        );
+    }
+
+    /// The real tool population, or `None` in a crate-only checkout where
+    /// blocks/ is absent (the real-population tests then skip).
+    fn real_metas() -> Option<Vec<ToolMeta>> {
+        let blocks = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../blocks");
+        if !blocks.is_dir() {
+            return None;
+        }
+        let metas = crate::collect_tool_metas(&blocks).expect("collect metas");
+        assert!(!metas.is_empty());
+        Some(metas.into_iter().map(|(_, m)| m).collect())
     }
 
     /// Pins the full category list of real tools whose placement is easy to
     /// break with an over-broad slug word (e.g. "weight", "ratio", "chart",
-    /// "decompress" were all rejected for re-homing these). Tools missing
-    /// from blocks/ are skipped so block churn doesn't break the build.
+    /// "decompress" were all rejected for re-homing these). A pinned tool
+    /// that is renamed or removed fails the test, so the pin is updated
+    /// deliberately instead of silently checking nothing.
     #[test]
     fn real_population_pins_sensitive_categories() {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let blocks = root.join("blocks");
-        if !blocks.is_dir() {
-            return;
-        }
-        let metas = crate::collect_tool_metas(&blocks).expect("collect metas");
+        let Some(metas) = real_metas() else { return };
         let expected: &[(&str, &[&str])] = &[
             // must not drift into math / data via generic words
             ("page-weight-analyzer", &["developer"]),
@@ -450,8 +462,8 @@ format        = "text"
         ];
         let mut mismatches = Vec::new();
         for (slug, want) in expected {
-            let Some((_, m)) = metas.iter().find(|(_, m)| m.slug == *slug) else {
-                eprintln!("skipping {slug}: not in blocks/");
+            let Some(m) = metas.iter().find(|m| m.slug == *slug) else {
+                mismatches.push(format!("{slug}: pinned tool not found in blocks/ — update the pin"));
                 continue;
             };
             let got: Vec<&str> = categories_for(m).iter().map(|c| c.slug).collect();
@@ -468,14 +480,7 @@ format        = "text"
     /// the match rules need new keywords, not that tools are uncategorizable.
     #[test]
     fn real_population_fallback_stays_small() {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let blocks = root.join("blocks");
-        if !blocks.is_dir() {
-            return;
-        }
-        let metas = crate::collect_tool_metas(&blocks).expect("collect metas");
-        assert!(!metas.is_empty());
-        let metas: Vec<ToolMeta> = metas.into_iter().map(|(_, m)| m).collect();
+        let Some(metas) = real_metas() else { return };
         let hubs = build_hubs(&metas);
         for hub in &hubs {
             eprintln!("{:<12} {:>3} tools", hub.category.slug, hub.members.len());
