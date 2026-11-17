@@ -26,8 +26,12 @@ fn default_operation() -> String { "encrypt".into() }
 fn default_key_format() -> String { "encoded".into() }
 fn default_format() -> String { "hex".into() }
 
-/// Accepts any non-negative whole JSON number up to u64::MAX, including
-/// float-encoded integers like `3.0`.
+/// Accepts any non-negative whole JSON integer up to u64::MAX, plus
+/// float-encoded whole numbers like `3.0` up to 2^53. Above 2^53 an f64 can't
+/// hold every integer, so a float there could silently name a different
+/// block; those must be sent as plain integers.
+const MAX_EXACT_FLOAT: f64 = 9_007_199_254_740_992.0; // 2^53
+
 fn parse_counter(n: Option<&serde_json::Number>) -> Result<u64, String> {
     let Some(n) = n else { return Ok(0) };
     if let Some(u) = n.as_u64() {
@@ -38,9 +42,13 @@ fn parse_counter(n: Option<&serde_json::Number>) -> Result<u64, String> {
     }
     match n.as_f64() {
         Some(f) if f < 0.0 => Err("counter must be >= 0".into()),
-        // 2^64 is exactly representable; anything below it with no fraction fits u64
-        Some(f) if f.fract() == 0.0 && f < 18_446_744_073_709_551_616.0 => Ok(f as u64),
-        _ => Err("counter must be a whole number".into()),
+        Some(f) if f.fract() != 0.0 => Err("counter must be a whole number".into()),
+        Some(f) if f <= MAX_EXACT_FLOAT => Ok(f as u64),
+        Some(f) if f < 18_446_744_073_709_551_616.0 => Err(
+            "counter above 2^53 must be sent as an integer, not a float (it would be rounded)".into(),
+        ),
+        Some(_) => Err("counter too large: the maximum is 18446744073709551615".into()),
+        None => Err("counter must be a whole number".into()),
     }
 }
 
@@ -54,7 +62,7 @@ fn descriptor() -> ToolDescriptor {
         .param(Param::string("key").required().describe("XSalsa20 key: exactly 32 bytes. By default key_format=encoded, so it is read as hex or base64 according to format."))
         .param(Param::string("nonce").required().describe("XSalsa20 nonce: exactly 24 bytes. Never reuse the same key+nonce pair for different messages."))
         .param(Param::enumv("key_format", ["encoded", "text"]).default("encoded").describe("How to read key and nonce: encoded = hex/base64 according to format; text = raw UTF-8 bytes."))
-        .param(Param::integer("counter").default(0).min(0.0).describe("Initial 64-byte block counter, default 0."))
+        .param(Param::integer("counter").default(0).min(0.0).describe("Initial 64-byte block counter, default 0. The data must end before block 2^64-1; the keystream is not wrapped."))
         .param(Param::enumv("format", ["hex", "base64"]).default("hex").describe("Ciphertext/key/nonce encoding when key_format=encoded: hex or base64."))
 }
 
@@ -102,7 +110,7 @@ mod tests {
             "key":{"type":"string","description":"XSalsa20 key: exactly 32 bytes. By default key_format=encoded, so it is read as hex or base64 according to format."},
             "nonce":{"type":"string","description":"XSalsa20 nonce: exactly 24 bytes. Never reuse the same key+nonce pair for different messages."},
             "key_format":{"type":"string","enum":["encoded","text"],"default":"encoded","description":"How to read key and nonce: encoded = hex/base64 according to format; text = raw UTF-8 bytes."},
-            "counter":{"type":"integer","default":0,"minimum":0,"description":"Initial 64-byte block counter, default 0."},
+            "counter":{"type":"integer","default":0,"minimum":0,"description":"Initial 64-byte block counter, default 0. The data must end before block 2^64-1; the keystream is not wrapped."},
             "format":{"type":"string","enum":["hex","base64"],"default":"hex","description":"Ciphertext/key/nonce encoding when key_format=encoded: hex or base64."}
           },"required":["data","key","nonce"],"additionalProperties":false
         }"#).unwrap();
@@ -120,7 +128,11 @@ mod tests {
         assert_eq!(parse_counter(Some(&num("-1"))), Err("counter must be >= 0".into()));
         assert_eq!(parse_counter(Some(&num("-1.5"))), Err("counter must be >= 0".into()));
         assert_eq!(parse_counter(Some(&num("1.5"))), Err("counter must be a whole number".into()));
-        assert_eq!(parse_counter(Some(&num("1e30"))), Err("counter must be a whole number".into()));
+        assert_eq!(parse_counter(Some(&num("9007199254740992.0"))), Ok(1 << 53));
+        assert!(parse_counter(Some(&num("9007199254740994.0"))).unwrap_err().contains("as an integer"));
+        assert!(parse_counter(Some(&num("1.2345678901234567e19"))).unwrap_err().contains("as an integer"));
+        assert!(parse_counter(Some(&num("18446744073709551616"))).unwrap_err().contains("too large"));
+        assert!(parse_counter(Some(&num("1e30"))).unwrap_err().contains("too large"));
     }
 
     #[test]

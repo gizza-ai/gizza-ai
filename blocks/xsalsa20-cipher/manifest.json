@@ -11,7 +11,7 @@
       "properties": {
         "counter": {
           "default": 0,
-          "description": "Initial 64-byte block counter, default 0.",
+          "description": "Initial 64-byte block counter, default 0. The data must end before block 2^64-1; the keystream is not wrapped.",
           "minimum": 0,
           "type": "integer"
         },
