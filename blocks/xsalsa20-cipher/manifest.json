@@ -1,0 +1,66 @@
+{
+  "name": "gizza-ai/xsalsa20-cipher",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "Encrypt or decrypt data with XSalsa20 using a 32-byte key and 24-byte nonce",
+  "role": "skill",
+  "tool": {
+    "description": "Encrypt or decrypt UTF-8 data with XSalsa20, the extended-nonce Salsa20 stream cipher. operation=encrypt returns ciphertext encoded as hex/base64; operation=decrypt decodes the ciphertext and returns UTF-8 plaintext. The key must be exactly 32 bytes and the nonce exactly 24 bytes. Never reuse a key+nonce pair.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "counter": {
+          "default": 0,
+          "description": "Initial 64-byte block counter, default 0. The data must end before block 2^64-1; the keystream is not wrapped.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "data": {
+          "description": "Plaintext for operation=encrypt; ciphertext encoded as format for operation=decrypt.",
+          "type": "string"
+        },
+        "format": {
+          "default": "hex",
+          "description": "Ciphertext/key/nonce encoding when key_format=encoded: hex or base64.",
+          "enum": [
+            "hex",
+            "base64"
+          ],
+          "type": "string"
+        },
+        "key": {
+          "description": "XSalsa20 key: exactly 32 bytes. By default key_format=encoded, so it is read as hex or base64 according to format.",
+          "type": "string"
+        },
+        "key_format": {
+          "default": "encoded",
+          "description": "How to read key and nonce: encoded = hex/base64 according to format; text = raw UTF-8 bytes.",
+          "enum": [
+            "encoded",
+            "text"
+          ],
+          "type": "string"
+        },
+        "nonce": {
+          "description": "XSalsa20 nonce: exactly 24 bytes. Never reuse the same key+nonce pair for different messages.",
+          "type": "string"
+        },
+        "operation": {
+          "default": "encrypt",
+          "description": "Encrypt plaintext or decrypt ciphertext. XSalsa20 is symmetric; the same key, nonce, and counter reverse the operation.",
+          "enum": [
+            "encrypt",
+            "decrypt"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "data",
+        "key",
+        "nonce"
+      ],
+      "type": "object"
+    }
+  }
+}
