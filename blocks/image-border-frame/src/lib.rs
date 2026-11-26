@@ -1,13 +1,14 @@
 //! gizza-ai/image-border-frame — add a solid border/frame of a chosen color and
 //! thickness around an image. Returns a PNG. Pure Rust (image crate) — runs on
-//! all backends incl. the chat SW. Surfaces: chat + CLI (image input + image
-//! bytes output → no page, like normalize-image).
+//! all backends incl. the chat SW. Surfaces: chat + CLI (this handler) and the
+//! standalone page (web/, `wasm-image` runtime) — both call core `apply` with
+//! the same `Params`.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{build_media_envelope, resolve_source};
 use gizza_ai_block_utils::{AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor};
-use gizza_ai_image_border_frame_core::{add_border, parse_color};
+use gizza_ai_image_border_frame_core::{apply, Params};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -18,16 +19,8 @@ const MAX_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
 struct Args {
     #[serde(flatten)]
     source: SourceFields,
-    #[serde(default = "default_thickness")]
-    thickness: u64,
-    #[serde(default = "default_color")]
-    color: String,
-}
-fn default_thickness() -> u64 {
-    20
-}
-fn default_color() -> String {
-    "#000000".to_string()
+    #[serde(flatten)]
+    params: Params,
 }
 
 fn descriptor() -> ToolDescriptor {
@@ -78,16 +71,15 @@ impl ImageBorderFrame {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-border-frame")?;
-    let color = parse_color(&args.color).map_err(SkillError::InvalidArgs)?;
-    let thickness = args.thickness.min(2000) as u32;
+    let thickness = args.params.thickness_px();
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
-    let png = add_border(&bytes, thickness, color).map_err(SkillError::InvalidArgs)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
     build_media_envelope(
         &png,
         "image/png",
-        "framed.png".to_string(),
-        format!("added a {thickness}px {} border ({} bytes PNG)", args.color, png.len()),
+        out_name,
+        format!("added a {thickness}px {} border ({} bytes PNG)", args.params.color, png.len()),
         MAX_OUTPUT_BYTES,
     )
 }
