@@ -44,10 +44,11 @@ over the limit, resize or compress it first.
 <details>
 <summary>Will a transparent PNG keep its transparency?</summary>
 
-Yes. A PNG or WebP with an alpha channel is converted to gray + alpha: only the color
-is removed, and every pixel keeps its original opacity — transparent corners stay
-transparent and soft edges stay soft. JPEG has no alpha channel, so a JPEG output is
-always opaque.
+Yes. A PNG (including a palette PNG), WebP or GIF with transparency is converted to
+gray + alpha: only the color is removed, and every pixel keeps its original opacity —
+transparent corners stay transparent and soft edges stay soft. PNG and WebP output
+always carry the alpha channel, so an opaque PNG comes back as gray + (fully opaque)
+alpha. JPEG has no alpha channel, so a JPEG output is always opaque.
 
 </details>
 
