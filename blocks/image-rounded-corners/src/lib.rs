@@ -9,8 +9,8 @@
 //! mask via the pure-Rust `image` crate) → PNG media envelope.
 //!
 //! Pure Rust → runs on ALL backends including the chat Service Worker. Surfaces:
-//! chat + CLI. No standalone page (image input + image bytes output; the page
-//! file-input path is ffmpeg-only — like image-round-avatar / add-text-to-image).
+//! chat + CLI (this handler) and the standalone page (web/, `wasm-image`
+//! runtime) — both call core `apply` with the same `Params`.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
@@ -18,7 +18,7 @@ use gizza_ai_block_utils::{build_media_envelope, resolve_source};
 use gizza_ai_block_utils::{
     AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor,
 };
-use gizza_ai_image_rounded_corners_core::{parse_background, parse_corners, parse_unit, round_corners};
+use gizza_ai_image_rounded_corners_core::{apply, Params};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -29,23 +29,8 @@ const MAX_OUTPUT_BYTES: usize = 16 * 1024 * 1024;
 struct Args {
     #[serde(flatten)]
     source: SourceFields,
-    #[serde(default)]
-    radius: Option<f64>,
-    #[serde(default = "default_unit")]
-    unit: String,
-    #[serde(default = "default_corners")]
-    corners: String,
-    #[serde(default = "default_background")]
-    background: String,
-}
-fn default_unit() -> String {
-    "px".to_string()
-}
-fn default_corners() -> String {
-    "all".to_string()
-}
-fn default_background() -> String {
-    "transparent".to_string()
+    #[serde(flatten)]
+    params: Params,
 }
 
 fn descriptor() -> ToolDescriptor {
@@ -88,20 +73,18 @@ impl ImageRoundedCorners {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-rounded-corners")?;
-    let unit = parse_unit(&args.unit).map_err(SkillError::InvalidArgs)?;
-    let corners = parse_corners(&args.corners).map_err(SkillError::InvalidArgs)?;
-    let background = parse_background(&args.background).map_err(SkillError::InvalidArgs)?;
+    // Fail fast on bad options before fetching the image.
+    args.params.options().map_err(SkillError::InvalidArgs)?;
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
 
-    let png = round_corners(&bytes, args.radius, unit, corners, background)
-        .map_err(SkillError::InvalidArgs)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
 
     build_media_envelope(
         &png,
         "image/png",
-        "rounded.png".to_string(),
-        format!("rounded the {} corners ({} bytes PNG)", args.corners, png.len()),
+        out_name,
+        format!("rounded the {} corners ({} bytes PNG)", args.params.corners, png.len()),
         MAX_OUTPUT_BYTES,
     )
 }
@@ -109,6 +92,16 @@ fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn args_flatten_params_from_chat_json() {
+        let args: Args =
+            serde_json::from_str(r#"{"url": "https://example.com/a.png", "radius": 24, "corners": "top"}"#).unwrap();
+        assert_eq!(
+            args.params,
+            Params { radius: Some(24.0), corners: "top".into(), ..Params::default() }
+        );
+    }
 
     #[test]
     fn schema_json_matches_authored_chat_schema() {
