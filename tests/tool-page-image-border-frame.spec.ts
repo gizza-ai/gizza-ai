@@ -51,3 +51,32 @@ test('image-border-frame reports an undecodable file', async ({ page }) => {
   });
   await expect(page.locator('#tool-output')).toContainText('could not decode image', { timeout: 60_000 });
 });
+
+test('image-border-frame deep-link ?thickness=2&color=%230f0 frames with a short-hex color', async ({ page }) => {
+  await page.goto('/tools/image-border-frame/?thickness=2&color=%230f0');
+  await expect(page.locator('#in-thickness')).toHaveValue('2');
+  await expect(page.locator('#in-color')).toHaveValue('#0f0');
+  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/red-2x2.png'));
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 60_000 });
+  const src = await media.getAttribute('src');
+  expect((await readResult(page, src)).mime).toBe('image/png');
+  const px = await page.evaluate(async (src) => {
+    const img = new Image();
+    img.src = src!;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const ctx = c.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    const at = (x: number, y: number) => Array.from(ctx.getImageData(x, y, 1, 1).data);
+    return { w: c.width, h: c.height, corner: at(0, 0), edge: at(1, 2), center: at(2, 2) };
+  }, src);
+  // 2 + 2*2 = 6 in each dimension; #0f0 expands to opaque green.
+  expect([px.w, px.h]).toEqual([6, 6]);
+  expect(px.corner).toEqual([0, 255, 0, 255]);
+  expect(px.edge).toEqual([0, 255, 0, 255]);
+  expect(px.center).toEqual([255, 0, 0, 255]);
+});

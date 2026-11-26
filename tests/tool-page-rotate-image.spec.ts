@@ -67,3 +67,34 @@ test('rotate-image reports an undecodable file', async ({ page }) => {
   });
   await expect(page.locator('#tool-output')).toContainText('could not decode image', { timeout: 60_000 });
 });
+
+test('rotate-image deep-link ?angle=180 turns the image upside down', async ({ page }) => {
+  await page.goto('/tools/rotate-image/?angle=180');
+  await expect(page.locator('#in-angle')).toHaveValue('180');
+  await page.setInputFiles('#in-image', {
+    name: 'wide.png',
+    mimeType: 'image/png',
+    buffer: await makeFixture(page),
+  });
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 60_000 });
+  const src = await media.getAttribute('src');
+  expect((await readResult(page, src)).mime).toBe('image/png');
+  const out = await page.evaluate(async (src) => {
+    const img = new Image();
+    img.src = src!;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const ctx = c.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    const px = (x: number, y: number) => Array.from(ctx.getImageData(x, y, 1, 1).data);
+    return { w: c.width, h: c.height, bottomRight: px(3, 1), topLeft: px(0, 0) };
+  }, src);
+  // 180° keeps 4x2 and moves the red top-left pixel to the bottom-right.
+  expect([out.w, out.h]).toEqual([4, 2]);
+  expect(out.bottomRight).toEqual([255, 0, 0, 255]);
+  expect(out.topLeft).toEqual([0, 0, 255, 255]);
+});

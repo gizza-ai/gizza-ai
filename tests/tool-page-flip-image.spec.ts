@@ -49,3 +49,32 @@ test('flip-image reports an undecodable file', async ({ page }) => {
   });
   await expect(page.locator('#tool-output')).toContainText('could not decode image', { timeout: 60_000 });
 });
+
+test('flip-image deep-link ?direction=vertical flips top to bottom', async ({ page }) => {
+  await page.goto('/tools/flip-image/?direction=vertical');
+  await expect(page.locator('#in-direction')).toHaveValue('vertical');
+  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/quadrants-64x64.png'));
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 60_000 });
+  const src = await media.getAttribute('src');
+  expect((await readResult(page, src)).mime).toBe('image/png');
+  const px = await page.evaluate(async (src) => {
+    const img = new Image();
+    img.src = src!;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const ctx = c.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    const at = (x: number, y: number) => Array.from(ctx.getImageData(x, y, 1, 1).data);
+    return { w: c.width, h: c.height, tl: at(0, 0), tr: at(63, 0), bl: at(0, 63) };
+  }, src);
+  expect([px.w, px.h]).toEqual([64, 64]);
+  // Top ↔ bottom swapped: top-left now has the original bottom-left blue,
+  // top-right the original bottom-right white, bottom-left the original red.
+  expect(px.tl).toEqual([0, 0, 255, 255]);
+  expect(px.tr).toEqual([255, 255, 255, 255]);
+  expect(px.bl).toEqual([255, 0, 0, 255]);
+});
