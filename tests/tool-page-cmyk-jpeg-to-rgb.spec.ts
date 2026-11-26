@@ -69,3 +69,40 @@ test('cmyk-jpeg-to-rgb page ships runnable CLI, labels, and preset chips', async
   await expect(page.locator('#in-chroma option[value="4:4:4"]')).toHaveText('4:4:4 — full colour detail for type & logos');
   await expect(page.locator('.tool-example-chip')).toHaveCount(3);
 });
+
+// Pins the quality DIRECTION per lossy encoder against the browser's real
+// ffmpeg.wasm build: mjpeg's `-q:v` is inverted (2 best – 31 worst) while
+// libwebp's `-quality` is 0 worst – 100 best, and the page's 1-100 quality
+// must mean "higher = better" for both. A detailed photo, not the flat white
+// fixture, so the encoder's quality actually changes the size.
+const PHOTO_FIXTURE = path.resolve(__dirname, 'fixtures/photo-320.jpg');
+
+async function convertedBytes(page, format: string, quality: number): Promise<{ mime: string; bytes: number }> {
+  await page.goto(`/tools/cmyk-jpeg-to-rgb/?format=${format}&quality=${quality}&chroma=4%3A2%3A0`);
+  await page.waitForSelector('#in-file');
+  await expect(page.locator('#in-format')).toHaveValue(format, { timeout: 15_000 });
+  await expect(page.locator('#in-quality')).toHaveValue(String(quality));
+  await page.setInputFiles('#in-file', PHOTO_FIXTURE);
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 90_000 });
+  const src = (await media.getAttribute('src'))!;
+  return page.evaluate(async (url) => {
+    const blob = await (await fetch(url)).blob();
+    return { mime: blob.type, bytes: blob.size };
+  }, src);
+}
+
+for (const [format, mime] of [
+  ['webp', 'image/webp'],
+  ['jpeg', 'image/jpeg'],
+] as const) {
+  test(`cmyk-jpeg-to-rgb: higher quality gives a larger ${format}`, async ({ page }) => {
+    const lo = await convertedBytes(page, format, 10);
+    const hi = await convertedBytes(page, format, 90);
+    expect(lo.mime).toBe(mime);
+    expect(hi.mime).toBe(mime);
+    console.log(`cmyk-jpeg-to-rgb ${format}: q10=${lo.bytes} B, q90=${hi.bytes} B`);
+    expect(hi.bytes).toBeGreaterThan(lo.bytes);
+  });
+}
