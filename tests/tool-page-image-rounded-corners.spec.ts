@@ -77,3 +77,24 @@ test('image-rounded-corners reports an undecodable file', async ({ page }) => {
   });
   await expect(page.locator('#tool-output')).toContainText('could not decode image', { timeout: 60_000 });
 });
+
+test('image-rounded-corners deep-link ?radius=50&unit=percent rounds into a circle', async ({ page }) => {
+  await page.goto('/tools/image-rounded-corners/?radius=50&unit=percent');
+  await expect(page.locator('#in-radius')).toHaveValue('50');
+  await expect(page.locator('#in-unit')).toHaveValue('percent');
+  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/gray-64x64.png'));
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 60_000 });
+  const src = await media.getAttribute('src');
+  expect((await readResult(page, src)).mime).toBe('image/png');
+  // 50% of the 64 px short side = 32 px radius: a full circle. (6, 6) lies
+  // ~37 px from the center, outside it (a 16 px radius would have kept it);
+  // (3, 32) is just inside the circle's anti-aliased left edge.
+  const r = await pixels(page, src, [[0, 0], [6, 6], [32, 32], [3, 32]]);
+  expect([r.w, r.h]).toEqual([64, 64]);
+  expect(r.px[0][3]).toBe(0);
+  expect(r.px[1][3]).toBe(0);
+  expect(r.px[2]).toEqual([128, 128, 128, 255]);
+  expect(r.px[3]).toEqual([128, 128, 128, 255]);
+});

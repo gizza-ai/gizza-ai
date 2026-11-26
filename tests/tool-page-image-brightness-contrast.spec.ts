@@ -44,3 +44,28 @@ test('image-brightness-contrast reports an undecodable file', async ({ page }) =
   });
   await expect(page.locator('#tool-output')).toContainText('could not decode image', { timeout: 60_000 });
 });
+
+test('image-brightness-contrast deep-link ?brightness=-40 darkens the image', async ({ page }) => {
+  await page.goto('/tools/image-brightness-contrast/?brightness=-40');
+  await expect(page.locator('#in-brightness')).toHaveValue('-40');
+  await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/red-2x2.png'));
+
+  const media = page.locator('#tool-output-media');
+  await expect(media).toBeVisible({ timeout: 60_000 });
+  const src = await media.getAttribute('src');
+  expect((await readResult(page, src)).mime).toBe('image/png');
+  const px = await page.evaluate(async (src) => {
+    const img = new Image();
+    img.src = src!;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const ctx = c.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    return { w: c.width, h: c.height, rgba: Array.from(ctx.getImageData(1, 1, 1, 1).data) };
+  }, src);
+  expect([px.w, px.h]).toEqual([2, 2]);
+  // red (255,0,0) - 40 brightness → red channel 215; green/blue floor at 0.
+  expect(px.rgba).toEqual([215, 0, 0, 255]);
+});
