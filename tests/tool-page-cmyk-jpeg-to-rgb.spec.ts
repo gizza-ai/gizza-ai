@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import { outputSize } from './output-size';
 
 const JPEG_FIXTURE = path.resolve(__dirname, 'fixtures/white-64x64.jpg');
 
@@ -77,20 +78,14 @@ test('cmyk-jpeg-to-rgb page ships runnable CLI, labels, and preset chips', async
 // fixture, so the encoder's quality actually changes the size.
 const PHOTO_FIXTURE = path.resolve(__dirname, 'fixtures/photo-320.jpg');
 
-async function convertedBytes(page, format: string, quality: number): Promise<{ mime: string; bytes: number }> {
-  await page.goto(`/tools/cmyk-jpeg-to-rgb/?format=${format}&quality=${quality}&chroma=4%3A2%3A0`);
-  await page.waitForSelector('#in-file');
-  await expect(page.locator('#in-format')).toHaveValue(format, { timeout: 15_000 });
-  await expect(page.locator('#in-quality')).toHaveValue(String(quality));
-  await page.setInputFiles('#in-file', PHOTO_FIXTURE);
-
-  const media = page.locator('#tool-output-media');
-  await expect(media).toBeVisible({ timeout: 90_000 });
-  const src = (await media.getAttribute('src'))!;
-  return page.evaluate(async (url) => {
-    const blob = await (await fetch(url)).blob();
-    return { mime: blob.type, bytes: blob.size };
-  }, src);
+function convertedBytes(page, format: string, quality: number) {
+  return outputSize(
+    page,
+    `/tools/cmyk-jpeg-to-rgb/?format=${format}&quality=${quality}&chroma=4%3A2%3A0`,
+    '#in-file',
+    PHOTO_FIXTURE,
+    { '#in-format': format, '#in-quality': String(quality) },
+  );
 }
 
 for (const [format, mime] of [

@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import { outputSize } from './output-size';
 
 // The generated /tools/image-convert/ page transcodes an uploaded image in the
 // browser via ffmpeg.wasm (single-threaded @ffmpeg/core from jsDelivr — needs
@@ -10,21 +11,11 @@ import path from 'node:path';
 
 const PHOTO = path.resolve(__dirname, 'fixtures/photo-512.png');
 
-async function convertedBytes(page, format: string, quality: number): Promise<{ mime: string; bytes: number }> {
-  await page.goto(`/tools/image-convert/?format=${format}&quality=${quality}`);
-  await page.waitForSelector('#in-image');
-  await expect(page.locator('#in-format')).toHaveValue(format, { timeout: 15_000 });
-  await expect(page.locator('#in-quality')).toHaveValue(String(quality));
-  await page.setInputFiles('#in-image', PHOTO);
-
-  // ffmpeg loads from CDN on first run; allow generous time.
-  const media = page.locator('#tool-output-media');
-  await expect(media).toBeVisible({ timeout: 90_000 });
-  const src = (await media.getAttribute('src'))!;
-  return page.evaluate(async (url) => {
-    const blob = await (await fetch(url)).blob();
-    return { mime: blob.type, bytes: blob.size };
-  }, src);
+function convertedBytes(page, format: string, quality: number) {
+  return outputSize(page, `/tools/image-convert/?format=${format}&quality=${quality}`, '#in-image', PHOTO, {
+    '#in-format': format,
+    '#in-quality': String(quality),
+  });
 }
 
 for (const [format, mime] of [

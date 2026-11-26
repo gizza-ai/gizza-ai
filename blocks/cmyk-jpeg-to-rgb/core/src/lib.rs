@@ -159,11 +159,12 @@ pub fn plan(
             argv.push(quality_to_qv(q).to_string());
         }
         // libwebp's `-quality` runs 0 worst … 100 best — the page's own
-        // direction — so it takes `q` as-is. (libwebp reads `-q:v` on that
-        // same 0-100 scale, so the mjpeg value would invert it.)
+        // direction — so it takes `q` as-is, clamped like image-convert's.
+        // (libwebp reads `-q:v` on that same 0-100 scale, so the mjpeg value
+        // would invert it.)
         Format::Webp => {
             argv.push("-quality".to_string());
-            argv.push(q.to_string());
+            argv.push(q.clamp(1, 100).to_string());
         }
         Format::Png => {}
     }
