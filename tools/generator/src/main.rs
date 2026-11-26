@@ -46,6 +46,9 @@ const SHARED_RUNTIME_FILES: &[&str] = &[
     "tool-model.js",
     "tool-crop-box.js",
     "tool-crop-box.css",
+    "tool-mime.js",
+    "tool-wasm-image.js",
+    "wasm-image-worker.js",
 ];
 
 fn main() {
@@ -223,6 +226,7 @@ fn run() -> Result<(), String> {
         // copied per runtime below.
         copy_file(&runtime.join("tool-run.js"), &out.join("tool-run.js"))?;
         copy_file(&runtime.join("tool-fields.js"), &out.join("tool-fields.js"))?;
+        copy_file(&runtime.join("tool-mime.js"), &out.join("tool-mime.js"))?;
         copy_file(&root.join("js/query-prefill.js"), &out.join("query-prefill.js"))?;
         copy_file(&runtime.join("tool.css"), &out.join("tool.css"))?;
         copy_file(&runtime.join("header.css"), &out.join("header.css"))?;
@@ -234,6 +238,9 @@ fn run() -> Result<(), String> {
             copy_file(&runtime.join("tool-audio.js"), &out.join("tool-audio.js"))?;
         } else if m.runtime == "model" {
             copy_file(&runtime.join("tool-model.js"), &out.join("tool-model.js"))?;
+        } else if m.runtime == "wasm-image" {
+            copy_file(&runtime.join("tool-wasm-image.js"), &out.join("tool-wasm-image.js"))?;
+            copy_file(&runtime.join("wasm-image-worker.js"), &out.join("wasm-image-worker.js"))?;
         }
         eprintln!("rendered tools/{}/", m.slug);
     }

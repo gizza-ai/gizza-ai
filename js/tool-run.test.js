@@ -69,3 +69,46 @@ test("model runtime aborted after validation never calls runModel", async () => 
 test("unknown runtime is rejected", async () => {
   await assert.rejects(runTool({ runtime: "wat", inputs: [] }, null, file, {}), /unsupported runtime "wat"/);
 });
+
+test("wasm-image runtime sends a typed params object and the bytes, resolving the module against baseUrl", async () => {
+  const page = {
+    runtime: "wasm-image",
+    export: "run",
+    module: "./gizza_ai_image_brightness_contrast_web.js",
+    inputs: [
+      { name: "image", source: "file" },
+      { name: "brightness", source: "field", numeric: true, control: { kind: "slider" } },
+      { name: "contrast", source: "field", numeric: true, control: { kind: "slider" } },
+      { name: "keep_alpha", source: "field", control: { kind: "checkbox" } },
+    ],
+  };
+  let call;
+  const wasmImageClient = {
+    run: async (moduleUrl, exportName, params, bytes) => {
+      call = { moduleUrl, exportName, params, bytes: Array.from(bytes) };
+      return { bytes: new Uint8Array([4, 5]), outName: "adjusted.png" };
+    },
+  };
+  const r = await runTool(page, null, file, { brightness: "20", contrast: "", keep_alpha: "true" }, {
+    baseUrl: "https://example.test/tools/image-brightness-contrast/",
+    wasmImageClient,
+  });
+  assert.deepEqual(call, {
+    moduleUrl: "https://example.test/tools/image-brightness-contrast/gizza_ai_image_brightness_contrast_web.js",
+    exportName: "run",
+    params: { brightness: 20, keep_alpha: true },
+    bytes: [7, 7],
+  });
+  assert.equal(r.outName, "adjusted.png");
+  assert.equal(r.mime, "image/png");
+  assert.equal(r.blob.size, 2);
+});
+
+test("wasm-image errors reject with the tool's message", async () => {
+  const page = { runtime: "wasm-image", export: "run", module: "./m.js", inputs: [] };
+  const wasmImageClient = { run: async () => { throw new Error("could not decode image"); } };
+  await assert.rejects(
+    runTool(page, null, file, {}, { baseUrl: "https://example.test/tools/x/", wasmImageClient }),
+    /could not decode image/,
+  );
+});

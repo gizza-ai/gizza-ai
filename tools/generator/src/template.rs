@@ -1553,6 +1553,18 @@ accept = "audio/*"
     }
 
     #[test]
+    fn wasm_image_page_renders_file_input_media_output_and_copy_image() {
+        let mut meta = ffmpeg_sample();
+        meta.runtime = "wasm-image".to_string();
+        meta.export = "run".to_string();
+        let html = render_page(&branded(), &meta, "<h2>About</h2>", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"id="in-image""#) && html.contains(r#"type="file""#), "image file input");
+        assert!(html.contains(r#"<img id="tool-output-media""#), "image media output");
+        assert!(html.contains(r#"id="tool-copy-image""#), "copy-image for image output");
+        assert!(html.contains(r#""runtime":"wasm-image""#), "runtime reaches tool.js");
+    }
+
+    #[test]
     fn model_image_page_renders_an_accessible_dropzone() {
         let mut meta = ffmpeg_sample();
         meta.runtime = "model".to_string();

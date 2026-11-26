@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { inputNameFor, mimeForOutput, runFfmpeg } from "../tools/generator/assets/runtime/tool-ffmpeg.js";
+import { inputNameFor, runFfmpeg } from "../tools/generator/assets/runtime/tool-ffmpeg.js";
+import { mimeForOutput } from "../tools/generator/assets/runtime/tool-mime.js";
 
 test("inputNameFor derives in.<ext> from a filename", () => {
   assert.equal(inputNameFor("cat.PNG"), "in.png");

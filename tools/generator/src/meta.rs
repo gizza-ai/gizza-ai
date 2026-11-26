@@ -114,7 +114,8 @@ pub struct ToolMeta {
     /// <img> data URI, source still copyable), or the media formats
     /// "image"/"video"/"audio". Any other value renders as plain text.
     pub format: String,
-    /// "wasm" (pure compute, default), "ffmpeg" (file in → media out via
+    /// "wasm" (pure compute, default), "wasm-image" (image file in → image out
+    /// through the web module's `run(params, bytes)` in a worker), "ffmpeg" (file in → media out via
     /// browser ffmpeg), or "model" (Transformers.js/ONNX inference in a worker).
     #[serde(default = "default_runtime")]
     pub runtime: String,
@@ -143,7 +144,7 @@ pub struct ToolMeta {
 }
 
 /// Every `runtime` the page runtime (`tool.js` / `tool-run.js`) can execute.
-pub const RUNTIMES: &[&str] = &["wasm", "ffmpeg", "model"];
+pub const RUNTIMES: &[&str] = &["wasm", "ffmpeg", "model", "wasm-image"];
 
 fn default_runtime() -> String {
     "wasm".to_string()

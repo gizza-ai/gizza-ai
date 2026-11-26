@@ -1,13 +1,14 @@
 //! gizza-ai/image-brightness-contrast — adjust the brightness and contrast of an
 //! image by signed amounts. Returns a PNG. Pure Rust (image crate) — runs on all
-//! backends incl. the chat SW. Surfaces: chat + CLI (image input + image bytes
-//! output → no page, like normalize-image).
+//! backends incl. the chat SW. Surfaces: chat + CLI (this handler) and the
+//! standalone page (web/, `wasm-image` runtime) — both call core `apply` with
+//! the same `Params`.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{build_media_envelope, resolve_source};
 use gizza_ai_block_utils::{AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor};
-use gizza_ai_image_brightness_contrast_core::adjust;
+use gizza_ai_image_brightness_contrast_core::{apply, Params};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -18,10 +19,8 @@ const MAX_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
 struct Args {
     #[serde(flatten)]
     source: SourceFields,
-    #[serde(default)]
-    brightness: i64,
-    #[serde(default)]
-    contrast: f64,
+    #[serde(flatten)]
+    params: Params,
 }
 
 fn descriptor() -> ToolDescriptor {
@@ -72,15 +71,14 @@ impl ImageBrightnessContrast {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-brightness-contrast")?;
-    let brightness = args.brightness.clamp(-255, 255) as i32;
-    let contrast = args.contrast.clamp(-100.0, 100.0) as f32;
+    let (brightness, contrast) = args.params.normalized();
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
-    let png = adjust(&bytes, brightness, contrast).map_err(SkillError::InvalidArgs)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
     build_media_envelope(
         &png,
         "image/png",
-        "adjusted.png".to_string(),
+        out_name,
         format!("adjusted brightness {brightness}, contrast {contrast} ({} bytes PNG)", png.len()),
         MAX_OUTPUT_BYTES,
     )
