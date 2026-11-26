@@ -6,7 +6,10 @@
 // runs on every keystroke or drag pixel) and the file input is NOT auto-wired
 // to run (the preview loader dispatches a change once the image + defaults
 // are ready). Loaded by the shared tool.js via the generator's page/custom.js
-// hook; styles in custom.css.
+// hook; styles in custom.css. The crop rectangle itself is the shared
+// runtime component (../_runtime/tool-crop-box.js).
+
+import { createCropBox } from "../_runtime/tool-crop-box.js";
 
 export function setup(ctx) {
   const { run, fileInput, fieldInputs, helpers } = ctx;
@@ -219,21 +222,25 @@ function setupImageCropCustomUI() {
   previewImg.id = "crop-preview-img";
   previewContainer.appendChild(previewImg);
 
-  const overlayRect = document.createElement("div");
-  overlayRect.className = "crop-overlay-rect";
-  overlayRect.id = "crop-overlay-rect";
-
-  // Corners
-  const handles = ["tl", "tr", "bl", "br"];
-  handles.forEach(h => {
-    const handle = document.createElement("div");
-    handle.className = `crop-handle crop-handle-${h}`;
-    handle.dataset.handle = h;
-    overlayRect.appendChild(handle);
-  });
-
-  previewContainer.appendChild(overlayRect);
   leftCol.appendChild(previewContainer);
+
+  const readRect = () => ({
+    x: xInput.value,
+    y: yInput.value,
+    width: widthInput.value,
+    height: heightInput.value,
+  });
+  const writeRect = (rect) => {
+    xInput.value = rect.x;
+    yInput.value = rect.y;
+    widthInput.value = rect.width;
+    heightInput.value = rect.height;
+  };
+  const commit = () => widthInput.dispatchEvent(new Event("change"));
+  const cropBox = createCropBox(previewContainer, previewImg, {
+    onChange: writeRect,
+    onCommit: commit,
+  });
 
   // Bind image reader
   fileInput.addEventListener("change", () => {
@@ -264,185 +271,24 @@ function setupImageCropCustomUI() {
     const hasParams = params.has("x") || params.has("y") || params.has("width") || params.has("height");
 
     if (!hasParams || !xInput.value || !yInput.value || !widthInput.value || !heightInput.value) {
-      // Smart Default: Centered 80% box
-      const w = Math.round(naturalW * 0.8) || 1;
-      const h = Math.round(naturalH * 0.8) || 1;
-      const x = Math.round((naturalW - w) / 2) || 0;
-      const y = Math.round((naturalH - h) / 2) || 0;
-
-      xInput.value = x;
-      yInput.value = y;
-      widthInput.value = w;
-      heightInput.value = h;
+      writeRect(cropBox.reset()); // smart default: centered 80% box
+    } else {
+      cropBox.setRect(readRect());
     }
 
-    updateOverlayFromInputs();
-
-    // Programmatically trigger ffmpeg execution after defaults are set and overlay is positioned
-    widthInput.dispatchEvent(new Event("change"));
+    // Trigger ffmpeg once the defaults are set and the box is positioned.
+    commit();
   };
 
-  function updateOverlayFromInputs() {
-    const naturalW = previewImg.naturalWidth;
-    const naturalH = previewImg.naturalHeight;
-    if (!naturalW || !naturalH) return;
-
-    const clientW = previewImg.clientWidth;
-    const clientH = previewImg.clientHeight;
-
-    const scaleX = clientW / naturalW;
-    const scaleY = clientH / naturalH;
-
-    let x = parseFloat(xInput.value) || 0;
-    let y = parseFloat(yInput.value) || 0;
-    let w = parseFloat(widthInput.value) || naturalW;
-    let h = parseFloat(heightInput.value) || naturalH;
-
-    x = Math.max(0, Math.min(naturalW - 1, x));
-    y = Math.max(0, Math.min(naturalH - 1, y));
-    w = Math.max(1, Math.min(naturalW - x, w));
-    h = Math.max(1, Math.min(naturalH - y, h));
-
-    overlayRect.style.left = `${x * scaleX}px`;
-    overlayRect.style.top = `${y * scaleY}px`;
-    overlayRect.style.width = `${w * scaleX}px`;
-    overlayRect.style.height = `${h * scaleY}px`;
-  }
-
-  [xInput, yInput, widthInput, heightInput].forEach(inp => {
-    inp.addEventListener("input", updateOverlayFromInputs);
+  [xInput, yInput, widthInput, heightInput].forEach((inp) => {
+    inp.addEventListener("input", () => cropBox.setRect(readRect()));
   });
-  window.addEventListener("resize", updateOverlayFromInputs);
-
-  // Dragging and resizing overlay interaction
-  let isDragging = false;
-  let activeHandle = null;
-  let startX, startY;
-  const startRect = { x: 0, y: 0, w: 0, h: 0 };
-
-  overlayRect.addEventListener("mousedown", dragStart);
-  overlayRect.addEventListener("touchstart", dragStart, { passive: false });
-
-  function dragStart(e) {
-    e.preventDefault();
-    isDragging = true;
-
-    const target = e.target;
-    if (target.classList.contains("crop-handle")) {
-      activeHandle = target.dataset.handle;
-    } else {
-      activeHandle = null; // dragging center
-    }
-
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    startX = clientX;
-    startY = clientY;
-
-    startRect.x = parseFloat(overlayRect.style.left) || 0;
-    startRect.y = parseFloat(overlayRect.style.top) || 0;
-    startRect.w = parseFloat(overlayRect.style.width) || 0;
-    startRect.h = parseFloat(overlayRect.style.height) || 0;
-
-    document.addEventListener("mousemove", dragMove);
-    document.addEventListener("touchmove", dragMove, { passive: false });
-    document.addEventListener("mouseup", dragEnd);
-    document.addEventListener("touchend", dragEnd);
-  }
-
-  function dragMove(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    const dx = clientX - startX;
-    const dy = clientY - startY;
-
-    const clientW = previewImg.clientWidth;
-    const clientH = previewImg.clientHeight;
-
-    let newX = startRect.x;
-    let newY = startRect.y;
-    let newW = startRect.w;
-    let newH = startRect.h;
-
-    if (activeHandle === null) {
-      // Drag center
-      newX = Math.max(0, Math.min(clientW - startRect.w, startRect.x + dx));
-      newY = Math.max(0, Math.min(clientH - startRect.h, startRect.y + dy));
-    } else {
-      // Drag handles
-      if (activeHandle.includes("l")) {
-        const proposedX = startRect.x + dx;
-        const proposedW = startRect.w - dx;
-        if (proposedX >= 0 && proposedW >= 8) {
-          newX = proposedX;
-          newW = proposedW;
-        }
-      }
-      if (activeHandle.includes("r")) {
-        newW = Math.max(8, Math.min(clientW - startRect.x, startRect.w + dx));
-      }
-      if (activeHandle.includes("t")) {
-        const proposedY = startRect.y + dy;
-        const proposedH = startRect.h - dy;
-        if (proposedY >= 0 && proposedH >= 8) {
-          newY = proposedY;
-          newH = proposedH;
-        }
-      }
-      if (activeHandle.includes("b")) {
-        newH = Math.max(8, Math.min(clientH - startRect.y, startRect.h + dy));
-      }
-    }
-
-    overlayRect.style.left = `${newX}px`;
-    overlayRect.style.top = `${newY}px`;
-    overlayRect.style.width = `${newW}px`;
-    overlayRect.style.height = `${newH}px`;
-
-    const scaleX = previewImg.naturalWidth / clientW;
-    const scaleY = previewImg.naturalHeight / clientH;
-
-    xInput.value = Math.round(newX * scaleX);
-    yInput.value = Math.round(newY * scaleY);
-    widthInput.value = Math.round(newW * scaleX);
-    heightInput.value = Math.round(newH * scaleY);
-  }
-
-  function dragEnd(e) {
-    if (!isDragging) return;
-    isDragging = false;
-
-    document.removeEventListener("mousemove", dragMove);
-    document.removeEventListener("touchmove", dragMove);
-    document.removeEventListener("mouseup", dragEnd);
-    document.removeEventListener("touchend", dragEnd);
-
-    // Trigger compute on change
-    widthInput.dispatchEvent(new Event("change"));
-  }
 
   // Reset Button
   resetBtn.addEventListener("click", () => {
-    const naturalW = previewImg.naturalWidth;
-    const naturalH = previewImg.naturalHeight;
-    if (!naturalW || !naturalH) return;
-
-    const w = Math.round(naturalW * 0.8) || 1;
-    const h = Math.round(naturalH * 0.8) || 1;
-    const x = Math.round((naturalW - w) / 2) || 0;
-    const y = Math.round((naturalH - h) / 2) || 0;
-
-    xInput.value = x;
-    yInput.value = y;
-    widthInput.value = w;
-    heightInput.value = h;
-
-    updateOverlayFromInputs();
-    widthInput.dispatchEvent(new Event("change"));
+    const rect = cropBox.reset();
+    if (!rect) return;
+    writeRect(rect);
+    commit();
   });
 }

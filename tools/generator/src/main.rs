@@ -44,6 +44,8 @@ const SHARED_RUNTIME_FILES: &[&str] = &[
     "tool-fields.js",
     "tool-ffmpeg.js",
     "tool-model.js",
+    "tool-crop-box.js",
+    "tool-crop-box.css",
 ];
 
 fn main() {
