@@ -5,7 +5,8 @@
 // ffmpeg.js is stubbed via route interception, so completion order is
 // controlled causally (the stale run only resolves after the newer run's
 // result has been consumed) — no real ffmpeg, no CDN, no timing guesses.
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
+import type { Locator, Page } from '@playwright/test';
 import path from 'node:path';
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.mp3');
@@ -20,9 +21,18 @@ test.afterEach(async ({ page }) => {
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
-// Base64 payloads distinguish which run's output landed in media.src.
-const STALE_B64 = 'U1RBTEU='; // "STALE"
-const FRESH_B64 = 'RlJFU0g='; // "FRESH"
+// Payloads distinguish which run's output landed in media.src.
+const STALE = 'STALE';
+const FRESH = 'FRESH';
+
+// The result a URL attribute (media `src` / download `href`) currently points
+// at, as "<mime> <text>" — independent of whether it's a blob: or data: URL.
+async function resultOf(page: Page, el: Locator, attr: string): Promise<string | null> {
+  const url = await el.getAttribute(attr);
+  if (!url) return null;
+  const { mime, bytes } = await readResult(page, url);
+  return `${mime} ${bytes.toString('utf8')}`;
+}
 
 // Stub for the stale-slow-run test. Runs with end=1.5 in their argv are the
 // "stale" run and block until a "fresh" run (end=2) has completed AND the
@@ -32,14 +42,14 @@ const STALE_RUN_STUB = `
 let release;
 const released = new Promise((r) => { release = r; });
 window.__staleResolved = false;
-export async function ffmpegExec(argsJson, inputsJson, outputName) {
-  if (argsJson.includes('1.5')) {
+export async function ffmpegExecBytes(args, inputs, outputName) {
+  if (JSON.stringify(args).includes('1.5')) {
     await released;
     window.__staleResolved = true;
-    return { exit_code: 0, output_b64: '${STALE_B64}', log: '' };
+    return { exit_code: 0, output: new TextEncoder().encode('${STALE}'), log: '' };
   }
   setTimeout(release, 0); // let the fresh result's microtask chain flush first
-  return { exit_code: 0, output_b64: '${FRESH_B64}', log: '' };
+  return { exit_code: 0, output: new TextEncoder().encode('${FRESH}'), log: '' };
 }
 `;
 
@@ -47,10 +57,10 @@ export async function ffmpegExec(argsJson, inputsJson, outputName) {
 const GATED_STUB = `
 window.__gateResolved = false;
 const gate = new Promise((r) => { window.__releaseFfmpeg = () => { r(); }; });
-export async function ffmpegExec(argsJson, inputsJson, outputName) {
+export async function ffmpegExecBytes(args, inputs, outputName) {
   await gate;
   window.__gateResolved = true;
-  return { exit_code: 0, output_b64: '${STALE_B64}', log: '' };
+  return { exit_code: 0, output: new TextEncoder().encode('${STALE}'), log: '' };
 }
 `;
 
@@ -66,15 +76,13 @@ test('a stale slow run must not overwrite a newer result', async ({ page }) => {
   await page.fill('#in-end', '2'); // run 2 (fresh, completes first)
 
   const media = page.locator('#tool-output-media');
-  await expect(media).toHaveAttribute('src', `data:audio/mpeg;base64,${FRESH_B64}`, {
-    timeout: 15_000,
-  });
+  await expect.poll(() => resultOf(page, media, 'src'), { timeout: 15_000 }).toBe(`audio/mpeg ${FRESH}`);
   // Let the stale run resolve and (if unguarded) do its damage.
   await page.waitForFunction(() => (window as any).__staleResolved === true);
   await page.waitForTimeout(300);
-  await expect(media).toHaveAttribute('src', `data:audio/mpeg;base64,${FRESH_B64}`);
+  expect(await resultOf(page, media, 'src')).toBe(`audio/mpeg ${FRESH}`);
   const dl = page.locator('#tool-output-download');
-  await expect(dl).toHaveAttribute('href', `data:audio/mpeg;base64,${FRESH_B64}`);
+  expect(await resultOf(page, dl, 'href')).toBe(`audio/mpeg ${FRESH}`);
 });
 
 test('a run resolving after Reset must not repaint the cleared output', async ({ page }) => {

@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/audio-time-stretch/ page speeds an uploaded audio file
 // up or slows it down in-browser via ffmpeg (@ffmpeg/core from jsDelivr — needs
 // network). Output is audio, so the media element is an <audio> with a
-// data:audio/ src. Beyond the mime prefix, each test decodes the result with
+// audio/ result. Beyond the mime prefix, each test decodes the result with
 // WebAudio and asserts the DURATION actually moved by the requested factor
 // while the DOMINANT FREQUENCY stayed put (media-correctness rule — the inverse
 // of audio-pitch-shift): the fixture is a pure 440 Hz tone, so 2x must halve the
@@ -47,7 +47,7 @@ test('audio-time-stretch page doubles the speed of a 3 s tone to ~1.5 s, pitch u
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { freq, duration } = await freqAndDuration(page, src!);
   expect(duration).toBeGreaterThan(1.3); // pre-measured ~1.51 s with local ffmpeg
   expect(duration).toBeLessThan(1.7);
@@ -65,7 +65,7 @@ test('audio-time-stretch deep link prefills and halves the speed to ~6 s wav', a
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { freq, duration } = await freqAndDuration(page, src!);
   expect(duration).toBeGreaterThan(5.5); // pre-measured ~6.06 s with local ffmpeg
   expect(duration).toBeLessThan(6.6);

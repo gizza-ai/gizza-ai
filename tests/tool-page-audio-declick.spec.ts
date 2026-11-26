@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -20,7 +20,7 @@ async function expectAudioOutput(page: Page, mime: RegExp): Promise<{ duration: 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(mime);
+  expect((await readResult(page, src)).mime).toMatch(mime);
   return decodeAudio(page, src!);
 }
 
@@ -28,7 +28,7 @@ test('audio-declick page runs the default declicker and preserves duration', asy
   await page.goto('/tools/audio-declick/');
   await page.waitForSelector('#in-file');
   await page.setInputFiles('#in-file', FIXTURE);
-  const { duration, bytes } = await expectAudioOutput(page, /^data:audio\/mpeg/);
+  const { duration, bytes } = await expectAudioOutput(page, /^audio\/mpeg/);
   expect(bytes).toBeGreaterThan(2_000);
   expect(duration).toBeGreaterThan(2.5);
   expect(duration).toBeLessThan(3.5);
@@ -44,7 +44,7 @@ test('audio-declick deep link honors aggressive save/declip wav settings', async
   await expect(page.locator('#in-declip')).toBeChecked();
   await expect(page.locator('#in-format')).toHaveValue('wav');
   await page.setInputFiles('#in-file', FIXTURE);
-  const { duration, bytes } = await expectAudioOutput(page, /^data:audio\/wav/);
+  const { duration, bytes } = await expectAudioOutput(page, /^audio\/wav/);
   expect(bytes).toBeGreaterThan(20_000);
   expect(duration).toBeGreaterThan(2.5);
   expect(duration).toBeLessThan(3.5);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.mp3');
@@ -23,7 +23,7 @@ test('parametric-eq renders a real mp3 output for a vocal-presence boost', async
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodedDuration(page, src!);
   expect(duration).toBeGreaterThan(2.8);
   expect(duration).toBeLessThan(3.4);
@@ -46,7 +46,7 @@ test('parametric-eq deep-link fills all band values and wav output', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/wav/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/wav/);
 });
 
 test('parametric-eq reports an all-zero EQ as a no-op error', async ({ page }) => {

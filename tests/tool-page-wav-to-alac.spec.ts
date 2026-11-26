@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/wav-to-alac/ page encodes an uploaded WAV to ALAC (Apple
 // Lossless) inside an .m4a container in-browser via ffmpeg (@ffmpeg/core from
-// jsDelivr — needs network), so the media src is a data:audio/mp4 URL. ALAC has
+// jsDelivr — needs network), so the media src is an audio/mp4 result. ALAC has
 // no quality knob — the PCM is carried through untouched — so there is nothing
 // lossy to measure; what matters is that a real ALAC-in-MP4 file came back and
 // that the deep-linked settings reached the form. Chromium's AudioContext
@@ -24,14 +24,11 @@ type AlacProbe = {
   hasAlacFourcc: boolean;
 };
 
-/// Base64-decode the data: URL in the page and probe the raw bytes for the
+/// Fetch the result URL in the page and probe the raw bytes for the
 /// ISO BMFF / ALAC markers. No AudioContext — Chromium can't decode ALAC.
 async function probeAlac(page: Page, dataUrl: string): Promise<AlacProbe> {
-  return page.evaluate((url) => {
-    const b64 = url.slice(url.indexOf(',') + 1);
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return page.evaluate(async (url) => {
+    const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
 
     const ascii = (start: number, len: number) =>
       String.fromCharCode(...bytes.subarray(start, start + len));
@@ -94,12 +91,12 @@ async function expectAlacM4a(page: Page, dataUrl: string): Promise<void> {
   expect(probe.hasAlacFourcc, 'no `alac` fourcc in the container').toBe(true);
 }
 
-/// Wait for the output player and return its data:audio/mp4 src.
+/// Wait for the output player and return its (audio/mp4) result URL.
 async function alacOutputSrc(page: Page): Promise<string> {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/mp4/);
   return src!;
 }
 

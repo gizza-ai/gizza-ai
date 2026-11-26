@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import * as path from 'path';
 import { ALPHA_SQUARE, ALPHA_SQUARE_GIF, ALPHA_SQUARE_PAL, alphaReport, resultUrl } from './alpha-square';
 
@@ -7,7 +7,7 @@ test('image-grayscale page', async ({ page }) => {
   await page.setInputFiles('#in-file', path.resolve(__dirname, 'fixtures/red-2x2.png'));
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90000 });
-  expect(await media.getAttribute('src')).toMatch(/^data:image\//);
+  expect((await readResult(page, await media.getAttribute('src'))).mime).toMatch(/^image\//);
 });
 
 // A transparent image must come back gray + alpha, not flattened: a bare

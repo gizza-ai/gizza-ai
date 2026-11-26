@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -32,7 +32,7 @@ test('audio-limiter page runs the default limiter and preserves the audio', asyn
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, bytes } = await decodeStats(page, src!);
   expect(bytes).toBeGreaterThan(2_000); // a real encode, not a stub
   expect(duration).toBeGreaterThan(2.9);
@@ -51,7 +51,7 @@ test('audio-limiter deep link prefills controls and applies +12 dB drive (wav)',
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, rms } = await decodeStats(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.3);

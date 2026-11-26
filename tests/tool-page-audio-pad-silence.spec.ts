@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -51,7 +51,7 @@ test('audio-pad-silence pads both ends and keeps the tone in the middle', async 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
 
   const out = await decodeWindow(page, { dataUrl: src! }, 0.8, 2.2);
   expect(out.duration).toBeGreaterThan(4.8);
@@ -79,7 +79,7 @@ test('audio-pad-silence deep link prefills tail-only WAV settings', async ({ pag
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/wav/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/wav/);
 
   const out = await decodeWindow(page, { dataUrl: src! }, 1.0, 2.0);
   expect(out.duration).toBeGreaterThan(4.9);
@@ -104,7 +104,7 @@ test('audio-pad-silence advertised formats and secondary wav input stay wired', 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/(flac|x-flac)/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/(flac|x-flac)/);
   const out = await decodeWindow(page, { dataUrl: src! }, 0.35, 1.0);
   expect(out.duration).toBeGreaterThan(3.15);
   expect(out.duration).toBeLessThan(3.5);

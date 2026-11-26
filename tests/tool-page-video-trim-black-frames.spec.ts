@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // /tools/video-trim-black-frames/ owns a custom TWO-pass ffmpeg page flow:
@@ -17,8 +17,8 @@ async function decodeVideo(page, src: string) {
       v.addEventListener('loadeddata', resolve, { once: true });
       v.addEventListener('error', () => reject(new Error('video failed to decode')), { once: true });
     });
-    const b64 = dataUrl.split(',')[1] || '';
-    return { w: v.videoWidth, h: v.videoHeight, dur: v.duration, bytes: atob(b64).length };
+    const size = (await (await fetch(dataUrl)).blob()).size;
+    return { w: v.videoWidth, h: v.videoHeight, dur: v.duration, bytes: size };
   }, src);
 }
 
@@ -37,7 +37,7 @@ test('black intro and outro are detected and trimmed with defaults', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const r = await decodeVideo(page, src!);
   expect(r.w).toBe(128);

@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/video-audio-bitrate-set/ page re-encodes ONLY the audio
 // track of an uploaded clip at a chosen constant bitrate (kbps), stream-copying
 // the video untouched, in the browser via ffmpeg-wasm (single-threaded
 // @ffmpeg/core from jsDelivr — needs network). Output keeps the input container
-// (mp4 -> mp4), so the result is a data:video/mp4 URL.
+// (mp4 -> mp4), so the result is video/mp4.
 //
 // Each test asserts REAL output correctness: it decodes the produced video in a
 // <video> element and checks the container MIME + preserved dimensions/duration.
@@ -16,7 +16,7 @@ import path from 'node:path';
 // tiny-128x128-audio.mp4: 128x128 H.264 + AAC, ~2s.
 const fixture = path.resolve(__dirname, 'fixtures/tiny-128x128-audio.mp4');
 
-// Decode a data:video/ URL and read its intrinsic size + duration.
+// Decode a video/ result and read its intrinsic size + duration.
 async function decodeVideo(page, src: string) {
   return await page.evaluate(async (dataUrl) => {
     const v = document.createElement('video');
@@ -35,7 +35,7 @@ async function expectPlayableMp4(page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/); // container is preserved (mp4 -> mp4)
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/); // container is preserved (mp4 -> mp4)
 
   // Pure audio re-encode: the stream-copied picture keeps its size + duration.
   const meta = await decodeVideo(page, src!);

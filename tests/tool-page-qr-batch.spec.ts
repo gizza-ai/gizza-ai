@@ -4,8 +4,10 @@ async function decodeZip(page: import('@playwright/test').Page) {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:application/zip;base64,')) return { error: 'no ZIP href: ' + href };
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'application/zip') return { error: 'no ZIP result: ' + blob.type };
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const latin1 = new TextDecoder('latin1');
     const names: string[] = [];

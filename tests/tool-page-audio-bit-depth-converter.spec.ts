@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const WAV_FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.wav');
@@ -30,7 +30,7 @@ test('audio-bit-depth-converter converts WAV to default 16-bit dithered WAV outp
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/wav/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/wav/);
   const meta = await decodeAudio(page, src!);
   expect(meta.duration).toBeGreaterThan(2.5);
   expect(meta.duration).toBeLessThan(3.5);
@@ -49,7 +49,7 @@ test('audio-bit-depth-converter deep link exercises 24-bit FLAC and metadata str
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/flac/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/flac/);
   const meta = await decodeAudio(page, src!);
   expect(meta.duration).toBeGreaterThan(2.5);
   expect(meta.duration).toBeLessThan(3.5);

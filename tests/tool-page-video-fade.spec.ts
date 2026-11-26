@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -19,7 +19,7 @@ const FIXTURE = path.resolve(__dirname, 'fixtures/tiny-128x128-audio.mp4');
 
 type FrameStats = { mean: number; minSum: number; maxSum: number };
 
-/// Decode a data:video URL and return its dimensions, duration and per-time
+/// Decode a video result and return its dimensions, duration and per-time
 /// frame statistics: the mean channel value over the whole frame plus the
 /// darkest/brightest pixel channel-sums (0..765), which distinguish a solid
 /// colour wash from real footage.
@@ -87,10 +87,10 @@ async function expectFadedMp4(page: Page): Promise<string> {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = (await media.getAttribute('src'))!;
-  expect(src).toMatch(/^data:video\/mp4/);
-  // Real encoded bytes, not a stub: the measured outputs are 24–29 kB, so the
-  // base64 payload runs to tens of thousands of characters.
-  expect(src.length).toBeGreaterThan(10_000);
+  const { mime, bytes } = await readResult(page, src);
+  expect(mime).toMatch(/^video\/mp4/);
+  // Real encoded bytes, not a stub: the measured outputs are 24–29 kB.
+  expect(bytes.length).toBeGreaterThan(7_500);
   return src;
 }
 
@@ -175,8 +175,9 @@ test('video-fade sound-only run copies the picture and keeps the container', asy
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = (await media.getAttribute('src'))!;
   // mp4 in → mp4 out: the container survives a stream copy.
-  expect(src).toMatch(/^data:video\/mp4/);
-  expect(src.length).toBeGreaterThan(10_000);
+  const { mime, bytes } = await readResult(page, src);
+  expect(mime).toMatch(/^video\/mp4/);
+  expect(bytes.length).toBeGreaterThan(7_500);
 
   const { w, h, frames } = await decode(page, src, [0.05]);
   expect(w).toBe(128);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 async function decodeVideo(page, src: string) {
@@ -26,7 +26,7 @@ test('video-remove-embedded-subs remuxes an MP4 and keeps the playable media', a
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
   // keep container preserves the input extension → mp4 in / mp4 out.
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src!);
   expect(meta.w).toBe(128);
@@ -45,7 +45,7 @@ test('video-remove-embedded-subs deep-link forces mp4 output from an mkv source'
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
   // container=mp4 remuxes the h264 mkv into an mp4 without re-encoding.
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src!);
   expect(meta.w).toBeGreaterThan(0);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const fixture = (name: string) => path.resolve(__dirname, 'fixtures', name);
@@ -25,7 +25,7 @@ test('video-scene-split page detects and cuts a three-shot fixture', async ({ pa
 
   await waitForSplit(page);
   const src = await page.locator('#tool-output-media').getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4;base64,/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4;base64,/);
 });
 
 test('video-scene-split deep-link prefills threshold and copy mode', async ({ page }) => {

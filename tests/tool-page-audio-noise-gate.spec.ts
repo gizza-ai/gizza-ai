@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -6,10 +6,7 @@ const FIXTURE = path.resolve(__dirname, 'fixtures/tone-quiet-3s.mp3');
 
 async function decodeDuration(page: Page, src: string): Promise<{ duration: number; bytes: number }> {
   return page.evaluate(async (dataUrl: string) => {
-    const [, base64 = ''] = dataUrl.split(',', 2);
-    const bin = atob(base64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const bytes = new Uint8Array(await (await fetch(dataUrl)).arrayBuffer());
     const ctx = new AudioContext();
     const decoded = await ctx.decodeAudioData(bytes.buffer.slice(0));
     await ctx.close();
@@ -24,7 +21,7 @@ async function expectPlayableOutput(page: Page, mimePrefix: RegExp) {
   if (!src || src.endsWith('base64,')) {
     src = await page.getByRole('link', { name: 'Download' }).getAttribute('href');
   }
-  expect(src).toMatch(mimePrefix);
+  expect((await readResult(page, src)).mime).toMatch(mimePrefix);
   const { duration, bytes } = await decodeDuration(page, src!);
   expect(bytes).toBeGreaterThan(2_000);
   expect(duration).toBeGreaterThan(2.7);
@@ -35,7 +32,7 @@ test('audio-noise-gate page applies the default gate and preserves duration', as
   await page.goto('/tools/audio-noise-gate/');
   await page.waitForSelector('#in-file');
   await page.setInputFiles('#in-file', FIXTURE);
-  await expectPlayableOutput(page, /^data:audio\/mpeg/);
+  await expectPlayableOutput(page, /^audio\/mpeg/);
 });
 
 test('audio-noise-gate deep link honors hard-gate controls and wav output', async ({ page }) => {
@@ -49,5 +46,5 @@ test('audio-noise-gate deep link honors hard-gate controls and wav output', asyn
   await expect(page.locator('#in-detection')).toHaveValue('peak');
   await expect(page.locator('#in-format')).toHaveValue('wav');
   await page.setInputFiles('#in-file', FIXTURE);
-  await expectPlayableOutput(page, /^data:audio\/wav/);
+  await expectPlayableOutput(page, /^audio\/wav/);
 });

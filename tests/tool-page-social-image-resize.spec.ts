@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 async function imageInfo(page: any, dataUrl: string) {
@@ -14,7 +14,7 @@ async function outputSrc(page: any) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 

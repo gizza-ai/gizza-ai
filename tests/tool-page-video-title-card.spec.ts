@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -31,7 +31,7 @@ interface Stats {
   nonBlack: number;
 }
 
-/// Seek a data:video URL to `time` seconds, draw that frame to a canvas, and
+/// Seek a video result to `time` seconds, draw that frame to a canvas, and
 /// count pixels matching a few fixed color predicates (whole frame + split by
 /// top/bottom half). One getImageData call → fast.
 async function frameStats(page: Page, dataUrl: string, time: number): Promise<Stats> {
@@ -97,7 +97,7 @@ async function outputSrc(page: Page): Promise<string> {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
   return src!;
 }
 
@@ -173,7 +173,7 @@ test('video-title-card draws a named-color background bar at bottom-right', asyn
 });
 
 // 4. Secondary input format: a WebM (VP8/Opus) must be accepted and converted —
-//    output is a playable data:video/ (mp4). Exercises the h264_out_ext webm→mp4
+//    output is a playable video/ (mp4). Exercises the h264_out_ext webm→mp4
 //    + AAC path on the real surface.
 test('video-title-card accepts a WebM input and returns a playable video', async ({ page }) => {
   await page.goto('/tools/video-title-card/');

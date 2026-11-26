@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The /tools/video-target-filesize-encoder/ page computes an H.264 bitrate from
@@ -23,8 +23,8 @@ async function decodeVideo(page, src: string) {
       v.addEventListener('loadeddata', resolve, { once: true });
       v.addEventListener('error', () => reject(new Error('mp4 failed to decode')), { once: true });
     });
-    const b64 = dataUrl.split(',')[1] || '';
-    return { w: v.videoWidth, h: v.videoHeight, dur: v.duration, bytes: atob(b64).length };
+    const size = (await (await fetch(dataUrl)).blob()).size;
+    return { w: v.videoWidth, h: v.videoHeight, dur: v.duration, bytes: size };
   }, src);
 }
 
@@ -37,7 +37,7 @@ test('encodes an mp4 under the target MB budget', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const r = await decodeVideo(page, src!);
   expect(r.w).toBe(128); // dimensions preserved (scale = keep)
@@ -58,7 +58,7 @@ test('audio = none (non-default) still fits the budget', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const r = await decodeVideo(page, src!);
   expect(r.w).toBe(128);
@@ -74,7 +74,7 @@ test('webm input (secondary format) is re-encoded to a playable mp4', async ({ p
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/); // container switched webm → mp4
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/); // container switched webm → mp4
 
   const r = await decodeVideo(page, src!);
   expect(r.w).toBe(64); // 64x64 source preserved

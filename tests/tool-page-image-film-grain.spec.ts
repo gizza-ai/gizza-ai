@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 import {
   ALPHA_SQUARE,
@@ -20,7 +20,7 @@ import {
 const GRAY = 'fixtures/gray-64x64.png'; // solid mid-gray (128,128,128)
 const FF_TIMEOUT = 90_000;
 
-// Decode the produced data URL on a canvas and sample a grid of pixels so we
+// Decode the produced result on a canvas and sample a grid of pixels so we
 // can measure how far grain has spread the (originally uniform) image.
 async function sampleGrid(page: import('@playwright/test').Page, dataUrl: string) {
   return page.evaluate(async (src) => {
@@ -57,7 +57,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: FF_TIMEOUT }); // ffmpeg loads from CDN on first run
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -66,7 +66,7 @@ test('image-film-grain page overlays neutral grain at the default amount', async
   await page.setInputFiles('#in-image', path.resolve(__dirname, GRAY));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/); // keep (default): PNG in → PNG out
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/); // keep (default): PNG in → PNG out
   const s = await sampleGrid(page, src);
   // Grain never crops or resizes.
   expect(s.w).toBe(64);
@@ -122,7 +122,7 @@ test('image-film-grain format=jpg converts the output to JPEG', async ({ page })
   await page.setInputFiles('#in-image', path.resolve(__dirname, GRAY));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/); // format conversion really happened
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/); // format conversion really happened
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
   const s = await sampleGrid(page, src);
   expect(s.w).toBe(64);

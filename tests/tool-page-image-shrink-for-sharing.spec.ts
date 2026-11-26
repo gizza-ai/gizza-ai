@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/image-shrink-for-sharing/ page downscales + strips
@@ -9,7 +9,7 @@ const PNG = 'fixtures/white-64x64.png';
 const JPG = 'fixtures/white-64x64.jpg';
 const FF_TIMEOUT = 90_000;
 
-// Decode the produced data URL and return its real pixel dimensions + mime.
+// Decode the produced result and return its real pixel dimensions + mime.
 async function decode(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: FF_TIMEOUT });
@@ -31,7 +31,7 @@ test('downscale 64→32, convert PNG→WebP, metadata OFF (non-default checkbox)
   await page.uncheck('#in-strip_metadata'); // default is checked → exercise the OFF path
   await page.setInputFiles('#in-image', path.resolve(__dirname, PNG));
   const out = await decode(page);
-  expect(out.src).toMatch(/^data:image\/webp/); // format conversion really happened
+  expect((await readResult(page, out.src)).mime).toMatch(/^image\/webp/); // format conversion really happened
   expect(out.w).toBe(32); // longest side capped to 32, aspect kept
   expect(out.h).toBe(32);
 });
@@ -43,7 +43,7 @@ test('keep format on a JPEG input (secondary format), downscale 64→48', async 
   await page.selectOption('#in-format', 'keep');
   await page.setInputFiles('#in-image', path.resolve(__dirname, JPG));
   const out = await decode(page);
-  expect(out.src).toMatch(/^data:image\/jpeg/); // keep → JPEG stays JPEG
+  expect((await readResult(page, out.src)).mime).toMatch(/^image\/jpeg/); // keep → JPEG stays JPEG
   expect(out.w).toBe(48);
   expect(out.h).toBe(48);
 });
@@ -55,7 +55,7 @@ test('convert to PNG, cap boundary one-over does NOT upscale (max 65 on 64px)', 
   await page.selectOption('#in-format', 'png');
   await page.setInputFiles('#in-image', path.resolve(__dirname, JPG));
   const out = await decode(page);
-  expect(out.src).toMatch(/^data:image\/png/); // JPEG→PNG conversion
+  expect((await readResult(page, out.src)).mime).toMatch(/^image\/png/); // JPEG→PNG conversion
   expect(out.w).toBe(64); // stays at source size, never enlarged
   expect(out.h).toBe(64);
 });
@@ -68,7 +68,7 @@ test('convert PNG→JPEG, keep original size (max 0)', async ({ page }) => {
   await page.selectOption('#in-format', 'jpeg');
   await page.setInputFiles('#in-image', path.resolve(__dirname, PNG));
   const out = await decode(page);
-  expect(out.src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, out.src)).mime).toMatch(/^image\/jpeg/);
   expect(out.w).toBe(64); // unchanged dimensions
   expect(out.h).toBe(64);
 });
@@ -80,7 +80,7 @@ test('deep-link ?param= pre-fills the fields, then runs', async ({ page }) => {
   await expect(page.locator('#in-format')).toHaveValue('webp');
   await page.setInputFiles('#in-image', path.resolve(__dirname, PNG));
   const out = await decode(page);
-  expect(out.src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, out.src)).mime).toMatch(/^image\/webp/);
   expect(out.w).toBe(32);
   expect(out.h).toBe(32);
 });

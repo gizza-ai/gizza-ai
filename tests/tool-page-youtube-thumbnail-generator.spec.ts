@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/youtube-thumbnail-generator/ page grabs ONE frame from an
 // uploaded video (@ffmpeg/core from a CDN — needs network), scales+center-crops it
 // to a target canvas, draws a colored accent bar on one edge, and overlays an
 // outlined headline drawn from a bundled font. Output is a PNG rendered as an
-// image, so the media src is a data:image/png URL.
+// image, so the media src is an image/png result.
 //
 // Fixture redblue-64.mp4 is a 64×64 clip whose FIRST frame is solid red (~254,0,0).
 // At timestamp 0 the source frame is pure red, and scale+crop to any 16:9-ish
@@ -16,7 +16,7 @@ import path from 'node:path';
 const REDBLUE = path.resolve(__dirname, 'fixtures/redblue-64.mp4');
 const WEBM = path.resolve(__dirname, 'fixtures/clip-1s.webm');
 
-// Decode a data:image/ URL and read its natural size + the RGB at one pixel.
+// Decode an image/ result and read its natural size + the RGB at one pixel.
 async function decodeAt(
   page: import('@playwright/test').Page,
   src: string,
@@ -52,7 +52,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   return src!;
 }
 

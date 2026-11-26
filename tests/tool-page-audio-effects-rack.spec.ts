@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -31,7 +31,7 @@ test('audio-effects-rack applies a hall echo chain and returns playable audio', 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, bytes, rms } = await decodeInfo(page, src!);
   expect(bytes).toBeGreaterThan(5_000);
   // Echo + reverb append a tail, so the output should be at least as long as the 3s fixture.
@@ -51,7 +51,7 @@ test('audio-effects-rack deep link prefills non-default controls and outputs wav
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, bytes } = await decodeInfo(page, src!);
   expect(bytes).toBeGreaterThan(100_000); // WAV output proves the format param took effect.
   expect(duration).toBeGreaterThan(2.9);

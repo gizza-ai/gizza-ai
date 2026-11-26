@@ -1,9 +1,9 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/gif-to-mp4/ page converts an uploaded GIF in-browser via
 // ffmpeg (@ffmpeg/core from jsDelivr — needs network). Output is an mp4, so the
-// media src is a data:video/ URL.
+// media src is a video/ result.
 test('gif-to-mp4 page converts an uploaded GIF', async ({ page }) => {
   await page.goto('/tools/gif-to-mp4/');
   await page.waitForSelector('#in-file');
@@ -11,5 +11,5 @@ test('gif-to-mp4 page converts an uploaded GIF', async ({ page }) => {
 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
-  expect(await media.getAttribute('src')).toMatch(/^data:video\//);
+  expect((await readResult(page, await media.getAttribute('src'))).mime).toMatch(/^video\//);
 });

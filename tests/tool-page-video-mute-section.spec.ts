@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -6,7 +6,7 @@ import path from 'node:path';
 // ONE chosen [start, end] window in-browser via ffmpeg (@ffmpeg/core from
 // jsDelivr — needs network). The picture is stream-copied (`-c:v copy`) and only
 // the audio is re-encoded, so the output keeps the mp4 container and resolves to
-// a data:video/mp4 URL. The fixture is a steady ~2s tone-over-video clip, so
+// a video/mp4 result. The fixture is a steady ~2s tone-over-video clip, so
 // after silencing [0.5, 1.5] we can measure per-window audio RMS: the muted
 // middle collapses to near-silence while the untouched edges stay audible —
 // proving the range was really acted on, not just re-encoded. We also assert the
@@ -68,7 +68,7 @@ test('video-mute-section page silences only the chosen window and keeps the pict
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   // Real re-mux with an intact, decodable picture — the video is untouched.
   const { vw, vh, duration, bytes } = await decodeInfo(page, src!);
@@ -99,7 +99,7 @@ test('video-mute-section deep link pre-fills the start/end fields', async ({ pag
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const before = await windowRms(page, src!, 0.05, 0.4);
   const middle = await windowRms(page, src!, 0.7, 1.3);

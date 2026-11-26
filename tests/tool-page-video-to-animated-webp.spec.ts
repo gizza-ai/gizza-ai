@@ -1,13 +1,7 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const fixture = path.resolve(__dirname, 'fixtures/tiny-128x128.mp4');
-
-function bytesFromDataUrl(src: string): Buffer {
-  const m = src.match(/^data:([^;,]+);base64,(.*)$/);
-  if (!m) throw new Error(`not a base64 data URL: ${src.slice(0, 80)}`);
-  return Buffer.from(m[2], 'base64');
-}
 
 async function imageInfo(page, src: string): Promise<{ w: number; h: number; bytes: number }> {
   return await page.evaluate(async (dataUrl) => {
@@ -17,8 +11,8 @@ async function imageInfo(page, src: string): Promise<{ w: number; h: number; byt
       img.addEventListener('load', resolve, { once: true });
       img.addEventListener('error', () => reject(new Error('animated WebP output failed to decode')), { once: true });
     });
-    const b64 = dataUrl.split(',')[1] ?? '';
-    return { w: img.naturalWidth, h: img.naturalHeight, bytes: Math.floor((b64.length * 3) / 4) };
+    const size = (await (await fetch(dataUrl)).blob()).size;
+    return { w: img.naturalWidth, h: img.naturalHeight, bytes: size };
   }, src);
 }
 
@@ -26,8 +20,8 @@ async function expectAnimatedWebp(page, expectedWidth: number) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/webp/);
-  const bytes = bytesFromDataUrl(src!);
+  const { mime, bytes } = await readResult(page, src);
+  expect(mime).toMatch(/^image\/webp/);
   expect(bytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
   expect(bytes.subarray(8, 12).toString('ascii')).toBe('WEBP');
   expect(bytes.includes(Buffer.from('ANIM', 'ascii'))).toBeTruthy();

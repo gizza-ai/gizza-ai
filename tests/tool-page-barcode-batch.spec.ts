@@ -10,15 +10,17 @@ type ZipProbe = {
   firstSvg?: string;
 };
 
-/** Read the download anchor's data: URL and walk the ZIP local-file headers. */
+/** Read the download anchor's result URL and walk the ZIP local-file headers. */
 async function decodeZip(page: import('@playwright/test').Page): Promise<ZipProbe> {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:application/zip;base64,')) {
-      return { error: 'no ZIP href: ' + String(href).slice(0, 60) };
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'application/zip') {
+      return { error: 'no ZIP result: ' + blob.type };
     }
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const latin1 = new TextDecoder('latin1');
     const names: string[] = [];
@@ -127,10 +129,12 @@ test('barcode-batch page — sheet output downloads a real multi-label PDF', asy
   const pdf = await page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:application/pdf;base64,')) {
-      return { error: 'no PDF href: ' + String(href).slice(0, 60) };
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'application/pdf') {
+      return { error: 'no PDF result: ' + blob.type };
     }
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const latin1 = new TextDecoder('latin1');
     const text = latin1.decode(buf);
     // Resolve every object through the xref table, the way a reader does.

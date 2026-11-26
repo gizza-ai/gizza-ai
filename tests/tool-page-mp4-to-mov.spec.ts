@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -18,11 +18,8 @@ async function buildArgv(page: Page, inName: string) {
 }
 
 async function inspectMovDataUrl(page: Page, src: string) {
-  return await page.evaluate((dataUrl: string) => {
-    const [, b64 = ''] = dataUrl.split(',', 2);
-    const bin = atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return await page.evaluate(async (dataUrl: string) => {
+    const bytes = new Uint8Array(await (await fetch(dataUrl)).arrayBuffer());
     const ascii = (start: number, len: number) => String.fromCharCode(...bytes.slice(start, start + len));
     const boxTypes: string[] = [];
     for (let p = 0; p + 8 <= bytes.length && boxTypes.length < 24;) {
@@ -61,7 +58,7 @@ test('mp4-to-mov page remuxes an MP4 to MOV losslessly', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/(quicktime|mp4|)/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/(quicktime|mp4|)/);
 
   // Chromium does not reliably decode QuickTime .mov in <video>, so inspect the
   // ISO-BMFF boxes directly: the page produced a real QuickTime container with

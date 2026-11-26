@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/trim-audio/ page trims an uploaded audio file in-browser
 // via ffmpeg (@ffmpeg/core from jsDelivr — needs network). Output is audio, so
-// the media element is an <audio> with a data:audio/ src. Beyond the mime
+// the media element is an <audio> with an audio/ result. Beyond the mime
 // prefix, each test decodes the result with WebAudio and asserts the duration
 // actually matches the [start, end] selection (media-correctness rule).
 
@@ -30,7 +30,7 @@ test('trim-audio page keeps a 1s selection of an uploaded mp3', async ({ page })
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(0.85); // mp3 encoder pads a little
   expect(duration).toBeLessThan(1.2);
@@ -44,7 +44,7 @@ test('trim-audio empty end trims from start to the end of the track', async ({ p
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(1.85); // 3.03 - 1 ≈ 2.03 (mp3 pads a little)
   expect(duration).toBeLessThan(2.25);
@@ -73,7 +73,7 @@ test('trim-audio deep link prefills fields and trims to wav', async ({ page }) =
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(0.98); // wav is sample-exact
   expect(duration).toBeLessThan(1.02);

@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/audio-noise-reduce/ page runs ffmpeg's afftdn/anlmdn
 // denoiser over an uploaded clip in-browser (@ffmpeg/core from jsDelivr — needs
 // network). Denoising rewrites samples but preserves duration, so the proof of a
-// real output is that the returned data URL decodes to a playable ~3s audio
+// real output is that the returned result decodes to a playable ~3s audio
 // buffer in the requested container.
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.wav');
 
@@ -13,7 +13,7 @@ async function expectPlayableAudioDataUrl(page: Page, mimePrefix: RegExp): Promi
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(mimePrefix);
+  expect((await readResult(page, src)).mime).toMatch(mimePrefix);
   const duration = await page.evaluate(async (dataUrl: string) => {
     const res = await fetch(dataUrl);
     const buf = await res.arrayBuffer();
@@ -29,7 +29,7 @@ test('audio-noise-reduce page denoises with the default afftdn path', async ({ p
   await page.goto('/tools/audio-noise-reduce/');
   await page.waitForSelector('#in-file');
   await page.setInputFiles('#in-file', FIXTURE);
-  const duration = await expectPlayableAudioDataUrl(page, /^data:audio\/mpeg/);
+  const duration = await expectPlayableAudioDataUrl(page, /^audio\/mpeg/);
   expect(duration).toBeGreaterThan(2.5); // ~3s tone survives, just denoised
   expect(duration).toBeLessThan(3.5);
 });
@@ -42,7 +42,7 @@ test('audio-noise-reduce deep link honors strength, anlmdn, remove-hum and wav f
   await expect(page.locator('#in-remove_hum')).toBeChecked();
   await expect(page.locator('#in-format')).toHaveValue('wav');
   await page.setInputFiles('#in-file', FIXTURE);
-  const duration = await expectPlayableAudioDataUrl(page, /^data:audio\/wav/);
+  const duration = await expectPlayableAudioDataUrl(page, /^audio\/wav/);
   expect(duration).toBeGreaterThan(2.5);
   expect(duration).toBeLessThan(3.5);
 });

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The /tools/image-resize-to-filesize/ page binary-searches the encoder quality
@@ -9,7 +9,7 @@ import path from 'node:path';
 const PNG = path.resolve(__dirname, 'fixtures/photo-512.png');
 const JPG = path.resolve(__dirname, 'fixtures/photo-320.jpg');
 
-// Decode a data URL: natural dimensions + the real encoded byte length.
+// Decode a result URL: natural dimensions + the real encoded byte length.
 async function decode(page, src: string) {
   return page.evaluate(async (dataUrl: string) => {
     const img = new Image();
@@ -18,8 +18,8 @@ async function decode(page, src: string) {
       img.onerror = rej;
       img.src = dataUrl;
     });
-    const b64 = dataUrl.split(',')[1] || '';
-    return { w: img.naturalWidth, h: img.naturalHeight, bytes: atob(b64).length };
+    const size = (await (await fetch(dataUrl)).blob()).size;
+    return { w: img.naturalWidth, h: img.naturalHeight, bytes: size };
   }, src);
 }
 
@@ -33,7 +33,7 @@ test('hits the target KB as JPEG and preserves dimensions', async ({ page }) => 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
 
   const r = await decode(page, src!);
   expect(r.w).toBe(512); // no max_width → dimensions unchanged
@@ -53,7 +53,7 @@ test('webp output from a jpeg input, under the target', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
 
   const r = await decode(page, src!);
   expect(r.bytes).toBeLessThanOrEqual(8 * 1024);
@@ -87,7 +87,7 @@ test('deep-link pre-fills params and runs (?target_kb=&format=webp)', async ({ p
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
   const r = await decode(page, src!);
   expect(r.bytes).toBeLessThanOrEqual(14 * 1024);
 });

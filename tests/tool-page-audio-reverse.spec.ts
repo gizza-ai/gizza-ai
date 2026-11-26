@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -24,7 +24,7 @@ test('audio-reverse page reverses an uploaded clip to mp3', async ({ page }) => 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await durationOf(page, src!);
   expect(duration).toBeGreaterThan(2.8);
   expect(duration).toBeLessThan(3.3);
@@ -40,7 +40,7 @@ test('audio-reverse deep link doubles duration for reverse-forward wav', async (
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await durationOf(page, src!);
   expect(duration).toBeGreaterThan(5.8);
   expect(duration).toBeLessThan(6.4);
@@ -58,7 +58,7 @@ test('audio-reverse advertised mode and format controls stay wired', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await durationOf(page, src!);
   expect(duration).toBeGreaterThan(5.8);
   expect(duration).toBeLessThan(6.5);

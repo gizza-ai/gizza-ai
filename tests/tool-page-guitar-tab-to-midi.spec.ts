@@ -4,8 +4,10 @@ async function decodeMidi(page: import('@playwright/test').Page) {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl?.href || '';
-    if (!href.startsWith('data:audio/midi;base64,')) return { error: 'no MIDI data URL: ' + href };
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'audio/midi') return { error: 'no MIDI result: ' + blob.type };
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const text = new TextDecoder('latin1').decode(buf);
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     if (text.slice(0, 4) !== 'MThd') return { error: 'missing MThd header' };

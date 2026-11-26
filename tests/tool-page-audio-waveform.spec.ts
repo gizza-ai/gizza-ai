@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -128,7 +128,7 @@ test('trim-audio drag-selection writes start/end and trims to the selection', as
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const dur = await decodeDurationOfDataUrl(page, src!);
   expect(Math.abs(dur - (end - start))).toBeLessThan(0.2);
 });

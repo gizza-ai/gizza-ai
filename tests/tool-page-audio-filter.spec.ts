@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -47,7 +47,7 @@ async function runAndMeasure(page: Page, fixture: string) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   return { src: src!, rms: await rmsOfDataUrl(page, src!) };
 }
 
@@ -58,7 +58,7 @@ test('audio-filter low-pass at 500 Hz strongly attenuates an 8 kHz tone', async 
   await page.fill('#in-frequency', '500');
   const inputRms = await rmsOfData(page, fs.readFileSync(FIXTURE_8KHZ));
   const out = await runAndMeasure(page, FIXTURE_8KHZ);
-  expect(out.src).toMatch(/^data:audio\/mpeg/);
+  expect((await readResult(page, out.src)).mime).toMatch(/^audio\/mpeg/);
   const ratio = out.rms / inputRms;
   expect(ratio).toBeLessThan(0.25);
 });
@@ -73,7 +73,7 @@ test('audio-filter deep link drives high-pass + wav and cuts a 50 Hz rumble tone
   await expect(page.locator('#in-format')).toHaveValue('wav');
   const inputRms = await rmsOfData(page, fs.readFileSync(FIXTURE_50HZ));
   const out = await runAndMeasure(page, FIXTURE_50HZ);
-  expect(out.src).toMatch(/^data:audio\/(wav|x-wav)/);
+  expect((await readResult(page, out.src)).mime).toMatch(/^audio\/(wav|x-wav)/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.wav');
   const ratio = out.rms / inputRms;
   expect(ratio).toBeLessThan(0.25);

@@ -1,11 +1,5 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
-
-function bytesFromDataUrl(src: string): Buffer {
-  const m = src.match(/^data:([^;,]+);base64,(.*)$/);
-  if (!m) throw new Error(`not a base64 data URL: ${src.slice(0, 80)}`);
-  return Buffer.from(m[2], 'base64');
-}
 
 function asciiContains(buf: Buffer, token: string): boolean {
   return buf.includes(Buffer.from(token, 'ascii'));
@@ -27,9 +21,9 @@ test('video-to-dnxhd creates a default DNxHR SQ MOV download', async ({ page }) 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/quicktime/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/quicktime/);
 
-  const bytes = bytesFromDataUrl(src!);
+  const bytes = (await readResult(page, src)).bytes;
   expect(bytes.length).toBeGreaterThan(10_000);
   expect(asciiContains(bytes, 'ftypqt')).toBeTruthy();
   expect(asciiContains(bytes, 'AVdh')).toBeTruthy();
@@ -50,9 +44,9 @@ test('video-to-dnxhd deep-link creates an MXF proxy with no audio', async ({ pag
   const src = await media.getAttribute('src');
   // Browsers often surface MXF as application/octet-stream even though the
   // bytes carry the SMPTE MXF key, so assert the payload marker below.
-  expect(src).toMatch(/^data:(application\/mxf|application\/octet-stream)/);
+  expect((await readResult(page, src)).mime).toMatch(/^(application\/mxf|application\/octet-stream)/);
 
-  const bytes = bytesFromDataUrl(src!);
+  const bytes = (await readResult(page, src)).bytes;
   expect(bytes.length).toBeGreaterThan(10_000);
   expect(bytes.subarray(0, 4).equals(Buffer.from([0x06, 0x0e, 0x2b, 0x34]))).toBeTruthy();
 });
@@ -67,6 +61,6 @@ test('video-to-dnxhd validates explicit pixel format against DNxHR profile', asy
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  const bytes = bytesFromDataUrl(src!);
+  const bytes = (await readResult(page, src)).bytes;
   expect(asciiContains(bytes, 'AVdh')).toBeTruthy();
 });

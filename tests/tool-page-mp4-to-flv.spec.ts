@@ -1,13 +1,7 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const fixture = path.resolve(__dirname, 'fixtures/tiny-128x128.mp4');
-
-function bytesFromDataUrl(src: string): Buffer {
-  const m = src.match(/^data:([^;,]+);base64,(.*)$/);
-  if (!m) throw new Error(`not a base64 data URL: ${src.slice(0, 80)}`);
-  return Buffer.from(m[2], 'base64');
-}
 
 async function buildArgv(
   page,
@@ -107,8 +101,8 @@ test('mp4-to-flv page encodes a real FLV payload with an FLV header', async ({ p
   const src = await media.getAttribute('src');
   // Chromium does not natively know FLV, so the generated page may surface the
   // download as application/octet-stream even though the payload itself is FLV.
-  expect(src).toMatch(/^data:(video\/x-flv|application\/octet-stream)/);
-  const bytes = bytesFromDataUrl(src!);
+  const { mime, bytes } = await readResult(page, src);
+  expect(mime).toMatch(/^(video\/x-flv|application\/octet-stream)/);
   expect(bytes.length).toBeGreaterThan(1_000);
   expect(bytes.subarray(0, 3).toString('ascii')).toBe('FLV');
 });

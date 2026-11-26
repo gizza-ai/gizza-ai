@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const IMAGE = path.resolve(__dirname, 'fixtures/red-2x2.png');
@@ -29,7 +29,7 @@ async function videoStats(page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
   return await page.evaluate(async (dataUrl) => {
     const v = document.createElement('video');
     v.muted = true;

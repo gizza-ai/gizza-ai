@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/audio-convert/ page re-encodes an uploaded audio file
 // in-browser via ffmpeg (@ffmpeg/core from jsDelivr — needs network). Output is
-// audio, so the media element is an <audio> with a data:audio/ src. Beyond the
+// audio, so the media element is an <audio> with an audio/ result. Beyond the
 // mime prefix, each test decodes the result with WebAudio and asserts the full
 // source duration survived the conversion (media-correctness rule). The ogg
 // case also proves the browser ffmpeg build ships libvorbis.
@@ -30,7 +30,7 @@ test('audio-convert page converts an mp3 to lossless wav', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.2);
@@ -45,7 +45,7 @@ test('audio-convert deep link prefills format=ogg and converts via libvorbis', a
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.2);

@@ -1,13 +1,13 @@
 import { test, expect } from './fixtures';
 
-// markdown-to-pptx returns a binary OOXML presentation as a data: URL. Decode
+// markdown-to-pptx returns a binary OOXML presentation as a download. Decode
 // the ZIP in-browser and inflate slide XML so the page test proves real output,
 // not just that a Download button appeared.
 async function decodePptx(page: import('@playwright/test').Page) {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:')) return { error: 'no download href: ' + href };
+    if (!href) return { error: 'no download href' };
     const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const latin1 = new TextDecoder('latin1');

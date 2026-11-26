@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 async function sampleImage(page: import('@playwright/test').Page, dataUrl: string) {
@@ -43,7 +43,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -55,7 +55,7 @@ test('edge-detection page produces a real Canny edge-map image', async ({ page }
   await page.goto('/tools/edge-detection/');
   await page.setInputFiles('#in-image', quadrants);
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const stats = await sampleImage(page, src);
   expect(stats.w).toBe(64);
   expect(stats.h).toBe(64);
@@ -87,7 +87,7 @@ test('edge-detection advertised method and format controls stay wired', async ({
   await expect(page.locator('#in-blur-slider')).toHaveValue('10');
   await page.setInputFiles('#in-image', quadrants);
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.webp');
   const stats = await sampleImage(page, src);
   expect(stats.w).toBe(64);
@@ -100,7 +100,7 @@ test('edge-detection accepts JPEG input and JPEG output', async ({ page }) => {
   await expect(page.locator('#in-format')).toHaveValue('jpg');
   await page.setInputFiles('#in-image', jpg);
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
   const stats = await sampleImage(page, src);
   expect(stats.w).toBe(64);

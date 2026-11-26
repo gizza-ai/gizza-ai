@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/gif-frame-deduplicator/ page drops near-duplicate frames
 // from an uploaded GIF with ffmpeg's mpdecimate (@ffmpeg/core from jsDelivr —
 // needs network) and re-encodes the GIF through palettegen/paletteuse. Output is
-// a GIF rendered as an image, so the media src is a data:image/gif URL.
+// a GIF rendered as an image, so the media src is an image/gif result.
 const fixture = path.resolve(__dirname, 'fixtures/tiny.gif');
 
 async function buildArgv(page, threshold: number, inName: string) {
@@ -31,7 +31,7 @@ test('gif-frame-deduplicator page deduplicates an uploaded GIF', async ({ page }
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/gif/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/gif/);
 });
 
 test('gif-frame-deduplicator wasm build_argv maps the threshold and rejects non-GIFs', async ({

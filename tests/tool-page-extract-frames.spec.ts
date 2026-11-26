@@ -1,17 +1,17 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/extract-frames/ page samples frames from an uploaded
 // video (@ffmpeg/core from a CDN — needs network) and tiles them into a single
 // contact-sheet image. Output is a PNG/JPG rendered as an image, so the media
-// src is a data:image/... URL. Sheet dimensions are deterministic for a given
+// src is an image/... result. Sheet dimensions are deterministic for a given
 // grid + thumbnail width + source aspect (tile pads empty cells), so we can
 // assert exact pixel sizes regardless of how many frames the mode sampled.
 //
 //   sheet_w = margin*2 + cols*thumb_w + (cols-1)*padding   (margin 4, padding 2)
 //   sheet_h = margin*2 + rows*thumb_h + (rows-1)*padding
 
-// Decode a data:image/ URL to its natural dimensions + top-left (margin) pixel.
+// Decode an image/ result to its natural dimensions + top-left (margin) pixel.
 async function decode(page: import('@playwright/test').Page, src: string) {
   return page.evaluate(async (dataUrl) => {
     const img = new Image();
@@ -45,7 +45,7 @@ test('extract-frames page tiles fps-sampled frames into a PNG contact sheet', as
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const px = await decode(page, src!);
   expect(px.w).toBe(138); // 4*2 + 2*64 + 1*2
   expect(px.h).toBe(138);
@@ -69,7 +69,7 @@ test('extract-frames page honors JPG output and a hex background color', async (
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   const px = await decode(page, src!);
   expect(px.w).toBe(138);
   // JPEG is lossy — the margin pixel should be close to #ff00aa, not white/black.
@@ -96,7 +96,7 @@ test('extract-frames page handles scene mode on a webm input', async ({ page }) 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const px = await decode(page, src!);
   expect(px.w).toBe(74); // 4*2 + 2*32 + 1*2
   expect(px.h).toBe(74);
@@ -118,7 +118,7 @@ test('extract-frames page pre-fills from ?query and runs an interval sheet', asy
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const px = await decode(page, src!);
   expect(px.w).toBe(204); // 4*2 + 3*64 + 2*2
   expect(px.h).toBe(138); // 4*2 + 2*64 + 1*2

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -36,7 +36,7 @@ test('audio-compress page halves a 192 kbps mp3 at the 96 kbps default', async (
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, bytes } = await decodeInfo(page, src!);
   expect(bytes).toBeGreaterThan(10_000); // a real encode, not a stub
   expect(bytes).toBeLessThan(inputSize * 0.65); // 96k vs 192k ≈ half the size
@@ -54,7 +54,7 @@ test('audio-compress deep link prefills bitrate=32 format=ogg and shrinks far mo
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, bytes } = await decodeInfo(page, src!);
   expect(bytes).toBeGreaterThan(2_000);
   expect(bytes).toBeLessThan(inputSize * 0.35); // 32 kbps ≪ the 192 kbps source

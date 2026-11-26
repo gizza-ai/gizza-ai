@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const fixture = path.resolve(__dirname, 'fixtures/tiny-128x128.mp4');
@@ -25,8 +25,9 @@ async function decodeOutput(page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
-  expect(src!.length).toBeGreaterThan(8_000);
+  const { mime, bytes } = await readResult(page, src);
+  expect(mime).toMatch(/^video\/mp4/);
+  expect(bytes.length).toBeGreaterThan(6_000);
   return await page.evaluate(async (dataUrl) => {
     const v = document.createElement('video');
     v.muted = true;

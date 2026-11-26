@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -53,7 +53,7 @@ test('audio-volume-adjust page boosts by the +6 dB default (RMS doubles)', async
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const outRms = await rmsOfDataUrl(page, src!);
   const gain = outRms / inputRms;
   expect(gain).toBeGreaterThan(1.7); // +6 dB = ×1.995 (mp3 re-encode wiggle)
@@ -71,7 +71,7 @@ test('audio-volume-adjust deep link halves the amplitude with factor 0.5', async
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const outRms = await rmsOfDataUrl(page, src!);
   const gain = outRms / inputRms;
   expect(gain).toBeGreaterThan(0.42); // factor 0.5, wav output is exact

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/png-to-jpg/ page flattens an image's transparency onto
@@ -43,7 +43,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 }); // ffmpeg CDN on first run
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   return src!;
 }
 
@@ -131,16 +131,21 @@ test('quality actually changes the encode: q=100 produces a larger file than q=1
   await page.goto('/tools/png-to-jpg/');
   await page.fill('#in-quality', '1');
   await page.setInputFiles('#in-image', fixture('photo-512.png'));
-  const low = await outputSrc(page);
+  const lowSrc = await outputSrc(page);
+  const low = (await readResult(page, lowSrc)).bytes.length;
 
   // Changing the field re-runs on the already-selected file (cap boundary 100).
   await page.fill('#in-quality', '100');
   await page.locator('#in-quality').blur();
   await expect
-    .poll(async () => (await page.locator('#tool-output-media').getAttribute('src'))!.length, {
-      timeout: 90_000,
-    })
-    .toBeGreaterThan(low.length * 2);
+    .poll(
+      async () => {
+        const src = await page.locator('#tool-output-media').getAttribute('src');
+        return src && src !== lowSrc ? (await readResult(page, src)).bytes.length : 0;
+      },
+      { timeout: 90_000 },
+    )
+    .toBeGreaterThan(low * 2);
 });
 
 test('quality=101 (one over the cap) is rejected with a clear error', async ({ page }) => {

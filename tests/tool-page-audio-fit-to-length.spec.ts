@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -16,7 +16,7 @@ import fs from 'node:fs';
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.mp3'); // 3.03 s tone
 
 /// { duration, rms of [start, end] } of one channel; `source` is a base64
-/// string of the file bytes or a data: URL of the tool output.
+/// string of the file bytes or the result URL of the tool output.
 async function decodeWindow(
   page: Page,
   source: { b64?: string; dataUrl?: string },
@@ -58,7 +58,7 @@ test('audio-fit-to-length pads a 3 s tone to exactly 6 s with silence at the end
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const out = await decodeWindow(page, { dataUrl: src! }, 1.0, 2.0);
   // 3.03 s tone + ~2.97 s trailing silence = ~6 s total.
   expect(out.duration).toBeGreaterThan(5.9);
@@ -83,7 +83,7 @@ test('audio-fit-to-length deep link pads at the start, tone appears later (pad=s
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const out = await decodeWindow(page, { dataUrl: src! }, 4.0, 5.5);
   // ~2.97 s leading silence + 3.03 s tone = ~6 s total (wav is sample-exact).
   expect(out.duration).toBeGreaterThan(5.9);

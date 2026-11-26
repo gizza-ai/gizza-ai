@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/mxf-to-mp4/ page converts a broadcast-style MXF into an
@@ -30,7 +30,7 @@ test('mxf-to-mp4 page transcodes a tiny broadcast MXF to playable MP4', async ({
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src);
   expect(meta.w).toBe(64);
@@ -52,7 +52,7 @@ test('mxf-to-mp4 deep-link prefills non-default picture quality and no-audio mod
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src);
   expect(meta.w).toBe(64);

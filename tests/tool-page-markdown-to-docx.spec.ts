@@ -4,7 +4,7 @@ async function decodeDocx(page: import('@playwright/test').Page) {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:')) return { error: 'no download href: ' + href };
+    if (!href) return { error: 'no download href' };
     const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const latin1 = new TextDecoder('latin1');

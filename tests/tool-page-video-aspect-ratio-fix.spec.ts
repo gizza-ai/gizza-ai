@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tiny-av-128x128.mp4');
@@ -29,7 +29,7 @@ test('video-aspect-ratio-fix stream-copies a clip with the default 16:9 DAR tag'
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   // The tool retags display metadata only: browsers expose the display size
   // after applying the new DAR (128px high at 16:9 -> ~228px wide) while the
@@ -53,7 +53,7 @@ test('video-aspect-ratio-fix deep link accepts custom decimal ratios and a non-d
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
   const meta = await decodeVideo(page, src!);
   expect(meta.w).toBe(237);
   expect(meta.h).toBe(128);
