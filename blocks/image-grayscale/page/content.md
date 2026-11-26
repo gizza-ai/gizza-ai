@@ -6,8 +6,9 @@ sent to a server. Your image stays on your device the entire time.
 ## How It Works
 
 Upload a JPEG, PNG, WebP, or other image format. The tool uses ffmpeg (compiled to
-WebAssembly) to apply the `format=gray` filter, stripping all color information and
-producing a true grayscale output in the same format as the input.
+WebAssembly) to convert it to a gray pixel format, stripping all color information and
+producing a true grayscale output in the same format as the input. Images with an alpha
+channel are converted to gray + alpha, so transparent areas stay transparent.
 
 ## Why Grayscale?
 
@@ -25,7 +26,7 @@ The output keeps the same file format as the input.
 <details>
 <summary>Does the converted image keep my original format?</summary>
 
-Yes. The tool applies ffmpeg's `format=gray` filter and writes the result using the
+Yes. The tool converts the pixels to grayscale with ffmpeg and writes the result using the
 same extension as the input — a PNG comes back as a PNG, a JPEG as a JPEG. The
 downloaded file gets a `-gray` suffix, so `photo.jpg` becomes `photo-gray.jpg`.
 
@@ -43,9 +44,10 @@ over the limit, resize or compress it first.
 <details>
 <summary>Will a transparent PNG keep its transparency?</summary>
 
-No. The `gray` pixel format has no alpha channel, so transparent areas are flattened
-during conversion. If you need grayscale with transparency preserved, keep a copy of
-the original alpha mask to re-apply in an image editor.
+Yes. A PNG or WebP with an alpha channel is converted to gray + alpha: only the color
+is removed, and every pixel keeps its original opacity — transparent corners stay
+transparent and soft edges stay soft. JPEG has no alpha channel, so a JPEG output is
+always opaque.
 
 </details>
 
