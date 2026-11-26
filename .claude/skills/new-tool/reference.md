@@ -69,6 +69,40 @@ shared `tools/generator/assets/runtime/tool.js` for these:
 - `page/meta.toml`: `runtime="ffmpeg"`, `[[input]] source="file" accept="image/*"` (or `"video/*"`/`"audio/*"` to match the Input kind) first, then field inputs in `build_argv` param order, `format="image"`|"video"|"audio".
 - FIELD ORDER in `meta.toml` MUST equal the web `build_argv` param order (`tool.js` passes the field values then `in_name`).
 
+### wasm-image (reference: blocks/image-brightness-contrast; also flip-image, rotate-image, image-border-frame, image-hsl-adjust, image-rounded-corners)
+Use it for an image edit implemented in pure Rust with the `image` crate (pixel adjustments,
+flips/rotations, borders, masks) that should run on the PAGE in a worker, not through ffmpeg. One
+core function serves every surface: chat/CLI (this handler) and the page (`wasm-image` runtime,
+`tools/generator/assets/runtime/tool-wasm-image.js` + `wasm-image-worker.js`). Pick ffmpeg instead
+for video/audio, codec/container conversion, or filters the `image` crate lacks.
+- `core/src/lib.rs`: `#[derive(Deserialize, Default)] #[serde(default)] pub struct Params { .. }`
+  (one field per option; `Default` MUST equal the descriptor's defaults — implement `Default` by
+  hand when a default isn't the type's zero), `pub const OUT_NAME: &str`, and
+  `pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String>` (decode →
+  edit → PNG encode; returns bytes + `OUT_NAME`). Clamp/validate inside core so every surface
+  agrees. Tests: apply happy path (dims/pixels), `Params` from `{}` and from a partial object, and
+  a decode error. The scaffold's stub is a working decode → PNG re-encode.
+- `src/lib.rs`: `Args { #[serde(flatten)] source: SourceFields, #[serde(flatten)] params: Params }`;
+  `descriptor()` = `Input::Image` + one `.param(...)` per `Params` field (same names + defaults);
+  `run()` = `resolve_source(.., AssetKind::Image, ..)` → core `apply` → `build_media_envelope`
+  (already wired). Add a `schema_json_matches_authored_chat_schema` drift test as in the reference.
+- `web/src/lib.rs`: already final — `run(params: JsValue, input: &[u8])` →
+  `gizza_ai_web_utils::params_from_js::<Params>` → core `apply` → `image_output` (`{ bytes, out_name }`).
+  web/Cargo.toml path-depends on `../../../web-utils` (never block-utils — keeps wasm-bindgen out of
+  the chat block); root Cargo.toml workspace members are `[".", "core", "web"]`.
+- `page/meta.toml`: `runtime = "wasm-image"`, `export = "run"`, `format = "image"`, the
+  `[[input]] name="image" source="file" accept="image/*"` first, then one `source = "field"` input
+  per `Params` field whose `name` is the field name. **Params contract:** the page builds an
+  object keyed by field name — blank fields are OMITTED (so core's serde defaults apply), numeric
+  fields are coerced to numbers, checkboxes arrive as real booleans (`true`/`false`, not
+  strings), enum `<select>`s as their string value — and deserializes it straight into core
+  `Params`. Field order doesn't matter (unlike ffmpeg). `i64`/`u32` fields are fine here (no
+  positional wasm-bindgen numbers → no BigInt gotcha). The result `{ bytes, out_name }` renders as
+  the output image + a download named `out_name`.
+- Playwright: same §media-correctness rules as ffmpeg, but no CDN needed; the result `src` is a
+  `blob:` URL — read it with `readResult(page, src)` from `./fixtures` (see
+  `tests/tool-page-flip-image.spec.ts`) and decode it in-page for pixel/dimension assertions.
+
 ## Playwright spec template (`tests/tool-page-<slug>.spec.ts` — import from './fixtures'; the config serves ../pkg)
 
 Every spec asserts REAL output (an exact value a user would see), never just "something
@@ -130,7 +164,7 @@ size via the element (`media.duration > 0`) after `loadedmetadata` — not just 
 `python3 -c "import json;print(list(json.dumps({'input':'...'}).encode()))"` → the byte list goes in `{"kind":"invoke","data":[...],"meta":[]}`.
 
 ## Gotchas
-- `f64` not `i64` for wasm-bindgen numeric params (else a JS BigInt error at runtime).
+- `f64` not `i64` for wasm-bindgen numeric params (else a JS BigInt error at runtime) — pure/ffmpeg exports only; wasm-image params go through serde.
 - ffmpeg: meta.toml field order = `build_argv` param order.
 - Each `blocks/<slug>/` and `tools/generator` are separate workspaces → `cd` into the dir; do NOT use `-p <crate>` from the repo root.
 - Use `scripts/build-block-wasm.sh <slug>` from the repo root for the final committed CLI/MCP artifact; ad-hoc Cargo/wafer builds are development checks only.

@@ -5,17 +5,19 @@
 // `page` is the tool's page spec: window.GIZZA_TOOL on the tool page, or the
 // `page` section of /tools/<slug>/tool.json elsewhere — same shape
 // ({runtime, export, module, format, model, inputs[]}). `mod` is the tool's
-// initialised web-wasm module (unused by the model runtime). `values` maps
+// initialised web-wasm module (ffmpeg only: model and wasm-image tools run in
+// workers that load what they need). `values` maps
 // field name → raw string value; coercion happens here (tool-fields.js).
 //
 // Resolves {blob, outName, mime, backend?}; rejects with an Error whose message
 // is fit to show the user. `deps.signal` (an AbortSignal) cancels a superseded
-// or cancelled run, which rejects with an AbortError: a text-to-image run is
-// handed the signal, and for other model tools it is checked after input
-// validation, before inference starts. Runtime modules are imported lazily so a page only
+// or cancelled run, which rejects with an AbortError that callers drop rather
+// than show: a text-to-image run is handed the signal, other model tools check
+// it after input validation (before inference starts), and a wasm-image job
+// that hasn't finished is dropped. Runtime modules are imported lazily so a page only
 // fetches the runtime it uses.
 
-import { fieldArgs } from "./tool-fields.js";
+import { coerceField, fieldArgs } from "./tool-fields.js";
 
 export async function runTool(page, mod, file, values, deps = {}) {
   const read = (input) => (values && values[input.name] != null ? values[input.name] : "");
@@ -56,6 +58,21 @@ export async function runTool(page, mod, file, values, deps = {}) {
         mime: result.blob.type || "image/png",
         backend: result.backend,
       };
+    }
+    case "wasm-image": {
+      const [{ paramsFor, sharedWasmImageClient }, { mimeForOutput }] = await Promise.all([
+        import("./tool-wasm-image.js"),
+        import("./tool-mime.js"),
+      ]);
+      // The web module URL is relative to the tool's own directory: the page's
+      // location on the tool page, `deps.baseUrl` (/tools/<slug>/) elsewhere.
+      const moduleUrl = new URL(page.module, deps.baseUrl || globalThis.location.href).href;
+      const client = deps.wasmImageClient || sharedWasmImageClient();
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const params = paramsFor(page.inputs, read, coerceField);
+      const r = await client.run(moduleUrl, page.export, params, bytes, { signal: deps.signal });
+      const mime = mimeForOutput(r.outName);
+      return { blob: new Blob([r.bytes], { type: mime }), outName: r.outName, mime };
     }
     default:
       throw new Error(`unsupported runtime "${page && page.runtime}"`);

@@ -17,6 +17,19 @@ Playwright-test one NON-default checkbox state). The ffmpeg path numeric-coerces
 strings before `build_argv` — `kind = "color"` fields are exempt platform-wide; any other string
 param whose values can look numeric (bare hex, digit codes) needs an end-to-end digits-only test.
 
+**`wasm-image` pages (pure-Rust image edits — scaffold type `wasm-image`):** for an image edit the
+`image` crate can do (adjust, flip, rotate, border, mask, HSL), use `runtime = "wasm-image"`
+(`export = "run"`, `format = "image"`) instead of ffmpeg: the page runs the block's OWN core in
+`wasm-image-worker.js`, so page, chat (no ffmpeg in the SW) and CLI share one `apply`. Contract:
+web `run(params, input: Uint8Array) -> { bytes, out_name }`; `params` is an OBJECT keyed by field
+name (not positional — field order is free), blank fields OMITTED, schema-numeric fields coerced
+to numbers (so `tool.parameters` must be synced — a stub manifest sends strings), checkboxes as
+real booleans, enums as strings. It deserializes straight into core's
+`#[serde(default)] pub struct Params` (`Default` = the descriptor defaults), the same struct the
+chat handler `#[serde(flatten)]`s from its JSON args, so the surfaces can't drift. Exemplar:
+`blocks/image-brightness-contrast`. The result is a `blob:` URL — read it in Playwright with
+`readResult` from `tests/fixtures.ts`.
+
 **Page input field types (meta.toml `[[input]]`):** the generator renders each field by the
 descriptor's Param type, NOT the meta — so Playwright must match: `Param::enumv` → `<select>`
 (`page.selectOption('#in-<name>', value)`); `Param::boolean` → `<input type=checkbox>` (use
