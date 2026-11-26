@@ -4,7 +4,7 @@ Fixed case: PROMPT, seed-42 noise, one Euler step, guidance 0 (SD-Turbo). Each v
 onnxruntime CPU through the same manual loop the browser worker implements (text encoder, unet, x0 =
 lat - sigma*eps, vae decode) and scored by PSNR (dB, 0..1 pixel scale) against the diffusers image.
 
-Exits non-zero unless nof16q8 >= 33 dB and fp16 >= 55 dB. manifest.json is written only on a pass.
+Exits non-zero unless nof16q8 >= 33 dB and fp16 >= 55 dB. manifest.json is removed at start and written only on a pass.
 
 usage: validate.py [--src DIR] [--out DIR]
 """
@@ -84,6 +84,8 @@ def main():
     ap = argparse.ArgumentParser()
     add_dirs(ap)
     a = ap.parse_args()
+    # A manifest from an earlier run must never survive next to new (possibly failing) weights.
+    (a.out / "manifest.json").unlink(missing_ok=True)
     r = reference(resolve_src(a.src))
     ok = True
     for v in SHIPPED_VARIANTS:
