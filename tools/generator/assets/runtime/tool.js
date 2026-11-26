@@ -574,7 +574,11 @@ async function main() {
       return;
     }
 
-    let runSeq = 0;
+    // Each run owns an AbortController; starting a new run (including the
+    // no-file run Reset triggers) aborts the previous one, so a superseded run
+    // never starts inference (runTool checks the signal after validation) and
+    // never touches the DOM. An aborted run's rejection is ignored.
+    let runController = null;
     let outputUrl = null;
     const clearOutputUrl = () => {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
@@ -582,7 +586,10 @@ async function main() {
     };
 
     async function run() {
-      const seq = ++runSeq;
+      if (runController) runController.abort();
+      const controller = new AbortController();
+      runController = controller;
+      const { signal } = controller;
       const file = fileInput.files && fileInput.files[0];
       clearOutputUrl();
       if (!file) return;
@@ -597,11 +604,12 @@ async function main() {
           return [input.name, el ? readField(el) : ""];
         }));
         const result = await runTool(cfg, null, file, values, {
+          signal,
           onProgress: (progress) => {
-            if (seq === runSeq) out.textContent = progressLabel(progress);
+            if (!signal.aborted) out.textContent = progressLabel(progress);
           },
         });
-        if (seq !== runSeq) return;
+        if (signal.aborted) return;
         outputUrl = URL.createObjectURL(result.blob);
         out.textContent = `Finished locally with ${result.backend}.`;
         media.src = outputUrl;
@@ -611,7 +619,7 @@ async function main() {
         dl.hidden = false;
         if (copyImage) copyImage.hidden = false;
       } catch (error) {
-        if (seq !== runSeq) return;
+        if (signal.aborted) return; // superseded (AbortError) — the newer run owns the DOM
         const message = typeof error === "string" ? error : error && error.message;
         showError(message || "AI inference failed.");
       }
@@ -805,14 +813,22 @@ async function main() {
     // takes a ticket (including the no-file early return, so Reset's rerun
     // invalidates an in-flight run); only the newest ticket may touch the DOM.
     let runSeq = 0;
-    // The current result's object URL — revoked when a newer result (or a
-    // cleared run) replaces it, so repeated runs don't pin old outputs.
+    // The current result's object URL — revoked when a run starts with no
+    // file (Reset/clear), when a run fails, or when a newer result replaces
+    // it, so repeated runs don't pin old outputs.
     let outputUrl = null;
+    const clearOutputUrl = () => {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      outputUrl = null;
+    };
 
     async function run() {
       const seq = ++runSeq;
       const file = fileInput && fileInput.files && fileInput.files[0];
-      if (!file) return;
+      if (!file) {
+        clearOutputUrl();
+        return;
+      }
       out.textContent = "Processing…";
       out.classList.remove("error");
       media.hidden = true;
@@ -826,12 +842,14 @@ async function main() {
       try {
         r = await runTool(cfg, mod, file, values, { execBytes: ffmpegExecBytes });
       } catch (e) {
-        if (seq === runSeq) showError(e.message);
+        if (seq !== runSeq) return;
+        clearOutputUrl();
+        showError((typeof e === "string" ? e : e && e.message) || "Processing failed.");
         return;
       }
       if (seq !== runSeq) return; // superseded while ffmpeg ran — drop the result
       out.textContent = "";
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      clearOutputUrl();
       outputUrl = URL.createObjectURL(r.blob);
       media.src = outputUrl;
       media.hidden = false;

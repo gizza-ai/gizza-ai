@@ -25,21 +25,35 @@ export function clampRect(rect, width, height) {
   return { x, y, width: w, height: h };
 }
 
-let stylesLinked = false;
+// Resolves once tool-crop-box.css is applied (or failed to load). The box is
+// rendered immediately but only lays out correctly with its styles, so every
+// box re-renders when this settles. Reuses a matching <link> already in the
+// document (e.g. a page that preloads the stylesheet).
+let stylesReady = null;
 function linkStyles() {
-  if (stylesLinked || typeof document === "undefined") return;
-  stylesLinked = true;
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = new URL("./tool-crop-box.css", import.meta.url).href;
-  document.head.appendChild(link);
+  if (stylesReady) return stylesReady;
+  if (typeof document === "undefined") return (stylesReady = Promise.resolve());
+  const href = new URL("./tool-crop-box.css", import.meta.url).href;
+  let link = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find((l) => l.href === href);
+  if (link && link.sheet) return (stylesReady = Promise.resolve());
+  stylesReady = new Promise((resolve) => {
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = href;
+    }
+    link.addEventListener("load", () => resolve(), { once: true });
+    link.addEventListener("error", () => resolve(), { once: true });
+    if (!link.isConnected) document.head.appendChild(link);
+  });
+  return stylesReady;
 }
 
 // container: a positioned element that contains `img` (the box is absolutely
 // positioned inside it, offset to wherever the image is laid out).
 // onChange(rect) fires while dragging; onCommit(rect) once per drag, on release.
 export function createCropBox(container, img, { onChange = () => {}, onCommit = () => {} } = {}) {
-  linkStyles();
+  const styled = linkStyles();
   const box = document.createElement("div");
   box.className = "crop-overlay-rect";
   for (const h of ["tl", "tr", "bl", "br"]) {
@@ -132,6 +146,10 @@ export function createCropBox(container, img, { onChange = () => {}, onCommit = 
   box.addEventListener("pointerup", onPointerUp);
   box.addEventListener("pointercancel", onPointerUp);
   window.addEventListener("resize", render);
+  let destroyed = false;
+  styled.then(() => {
+    if (!destroyed) render();
+  });
 
   function getRect() {
     return rect ? { ...rect } : null;
@@ -149,6 +167,7 @@ export function createCropBox(container, img, { onChange = () => {}, onCommit = 
     // Re-layout after the image or its container changed size.
     refresh: render,
     destroy() {
+      destroyed = true;
       window.removeEventListener("resize", render);
       box.remove();
     },

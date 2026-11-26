@@ -165,10 +165,12 @@ impl ToolMeta {
         Ok(meta)
     }
 
-    /// Build the tool's page config: `window.GIZZA_TOOL` (consumed by `tool.js`)
-    /// and the `page` section of `tool.json` (consumed by any page that drives
-    /// the tool by spec — same object, one builder). Each field input carries
-    /// its label and serialized [`crate::control::Control`]. The
+    /// Build the tool page's inline config, `window.GIZZA_TOOL` (consumed by
+    /// `tool.js`). It deliberately omits each input's
+    /// [`crate::control::Control`]: the tool page's controls are already
+    /// rendered as HTML, and some (e.g. the ~400-entry timezone select) would
+    /// only bloat every page. [`Self::page_spec`] extends this with the
+    /// controls for `tool.json`. The
     /// tool's declared param `schema` is threaded in so each `source="field"`
     /// input carries its JSON-schema numeric-ness (`"numeric": true` for
     /// `integer`/`number` params) — `tool.js` coerces field values to `Number`
@@ -192,8 +194,6 @@ impl ToolMeta {
                     if schema.is_numeric(&i.name) {
                         obj["numeric"] = serde_json::json!(true);
                     }
-                    obj["control"] = serde_json::to_value(schema.control_for_input(i))
-                        .expect("serialize control");
                     if !i.labels.is_empty() {
                         obj["optionLabels"] = serde_json::json!(i.labels);
                     }
@@ -227,6 +227,23 @@ impl ToolMeta {
             "model": self.model,
             "waveform": waveform,
         })
+    }
+
+    /// Build the `page` section of `tool.json`, consumed by any page that
+    /// drives the tool by spec (e.g. an editor) with the shared runtime
+    /// (`/tools/_runtime/`): [`Self::client_config`] plus each field input's
+    /// serialized [`crate::control::Control`], so such a page can render the
+    /// tool's controls without the tool page's HTML.
+    pub fn page_spec(&self, schema: &crate::control::ParamSchema) -> serde_json::Value {
+        let mut page = self.client_config(schema);
+        let inputs = page["inputs"].as_array_mut().expect("client_config inputs array");
+        for (obj, input) in inputs.iter_mut().zip(&self.inputs) {
+            if input.source == "field" {
+                obj["control"] = serde_json::to_value(schema.control_for_input(input))
+                    .expect("serialize control");
+            }
+        }
+        page
     }
 }
 
@@ -339,6 +356,14 @@ source      = "field"
         assert_eq!(cfg["inputs"][0]["source"], "field");
         assert_eq!(cfg["output"]["label"], "Result");
         assert_eq!(cfg["format"], "number");
+        // The inline page config stays lean: controls are rendered as HTML.
+        assert!(cfg["inputs"][0].get("control").is_none(), "inline config carries no control");
+        // tool.json's `page` is the same config plus each field's control.
+        let page = m.page_spec(&crate::control::ParamSchema::empty());
+        assert_eq!(page["inputs"][0]["control"], serde_json::json!({ "kind": "text" }));
+        let mut without_control = page.clone();
+        without_control["inputs"][0].as_object_mut().unwrap().remove("control");
+        assert_eq!(without_control, cfg, "page_spec = client_config + controls");
     }
 
     #[test]

@@ -50,6 +50,22 @@ test("model runtime validates, runs and returns the blob", async () => {
   assert.equal(r.backend, "wasm");
 });
 
+test("model runtime aborted after validation never calls runModel", async () => {
+  const page = { runtime: "model", slug: "bg", model: { task: "t" }, inputs: [{ name: "image", source: "file" }] };
+  const controller = new AbortController();
+  let ran = false;
+  await assert.rejects(
+    runTool(page, null, file, {}, {
+      signal: controller.signal,
+      // A newer run supersedes this one while its input is being validated.
+      validateFile: async () => { controller.abort(); return null; },
+      runModel: async () => { ran = true; return {}; },
+    }),
+    { name: "AbortError" },
+  );
+  assert.equal(ran, false);
+});
+
 test("unknown runtime is rejected", async () => {
   await assert.rejects(runTool({ runtime: "wat", inputs: [] }, null, file, {}), /unsupported runtime "wat"/);
 });
