@@ -19,11 +19,17 @@ test("clampRect treats empty/non-numeric sizes as 'to the edge'", () => {
 // Minimal DOM stand-ins: just what createCropBox touches.
 function fakeElement(tag) {
   const listeners = {};
-  return {
+  const el = {
     tag,
     dataset: {},
     style: {},
     children: [],
+    classes: new Set(),
+    classList: {
+      add(c) { this.owner.classes.add(c); },
+      remove(c) { this.owner.classes.delete(c); },
+      contains(c) { return this.owner.classes.has(c); },
+    },
     isConnected: false,
     appendChild(child) { this.children.push(child); child.isConnected = true; return child; },
     addEventListener(type, fn) { (listeners[type] ||= []).push(fn); },
@@ -31,6 +37,8 @@ function fakeElement(tag) {
     remove() { this.isConnected = false; },
     fire(type) { for (const fn of listeners[type] || []) fn({ type }); },
   };
+  el.classList.owner = el;
+  return el;
 }
 
 test("the box re-renders once its stylesheet loads", async () => {
@@ -48,6 +56,7 @@ test("the box re-renders once its stylesheet loads", async () => {
     crop.setRect({ x: 10, y: 5, width: 80, height: 40 });
     const box = container.children[0];
     assert.equal(box.style.left, "20px");
+    assert.ok(container.classList.contains("crop-box-host"), "the container clips the shade");
 
     // Unstyled layout differs; once the CSS applies, the image moves and the
     // box must follow without any other trigger.
@@ -60,6 +69,8 @@ test("the box re-renders once its stylesheet loads", async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     assert.equal(box.style.left, "27px");
     assert.equal(box.style.top, "13px");
+    crop.destroy();
+    assert.ok(!container.classList.contains("crop-box-host"), "destroy hands the container back");
 
     // A second box reuses the same link and still renders once styles are ready.
     const container2 = fakeElement("div");

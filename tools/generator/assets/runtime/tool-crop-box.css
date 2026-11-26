@@ -1,5 +1,11 @@
-/* Shared crop rectangle (tool-crop-box.js). The container that holds the image
-   must be position: relative. */
+/* Shared crop rectangle (tool-crop-box.js). createCropBox makes the container
+   that holds the image its host: the box is positioned against it, and the
+   host clips the box's shade so it dims the image area, not the whole page. */
+.crop-box-host {
+  position: relative;
+  overflow: hidden;
+}
+
 .crop-overlay-rect {
   position: absolute;
   border: 2px dashed #4f46e5;

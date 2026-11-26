@@ -49,8 +49,10 @@ function linkStyles() {
   return stylesReady;
 }
 
-// container: a positioned element that contains `img` (the box is absolutely
-// positioned inside it, offset to wherever the image is laid out).
+// container: the element that contains `img`. It becomes the box's host
+// (`crop-box-host`: positioned, and clipping the box's page-dimming shade);
+// the box is absolutely positioned inside it, offset to wherever the image is
+// laid out.
 // onChange(rect) fires while dragging; onCommit(rect) once per drag, on release.
 export function createCropBox(container, img, { onChange = () => {}, onCommit = () => {} } = {}) {
   const styled = linkStyles();
@@ -62,6 +64,7 @@ export function createCropBox(container, img, { onChange = () => {}, onCommit = 
     handle.dataset.handle = h;
     box.appendChild(handle);
   }
+  container.classList.add("crop-box-host");
   container.appendChild(box);
 
   let rect = null; // natural px
@@ -170,6 +173,7 @@ export function createCropBox(container, img, { onChange = () => {}, onCommit = 
       destroyed = true;
       window.removeEventListener("resize", render);
       box.remove();
+      container.classList.remove("crop-box-host");
     },
   };
 }
