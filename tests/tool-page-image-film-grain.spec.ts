@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import { ALPHA_SQUARE, alphaReport } from './alpha-square';
 
 // The generated /tools/image-film-grain/ page overlays analog film grain on an
 // uploaded image in-browser via ffmpeg's `noise` filter (single-threaded
@@ -120,3 +121,20 @@ test('image-film-grain format=jpg converts the output to JPEG', async ({ page })
   expect(s.w).toBe(64);
   expect(s.lumaSpread).toBeGreaterThan(5); // grain survived the JPEG encode
 });
+
+// Grain is a color effect: monochrome grain used to round through opaque
+// yuv444p (dropping alpha), and colored grain used `alls`, which also
+// speckled the alpha plane.
+for (const mono of [true, false]) {
+  test(`image-film-grain keeps a transparent PNG's alpha mask exactly (monochrome=${mono})`, async ({ page }) => {
+    await page.goto('/tools/image-film-grain/');
+    await page.fill('#in-amount', '60');
+    if (!mono) await page.uncheck('#in-monochrome');
+    await page.setInputFiles('#in-image', ALPHA_SQUARE);
+    const src = await outputSrc(page);
+    expect(src).toMatch(/^data:image\/png/);
+    const r = await alphaReport(page, src);
+    expect(r.corner[3]).toBe(0);
+    expect(r.mismatches).toBe(0);
+  });
+}
