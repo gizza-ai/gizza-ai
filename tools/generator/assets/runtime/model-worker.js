@@ -13,6 +13,7 @@ import {
   pipeline,
   RawImage,
 } from "./transformers.min.js";
+import { downloadTracker } from "./model-download-progress.js";
 
 env.backends.onnx.wasm.wasmPaths = new URL("./", import.meta.url).href;
 env.backends.onnx.wasm.proxy = false;
@@ -171,6 +172,7 @@ async function runTask(pipe, task, file) {
 //           progress { stage: "generate", count, total } per image token,
 //           then { type: "result", id, blob, filename, backend } |
 //           { type: "cancelled", id } | { type: "error", id, error }.
+//           Cancel during the model download replies "cancelled" at once.
 
 // Per-module dtypes and devices from Hugging Face's janus-pro-webgpu reference:
 // half precision where the GPU supports shader-f16, full precision otherwise.
@@ -205,56 +207,42 @@ const JANUS_DEVICES = {
 
 const WEBGPU_REQUIRED = "Image generation needs WebGPU, which this browser or device doesn't provide.";
 
-// Overall download fraction across every weight file, from Transformers.js'
-// per-file progress events.
-function downloadTracker(onFraction) {
-  const files = new Map();
-  return (event) => {
-    if (!event || !event.file) return;
-    if (event.status === "progress" && Number.isFinite(event.total) && event.total > 0) {
-      files.set(event.file, { loaded: event.loaded, total: event.total });
-    } else if (event.status === "done" && files.has(event.file)) {
-      const f = files.get(event.file);
-      files.set(event.file, { loaded: f.total, total: f.total });
-    } else {
-      return;
-    }
-    let loaded = 0;
-    let total = 0;
-    for (const f of files.values()) {
-      loaded += f.loaded;
-      total += f.total;
-    }
-    if (total > 0) onFraction(loaded / total, loaded, total);
-  };
-}
+// One Janus load per worker, shared by every generation that waits on it. A
+// cancelled generation stops waiting but the load keeps going, so the next
+// Generate reuses the weights already downloaded. Download progress goes to
+// every generation currently waiting on the load.
+let janus = null; // { key, promise, waiters: Set<generation id> }
 
-let janus = null; // { key, promise }
-
-async function loadJanus(id, model) {
+function loadJanus(model) {
   const key = `${model.id}@${model.revision}`;
-  if (janus && janus.key === key) return janus.promise;
-  const gpu = self.navigator && self.navigator.gpu;
-  const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
-  if (!adapter) throw new Error(WEBGPU_REQUIRED);
-  const precision = adapter.features && adapter.features.has("shader-f16") ? "f16" : "f32";
+  if (janus && janus.key === key) return janus;
+  const waiters = new Set();
   const progress_callback = downloadTracker((fraction, loaded, total) => {
-    postMessage({ type: "progress", id, progress: { stage: "download", progress: fraction, loaded, total } });
+    for (const id of waiters) {
+      postMessage({ type: "progress", id, progress: { stage: "download", progress: fraction, loaded, total } });
+    }
   });
-  const promise = Promise.all([
-    AutoProcessor.from_pretrained(model.id, { revision: model.revision, progress_callback }),
-    MultiModalityCausalLM.from_pretrained(model.id, {
-      revision: model.revision,
-      dtype: JANUS_DTYPES[precision],
-      device: JANUS_DEVICES,
-      progress_callback,
-    }),
-  ]);
-  janus = { key, promise };
+  const promise = (async () => {
+    const gpu = self.navigator && self.navigator.gpu;
+    const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
+    if (!adapter) throw new Error(WEBGPU_REQUIRED);
+    const precision = adapter.features && adapter.features.has("shader-f16") ? "f16" : "f32";
+    return Promise.all([
+      AutoProcessor.from_pretrained(model.id, { revision: model.revision, progress_callback }),
+      MultiModalityCausalLM.from_pretrained(model.id, {
+        revision: model.revision,
+        dtype: JANUS_DTYPES[precision],
+        device: JANUS_DEVICES,
+        progress_callback,
+      }),
+    ]);
+  })();
+  const load = { key, promise, waiters };
+  janus = load;
   promise.catch(() => {
-    if (janus && janus.key === key) janus = null;
+    if (janus === load) janus = null;
   });
-  return promise;
+  return load;
 }
 
 // Counts generated image tokens (the first put() is the prompt).
@@ -276,12 +264,37 @@ class TokenProgress extends BaseStreamer {
   end() {}
 }
 
-const generations = new Map(); // id → InterruptableStoppingCriteria
+const CANCELLED = Symbol("cancelled");
+// id → { stopping: InterruptableStoppingCriteria, cancelled: Promise, cancel() }
+const generations = new Map();
+
+function startGeneration(id) {
+  let cancel;
+  const cancelled = new Promise((resolve) => {
+    cancel = () => resolve(CANCELLED);
+  });
+  const generation = { stopping: new InterruptableStoppingCriteria(), cancelled, cancel };
+  generations.set(id, generation);
+  return generation;
+}
+
+// Waits for the shared model load, or for this generation's cancel —
+// whichever comes first. Returns CANCELLED on cancel; the load itself is not
+// aborted and stays cached for the next generation.
+async function awaitJanus(id, model, generation) {
+  const load = loadJanus(model);
+  load.waiters.add(id);
+  try {
+    return await Promise.race([load.promise, generation.cancelled]);
+  } finally {
+    load.waiters.delete(id);
+  }
+}
 
 async function generateImage(request) {
   const { id, model, prompt } = request;
-  const stopping = new InterruptableStoppingCriteria();
-  generations.set(id, stopping);
+  const generation = startGeneration(id);
+  const { stopping } = generation;
   try {
     if (!model || model.task !== "text-to-image") {
       throw new Error(`Unsupported browser model task: ${model && model.task}`);
@@ -289,11 +302,12 @@ async function generateImage(request) {
     const text = String(prompt || "").trim();
     if (!text) throw new Error("Describe the image you want first.");
     postMessage({ type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
-    const [processor, janusModel] = await loadJanus(id, model);
-    if (stopping.interrupted) {
+    const loaded = await awaitJanus(id, model, generation);
+    if (loaded === CANCELLED || stopping.interrupted) {
       postMessage({ type: "cancelled", id });
       return;
     }
+    const [processor, janusModel] = loaded;
     const inputs = await processor([{ role: "<|User|>", content: text }], { chat_template: "text_to_image" });
     const total = processor.num_image_tokens;
     const streamer = new TokenProgress(total, (count) => {
@@ -334,8 +348,14 @@ self.addEventListener("message", (event) => {
   const request = event.data || {};
   if (request.type === "generate") generateImage(request);
   else if (request.type === "cancel") {
-    const stopping = generations.get(request.id);
-    if (stopping) stopping.interrupt();
+    // While the model loads, cancel answers at once (awaitJanus stops
+    // waiting); while generating, the stopping criteria end the run at the
+    // next image token.
+    const generation = generations.get(request.id);
+    if (generation) {
+      generation.stopping.interrupt();
+      generation.cancel();
+    }
   }
 });
 

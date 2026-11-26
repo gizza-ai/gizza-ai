@@ -106,12 +106,27 @@ export class ModelWorkerClient {
     this.worker = workerFactory();
     this.nextId = 1;
     this.pending = new Map();
+    // A stopped client (worker crashed or disposed) never runs again; the
+    // shared accessor below replaces it with a fresh worker.
+    this.stopped = false;
     this.worker.addEventListener("message", (event) => this.onMessage(event.data));
     this.worker.addEventListener("error", (event) => {
-      const message = event && event.message ? event.message : "AI worker failed.";
-      for (const { reject } of this.pending.values()) reject(new Error(message));
-      this.pending.clear();
+      this.stop(event && event.message ? event.message : "AI worker failed.");
     });
+  }
+
+  // Terminate the worker and fail every pending call, detaching their abort
+  // listeners so a later abort cannot post to the dead worker.
+  stop(message) {
+    if (this.stopped) return;
+    this.stopped = true;
+    this.worker.terminate();
+    const pending = [...this.pending.values()];
+    this.pending.clear();
+    for (const { reject, cleanup } of pending) {
+      if (cleanup) cleanup();
+      reject(new Error(message));
+    }
   }
 
   onMessage(message) {
@@ -137,7 +152,10 @@ export class ModelWorkerClient {
     return new Promise((resolve, reject) => {
       const onAbort = () => this.worker.postMessage({ type: "cancel", id });
       const cleanup = signal ? () => signal.removeEventListener("abort", onAbort) : null;
-      this.pending.set(id, { resolve, reject, onProgress, cleanup });
+      // A result the worker posted before it saw the cancel still counts as
+      // cancelled: the caller has already moved on.
+      const settle = (message) => (signal && signal.aborted ? reject(abortError()) : resolve(message));
+      this.pending.set(id, { resolve: settle, reject, onProgress, cleanup });
       if (signal) signal.addEventListener("abort", onAbort, { once: true });
       this.worker.postMessage({ type: "generate", id, model, prompt });
     });
@@ -158,9 +176,7 @@ export class ModelWorkerClient {
   }
 
   dispose() {
-    this.worker.terminate();
-    for (const { reject } of this.pending.values()) reject(new Error("AI worker stopped."));
-    this.pending.clear();
+    this.stop("AI worker stopped.");
   }
 }
 
@@ -171,7 +187,7 @@ function abortError() {
 let sharedClient = null;
 
 function client() {
-  if (!sharedClient) sharedClient = new ModelWorkerClient();
+  if (!sharedClient || sharedClient.stopped) sharedClient = new ModelWorkerClient();
   return sharedClient;
 }
 
