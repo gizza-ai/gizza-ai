@@ -669,13 +669,17 @@ async function main() {
     return;
   }
 
-  let mod;
-  try {
-    mod = await import(cfg.module);
-    await mod.default(); // wasm-pack --target web init
-  } catch (e) {
-    showError("Failed to load tool.");
-    return;
+  // wasm-image tools run their module inside wasm-image-worker.js; every
+  // other runtime calls it on the page.
+  let mod = null;
+  if (cfg.runtime !== "wasm-image") {
+    try {
+      mod = await import(cfg.module);
+      await mod.default(); // wasm-pack --target web init
+    } catch (e) {
+      showError("Failed to load tool.");
+      return;
+    }
   }
   if (cfg.custom) {
     try {
@@ -700,8 +704,11 @@ async function main() {
       formatNumber,
     },
   };
-  if (cfg.runtime === "ffmpeg") {
-    const { ffmpegExecBytes } = await import("./ffmpeg.js");
+  // File in → media out: ffmpeg tools (argv planned by the web module, run by
+  // ffmpeg.wasm) and wasm-image tools (bytes → bytes in a worker) share this UI.
+  if (cfg.runtime === "ffmpeg" || cfg.runtime === "wasm-image") {
+    const execBytes =
+      cfg.runtime === "ffmpeg" ? (await import("./ffmpeg.js")).ffmpegExecBytes : undefined;
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
     // Image-output pages only (the generator gates #tool-copy-image on
@@ -840,7 +847,7 @@ async function main() {
       );
       let r;
       try {
-        r = await runTool(cfg, mod, file, values, { execBytes: ffmpegExecBytes });
+        r = await runTool(cfg, mod, file, values, { execBytes });
       } catch (e) {
         if (seq !== runSeq) return;
         clearOutputUrl();
