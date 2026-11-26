@@ -588,14 +588,28 @@ async function setupPromptModel() {
     button.classList.toggle("is-running", running);
   };
 
+  // Abort reason for a generation Reset cleared: Reset has already blanked
+  // the output, so the cancellation is not reported.
+  const RESET = Symbol("reset");
+
   async function generate() {
     if (controller) {
+      // The worker answers at once while the model downloads, and at the
+      // next image token while generating; the catch below restores the UI.
       controller.abort();
+      out.textContent = "Cancelling…";
       return;
     }
     controller = new AbortController();
     const { signal } = controller;
     setRunning(true);
+    // The previous image must not sit beside a new run's progress (or
+    // outlive it if this one fails or is cancelled).
+    media.hidden = true;
+    dl.hidden = true;
+    if (copyImage) copyImage.hidden = true;
+    if (outputUrl) URL.revokeObjectURL(outputUrl);
+    outputUrl = null;
     out.classList.remove("error");
     out.textContent = "Loading AI model…";
     try {
@@ -620,7 +634,7 @@ async function setupPromptModel() {
     } catch (error) {
       if (error && error.name === "AbortError") {
         out.classList.remove("error");
-        out.textContent = "Cancelled.";
+        out.textContent = signal.reason === RESET ? "" : "Cancelled.";
       } else {
         showError((error && error.message) || "Image generation failed.");
       }
@@ -639,6 +653,14 @@ async function setupPromptModel() {
   wireColors();
   // Example chips and Reset only fill fields here; Generate is explicit.
   wireWidgetChrome(() => {});
+  // Reset also stops an in-flight generation so its image never reappears
+  // over the cleared page.
+  const reset = document.getElementById("tool-reset");
+  if (reset) {
+    reset.addEventListener("click", () => {
+      if (controller) controller.abort(RESET);
+    });
+  }
   button.addEventListener("click", generate);
   // Ctrl/Cmd+Enter in the prompt generates, as in a chat box.
   const prompt = document.getElementById(fieldInputs.find((i) => i.name === "prompt").elementId);
