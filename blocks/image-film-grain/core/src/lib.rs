@@ -6,23 +6,31 @@
 //! per-component strength (`c0s`…`c2s`, also 0–100), plus a `monochrome` toggle:
 //!
 //! - **monochrome** (default) — grain is applied to the LUMA plane only
-//!   (`format=yuva444p|yuv444p,noise=c0s=<n>:c0f=u`), so the chroma is untouched
-//!   and the grain reads as neutral gray brightness speckle — the classic B&W
-//!   film look that stays natural over color photos.
-//! - **color** — grain is applied to the three color channels
-//!   (`noise=c0s=<n>:c0f=u:c1s=…:c2s=…`), producing colored speckle (RGB
-//!   channels drift independently), the look of pushed high-ISO color film.
+//!   (`format=yuva444p,noise=c0s=<n>:c0f=u`), so the chroma is untouched and
+//!   the grain reads as neutral gray brightness speckle — the classic B&W film
+//!   look that stays natural over color photos.
+//! - **color** — grain is applied to the three RGB channels
+//!   (`format=gbrap,noise=c0s=<n>:c0f=u:c1s=…:c2s=…`), producing colored
+//!   speckle (the channels drift independently), the look of pushed high-ISO
+//!   color film.
 //!
-//! Grain never touches the alpha channel: a transparent PNG/WebP keeps its
-//! exact transparency. Monochrome offers ffmpeg a format LIST and negotiation
-//! picks `yuva444p` for an input with alpha and `yuv444p` for an opaque one;
-//! color grain names the color components explicitly because `alls` would also
-//! noise component 3 (alpha) of an RGBA input.
+//! Grain never touches the alpha channel: a transparent PNG/WebP/GIF keeps its
+//! exact transparency. Both modes FORCE an alpha-carrying format instead of
+//! offering ffmpeg a `yuva444p|yuv444p` list, because negotiation does not
+//! count an indexed PNG's palette transparency (`pal8` + tRNS) as alpha and
+//! would pick the opaque entry (an opaque input simply gets an opaque alpha
+//! plane). Color grain names the color components explicitly because `alls`
+//! would also noise component 3 (alpha). The output container then decides
+//! what happens to the alpha
+//! ([`gizza_ai_block_utils::ffmpeg::finish_image_alpha`]): kept for PNG/WebP,
+//! a transparent palette for GIF, and a flatten onto white for JPEG.
 //!
 //! The `u` flag makes the noise uniformly distributed and the default fixed
 //! seed keeps every surface (chat, CLI, page) deterministic for the same input.
 //! `format` (`keep|png|jpg|webp`) optionally converts the output like the other
 //! image filters. Every filter string is a single argv token (no spaces).
+
+use gizza_ai_block_utils::ffmpeg::finish_image_alpha;
 
 /// The canonical output-format names, in display order. Used for the schema
 /// enum and the page `<select>`. KEEP IN SYNC with `parse_format`.
@@ -90,11 +98,12 @@ pub fn strength_for_amount(amount: f64) -> Result<u32, String> {
     Ok(amount.round() as u32)
 }
 
-/// The ffmpeg `-vf` filter string that overlays film grain. Single argv token.
+/// The ffmpeg filter that overlays film grain, on a frame that carries alpha.
+/// Single argv token; [`plan`] finishes it for the output container.
 ///
-/// Monochrome grain rounds through `yuva444p` (alpha input) or `yuv444p`
-/// (opaque input) and noises only the luma plane (`c0s`), leaving chroma flat —
-/// neutral gray speckle. Color grain noises the three color components
+/// Monochrome grain rounds through `yuva444p` and noises only the luma plane
+/// (`c0s`), leaving chroma flat — neutral gray speckle. Color grain runs in
+/// planar RGB + alpha (`gbrap`) and noises the three color components
 /// (`c0s`/`c1s`/`c2s`), so the RGB channels drift independently. Neither path
 /// touches component 3, so alpha passes through unchanged (`alls` would noise
 /// it too). The `u` flag = uniform distribution; the filter's fixed default
@@ -102,9 +111,9 @@ pub fn strength_for_amount(amount: f64) -> Result<u32, String> {
 pub fn filter(amount: f64, monochrome: bool) -> Result<String, String> {
     let n = strength_for_amount(amount)?;
     Ok(if monochrome {
-        format!("format=yuva444p|yuv444p,noise=c0s={n}:c0f=u")
+        format!("format=yuva444p,noise=c0s={n}:c0f=u")
     } else {
-        format!("noise=c0s={n}:c0f=u:c1s={n}:c1f=u:c2s={n}:c2f=u")
+        format!("format=gbrap,noise=c0s={n}:c0f=u:c1s={n}:c1f=u:c2s={n}:c2f=u")
     })
 }
 
@@ -127,7 +136,7 @@ pub fn plan(
     monochrome: bool,
     format: OutFormat,
 ) -> Result<(Vec<String>, String), String> {
-    let vf = filter(amount, monochrome)?;
+    let grain = filter(amount, monochrome)?;
     let in_ext = in_name
         .rsplit('.')
         .next()
@@ -139,7 +148,7 @@ pub fn plan(
         "-i".to_string(),
         in_name.to_string(),
         "-vf".to_string(),
-        vf,
+        finish_image_alpha(&grain, ext),
     ];
     if ext.eq_ignore_ascii_case("jpg") || ext.eq_ignore_ascii_case("jpeg") {
         // mjpeg's default quality is visibly lossy; pin a high-quality encode so
@@ -173,6 +182,9 @@ pub fn plan_named(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use gizza_ai_block_utils::ffmpeg::{FLATTEN_ON_WHITE, GIF_ALPHA_PALETTE};
+
+    const MONO_20: &str = "format=yuva444p,noise=c0s=20:c0f=u";
 
     #[test]
     fn strength_maps_amount_to_integer_noise() {
@@ -195,27 +207,28 @@ mod tests {
 
     #[test]
     fn monochrome_filter_noises_luma_only() {
-        // Luma-only path rounds through yuv(a)444p and uses c0s (component 0 = Y).
-        // The yuva444p option keeps an input's alpha plane instead of dropping it.
+        // Luma-only path rounds through yuva444p and uses c0s (component 0 = Y).
         let f = filter(20.0, true).unwrap();
-        assert_eq!(f, "format=yuva444p|yuv444p,noise=c0s=20:c0f=u");
+        assert_eq!(f, MONO_20);
         assert!(!f.contains("alls"), "monochrome must not noise all channels: {f}");
     }
 
     #[test]
     fn color_filter_noises_all_channels() {
         let f = filter(30.0, false).unwrap();
-        assert_eq!(f, "noise=c0s=30:c0f=u:c1s=30:c1f=u:c2s=30:c2f=u");
+        assert_eq!(f, "format=gbrap,noise=c0s=30:c0f=u:c1s=30:c1f=u:c2s=30:c2f=u");
     }
 
     #[test]
     fn no_grain_mode_touches_alpha() {
-        // Component 3 is alpha for an RGBA/YUVA input: `alls` or `c3s` would
-        // speckle the transparency, and a bare yuv444p would drop it.
+        // Component 3 is alpha: `alls` or `c3s` would speckle the
+        // transparency. The alpha format is FORCED — a `yuva444p|yuv444p` list
+        // negotiates to the opaque entry for a palette PNG with tRNS (pal8).
         for mono in [true, false] {
             let f = filter(50.0, mono).unwrap();
             assert!(!f.contains("alls") && !f.contains("c3s"), "{f}");
-            assert!(!f.contains("format=yuv444p,"), "{f}");
+            assert!(f.starts_with("format=yuva444p,") || f.starts_with("format=gbrap,"), "{f}");
+            assert!(!f.contains('|'), "{f}");
         }
     }
 
@@ -274,7 +287,7 @@ mod tests {
         assert_eq!(&argv[0], "-i");
         assert_eq!(&argv[1], "photo.png");
         assert_eq!(&argv[2], "-vf");
-        assert_eq!(&argv[3], "format=yuva444p|yuv444p,noise=c0s=20:c0f=u");
+        assert_eq!(&argv[3], MONO_20);
         assert_eq!(argv.last().unwrap(), "out.png");
         // png keep: no jpg quality flag, no frame cap.
         assert!(!argv.contains(&"-q:v".to_string()));
@@ -285,7 +298,11 @@ mod tests {
     fn plan_keeps_jpg_quality_and_extension() {
         let (argv, out) = plan("photo.jpg", 40.0, false, OutFormat::Keep).unwrap();
         assert_eq!(out, "out.jpg");
-        assert_eq!(&argv[3], "noise=c0s=40:c0f=u:c1s=40:c1f=u:c2s=40:c2f=u");
+        // JPEG has no alpha: the grained image is flattened onto white.
+        assert_eq!(
+            argv[3],
+            format!("format=gbrap,noise=c0s=40:c0f=u:c1s=40:c1f=u:c2s=40:c2f=u,{FLATTEN_ON_WHITE}")
+        );
         // Keeping a jpg still pins the high-quality re-encode…
         assert!(argv.windows(2).any(|w| w == ["-q:v", "2"]), "{argv:?}");
         // …but no -frames cap: keep never drops animation.
@@ -298,12 +315,23 @@ mod tests {
         assert_eq!(out, "out.jpg");
         assert!(argv.windows(2).any(|w| w == ["-q:v", "2"]), "{argv:?}");
         assert!(argv.windows(2).any(|w| w == ["-frames:v", "1"]), "{argv:?}");
+        assert_eq!(argv[3], format!("{MONO_20},{FLATTEN_ON_WHITE}"));
         let (argv, out) = plan("anim.gif", 20.0, true, OutFormat::Png).unwrap();
         assert_eq!(out, "out.png");
         assert!(argv.windows(2).any(|w| w == ["-frames:v", "1"]), "{argv:?}");
         let (argv, out) = plan("in.jpg", 20.0, true, OutFormat::Webp).unwrap();
         assert_eq!(out, "out.webp");
         assert!(!argv.contains(&"-q:v".to_string()), "webp keeps encoder defaults: {argv:?}");
+    }
+
+    #[test]
+    fn plan_keeps_gif_transparency_with_a_palette() {
+        // A kept GIF stays animated and maps alpha to a transparent palette
+        // entry (ffmpeg's default bgr8 GIF path drops transparency).
+        let (argv, out) = plan("anim.gif", 20.0, true, OutFormat::Keep).unwrap();
+        assert_eq!(out, "out.gif");
+        assert_eq!(argv[3], format!("{MONO_20},{GIF_ALPHA_PALETTE}"));
+        assert!(!argv.contains(&"-frames:v".to_string()), "{argv:?}");
     }
 
     #[test]
@@ -316,14 +344,14 @@ mod tests {
     fn plan_named_parses_and_plans() {
         let (argv, out) = plan_named("in.webp", 20.0, Some("false"), None).unwrap();
         assert_eq!(out, "out.webp");
-        assert!(argv.iter().any(|a| a == "noise=c0s=20:c0f=u:c1s=20:c1f=u:c2s=20:c2f=u"));
+        assert!(argv.iter().any(|a| a == "format=gbrap,noise=c0s=20:c0f=u:c1s=20:c1f=u:c2s=20:c2f=u"));
         // Default monochrome (None) uses the luma-only path.
         let (argv, _) = plan_named("in.png", 20.0, None, None).unwrap();
-        assert!(argv.iter().any(|a| a == "format=yuva444p|yuv444p,noise=c0s=20:c0f=u"));
+        assert!(argv.iter().any(|a| a == MONO_20));
         // Page-style call: every field as text, converting to jpg.
         let (argv, out) = plan_named("photo.jpeg", 60.0, Some("true"), Some("jpg")).unwrap();
         assert_eq!(out, "out.jpg");
-        assert!(argv.iter().any(|a| a == "format=yuva444p|yuv444p,noise=c0s=60:c0f=u"));
+        assert!(argv.iter().any(|a| a == &format!("format=yuva444p,noise=c0s=60:c0f=u,{FLATTEN_ON_WHITE}")));
         // Bad values are rejected.
         assert!(plan_named("in.png", 20.0, Some("maybe"), None).is_err());
         assert!(plan_named("in.png", 20.0, None, Some("tiff")).is_err());

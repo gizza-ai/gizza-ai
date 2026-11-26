@@ -49,8 +49,10 @@ apart per pixel, so the speckle picks up color.
   a separate luma/chroma balance aren't adjustable — ffmpeg's `noise` filter
   works at single-pixel resolution.
 - Transparency is preserved: grain only touches the color channels, so a
-  transparent PNG or WebP keeps its exact alpha. JPEG has no alpha channel, so
-  a JPEG output is always opaque.
+  transparent PNG (including palette PNGs), WebP or GIF keeps its exact alpha.
+  The output always carries an alpha channel, so an opaque PNG comes back as a
+  (fully opaque) RGBA PNG. JPEG has no alpha channel: a transparent image
+  converted to `jpg` is flattened onto white.
 
 ## FAQ
 
