@@ -18,11 +18,18 @@
 //!   to the plain filter (verified in tests against measured pixels), so black
 //!   keeps the cheap single-filter path.
 //! - **Transparency**: ffmpeg's `vignette` filter only accepts opaque pixel
-//!   formats, so for an alpha-capable output (png/webp) the alpha plane is
-//!   split off before the vignette and merged back after it
-//!   (`alphaextract` → `alphamerge`) — a transparent PNG keeps its exact
-//!   alpha, and only the visible pixels are vignetted. JPEG output has no
-//!   alpha, so it keeps the plain chain.
+//!   formats, so the alpha plane is split off before the vignette and merged
+//!   back after it (`alphaextract` → `alphamerge`) — a transparent image keeps
+//!   its exact alpha, and only the visible pixels are vignetted. This wrap is
+//!   unconditional, even for an opaque input: ffmpeg cannot detect alpha
+//!   reliably within the graph (a palette PNG with tRNS decodes as `pal8`,
+//!   which format negotiation treats as opaque), so a format-list shortcut
+//!   would flatten exactly those images. The cost is one extra plane per frame
+//!   and an opaque PNG coming back as a fully opaque RGBA PNG. The output
+//!   container then decides what happens to the alpha
+//!   ([`gizza_ai_block_utils::ffmpeg::finish_image_alpha`]): kept for
+//!   PNG/WebP, a transparent palette for GIF, and a flatten onto white for
+//!   JPEG (transparent areas come out white, not the hidden stored color).
 //! - **Output format** (`keep|png|jpg|webp`): `keep` preserves the input
 //!   container; the rest convert. Explicit conversions are still images, so
 //!   they take only the first frame of an animated input; jpg output pins
@@ -32,6 +39,7 @@
 //! identical output; every filter string is a single token (no spaces) so it
 //! passes cleanly as one argv element.
 
+use gizza_ai_block_utils::ffmpeg::finish_image_alpha;
 use std::f64::consts::FRAC_PI_2;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -252,12 +260,6 @@ pub fn filter(
     ))
 }
 
-/// Whether an output extension can carry an alpha channel (and so needs the
-/// vignette chain wrapped by [`keep_alpha`]).
-pub fn ext_keeps_alpha(ext: &str) -> bool {
-    ext.eq_ignore_ascii_case("png") || ext.eq_ignore_ascii_case("webp")
-}
-
 /// Wrap a single-input/single-output filter chain so the input's alpha plane
 /// survives it. The vignette (and the colored masked-merge chain) only work in
 /// opaque formats and would silently drop alpha, so the frame is promoted to
@@ -301,7 +303,7 @@ pub fn plan(
         .unwrap_or("png");
     let ext = out_ext(format, in_ext);
     let out_name = format!("out.{ext}");
-    let vf = if ext_keeps_alpha(ext) { keep_alpha(&vf) } else { vf };
+    let vf = finish_image_alpha(&keep_alpha(&vf), ext);
     let mut argv = vec![
         "-i".to_string(),
         in_name.to_string(),
@@ -343,6 +345,7 @@ pub fn plan_named(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use gizza_ai_block_utils::ffmpeg::{FLATTEN_ON_WHITE, GIF_ALPHA_PALETTE};
     use std::f64::consts::PI;
 
     const BLACK: Rgb = (0, 0, 0);
@@ -549,7 +552,14 @@ mod tests {
         assert_eq!(&argv[0], "-i");
         assert_eq!(&argv[1], "photo.jpg");
         assert_eq!(&argv[2], "-vf");
-        assert_eq!(&argv[3], "vignette=angle=1.256637:x0=w*0.5000:y0=h*0.5000:mode=forward");
+        // JPEG has no alpha: the alpha-kept vignette is flattened onto white.
+        assert_eq!(
+            argv[3],
+            format!(
+                "{},{FLATTEN_ON_WHITE}",
+                keep_alpha("vignette=angle=1.256637:x0=w*0.5000:y0=h*0.5000:mode=forward")
+            )
+        );
         // Keeping a jpg still pins the high-quality re-encode…
         assert_eq!(&argv[4..6], &["-q:v".to_string(), "2".to_string()][..]);
         // …but no -frames cap: keep never drops animation.
@@ -558,20 +568,26 @@ mod tests {
     }
 
     #[test]
-    fn alpha_capable_outputs_wrap_the_chain_to_keep_transparency() {
+    fn every_output_wraps_the_chain_to_keep_transparency() {
+        // Unconditional: ffmpeg can't tell a palette PNG with tRNS (pal8) has
+        // alpha, so only an always-on wrap keeps its transparency.
         let plain = filter(40.0, Mode::Darken, 50.0, 50.0, BLACK).unwrap();
-        for (input, format) in [
-            ("in.png", OutFormat::Keep),
-            ("in.webp", OutFormat::Keep),
-            ("in.jpg", OutFormat::Png),
-            ("in.png", OutFormat::Webp),
+        for (input, format, tail) in [
+            ("in.png", OutFormat::Keep, String::new()),
+            ("in.webp", OutFormat::Keep, String::new()),
+            ("in.jpg", OutFormat::Png, String::new()),
+            ("in.png", OutFormat::Webp, String::new()),
+            // JPEG has no alpha: flattened onto white, not the hidden color.
+            ("in.jpg", OutFormat::Keep, format!(",{FLATTEN_ON_WHITE}")),
+            ("in.png", OutFormat::Jpg, format!(",{FLATTEN_ON_WHITE}")),
+            // GIF: alpha becomes a transparent palette entry (and stays animated).
+            ("anim.gif", OutFormat::Keep, format!(",{GIF_ALPHA_PALETTE}")),
         ] {
             let (argv, _) =
                 plan(input, 40.0, Mode::Darken, 50.0, 50.0, BLACK, format).unwrap();
-            assert_eq!(argv[3], keep_alpha(&plain), "{input} {format:?}");
+            assert_eq!(argv[3], format!("{}{tail}", keep_alpha(&plain)), "{input} {format:?}");
             assert!(argv[3].starts_with("format=gbrap,split=2[vin][val];"), "{argv:?}");
-            assert!(argv[3].ends_with("[vout][valpha]alphamerge"), "{argv:?}");
-            assert!(!argv[3].contains(' '), "single argv token: {argv:?}");
+            assert!(!argv[3].contains(char::is_whitespace), "single argv token: {argv:?}");
         }
         // The colored masked-merge chain is wrapped the same way.
         let tinted = filter(70.0, Mode::Darken, 50.0, 50.0, (112, 66, 20)).unwrap();
@@ -579,12 +595,7 @@ mod tests {
             plan("in.png", 70.0, Mode::Darken, 50.0, 50.0, (112, 66, 20), OutFormat::Keep)
                 .unwrap();
         assert_eq!(argv[3], keep_alpha(&tinted));
-        // JPEG can't carry alpha: plain chain, no wasted alpha round trip.
-        for (input, format) in [("in.jpg", OutFormat::Keep), ("in.png", OutFormat::Jpg)] {
-            let (argv, _) =
-                plan(input, 40.0, Mode::Darken, 50.0, 50.0, BLACK, format).unwrap();
-            assert_eq!(argv[3], plain, "{input} {format:?}");
-        }
+        assert!(argv[3].ends_with("[vout][valpha]alphamerge"), "{argv:?}");
     }
 
     #[test]
