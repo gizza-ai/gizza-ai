@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -13,7 +13,7 @@ import fs from 'node:fs';
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.mp3'); // 3.03 s tone
 
 /// { duration, rms of [start, end] } of one channel; `source` is a base64
-/// string of the file bytes or a data: URL of the tool output.
+/// string of the file bytes or the result URL of the tool output.
 async function decodeWindow(
   page: Page,
   source: { b64?: string; dataUrl?: string },
@@ -55,7 +55,7 @@ test('audio-loop page fills 10 s from a 3 s tone, later plays carry the sound', 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   // Window 4-6 s sits inside the second repetition of the 3.03 s clip.
   const out = await decodeWindow(page, { dataUrl: src! }, 4, 6);
   expect(out.duration).toBeGreaterThan(9.8);
@@ -76,7 +76,7 @@ test('audio-loop deep link plays the clip exactly 3× (duration=0&count=3)', asy
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   // 3 full plays of a 3.03 s clip ⇒ ~9.1 s, never cut mid-play.
   const out = await decodeWindow(page, { dataUrl: src! }, 7.5, 8.5);
   expect(out.duration).toBeGreaterThan(8.8);

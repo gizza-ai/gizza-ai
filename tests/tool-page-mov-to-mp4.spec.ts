@@ -1,16 +1,16 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/mov-to-mp4/ page rewraps an uploaded QuickTime .mov into
 // an .mp4 in-browser via ffmpeg (single-threaded @ffmpeg/core from jsDelivr —
 // needs network). Default "copy" mode stream-copies (lossless remux); the output
-// is always a data:video/mp4 URL.
+// is always a video/mp4 result.
 //
 // Each test asserts REAL output correctness: it decodes the produced video in a
 // <video> element and checks the container MIME + preserved dimensions/duration,
 // so a transform that silently no-ops would FAIL.
 
-// Decode a data:video/ URL and read its intrinsic size + duration.
+// Decode a video/ result and read its intrinsic size + duration.
 async function decodeVideo(page, src: string) {
   return await page.evaluate(async (dataUrl) => {
     const v = document.createElement('video');
@@ -35,7 +35,7 @@ test('mov-to-mp4 page remuxes a MOV to MP4 losslessly (copy mode)', async ({ pag
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/); // container changed .mov -> .mp4
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/); // container changed .mov -> .mp4
 
   // A remux must preserve the exact frame size and duration (no re-encode/scale).
   const meta = await decodeVideo(page, src);
@@ -57,7 +57,7 @@ test('mov-to-mp4 deep-link transcodes at a non-default quality', async ({ page }
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   // Re-encode still keeps size + duration intact.
   const meta = await decodeVideo(page, src);
@@ -76,7 +76,7 @@ test('mov-to-mp4 accepts an MP4 input too (secondary format, copy remux)', async
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src);
   expect(meta.w).toBe(128);

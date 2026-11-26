@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 async function decodeVideo(page, src: string) {
@@ -25,7 +25,7 @@ test('video-fps renders a real MP4 output at the default 30 fps setting', async 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src!);
   expect(meta.w).toBe(128);
@@ -44,7 +44,7 @@ test('video-fps deep-link applies a non-default fps value and keeps webm output 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src!);
   expect(meta.w).toBe(64);

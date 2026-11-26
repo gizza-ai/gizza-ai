@@ -1,9 +1,9 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/video-crop/ page crops an uploaded video in-browser via
 // ffmpeg (@ffmpeg/core from jsDelivr — needs network). Output keeps the mp4
-// container, so the media src is a data:video/ URL.
+// container, so the media src is a video/ result.
 test('video-crop page crops an uploaded video', async ({ page }) => {
   await page.goto('/tools/video-crop/');
   await page.waitForSelector('#in-file');
@@ -15,5 +15,5 @@ test('video-crop page crops an uploaded video', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
 });

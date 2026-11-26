@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -57,7 +57,7 @@ test('audio-ringtone defaults: m4r, -14 LUFS boost, 0.5 s fades', async ({ page 
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
   // audio/mp4, NOT application/octet-stream — the .m4r → mime mapping.
-  expect(src).toMatch(/^data:audio\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/mp4/);
   const dl = page.locator('#tool-output-download');
   await expect(dl).toHaveAttribute('download', 'out.m4r');
   const s = await decodeStats(page, src!);
@@ -79,7 +79,7 @@ test('audio-ringtone raw cut: mp3, normalize off, fades 0', async ({ page }) => 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/mpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/mpeg/);
   const s = await decodeStats(page, src!);
   expect(s.duration).toBeGreaterThan(2.8);
   expect(s.duration).toBeLessThan(3.4);
@@ -98,7 +98,7 @@ test('audio-ringtone trims the [start, end] slice from a wav source', async ({ p
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/mp4/);
   const s = await decodeStats(page, src!);
   expect(s.duration).toBeGreaterThan(0.9); // 1 s slice (AAC pads a little)
   expect(s.duration).toBeLessThan(1.3);
@@ -117,7 +117,7 @@ test('audio-ringtone enforces the 40 s iPhone cap (one-over errors, at-cap runs)
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/mp4/);
 });
 
 test('audio-ringtone deep link prefills and cuts a raw 1 s mp3', async ({ page }) => {
@@ -133,7 +133,7 @@ test('audio-ringtone deep link prefills and cuts a raw 1 s mp3', async ({ page }
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/mpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/mpeg/);
   const s = await decodeStats(page, src!);
   expect(s.duration).toBeGreaterThan(0.9);
   expect(s.duration).toBeLessThan(1.3);

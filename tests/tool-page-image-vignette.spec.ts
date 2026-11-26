@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/image-vignette/ page darkens (or lightens/tints) the
@@ -14,7 +14,7 @@ import path from 'node:path';
 // Margins are wide so a slightly different browser ffmpeg build still passes,
 // while a silent no-op (corner staying at the input's value) still fails.
 
-// Decode the output data URL on a canvas and sample corner + center pixels
+// Decode the output result on a canvas and sample corner + center pixels
 // (full RGB triples, so tint tests can assert each channel).
 async function samplePixels(page: import('@playwright/test').Page, dataUrl: string) {
   return page.evaluate(async (src) => {
@@ -44,7 +44,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   // ffmpeg loads from CDN on first run; allow generous time.
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -162,7 +162,7 @@ test('image-vignette format=jpg converts the output to JPEG', async ({ page }) =
   await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/white-64x64.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
   const p = await samplePixels(page, src);
   // The vignette still applied through the conversion (wide JPEG margins).
@@ -177,7 +177,7 @@ test('image-vignette format=webp converts the output to WebP', async ({ page }) 
   await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/white-64x64.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.webp');
   const p = await samplePixels(page, src);
   // Default strength 40 through the WebP encoder (native measures ~106).
@@ -193,7 +193,7 @@ test('image-vignette accepts JPEG input end-to-end', async ({ page }) => {
 
   const src = await outputSrc(page);
   // keep (default) preserves the input format: JPEG in → JPEG out.
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   const p = await samplePixels(page, src);
   expect(p.w).toBe(64);
   expect(p.h).toBe(64);

@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/video-first-last-frame-extractor/ page grabs an uploaded
 // video's first + last frame (@ffmpeg/core from a CDN — needs network) and
 // stitches them into one image. Output is a PNG/JPG rendered as an image, so the
-// media src is a data:image/... URL.
+// media src is an image/... result.
 //
 // Fixture redblue-64.mp4 is a 64×64 clip whose FIRST frame is solid red
 // (~254,0,0) and LAST frame is solid blue (0,0,255). Both frames keep the source
@@ -12,7 +12,7 @@ import path from 'node:path';
 //   horizontal (hstack) → 128×64: red left half, blue right half
 //   vertical   (vstack) → 64×128: red top half, blue bottom half
 
-// Decode a data:image/ URL and read its natural size + the RGB at one pixel.
+// Decode an image/ result and read its natural size + the RGB at one pixel.
 async function decodeAt(
   page: import('@playwright/test').Page,
   src: string,
@@ -51,7 +51,7 @@ test('first-last page stitches first|last side by side into a PNG', async ({ pag
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
 
   const left = await decodeAt(page, src!, 16, 32);
   expect(left.w).toBe(128); // 64 + 64 side by side
@@ -80,7 +80,7 @@ test('first-last page stacks first over last and honors JPG output', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
 
   const top = await decodeAt(page, src!, 32, 16);
   expect(top.w).toBe(64);
@@ -107,7 +107,7 @@ test('first-last page pre-fills from ?query and runs a stacked PNG', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
 
   const top = await decodeAt(page, src!, 32, 16);
   expect(top.w).toBe(64);

@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/audio-pitch-shift/ page pitch-shifts an uploaded audio
 // file in-browser via ffmpeg (@ffmpeg/core from jsDelivr — needs network).
-// Output is audio, so the media element is an <audio> with a data:audio/ src.
+// Output is audio, so the media element is an <audio> with an audio/ result.
 // Beyond the mime prefix, each test decodes the result with WebAudio and
 // asserts the DOMINANT FREQUENCY actually moved by the requested factor while
 // the duration stayed put (media-correctness rule): the fixture is a pure
@@ -46,7 +46,7 @@ test('audio-pitch-shift page shifts a 440 Hz tone up an octave to ~880 Hz, same 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { freq, duration } = await freqAndDuration(page, src!);
   expect(freq).toBeGreaterThan(850); // pre-measured 880.0 Hz with local ffmpeg
   expect(freq).toBeLessThan(910);
@@ -64,7 +64,7 @@ test('audio-pitch-shift deep link prefills and shifts down an octave to ~220 Hz 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { freq, duration } = await freqAndDuration(page, src!);
   expect(freq).toBeGreaterThan(205); // pre-measured 220.0 Hz with local ffmpeg
   expect(freq).toBeLessThan(235);

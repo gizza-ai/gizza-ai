@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -42,7 +42,7 @@ test('audio-channel page swaps left and right channels', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { channels, duration, crossingsPerSec } = await decodeStats(page, src!);
   expect(channels).toBe(2); // stays stereo
   expect(duration).toBeGreaterThan(2.9);
@@ -59,7 +59,7 @@ test('audio-channel deep link downmixes to mono as wav', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { channels, duration } = await decodeStats(page, src!);
   expect(channels).toBe(1);
   expect(duration).toBeGreaterThan(2.9);

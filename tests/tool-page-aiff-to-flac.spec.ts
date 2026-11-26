@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/aiff-to-flac/ page re-encodes an uploaded audio file
 // in-browser via ffmpeg (@ffmpeg/core from jsDelivr — needs network). Output is
-// FLAC audio, so the media element is an <audio> with a data:audio/flac src.
+// FLAC audio, so the media element is an <audio> with an audio/flac result.
 // Decode the result with WebAudio to prove real media output, not just argv text.
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.wav');
@@ -28,7 +28,7 @@ test('aiff-to-flac page converts audio to lossless flac at default compression',
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.2);
@@ -42,7 +42,7 @@ test('aiff-to-flac deep link prefills maximum compression and still converts', a
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.2);

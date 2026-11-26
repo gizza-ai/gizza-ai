@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const JPEG_FIXTURE = path.resolve(__dirname, 'fixtures/white-64x64.jpg');
@@ -33,7 +33,7 @@ test('cmyk-jpeg-to-rgb converts a JPEG to default RGB PNG output', async ({ page
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const meta = await decodeImage(page, src!);
   expect(meta.w).toBe(64);
   expect(meta.h).toBe(64);
@@ -52,7 +52,7 @@ test('cmyk-jpeg-to-rgb deep link accepts JPEG 4:4:4 output settings', async ({ p
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   const meta = await decodeImage(page, src!);
   expect(meta.w).toBe(64);
   expect(meta.h).toBe(64);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/image-compress/ page re-encodes an uploaded image at a
@@ -15,6 +15,6 @@ test('image-compress page compresses an uploaded image', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  // Same format in → out: a PNG upload yields a PNG data URL.
-  expect(src).toMatch(/^data:image\/png/);
+  // Same format in → out: a PNG upload yields a PNG result URL.
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
 });

@@ -1,11 +1,5 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
-
-function bytesFromDataUrl(src: string): Buffer {
-  const m = src.match(/^data:([^;,]+);base64,(.*)$/);
-  if (!m) throw new Error(`not a base64 data URL: ${src.slice(0, 80)}`);
-  return Buffer.from(m[2], 'base64');
-}
 
 function hasMxfKey(buf: Buffer): boolean {
   return buf.subarray(0, 4).equals(Buffer.from([0x06, 0x0e, 0x2b, 0x34]));
@@ -26,9 +20,9 @@ test('video-to-mxf creates an XDCAM HD422 MXF download', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:(video\/|application\/mxf|application\/octet-stream)/);
+  expect((await readResult(page, src)).mime).toMatch(/^(video\/|application\/mxf|application\/octet-stream)/);
 
-  const bytes = bytesFromDataUrl(src!);
+  const bytes = (await readResult(page, src)).bytes;
   expect(bytes.length).toBeGreaterThan(5_000);
   expect(hasMxfKey(bytes)).toBeTruthy();
 });
@@ -45,7 +39,7 @@ test('video-to-mxf deep-link runs the XDCAM HD 35 Mbps 720p path', async ({ page
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  const bytes = bytesFromDataUrl(src!);
+  const bytes = (await readResult(page, src)).bytes;
   expect(hasMxfKey(bytes)).toBeTruthy();
 });
 

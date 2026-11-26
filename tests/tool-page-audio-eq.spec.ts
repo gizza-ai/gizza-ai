@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -54,7 +54,7 @@ test('audio-eq page cuts a 50 Hz tone by -15 dB bass (RMS ×~0.20)', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const outRms = await rmsOfDataUrl(page, src!);
   const ratio = outRms / inputRms;
   expect(ratio).toBeGreaterThan(0.13); // pre-measured -13.8 dB ⇒ ×0.204
@@ -71,7 +71,7 @@ test('audio-eq deep link boosts an 8 kHz tone by +12 dB treble (RMS ×~3.9)', as
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const outRms = await rmsOfDataUrl(page, src!);
   const ratio = outRms / inputRms;
   expect(ratio).toBeGreaterThan(3.0); // pre-measured +11.8 dB ⇒ ×3.9, wav exact

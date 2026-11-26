@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -12,7 +12,7 @@ import path from 'node:path';
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tiny-128x128.mp4'); // 128×128, 2 s
 
-/// Decode the first frame of a data:video URL and return its dimensions plus
+/// Decode the first frame of a video result and return its dimensions plus
 /// the RGB values of the requested sample points.
 async function decodeFrame(
   page: Page,
@@ -73,7 +73,7 @@ test('video-aspect-pad letterboxes 128×128 to 9:16 (90×160) with red bars', as
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
 
   // Content (90×90) sits at y 35..124; bars fill y 0..34 and 125..159.
   const barPoints: Array<[number, number]> = [
@@ -119,7 +119,7 @@ test('video-aspect-pad deep link prefills and pillarboxes to 16:9 with white bar
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
 
   // 16:9 at width 128 → 128×72; content (72×72) sits at x 28..99 with white
   // side bars (pillarbox — the other padding axis than the first test).
@@ -169,7 +169,7 @@ test('video-aspect-pad blur chip fills the bars with blurred video, not a solid 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
 
   // Content (90×90) sits at y 35..124; bars fill y 0..34 and 125..159.
   const barPoints: Array<[number, number]> = [

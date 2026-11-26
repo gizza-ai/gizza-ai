@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -81,7 +81,7 @@ test('video-audio-to-mono page downmixes to one channel and keeps the picture', 
   await page.setInputFiles('#in-file', MP4);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
   const frame = await decodeVideo(page, src);
   expect(frame.w).toBe(128);
   expect(frame.h).toBe(128);
@@ -152,7 +152,7 @@ test('video-audio-to-mono page handles webm at the min bitrate with a snapped ra
   await page.setInputFiles('#in-file', WEBM);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:video\/webm/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/webm/);
   const audio = await decodeAudio(page, src);
   expect(audio.channels).toBe(1);
   expect(audio.duration).toBeGreaterThan(0);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/image-bg-replace/ page removes an image's chroma-key
@@ -42,7 +42,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 }); // ffmpeg CDN on first run
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -104,7 +104,7 @@ test('transparent background keeps the alpha (corner see-through, subject opaque
   await page.setInputFiles('#in-image', fixture('green-screen-64.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const p = await samplePixels(page, src);
   // Keyed corner is fully transparent; the red subject stays opaque.
   expect(p.topLeft.a).toBeLessThan(30);
@@ -178,18 +178,18 @@ test('format=jpg outputs JPEG; format=webp outputs WebP; keep preserves PNG', as
   await page.selectOption('#in-format', 'jpg');
   await page.setInputFiles('#in-image', fixture('green-screen-64.png'));
   let src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
 
   await page.selectOption('#in-format', 'webp');
   // Re-run picks up the new format.
   src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.webp');
 
   await page.selectOption('#in-format', 'keep');
   src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/); // png in → png out
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/); // png in → png out
 });
 
 test('similarity=100 (cap boundary) still marshals through and renders', async ({ page }) => {
@@ -199,7 +199,7 @@ test('similarity=100 (cap boundary) still marshals through and renders', async (
   // At the maximum the key is very aggressive, but it must still produce a
   // valid image (proves the boundary value reaches ffmpeg, no crash).
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
 });
 
 test('transparent + jpg output is rejected with guidance', async ({ page }) => {

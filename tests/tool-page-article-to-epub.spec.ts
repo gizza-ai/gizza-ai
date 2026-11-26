@@ -20,10 +20,12 @@ async function epubInfo(page: Page) {
   return page.evaluate(async () => {
     const a = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = a?.href || '';
-    if (!href.startsWith('data:application/epub+zip;base64,')) {
-      return { error: 'no EPUB data URL: ' + href };
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'application/epub+zip') {
+      return { error: 'no EPUB result: ' + blob.type };
     }
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const text = new TextDecoder('latin1').decode(buf);
     return {
       download: a?.getAttribute('download'),

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const fixture = path.resolve(__dirname, 'fixtures/tiny-av-128x128.mp4');
@@ -63,7 +63,7 @@ test('video-extract-audio-track page extracts AAC audio to playable M4A', async 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/(mp4|x-m4a|mpeg|)/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/(mp4|x-m4a|mpeg|)/);
 
   const meta = await decodeAudio(page, src!);
   expect(meta.duration).toBeGreaterThan(0);

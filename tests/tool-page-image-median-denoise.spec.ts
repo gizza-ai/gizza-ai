@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -49,7 +49,7 @@ test('image-median-denoise removes a black impulse pixel and returns a real PNG'
   await page.setInputFiles('#in-image', speck);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const stats = await imageStats(page, src);
   expect(stats.w).toBe(9);
   expect(stats.h).toBe(9);
@@ -85,7 +85,7 @@ test('image-median-denoise advertised format and secondary JPEG input are wired'
   await page.setInputFiles('#in-image', jpeg);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
   const stats = await imageStats(page, src);
   expect(stats.w).toBe(64);

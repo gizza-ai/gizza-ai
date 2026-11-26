@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -14,7 +14,7 @@ import fs from 'node:fs';
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-3s.mp3'); // 3.03 s tone
 
 /// RMS of one channel over [start, end] seconds; `source` is either a base64
-/// string of the file bytes or a data: URL of the tool output.
+/// string of the file bytes or the result URL of the tool output.
 async function windowRms(
   page: Page,
   source: { b64?: string; dataUrl?: string },
@@ -57,7 +57,7 @@ test('audio-fade page ramps both ends with 1 s fades, middle untouched', async (
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const head = await windowRms(page, { dataUrl: src! }, 0, 0.2);
   const mid = await windowRms(page, { dataUrl: src! }, 1.4, 1.6);
   const tail = await windowRms(page, { dataUrl: src! }, 2.8, 3.0);
@@ -80,7 +80,7 @@ test('audio-fade deep link fades only the start (fade_out=0)', async ({ page }) 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const head = await windowRms(page, { dataUrl: src! }, 0, 0.3);
   const tail = await windowRms(page, { dataUrl: src! }, 2.7, 3.0);
   expect(head / inputHead).toBeLessThan(0.3); // 2 s ramp ⇒ ×0.087 over 0-0.3 s

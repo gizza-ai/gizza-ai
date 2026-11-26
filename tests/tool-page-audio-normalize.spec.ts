@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -33,7 +33,7 @@ test('audio-normalize page lifts a quiet tone to the -14 LUFS default', async ({
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, rms } = await decodeStats(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.3);
@@ -50,7 +50,7 @@ test('audio-normalize deep link targets -23 LUFS broadcast as flac', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, rms } = await decodeStats(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.3);

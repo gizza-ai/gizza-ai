@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -21,7 +21,7 @@ async function run(page: Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   return { src: src!, stats: await decodeStats(page, src!) };
 }
 
@@ -37,7 +37,7 @@ test('bitcrush page renders a crushed wav output', async ({ page }) => {
   await page.selectOption('#in-mode', 'log');
   await page.selectOption('#in-format', 'wav');
   const out = await run(page);
-  expect(out.src).toMatch(/^data:audio\/(wav|x-wav)/);
+  expect((await readResult(page, out.src)).mime).toMatch(/^audio\/(wav|x-wav)/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.wav');
   expect(out.stats.bytes).toBeGreaterThan(1_000);
   expect(out.stats.duration).toBeGreaterThan(2.8);
@@ -56,6 +56,6 @@ test('bitcrush deep link prefills controls and exports flac', async ({ page }) =
   await expect(page.locator('#in-mode')).toHaveValue('lin');
   await expect(page.locator('#in-format')).toHaveValue('flac');
   const out = await run(page);
-  expect(out.src).toMatch(/^data:audio\/flac/);
+  expect((await readResult(page, out.src)).mime).toMatch(/^audio\/flac/);
   expect(out.stats.bytes).toBeGreaterThan(1_000);
 });

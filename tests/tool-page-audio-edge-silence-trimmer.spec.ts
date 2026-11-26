@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -30,7 +30,7 @@ test('audio-edge-silence-trimmer page trims the leading and trailing silence', a
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(1.0); // the tone body + edge pads survive
   expect(duration).toBeLessThan(2.4); // ~2.4s of edge silence is gone
@@ -48,7 +48,7 @@ test('audio-edge-silence-trimmer deep link applies a hard cut and wav output', a
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(1.0); // the tone body survives
   expect(duration).toBeLessThan(2.2); // edge silence trimmed, no pad kept
