@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import { ALPHA_SQUARE, alphaReport } from './alpha-square';
 
 // The generated /tools/image-vignette/ page darkens (or lightens/tints) the
 // edges of an uploaded image in-browser via ffmpeg's vignette filter (plus a
@@ -288,3 +289,28 @@ test('copy-image button never leaks onto text or video tool pages', async ({ pag
   await page.goto('/tools/video-mute/'); // video output
   await expect(page.locator('#tool-copy-image')).toHaveCount(0);
 });
+
+// ffmpeg's vignette only accepts opaque formats; for png/webp output the
+// alpha plane is split off and merged back, so the transparent background
+// stays transparent (it used to come back opaque green-black).
+for (const [format, color] of [
+  ['keep', ''],
+  ['webp', ''],
+  ['keep', '#ff0000'],
+] as const) {
+  test(`image-vignette keeps a transparent PNG's alpha mask exactly (format=${format}${color ? `, color=${color}` : ''})`, async ({ page }) => {
+    await page.goto('/tools/image-vignette/');
+    await page.fill('#in-strength', '80');
+    if (color) await page.fill('#in-color', color);
+    await page.selectOption('#in-format', format);
+    await page.setInputFiles('#in-image', ALPHA_SQUARE);
+    const src = await outputSrc(page);
+    expect(src).toMatch(format === 'webp' ? /^data:image\/webp/ : /^data:image\/png/);
+    const r = await alphaReport(page, src);
+    expect(r.corner[3]).toBe(0);
+    expect(r.mismatches).toBe(0);
+    // The visible pixels are still vignetted: the square's corner is darker
+    // (or redder) than its untouched center.
+    expect(r.squareCorner[1]).toBeLessThan(r.center[1]);
+  });
+}

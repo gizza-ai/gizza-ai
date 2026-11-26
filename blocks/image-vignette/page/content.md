@@ -62,8 +62,10 @@ the bright spot follows the subject and the right side darkens more.
   separately adjustable — ffmpeg's `vignette` filter couples both into the
   one strength knob, and a separate size/feather mask would be too slow to
   compute per-pixel in browser wasm for large photos.
-- Transparency is not preserved: processing happens in YUV or opaque planar
-  RGB, so a transparent PNG comes back fully opaque.
+- Transparency is preserved for PNG and WebP output: the alpha channel is set
+  aside, only the visible pixels are vignetted, and the original alpha is put
+  back — transparent areas stay transparent. JPEG has no alpha channel, so a
+  JPEG output is always opaque.
 - Animated GIFs are processed frame by frame and stay animated (with
   format `keep`).
 

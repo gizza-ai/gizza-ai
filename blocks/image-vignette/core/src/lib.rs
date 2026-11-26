@@ -17,6 +17,12 @@
 //!   (`out = image·m + color·(1−m)`). With black this is numerically identical
 //!   to the plain filter (verified in tests against measured pixels), so black
 //!   keeps the cheap single-filter path.
+//! - **Transparency**: ffmpeg's `vignette` filter only accepts opaque pixel
+//!   formats, so for an alpha-capable output (png/webp) the alpha plane is
+//!   split off before the vignette and merged back after it
+//!   (`alphaextract` → `alphamerge`) — a transparent PNG keeps its exact
+//!   alpha, and only the visible pixels are vignetted. JPEG output has no
+//!   alpha, so it keeps the plain chain.
 //! - **Output format** (`keep|png|jpg|webp`): `keep` preserves the input
 //!   container; the rest convert. Explicit conversions are still images, so
 //!   they take only the first frame of an animated input; jpg output pins
@@ -246,6 +252,25 @@ pub fn filter(
     ))
 }
 
+/// Whether an output extension can carry an alpha channel (and so needs the
+/// vignette chain wrapped by [`keep_alpha`]).
+pub fn ext_keeps_alpha(ext: &str) -> bool {
+    ext.eq_ignore_ascii_case("png") || ext.eq_ignore_ascii_case("webp")
+}
+
+/// Wrap a single-input/single-output filter chain so the input's alpha plane
+/// survives it. The vignette (and the colored masked-merge chain) only work in
+/// opaque formats and would silently drop alpha, so the frame is promoted to
+/// `gbrap` (an opaque input gets a fully opaque plane), its alpha is split off
+/// with `alphaextract`, `inner` runs on the color, and `alphamerge` re-attaches
+/// the untouched alpha. Single argv token.
+pub fn keep_alpha(inner: &str) -> String {
+    format!(
+        "format=gbrap,split=2[vin][val];[val]alphaextract[valpha];\
+         [vin]{inner}[vout];[vout][valpha]alphamerge"
+    )
+}
+
 /// The output extension for `format`, given the input's extension.
 fn out_ext<'a>(format: OutFormat, in_ext: &'a str) -> &'a str {
     match format {
@@ -276,6 +301,7 @@ pub fn plan(
         .unwrap_or("png");
     let ext = out_ext(format, in_ext);
     let out_name = format!("out.{ext}");
+    let vf = if ext_keeps_alpha(ext) { keep_alpha(&vf) } else { vf };
     let mut argv = vec![
         "-i".to_string(),
         in_name.to_string(),
@@ -532,6 +558,36 @@ mod tests {
     }
 
     #[test]
+    fn alpha_capable_outputs_wrap_the_chain_to_keep_transparency() {
+        let plain = filter(40.0, Mode::Darken, 50.0, 50.0, BLACK).unwrap();
+        for (input, format) in [
+            ("in.png", OutFormat::Keep),
+            ("in.webp", OutFormat::Keep),
+            ("in.jpg", OutFormat::Png),
+            ("in.png", OutFormat::Webp),
+        ] {
+            let (argv, _) =
+                plan(input, 40.0, Mode::Darken, 50.0, 50.0, BLACK, format).unwrap();
+            assert_eq!(argv[3], keep_alpha(&plain), "{input} {format:?}");
+            assert!(argv[3].starts_with("format=gbrap,split=2[vin][val];"), "{argv:?}");
+            assert!(argv[3].ends_with("[vout][valpha]alphamerge"), "{argv:?}");
+            assert!(!argv[3].contains(' '), "single argv token: {argv:?}");
+        }
+        // The colored masked-merge chain is wrapped the same way.
+        let tinted = filter(70.0, Mode::Darken, 50.0, 50.0, (112, 66, 20)).unwrap();
+        let (argv, _) =
+            plan("in.png", 70.0, Mode::Darken, 50.0, 50.0, (112, 66, 20), OutFormat::Keep)
+                .unwrap();
+        assert_eq!(argv[3], keep_alpha(&tinted));
+        // JPEG can't carry alpha: plain chain, no wasted alpha round trip.
+        for (input, format) in [("in.jpg", OutFormat::Keep), ("in.png", OutFormat::Jpg)] {
+            let (argv, _) =
+                plan(input, 40.0, Mode::Darken, 50.0, 50.0, BLACK, format).unwrap();
+            assert_eq!(argv[3], plain, "{input} {format:?}");
+        }
+    }
+
+    #[test]
     fn plan_keeps_png_extension() {
         let (argv, out) =
             plan("in.png", 40.0, Mode::Darken, 50.0, 50.0, BLACK, OutFormat::Keep).unwrap();
@@ -589,5 +645,6 @@ mod tests {
         .unwrap();
         assert_eq!(out, "out.png");
         assert!(argv.iter().any(|a| a.contains("lutrgb=r=170:g=85:b=34")), "{argv:?}");
+        assert!(argv[3].ends_with("alphamerge"), "png output keeps alpha: {argv:?}");
     }
 }
