@@ -30,10 +30,19 @@ export function progressLabel(progress) {
   return "Loading AI model…";
 }
 
+// What an image-input model tool accepts. Exported so a page that prepares a
+// model input itself (e.g. an editor whose working copy can be larger) fits it
+// to the same limits validateModelFile enforces.
+export const MODEL_FILE_LIMITS = Object.freeze({
+  maxBytes: 20 * 1024 * 1024,
+  maxPixels: 40_000_000,
+  types: Object.freeze(["image/png", "image/jpeg", "image/webp"]),
+});
+
 export async function validateModelFile(file, options = {}) {
-  const maxBytes = options.maxBytes || 20 * 1024 * 1024;
-  const maxPixels = options.maxPixels || 40_000_000;
-  const supportedTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
+  const maxBytes = options.maxBytes || MODEL_FILE_LIMITS.maxBytes;
+  const maxPixels = options.maxPixels || MODEL_FILE_LIMITS.maxPixels;
+  const supportedTypes = new Set(MODEL_FILE_LIMITS.types);
   if (!file) throw new Error("Choose an image first.");
   if (!supportedTypes.has(String(file.type || "").toLowerCase())) {
     throw new Error("Choose a PNG, JPEG, or WebP image.");
