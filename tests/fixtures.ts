@@ -36,3 +36,23 @@ export const test = base.extend<object, { persistentContext: BrowserContext }>({
 });
 
 export { expect } from '@playwright/test';
+
+// Read a tool result URL (the `src` of #tool-output-media or the download
+// link's `href`) back from the page as {mime, bytes}. Works for both `blob:`
+// object URLs (the shared ffmpeg/model/wasm-image runtimes) and `data:` URLs
+// (custom page modules that still build them), so specs assert on the output's
+// real type and bytes instead of the URL's spelling.
+export async function readResult(
+  page: import('@playwright/test').Page,
+  url: string | null,
+): Promise<{ mime: string; bytes: Buffer }> {
+  if (!url) throw new Error('no result URL');
+  const { mime, b64 } = await page.evaluate(async (u: string) => {
+    const blob = await (await fetch(u)).blob();
+    const buf = new Uint8Array(await blob.arrayBuffer());
+    let s = '';
+    for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+    return { mime: blob.type, b64: btoa(s) };
+  }, url);
+  return { mime, bytes: Buffer.from(b64, 'base64') };
+}
