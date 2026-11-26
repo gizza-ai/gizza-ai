@@ -3,7 +3,13 @@
 // page uses; each module is imported and initialised once.
 //
 // Request:  { type: "run", id, moduleUrl, export, params, bytes }
-// Response: { type: "result", id, bytes, outName } | { type: "error", id, error }
+// Response: { type: "result", id, bytes, outName } | { type: "error", id, error, trapped }
+//
+// `trapped` marks a wasm trap (WebAssembly.RuntimeError: a panic or an
+// out-of-bounds access). The trapped instance's memory and allocator are left
+// in an undefined state, and a wasm-pack module never re-initialises once
+// loaded, so the instance cannot be dropped from inside this worker: the
+// client retires the whole worker and continues on a fresh one.
 
 const modules = new Map();
 
@@ -35,6 +41,7 @@ self.addEventListener("message", async (event) => {
     const bytes = out.bytes;
     self.postMessage({ type: "result", id: req.id, bytes, outName: out.out_name }, [bytes.buffer]);
   } catch (error) {
-    self.postMessage({ type: "error", id: req.id, error: message(error) });
+    const trapped = error instanceof WebAssembly.RuntimeError;
+    self.postMessage({ type: "error", id: req.id, error: message(error), trapped });
   }
 });
