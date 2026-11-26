@@ -11,9 +11,10 @@
 //
 // Resolves {blob, outName, mime, backend?}; rejects with an Error whose message
 // is fit to show the user. `deps.signal` (an AbortSignal) cancels a superseded
-// run: model inference is the expensive step, so it is checked after input
-// validation and an aborted run rejects with the signal's reason (an
-// "AbortError" DOMException by default) instead of starting inference. Runtime modules are imported lazily so a page only
+// run, which rejects with an AbortError that callers drop rather than show:
+// model inference is checked after input validation (the expensive step comes
+// after it), and a wasm-image job that hasn't finished is dropped. Runtime
+// modules are imported lazily so a page only
 // fetches the runtime it uses.
 
 import { coerceField, fieldArgs } from "./tool-fields.js";
@@ -54,7 +55,8 @@ export async function runTool(page, mod, file, values, deps = {}) {
       const moduleUrl = new URL(page.module, deps.baseUrl || globalThis.location.href).href;
       const client = deps.wasmImageClient || sharedWasmImageClient();
       const bytes = new Uint8Array(await file.arrayBuffer());
-      const r = await client.run(moduleUrl, page.export, paramsFor(page.inputs, read, coerceField), bytes);
+      const params = paramsFor(page.inputs, read, coerceField);
+      const r = await client.run(moduleUrl, page.export, params, bytes, { signal: deps.signal });
       const mime = mimeForOutput(r.outName);
       return { blob: new Blob([r.bytes], { type: mime }), outName: r.outName, mime };
     }

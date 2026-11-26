@@ -84,20 +84,23 @@ test("wasm-image runtime sends a typed params object and the bytes, resolving th
   };
   let call;
   const wasmImageClient = {
-    run: async (moduleUrl, exportName, params, bytes) => {
-      call = { moduleUrl, exportName, params, bytes: Array.from(bytes) };
+    run: async (moduleUrl, exportName, params, bytes, opts) => {
+      call = { moduleUrl, exportName, params, bytes: Array.from(bytes), signal: opts.signal };
       return { bytes: new Uint8Array([4, 5]), outName: "adjusted.png" };
     },
   };
+  const signal = new AbortController().signal;
   const r = await runTool(page, null, file, { brightness: "20", contrast: "", keep_alpha: "true" }, {
     baseUrl: "https://example.test/tools/image-brightness-contrast/",
     wasmImageClient,
+    signal,
   });
   assert.deepEqual(call, {
     moduleUrl: "https://example.test/tools/image-brightness-contrast/gizza_ai_image_brightness_contrast_web.js",
     exportName: "run",
     params: { brightness: 20, keep_alpha: true },
     bytes: [7, 7],
+    signal,
   });
   assert.equal(r.outName, "adjusted.png");
   assert.equal(r.mime, "image/png");
