@@ -1,0 +1,5 @@
+# Conversion outputs and intermediates: model weights never go in git.
+/out/
+/work/
+/.venv/
+__pycache__/

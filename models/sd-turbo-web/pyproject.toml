@@ -1,0 +1,33 @@
+[project]
+name = "sd-turbo-web"
+version = "0.1.0"
+description = "Converts stabilityai/sd-turbo into static 512x512 ONNX variants for onnxruntime-web (WebGPU)."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "diffusers==0.39.0",
+    "transformers==4.57.6",
+    "huggingface-hub==0.36.2",
+    "safetensors==0.8.0",
+    "tokenizers==0.22.2",
+    "torch==2.15.0",
+    "onnx==1.23.2",
+    "onnxruntime==1.32.0",
+    "onnxscript==0.7.2",
+    "numpy==2.5.5",
+    "accelerate==1.16.0",
+    "sympy==1.14.0",
+    "packaging",
+    "flatbuffers",
+    "protobuf",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
