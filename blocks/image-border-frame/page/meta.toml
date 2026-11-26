@@ -1,0 +1,48 @@
+slug          = "image-border-frame"
+title         = "Add a Border to an Image Online — Any Color and Thickness"
+description   = "Put a solid colored border or frame around a photo right in your browser — pick the thickness and color, get a PNG back. Nothing is uploaded, free."
+tags          = ["image", "border", "frame", "photo", "padding", "outline", "color", "matte", "png"]
+h1            = "Add a Border to an Image"
+hero_subtitle = "Pick an image, a thickness and a color — the framed PNG is made in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_border_frame_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Framed image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "thickness"
+source      = "field"
+label       = "Thickness in pixels (0 to 2000)"
+placeholder = "20"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "color"
+source      = "field"
+label       = "Border color"
+placeholder = "#000000"
+kind        = "color"
+
+[[example]]
+label  = "Thin black line (4 px)"
+params = { thickness = "4", color = "#000000" }
+
+[[example]]
+label  = "White photo border (40 px)"
+params = { thickness = "40", color = "#ffffff" }
+
+[[example]]
+label  = "Gallery matte (80 px off-white)"
+params = { thickness = "80", color = "#f4f1ea" }
+
+[[example]]
+label  = "Bold red frame (25 px)"
+params = { thickness = "25", color = "#d62828" }

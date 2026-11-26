@@ -6,6 +6,45 @@
 use std::io::Cursor;
 
 use image::{DynamicImage, GenericImageView, ImageFormat, Rgba, RgbaImage};
+use serde::Deserialize;
+
+/// Largest accepted border thickness in pixels (matches the schema maximum).
+pub const MAX_THICKNESS: u64 = 2000;
+
+/// Output filename for every surface.
+pub const OUT_NAME: &str = "framed.png";
+
+/// The tool's options, shared by every surface: the chat/CLI handler flattens
+/// them from its JSON args, the browser page deserializes them from its params
+/// object. Missing fields take the schema defaults (20 px, black).
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct Params {
+    /// Border width in pixels on every side; clamped to `0..=MAX_THICKNESS`.
+    pub thickness: u64,
+    /// `#rgb`, `#rrggbb`, or `#rrggbbaa`.
+    pub color: String,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        Self { thickness: 20, color: "#000000".to_string() }
+    }
+}
+
+impl Params {
+    /// The thickness actually applied (clamped to `MAX_THICKNESS`).
+    pub fn thickness_px(&self) -> u32 {
+        self.thickness.min(MAX_THICKNESS) as u32
+    }
+}
+
+/// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
+/// The color is validated before the image is decoded.
+pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
+    let color = parse_color(&params.color)?;
+    Ok((add_border(bytes, params.thickness_px(), color)?, OUT_NAME.to_string()))
+}
 
 /// Parse `#rgb`, `#rrggbb`, or `#rrggbbaa` into RGBA.
 pub fn parse_color(s: &str) -> Result<Rgba<u8>, String> {
@@ -107,6 +146,56 @@ mod tests {
         let out = add_border(&src, 0, Rgba([0, 0, 0, 255])).unwrap();
         let img = image::load_from_memory(&out).unwrap();
         assert_eq!(img.dimensions(), (5, 5));
+    }
+
+    #[test]
+    fn params_defaults_and_clamp() {
+        let d = Params::default();
+        assert_eq!(d, Params { thickness: 20, color: "#000000".into() });
+        assert_eq!(d.thickness_px(), 20);
+        assert_eq!(Params { thickness: 99_999, ..d }.thickness_px(), 2000);
+    }
+
+    #[test]
+    fn params_deserialize_with_missing_fields() {
+        let p: Params = serde_json::from_str(r#"{"thickness": 3}"#).unwrap();
+        assert_eq!(p, Params { thickness: 3, color: "#000000".into() });
+        let p: Params = serde_json::from_str(r##"{"color": "#fff"}"##).unwrap();
+        assert_eq!(p, Params { thickness: 20, color: "#fff".into() });
+        let p: Params = serde_json::from_str("{}").unwrap();
+        assert_eq!(p, Params::default());
+    }
+
+    #[test]
+    fn apply_rejects_bad_color() {
+        let src = png(2, 2, Rgba([255, 0, 0, 255]));
+        let e = apply(&src, &Params { thickness: 1, color: "nope".into() }).unwrap_err();
+        assert!(e.contains("invalid color"), "{e}");
+    }
+
+    #[test]
+    fn apply_returns_framed_png_and_name() {
+        // Mirrors the page spec: red 2x2, 3px #0000ff border → 8x8.
+        let src = png(2, 2, Rgba([255, 0, 0, 255]));
+        let (out, name) = apply(&src, &Params { thickness: 3, color: "#0000ff".into() }).unwrap();
+        assert_eq!(name, "framed.png");
+        let img = image::load_from_memory_with_format(&out, ImageFormat::Png).unwrap();
+        assert_eq!(img.dimensions(), (8, 8));
+        assert_eq!(img.get_pixel(0, 0), Rgba([0, 0, 255, 255]));
+        assert_eq!(img.get_pixel(7, 7), Rgba([0, 0, 255, 255]));
+        assert_eq!(img.get_pixel(3, 3), Rgba([255, 0, 0, 255]));
+        assert_eq!(img.get_pixel(4, 4), Rgba([255, 0, 0, 255]));
+        assert_eq!(img.get_pixel(2, 3), Rgba([0, 0, 255, 255]));
+    }
+
+    #[test]
+    fn apply_defaults_on_a_photo_sized_image() {
+        // Worked example in page/content.md: 800x600 + default 20px → 840x640.
+        let src = png(800, 600, Rgba([10, 20, 30, 255]));
+        let (out, _) = apply(&src, &Params::default()).unwrap();
+        let img = image::load_from_memory(&out).unwrap();
+        assert_eq!(img.dimensions(), (840, 640));
+        assert_eq!(img.get_pixel(0, 0), Rgba([0, 0, 0, 255]));
     }
 
     #[test]
