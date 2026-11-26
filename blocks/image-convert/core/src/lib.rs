@@ -57,11 +57,16 @@ pub fn quality_to_qv(q: u8) -> u8 {
 /// Build the ffmpeg argv (no leading "ffmpeg") to transcode `in_name` to
 /// `out_name` in `format` at `quality` (1-100). JPEG sets mjpeg's inverted
 /// `-q:v`, WebP sets libwebp's `-quality` (same 1-100 direction as the page),
-/// and PNG is lossless and omits any quality flag.
+/// and PNG is lossless and omits any quality flag. JPEG has no alpha, so a
+/// transparent input is flattened onto white first (what it looks like on a
+/// page) rather than letting the encoder expose the color stored under
+/// transparent pixels — e.g. the background a background removal took out.
 pub fn build_argv(in_name: &str, out_name: &str, format: Format, quality: u8) -> Vec<String> {
     let mut argv = vec!["-i".to_string(), in_name.to_string()];
     match format {
         Format::Jpeg => {
+            argv.push("-vf".into());
+            argv.push(gizza_ai_block_utils::ffmpeg::FLATTEN_ON_WHITE.into());
             argv.push("-q:v".into());
             argv.push(quality_to_qv(quality).to_string());
         }
@@ -139,6 +144,21 @@ mod tests {
     fn argv_jpeg_omits_webp_quality() {
         let argv = build_argv("in.png", "out.jpg", Format::Jpeg, 85);
         assert!(flag_value(&argv, "-quality").is_none(), "{argv:?}");
+    }
+
+    #[test]
+    fn argv_jpeg_flattens_alpha_onto_white() {
+        let argv = build_argv("in.png", "out.jpg", Format::Jpeg, 85);
+        assert_eq!(
+            flag_value(&argv, "-vf").as_deref(),
+            Some(gizza_ai_block_utils::ffmpeg::FLATTEN_ON_WHITE),
+            "{argv:?}"
+        );
+        // PNG and WebP keep the alpha channel: no flatten.
+        for (out, fmt) in [("out.png", Format::Png), ("out.webp", Format::Webp)] {
+            let argv = build_argv("in.png", out, fmt, 85);
+            assert!(flag_value(&argv, "-vf").is_none(), "{argv:?}");
+        }
     }
 
     #[test]
