@@ -3,8 +3,15 @@
 //!
 //! image-convert transcodes an image to a DIFFERENT target format (jpeg, png,
 //! webp). Unlike resize/compress, the output extension is the user-chosen target
-//! format, not the input's. JPEG/WebP take a lossy `-q:v` derived from a
-//! web-conventional `quality` 1-100; PNG is lossless and omits `-q:v`.
+//! format, not the input's. The web-conventional `quality` 1-100 (higher =
+//! better) maps onto each lossy encoder's own scale:
+//!
+//! - JPEG → `-q:v` (mjpeg's inverted 2 = best … 31 = worst), via [`quality_to_qv`].
+//! - WebP → `-quality` (libwebp's 0 = worst … 100 = best), passed straight
+//!   through. libwebp also reads `-q:v`, but as that same 0-100 scale — so
+//!   feeding it the inverted mjpeg value would make a high page quality encode
+//!   a LOW-quality WebP.
+//! - PNG is lossless and takes no quality flag.
 
 /// Target image format image-convert can transcode to.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -38,7 +45,8 @@ pub fn parse_format(s: &str) -> Result<Format, String> {
     }
 }
 
-/// Map web-conventional quality 1-100 to ffmpeg's -q:v range 31 (worst) – 2 (best).
+/// Map web-conventional quality 1-100 to ffmpeg's JPEG (mjpeg) `-q:v` range 31
+/// (worst) – 2 (best). JPEG only — WebP takes `-quality` 1-100 directly.
 /// Mirrored by `gizza-ai/image-compress`'s `quality_to_qv` so the two tools agree.
 pub fn quality_to_qv(q: u8) -> u8 {
     let q = q.clamp(1, 100) as f32;
@@ -47,13 +55,21 @@ pub fn quality_to_qv(q: u8) -> u8 {
 }
 
 /// Build the ffmpeg argv (no leading "ffmpeg") to transcode `in_name` to
-/// `out_name` in `format` at `quality` (1-100). PNG is lossless and omits the
-/// quality flag; jpeg/webp set `-q:v`.
+/// `out_name` in `format` at `quality` (1-100). JPEG sets mjpeg's inverted
+/// `-q:v`, WebP sets libwebp's `-quality` (same 1-100 direction as the page),
+/// and PNG is lossless and omits any quality flag.
 pub fn build_argv(in_name: &str, out_name: &str, format: Format, quality: u8) -> Vec<String> {
     let mut argv = vec!["-i".to_string(), in_name.to_string()];
-    if format != Format::Png {
-        argv.push("-q:v".into());
-        argv.push(quality_to_qv(quality).to_string());
+    match format {
+        Format::Jpeg => {
+            argv.push("-q:v".into());
+            argv.push(quality_to_qv(quality).to_string());
+        }
+        Format::Webp => {
+            argv.push("-quality".into());
+            argv.push(quality.clamp(1, 100).to_string());
+        }
+        Format::Png => {}
     }
     argv.push(out_name.to_string());
     argv
@@ -120,15 +136,27 @@ mod tests {
     }
 
     #[test]
-    fn argv_png_omits_qv() {
-        let argv = build_argv("in.jpg", "out.png", Format::Png, 85);
-        assert!(!argv.iter().any(|a| a == "-q:v"), "png argv should not include -q:v: {argv:?}");
+    fn argv_jpeg_omits_webp_quality() {
+        let argv = build_argv("in.png", "out.jpg", Format::Jpeg, 85);
+        assert!(flag_value(&argv, "-quality").is_none(), "{argv:?}");
     }
 
     #[test]
-    fn argv_webp_includes_qv() {
-        let argv = build_argv("in.png", "out.webp", Format::Webp, 50);
-        assert!(argv.iter().any(|a| a == "-q:v"));
+    fn argv_png_omits_quality_flags() {
+        let argv = build_argv("in.jpg", "out.png", Format::Png, 85);
+        assert!(!argv.iter().any(|a| a == "-q:v"), "png argv should not include -q:v: {argv:?}");
+        assert!(!argv.iter().any(|a| a == "-quality"), "png argv should not include -quality: {argv:?}");
+    }
+
+    #[test]
+    fn argv_webp_passes_quality_straight_through() {
+        // libwebp's quality scale runs the same way as the page's (higher =
+        // better), so it must NOT get mjpeg's inverted -q:v value.
+        for q in [1u8, 10, 50, 90, 100] {
+            let argv = build_argv("in.png", "out.webp", Format::Webp, q);
+            assert_eq!(flag_value(&argv, "-quality"), Some(q.to_string()), "{argv:?}");
+            assert!(!argv.iter().any(|a| a == "-q:v"), "webp argv must not set -q:v: {argv:?}");
+        }
     }
 
     #[test]
