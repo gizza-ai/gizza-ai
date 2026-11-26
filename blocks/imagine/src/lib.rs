@@ -182,13 +182,6 @@ mod tests {
     /// imagine's authored schema already had `additionalProperties: false`,
     /// so this is an exact match.
     #[test]
-    fn page_runs_the_same_model_the_chat_uses() {
-        let meta = include_str!("../page/meta.toml");
-        assert!(meta.contains(&format!("id = \"{MODEL_ID}\"")));
-        assert!(meta.contains("task = \"text-to-image\""));
-    }
-
-    #[test]
     fn schema_json_matches_authored_chat_schema() {
         let authored: serde_json::Value = serde_json::from_str(
             r#"{
@@ -203,6 +196,13 @@ mod tests {
         .unwrap();
         let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
         assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
+
+    #[test]
+    fn page_runs_the_same_model_the_chat_uses() {
+        let meta = include_str!("../page/meta.toml");
+        assert!(meta.contains(&format!("id = \"{MODEL_ID}\"")));
+        assert!(meta.contains("task = \"text-to-image\""));
     }
 
     #[test]
