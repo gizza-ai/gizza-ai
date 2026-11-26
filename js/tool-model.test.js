@@ -10,6 +10,7 @@ import {
   validateModelFile,
   validateModelResult,
 } from "../tools/generator/assets/runtime/tool-model.js";
+import { downloadTracker } from "../tools/generator/assets/runtime/model-download-progress.js";
 
 test("compatibleDevices prefers WebGPU and keeps WASM fallback", () => {
   const model = { devices: ["webgpu", "wasm", "webgpu", "other"] };
@@ -115,6 +116,10 @@ class FakeWorker {
     this.listeners.get(type)?.({ data });
   }
 
+  fail(message) {
+    this.listeners.get("error")?.({ message });
+  }
+
   terminate() {
     this.terminated = true;
   }
@@ -211,4 +216,87 @@ test("generateImage needs WebGPU, a pinned text-to-image model and a prompt", as
   await assert.rejects(generateImage({ ...JANUS, revision: "" }, "a fox", { nav: { gpu: {} } }), /pinned model/);
   await assert.rejects(generateImage({ ...JANUS, task: "background-removal" }, "a fox", { nav: { gpu: {} } }), /text-to-image/);
   await assert.rejects(generateImage(JANUS, "   ", { nav: { gpu: {} } }), /Describe the image/);
+});
+
+test("a result that lands after abort still rejects with AbortError", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const id = worker.posted[0].id;
+  controller.abort();
+  // The worker finished before it read the cancel.
+  worker.emit("message", { type: "result", id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  client.dispose();
+});
+
+test("a worker crash fails pending calls, detaches abort listeners and stops the worker", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const generation = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const run = client.run(
+    { task: "u2net-background-removal", id: "BritishWerewolf/U-2-Netp", revision: "abc", devices: ["wasm"] },
+    { type: "image/png", size: 1 },
+  );
+  worker.fail("worker script crashed");
+  await assert.rejects(generation, /worker script crashed/);
+  await assert.rejects(run, /worker script crashed/);
+  assert.equal(worker.terminated, true);
+  assert.equal(client.stopped, true);
+  assert.equal(client.pending.size, 0);
+  const postedBefore = worker.posted.length;
+  controller.abort();
+  assert.equal(worker.posted.length, postedBefore, "no cancel is posted to the dead worker");
+});
+
+test("after a worker crash the shared client starts a fresh worker", async () => {
+  const NativeWorker = globalThis.Worker;
+  const workers = [];
+  globalThis.Worker = class extends FakeWorker {
+    constructor() {
+      super();
+      workers.push(this);
+    }
+  };
+  try {
+    const nav = { gpu: {} };
+    const first = generateImage(JANUS, "a red fox", { nav });
+    assert.equal(workers.length, 1);
+    workers[0].fail("boom");
+    await assert.rejects(first, /boom/);
+    assert.equal(workers[0].terminated, true);
+
+    const second = generateImage(JANUS, "a red fox", { nav });
+    assert.equal(workers.length, 2, "a new worker replaces the crashed one");
+    const { id } = workers[1].posted[0];
+    workers[1].emit("message", { type: "result", id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+    assert.equal((await second).filename, "generated.png");
+    workers[1].fail("cleanup");
+  } finally {
+    globalThis.Worker = NativeWorker;
+  }
+});
+
+test("downloadTracker combines files and never reports a smaller fraction", () => {
+  const seen = [];
+  const track = downloadTracker((fraction, loaded, total) => seen.push({ fraction, loaded, total }));
+  track({ status: "initiate", file: "a.onnx" }); // no size yet: ignored
+  track({ status: "progress", file: "a.onnx", loaded: 50, total: 100 });
+  assert.deepEqual(seen.at(-1), { fraction: 0.5, loaded: 50, total: 100 });
+  // A second, larger file joins: the byte ratio drops to 60/1100, but the
+  // reported fraction holds at its high-water mark.
+  track({ status: "progress", file: "b.onnx", loaded: 10, total: 1000 });
+  assert.deepEqual(seen.at(-1), { fraction: 0.5, loaded: 60, total: 1100 });
+  track({ status: "done", file: "a.onnx" });
+  track({ status: "progress", file: "b.onnx", loaded: 900, total: 1000 });
+  assert.equal(seen.at(-1).fraction, 1000 / 1100);
+  track({ status: "done", file: "b.onnx" });
+  assert.equal(seen.at(-1).fraction, 1);
+  for (let i = 1; i < seen.length; i += 1) {
+    assert.ok(seen[i].fraction >= seen[i - 1].fraction, "monotonic");
+  }
+  track({ status: "done", file: "never-started.json" }); // unknown file: ignored
+  assert.equal(seen.length, 5);
 });
