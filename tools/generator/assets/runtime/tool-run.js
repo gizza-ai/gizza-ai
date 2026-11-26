@@ -10,9 +10,9 @@
 //
 // Resolves {blob, outName, mime, backend?}; rejects with an Error whose message
 // is fit to show the user. `deps.signal` (an AbortSignal) cancels a superseded
-// run: model inference is the expensive step, so it is checked after input
-// validation and an aborted run rejects with the signal's reason (an
-// "AbortError" DOMException by default) instead of starting inference. Runtime modules are imported lazily so a page only
+// or cancelled run, which rejects with an AbortError: a text-to-image run is
+// handed the signal, and for other model tools it is checked after input
+// validation, before inference starts. Runtime modules are imported lazily so a page only
 // fetches the runtime it uses.
 
 import { fieldArgs } from "./tool-fields.js";
@@ -29,6 +29,20 @@ export async function runTool(page, mod, file, values, deps = {}) {
     }
     case "model": {
       const model = await import("./tool-model.js");
+      // Text-to-image tools take no file: their `prompt` field is the input.
+      if (page.model && page.model.task === "text-to-image") {
+        const prompt = read(page.inputs.find((i) => i.name === "prompt") || { name: "prompt" });
+        const result = await (deps.generateImage || model.generateImage)(page.model, prompt, {
+          onProgress: deps.onProgress,
+          signal: deps.signal,
+        });
+        return {
+          blob: result.blob,
+          outName: result.filename || "generated.png",
+          mime: result.blob.type || "image/png",
+          backend: result.backend,
+        };
+      }
       const run = deps.runModel || model.runModel;
       await (deps.validateFile || model.validateModelFile)(file);
       if (deps.signal) deps.signal.throwIfAborted();

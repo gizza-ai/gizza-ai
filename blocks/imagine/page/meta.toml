@@ -1,0 +1,41 @@
+slug          = "imagine"
+title         = "AI Image Generator That Runs in Your Browser"
+description   = "Turn a text prompt into an image with an AI model that runs entirely on your own device with WebGPU. No account, no upload, free."
+tags          = ["image", "ai", "image generator", "text to image", "prompt", "art", "illustration", "webgpu", "private"]
+h1            = "Generate an Image from Text"
+hero_subtitle = "Describe a picture — a local AI model draws it in your browser. Your prompt never leaves your device."
+wasm          = "gizza_ai_imagine_web"
+export        = "model_page"
+runtime       = "model"
+output_label  = "Generated image"
+format        = "image"
+
+[model]
+task = "text-to-image"
+id = "onnx-community/Janus-Pro-1B-ONNX"
+revision = "04efdf2e36cb07a034b0d94f7322356b292f0418"
+devices = ["webgpu"]
+download_mb = 2410.0
+
+[[input]]
+name        = "prompt"
+source      = "field"
+label       = "Describe the image"
+placeholder = "A lighthouse on a rocky coast at sunset, oil painting"
+multiline   = true
+
+[[example]]
+label  = "Watercolor fox"
+params = { prompt = "A red fox curled up asleep in fresh snow, soft watercolor illustration" }
+
+[[example]]
+label  = "Isometric room"
+params = { prompt = "A cozy isometric bedroom with plants and warm lamp light, 3D render" }
+
+[[example]]
+label  = "Retro poster"
+params = { prompt = "A vintage travel poster of a mountain lake at dawn, flat colors" }
+
+[[example]]
+label  = "Food photo"
+params = { prompt = "A stack of fluffy pancakes with blueberries and maple syrup, studio food photography" }
