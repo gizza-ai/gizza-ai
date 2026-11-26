@@ -1,13 +1,13 @@
 //! gizza-ai/flip-image — flip an image horizontally (mirror) or vertically.
 //! Returns a PNG. Pure-Rust (image crate) — runs on all backends incl. the chat
-//! SW. Surfaces: chat + CLI (image input + image bytes output → no page, like
-//! normalize-image).
+//! SW. Surfaces: chat + CLI (this handler) and the standalone page (web/,
+//! `wasm-image` runtime) — both call core `apply` with the same `Params`.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{build_media_envelope, resolve_source};
 use gizza_ai_block_utils::{AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor};
-use gizza_ai_flip_image_core::{flip, Direction};
+use gizza_ai_flip_image_core::{apply, Params};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -18,12 +18,8 @@ const MAX_OUTPUT_BYTES: usize = 32 * 1024 * 1024;
 struct Args {
     #[serde(flatten)]
     source: SourceFields,
-    #[serde(default = "default_direction")]
-    direction: String,
-}
-
-fn default_direction() -> String {
-    "horizontal".to_string()
+    #[serde(flatten)]
+    params: Params,
 }
 
 fn descriptor() -> ToolDescriptor {
@@ -66,15 +62,16 @@ impl FlipImage {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("flip-image")?;
-    let dir = Direction::parse(&args.direction).map_err(SkillError::InvalidArgs)?;
+    // Reject a bad direction before fetching the image (as before).
+    args.params.direction().map_err(SkillError::InvalidArgs)?;
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
-    let png = flip(&bytes, dir).map_err(SkillError::InvalidArgs)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
     build_media_envelope(
         &png,
         "image/png",
-        "flipped.png".to_string(),
-        format!("flipped image ({}, {} bytes PNG)", args.direction, png.len()),
+        out_name,
+        format!("flipped image ({}, {} bytes PNG)", args.params.direction, png.len()),
         MAX_OUTPUT_BYTES,
     )
 }
