@@ -1,0 +1,61 @@
+slug          = "image-hsl-adjust"
+title         = "Adjust Image Hue, Saturation and Lightness Online"
+description   = "Shift the hue, boost or mute saturation and lighten or darken a photo in HSL right in your browser — three sliders, a PNG result, nothing uploaded. Free."
+tags          = ["image", "hue", "saturation", "lightness", "hsl", "color", "photo", "grayscale", "recolor", "png"]
+h1            = "Adjust Image Hue, Saturation and Lightness"
+hero_subtitle = "Pick an image and move the sliders — the recolored PNG is made in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_hsl_adjust_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Adjusted image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "hue"
+source      = "field"
+label       = "Hue shift (−360° to 360°)"
+placeholder = "0"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "saturation"
+source      = "field"
+label       = "Saturation (× 0 to 4, 1 = unchanged)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[input]]
+name        = "lightness"
+source      = "field"
+label       = "Lightness (× 0 to 4, 1 = unchanged)"
+placeholder = "1"
+kind        = "slider"
+step        = "0.05"
+
+[[example]]
+label  = "Complementary colors (180°)"
+params = { hue = "180" }
+
+[[example]]
+label  = "Grayscale"
+params = { saturation = "0" }
+
+[[example]]
+label  = "More vivid"
+params = { saturation = "1.5" }
+
+[[example]]
+label  = "Muted and darker"
+params = { saturation = "0.6", lightness = "0.85" }
+
+[[example]]
+label  = "Warm shift"
+params = { hue = "-20", saturation = "1.2" }
