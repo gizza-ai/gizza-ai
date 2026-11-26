@@ -142,6 +142,9 @@ pub struct ToolMeta {
     pub waveform: Option<WaveformSpec>,
 }
 
+/// Every `runtime` the page runtime (`tool.js` / `tool-run.js`) can execute.
+pub const RUNTIMES: &[&str] = &["wasm", "ffmpeg", "model"];
+
 fn default_runtime() -> String {
     "wasm".to_string()
 }
@@ -149,10 +152,23 @@ fn default_runtime() -> String {
 impl ToolMeta {
     /// Parse from TOML text.
     pub fn from_toml(text: &str) -> Result<Self, String> {
-        toml::from_str(text).map_err(|e| format!("meta.toml parse error: {e}"))
+        let meta: Self = toml::from_str(text).map_err(|e| format!("meta.toml parse error: {e}"))?;
+        // An unknown runtime would otherwise fall through `tool.js` into the
+        // text-compute path and fail silently at run time — reject it here.
+        if !RUNTIMES.contains(&meta.runtime.as_str()) {
+            return Err(format!(
+                "meta.toml: unknown runtime \"{}\" (want one of: {})",
+                meta.runtime,
+                RUNTIMES.join(", ")
+            ));
+        }
+        Ok(meta)
     }
 
-    /// Build the `window.GIZZA_TOOL` config object consumed by `tool.js`. The
+    /// Build the tool's page config: `window.GIZZA_TOOL` (consumed by `tool.js`)
+    /// and the `page` section of `tool.json` (consumed by any page that drives
+    /// the tool by spec — same object, one builder). Each field input carries
+    /// its label and serialized [`crate::control::Control`]. The
     /// tool's declared param `schema` is threaded in so each `source="field"`
     /// input carries its JSON-schema numeric-ness (`"numeric": true` for
     /// `integer`/`number` params) — `tool.js` coerces field values to `Number`
@@ -166,13 +182,21 @@ impl ToolMeta {
             .map(|i| {
                 let mut obj = serde_json::json!({
                     "name": i.name,
+                    "label": i.label,
                     "source": i.source,
                     "elementId": format!("in-{}", i.name),
                     "accept": i.accept,
                     "default": i.default,
                 });
-                if i.source == "field" && schema.is_numeric(&i.name) {
-                    obj["numeric"] = serde_json::json!(true);
+                if i.source == "field" {
+                    if schema.is_numeric(&i.name) {
+                        obj["numeric"] = serde_json::json!(true);
+                    }
+                    obj["control"] = serde_json::to_value(schema.control_for_input(i))
+                        .expect("serialize control");
+                    if !i.labels.is_empty() {
+                        obj["optionLabels"] = serde_json::json!(i.labels);
+                    }
                 }
                 obj
             })
@@ -209,6 +233,29 @@ impl ToolMeta {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rejects_unknown_runtime() {
+        let text = r#"
+slug = "x"
+title = "X"
+description = "X"
+tags = []
+h1 = "X"
+hero_subtitle = "X"
+wasm = "x_web"
+export = "build_argv"
+output_label = "X"
+format = "image"
+runtime = "fmpeg"
+"#;
+        let err = ToolMeta::from_toml(text).unwrap_err();
+        assert!(err.contains(r#"unknown runtime "fmpeg""#), "{err}");
+        for ok in RUNTIMES {
+            let text = text.replace("fmpeg", ok);
+            assert!(ToolMeta::from_toml(&text).is_ok(), "runtime {ok} parses");
+        }
+    }
 
     #[test]
     fn parses_calculator_meta() {
