@@ -1,6 +1,13 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
-import { ALPHA_SQUARE, alphaReport } from './alpha-square';
+import {
+  ALPHA_SQUARE,
+  ALPHA_SQUARE_GIF,
+  ALPHA_SQUARE_PAL,
+  alphaReport,
+  expectFlattenedOnWhite,
+  resultUrl,
+} from './alpha-square';
 
 // The generated /tools/image-vignette/ page darkens (or lightens/tints) the
 // edges of an uploaded image in-browser via ffmpeg's vignette filter (plus a
@@ -290,23 +297,26 @@ test('copy-image button never leaks onto text or video tool pages', async ({ pag
   await expect(page.locator('#tool-copy-image')).toHaveCount(0);
 });
 
-// ffmpeg's vignette only accepts opaque formats; for png/webp output the
-// alpha plane is split off and merged back, so the transparent background
-// stays transparent (it used to come back opaque green-black).
-for (const [format, color] of [
-  ['keep', ''],
-  ['webp', ''],
-  ['keep', '#ff0000'],
+// ffmpeg's vignette only accepts opaque formats; the alpha plane is split off
+// and merged back, so the transparent background stays transparent (it used
+// to come back opaque green-black) — for a palette PNG with tRNS too, and for
+// a GIF, whose alpha becomes a transparent palette entry (ffmpeg's default
+// GIF path quantizes to an opaque bgr8 palette).
+for (const [name, fixture, format, color, mime] of [
+  ['RGBA PNG', ALPHA_SQUARE, 'keep', '', 'image/png'],
+  ['RGBA PNG', ALPHA_SQUARE, 'webp', '', 'image/webp'],
+  ['RGBA PNG', ALPHA_SQUARE, 'keep', '#ff0000', 'image/png'],
+  ['palette PNG', ALPHA_SQUARE_PAL, 'keep', '', 'image/png'],
+  ['GIF', ALPHA_SQUARE_GIF, 'keep', '', 'image/gif'],
 ] as const) {
-  test(`image-vignette keeps a transparent PNG's alpha mask exactly (format=${format}${color ? `, color=${color}` : ''})`, async ({ page }) => {
+  test(`image-vignette keeps a transparent ${name}'s alpha mask exactly (format=${format}${color ? `, color=${color}` : ''})`, async ({ page }) => {
     await page.goto('/tools/image-vignette/');
     await page.fill('#in-strength', '80');
     if (color) await page.fill('#in-color', color);
     await page.selectOption('#in-format', format);
-    await page.setInputFiles('#in-image', ALPHA_SQUARE);
-    const src = await outputSrc(page);
-    expect(src).toMatch(format === 'webp' ? /^data:image\/webp/ : /^data:image\/png/);
-    const r = await alphaReport(page, src);
+    await page.setInputFiles('#in-image', fixture);
+    const r = await alphaReport(page, await resultUrl(page));
+    expect(r.mime).toBe(mime);
     expect(r.corner[3]).toBe(0);
     expect(r.mismatches).toBe(0);
     // The visible pixels are still vignetted: the square's corner is darker
@@ -314,3 +324,15 @@ for (const [format, color] of [
     expect(r.squareCorner[1]).toBeLessThan(r.center[1]);
   });
 }
+
+// JPEG has no alpha: the vignetted result is flattened onto white instead of
+// exposing the green stored under the transparent pixels.
+test('image-vignette flattens a transparent PNG onto white for JPEG output', async ({ page }) => {
+  await page.goto('/tools/image-vignette/');
+  await page.fill('#in-strength', '80');
+  await page.selectOption('#in-format', 'jpg');
+  await page.setInputFiles('#in-image', ALPHA_SQUARE);
+  const r = await alphaReport(page, await resultUrl(page));
+  expectFlattenedOnWhite(r);
+  expect(r.squareCorner[0]).toBeLessThan(r.center[0]);
+});

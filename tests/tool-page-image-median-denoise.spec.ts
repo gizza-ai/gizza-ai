@@ -1,6 +1,14 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
-import { ALPHA_SQUARE, alphaReport } from './alpha-square';
+import {
+  ALPHA_SQUARE,
+  ALPHA_SQUARE_GIF,
+  ALPHA_SQUARE_PAL,
+  alphaReport,
+  expectFlattenedOnWhite,
+  expectRed,
+  resultUrl,
+} from './alpha-square';
 
 async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
@@ -110,16 +118,35 @@ test('image-median-denoise preset chips and generated CLI example are generic', 
 
 // The median runs on the color planes only: filtering the alpha plane eroded
 // every corner of an opaque shape on a transparent background (the square's
-// corner pixel became transparent).
-for (const format of ['keep', 'webp'] as const) {
-  test(`image-median-denoise keeps a transparent PNG's alpha mask exactly (format=${format})`, async ({ page }) => {
+// corner pixel became transparent). The color median must not let fully
+// transparent pixels vote either: at the square's corner 5 of the 9 window
+// pixels are transparent, and the green stored under them used to win.
+for (const [name, fixture, format, mime] of [
+  ['RGBA PNG', ALPHA_SQUARE, 'keep', 'image/png'],
+  ['RGBA PNG', ALPHA_SQUARE, 'webp', 'image/webp'],
+  ['palette PNG', ALPHA_SQUARE_PAL, 'keep', 'image/png'],
+  ['GIF', ALPHA_SQUARE_GIF, 'keep', 'image/gif'],
+] as const) {
+  test(`image-median-denoise keeps a transparent ${name}'s alpha and colors (format=${format})`, async ({ page }) => {
     await page.goto('/tools/image-median-denoise/');
     await page.selectOption('#in-format', format);
-    await page.setInputFiles('#in-image', ALPHA_SQUARE);
-    const src = await outputSrc(page);
-    const r = await alphaReport(page, src);
+    await page.setInputFiles('#in-image', fixture);
+    const r = await alphaReport(page, await resultUrl(page));
+    expect(r.mime).toBe(mime);
     expect(r.corner[3]).toBe(0);
-    expect(r.squareCorner[3]).toBe(255);
     expect(r.mismatches).toBe(0);
+    expectRed(r.squareCorner);
+    expectRed(r.center);
   });
 }
+
+// JPEG has no alpha: the result is flattened onto white instead of exposing
+// the green stored under the transparent pixels.
+test('image-median-denoise flattens a transparent PNG onto white for JPEG output', async ({ page }) => {
+  await page.goto('/tools/image-median-denoise/');
+  await page.selectOption('#in-format', 'jpg');
+  await page.setInputFiles('#in-image', ALPHA_SQUARE);
+  const r = await alphaReport(page, await resultUrl(page));
+  expectFlattenedOnWhite(r);
+  expectRed(r.center);
+});
