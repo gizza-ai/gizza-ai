@@ -22,6 +22,11 @@ export function progressLabel(progress) {
   if (progress.stage === "fallback") {
     return `Trying ${progress.device || "the CPU fallback"}…`;
   }
+  if (progress.stage === "generate") {
+    const total = Number(progress.total);
+    const percent = total > 0 ? Math.round((Number(progress.count) / total) * 100) : 0;
+    return `Generating image… ${Math.max(0, Math.min(100, percent))}%`;
+  }
   const value = Number(progress.progress);
   if (Number.isFinite(value)) {
     const percent = value <= 1 ? value * 100 : value;
@@ -117,8 +122,25 @@ export class ModelWorkerClient {
       return;
     }
     this.pending.delete(message.id);
+    if (pending.cleanup) pending.cleanup();
     if (message.type === "result") pending.resolve(message);
+    else if (message.type === "cancelled") pending.reject(abortError());
     else pending.reject(new Error(message.error || "AI inference failed."));
+  }
+
+  // Text-to-image: `prompt` → { blob, filename, backend }. Aborting `signal`
+  // asks the worker to stop at the next image token and rejects with an
+  // AbortError once it has.
+  generate(model, prompt, { onProgress = null, signal = null } = {}) {
+    if (signal && signal.aborted) return Promise.reject(abortError());
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      const onAbort = () => this.worker.postMessage({ type: "cancel", id });
+      const cleanup = signal ? () => signal.removeEventListener("abort", onAbort) : null;
+      this.pending.set(id, { resolve, reject, onProgress, cleanup });
+      if (signal) signal.addEventListener("abort", onAbort, { once: true });
+      this.worker.postMessage({ type: "generate", id, model, prompt });
+    });
   }
 
   run(model, file, fields = {}, onProgress = null) {
@@ -142,7 +164,34 @@ export class ModelWorkerClient {
   }
 }
 
+function abortError() {
+  return new DOMException("Image generation was cancelled.", "AbortError");
+}
+
 let sharedClient = null;
+
+function client() {
+  if (!sharedClient) sharedClient = new ModelWorkerClient();
+  return sharedClient;
+}
+
+// Generate an image locally from `prompt` with a pinned text-to-image model
+// (`model.task === "text-to-image"`). WebGPU only.
+export function generateImage(model, prompt, { onProgress = null, signal = null, nav = globalThis.navigator || {} } = {}) {
+  if (!nav.gpu) {
+    return Promise.reject(new Error("Image generation needs WebGPU, which this browser or device doesn't provide."));
+  }
+  if (!model || !model.id || !model.revision) {
+    return Promise.reject(new Error("This AI tool is missing its pinned model configuration."));
+  }
+  if (model.task !== "text-to-image") {
+    return Promise.reject(new Error(`Expected a text-to-image model, got "${model.task}".`));
+  }
+  if (!String(prompt || "").trim()) {
+    return Promise.reject(new Error("Describe the image you want first."));
+  }
+  return client().generate(model, String(prompt).trim(), { onProgress, signal });
+}
 
 export function runModel(model, file, fields, onProgress) {
   if (!model || !model.task || !model.id || !model.revision) {
@@ -151,6 +200,5 @@ export function runModel(model, file, fields, onProgress) {
   if (!compatibleDevices(model).length) {
     return Promise.reject(new Error("This browser supports neither WebGPU nor the WebAssembly fallback."));
   }
-  if (!sharedClient) sharedClient = new ModelWorkerClient();
-  return sharedClient.run(model, file, fields, onProgress);
+  return client().run(model, file, fields, onProgress);
 }

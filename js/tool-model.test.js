@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   compatibleDevices,
+  generateImage,
   MODEL_FILE_LIMITS,
   ModelWorkerClient,
   progressLabel,
@@ -157,4 +158,57 @@ test("ModelWorkerClient rejects worker-reported failures", async () => {
   worker.emit("message", { type: "error", id, error: "model failed" });
   await assert.rejects(promise, /model failed/);
   client.dispose();
+});
+
+const JANUS = { task: "text-to-image", id: "onnx-community/Janus-Pro-1B-ONNX", revision: "abc", devices: ["webgpu"] };
+
+test("progressLabel reports image-token generation progress", () => {
+  assert.equal(progressLabel({ stage: "generate", count: 144, total: 576 }), "Generating image… 25%");
+});
+
+test("ModelWorkerClient.generate posts the prompt and resolves the generated image", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const seen = [];
+  const promise = client.generate(JANUS, "a red fox", { onProgress: (p) => seen.push(p) });
+  const posted = worker.posted[0];
+  assert.equal(posted.type, "generate");
+  assert.equal(posted.prompt, "a red fox");
+  assert.equal(posted.model.id, JANUS.id);
+  worker.emit("message", { type: "progress", id: posted.id, progress: { stage: "generate", count: 1, total: 576 } });
+  worker.emit("message", { type: "result", id: posted.id, blob: new Blob(["png"], { type: "image/png" }), filename: "generated.png", backend: "webgpu" });
+  const result = await promise;
+  assert.equal(result.filename, "generated.png");
+  assert.deepEqual(seen, [{ stage: "generate", count: 1, total: 576 }]);
+  client.dispose();
+});
+
+test("aborting a generation asks the worker to cancel and rejects with AbortError", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const id = worker.posted[0].id;
+  controller.abort();
+  assert.deepEqual(worker.posted[1], { type: "cancel", id });
+  worker.emit("message", { type: "cancelled", id });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  client.dispose();
+});
+
+test("an already-aborted signal never starts a generation", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(client.generate(JANUS, "x", { signal: controller.signal }), (error) => error.name === "AbortError");
+  assert.equal(worker.posted.length, 0);
+  client.dispose();
+});
+
+test("generateImage needs WebGPU, a pinned text-to-image model and a prompt", async () => {
+  await assert.rejects(generateImage(JANUS, "a fox", { nav: {} }), /needs WebGPU/);
+  await assert.rejects(generateImage({ ...JANUS, revision: "" }, "a fox", { nav: { gpu: {} } }), /pinned model/);
+  await assert.rejects(generateImage({ ...JANUS, task: "background-removal" }, "a fox", { nav: { gpu: {} } }), /text-to-image/);
+  await assert.rejects(generateImage(JANUS, "   ", { nav: { gpu: {} } }), /Describe the image/);
 });

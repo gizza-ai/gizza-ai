@@ -2,7 +2,17 @@
 // runtime itself is self-hosted; pinned model weights are fetched lazily and
 // then served from Transformers.js' browser cache.
 
-import { AutoModel, env, ImageProcessor, pipeline, RawImage } from "./transformers.min.js";
+import {
+  AutoModel,
+  AutoProcessor,
+  BaseStreamer,
+  env,
+  ImageProcessor,
+  InterruptableStoppingCriteria,
+  MultiModalityCausalLM,
+  pipeline,
+  RawImage,
+} from "./transformers.min.js";
 
 env.backends.onnx.wasm.wasmPaths = new URL("./", import.meta.url).href;
 env.backends.onnx.wasm.proxy = false;
@@ -153,6 +163,181 @@ async function runTask(pipe, task, file) {
       throw new Error(`Unsupported browser model task: ${task}`);
   }
 }
+
+// ---- Text-to-image (Janus-Pro via MultiModalityCausalLM) --------------------
+// Request:  { type: "generate", id, model, prompt }   (model.task "text-to-image")
+//           { type: "cancel", id }
+// Replies:  progress { stage: "download", progress: 0..1 } while weights load,
+//           progress { stage: "generate", count, total } per image token,
+//           then { type: "result", id, blob, filename, backend } |
+//           { type: "cancelled", id } | { type: "error", id, error }.
+
+// Per-module dtypes and devices from Hugging Face's janus-pro-webgpu reference:
+// half precision where the GPU supports shader-f16, full precision otherwise.
+// Input embedding preparation runs on WebAssembly (an upstream WebGPU issue);
+// every generation stage runs on WebGPU.
+const JANUS_DTYPES = {
+  f16: {
+    prepare_inputs_embeds: "q4",
+    language_model: "q4f16",
+    lm_head: "fp16",
+    gen_head: "fp16",
+    gen_img_embeds: "fp16",
+    image_decode: "fp32",
+  },
+  f32: {
+    prepare_inputs_embeds: "fp32",
+    language_model: "q4",
+    lm_head: "fp32",
+    gen_head: "fp32",
+    gen_img_embeds: "fp32",
+    image_decode: "fp32",
+  },
+};
+const JANUS_DEVICES = {
+  prepare_inputs_embeds: "wasm",
+  language_model: "webgpu",
+  lm_head: "webgpu",
+  gen_head: "webgpu",
+  gen_img_embeds: "webgpu",
+  image_decode: "webgpu",
+};
+
+const WEBGPU_REQUIRED = "Image generation needs WebGPU, which this browser or device doesn't provide.";
+
+// Overall download fraction across every weight file, from Transformers.js'
+// per-file progress events.
+function downloadTracker(onFraction) {
+  const files = new Map();
+  return (event) => {
+    if (!event || !event.file) return;
+    if (event.status === "progress" && Number.isFinite(event.total) && event.total > 0) {
+      files.set(event.file, { loaded: event.loaded, total: event.total });
+    } else if (event.status === "done" && files.has(event.file)) {
+      const f = files.get(event.file);
+      files.set(event.file, { loaded: f.total, total: f.total });
+    } else {
+      return;
+    }
+    let loaded = 0;
+    let total = 0;
+    for (const f of files.values()) {
+      loaded += f.loaded;
+      total += f.total;
+    }
+    if (total > 0) onFraction(loaded / total, loaded, total);
+  };
+}
+
+let janus = null; // { key, promise }
+
+async function loadJanus(id, model) {
+  const key = `${model.id}@${model.revision}`;
+  if (janus && janus.key === key) return janus.promise;
+  const gpu = self.navigator && self.navigator.gpu;
+  const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
+  if (!adapter) throw new Error(WEBGPU_REQUIRED);
+  const precision = adapter.features && adapter.features.has("shader-f16") ? "f16" : "f32";
+  const progress_callback = downloadTracker((fraction, loaded, total) => {
+    postMessage({ type: "progress", id, progress: { stage: "download", progress: fraction, loaded, total } });
+  });
+  const promise = Promise.all([
+    AutoProcessor.from_pretrained(model.id, { revision: model.revision, progress_callback }),
+    MultiModalityCausalLM.from_pretrained(model.id, {
+      revision: model.revision,
+      dtype: JANUS_DTYPES[precision],
+      device: JANUS_DEVICES,
+      progress_callback,
+    }),
+  ]);
+  janus = { key, promise };
+  promise.catch(() => {
+    if (janus && janus.key === key) janus = null;
+  });
+  return promise;
+}
+
+// Counts generated image tokens (the first put() is the prompt).
+class TokenProgress extends BaseStreamer {
+  constructor(total, onToken) {
+    super();
+    this.total = total;
+    this.onToken = onToken;
+    this.count = null;
+  }
+  put() {
+    if (this.count === null) {
+      this.count = 0;
+      return;
+    }
+    this.count += 1;
+    this.onToken(this.count, this.total);
+  }
+  end() {}
+}
+
+const generations = new Map(); // id → InterruptableStoppingCriteria
+
+async function generateImage(request) {
+  const { id, model, prompt } = request;
+  const stopping = new InterruptableStoppingCriteria();
+  generations.set(id, stopping);
+  try {
+    if (!model || model.task !== "text-to-image") {
+      throw new Error(`Unsupported browser model task: ${model && model.task}`);
+    }
+    const text = String(prompt || "").trim();
+    if (!text) throw new Error("Describe the image you want first.");
+    postMessage({ type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
+    const [processor, janusModel] = await loadJanus(id, model);
+    if (stopping.interrupted) {
+      postMessage({ type: "cancelled", id });
+      return;
+    }
+    const inputs = await processor([{ role: "<|User|>", content: text }], { chat_template: "text_to_image" });
+    const total = processor.num_image_tokens;
+    const streamer = new TokenProgress(total, (count) => {
+      postMessage({ type: "progress", id, progress: { stage: "generate", count, total } });
+    });
+    let outputs;
+    try {
+      outputs = await janusModel.generate_images({
+        ...inputs,
+        min_new_tokens: total,
+        max_new_tokens: total,
+        do_sample: true,
+        streamer,
+        stopping_criteria: stopping,
+      });
+    } catch (error) {
+      // An interrupted run stops short of a full token grid; decoding it fails.
+      if (stopping.interrupted) {
+        postMessage({ type: "cancelled", id });
+        return;
+      }
+      throw error;
+    }
+    if (stopping.interrupted) {
+      postMessage({ type: "cancelled", id });
+      return;
+    }
+    const blob = await outputs[0].toBlob("image/png");
+    postMessage({ type: "result", id, blob, filename: "generated.png", backend: "webgpu" });
+  } catch (error) {
+    postMessage({ type: "error", id, error: errorMessage(error) });
+  } finally {
+    generations.delete(id);
+  }
+}
+
+self.addEventListener("message", (event) => {
+  const request = event.data || {};
+  if (request.type === "generate") generateImage(request);
+  else if (request.type === "cancel") {
+    const stopping = generations.get(request.id);
+    if (stopping) stopping.interrupt();
+  }
+});
 
 self.addEventListener("message", async (event) => {
   const request = event.data || {};
