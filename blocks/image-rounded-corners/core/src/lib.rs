@@ -12,6 +12,66 @@
 use std::io::Cursor;
 
 use image::{DynamicImage, GenericImageView, ImageFormat};
+use serde::Deserialize;
+
+/// The tool's options, shared by every surface: the chat/CLI handler flattens
+/// them from its JSON args, the browser page deserializes them from its params
+/// object. Missing fields take the schema defaults (see `Default`).
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct Params {
+    /// Corner radius, in `unit`s. `None` = 12% of the shorter side.
+    pub radius: Option<f64>,
+    /// `px` (default) or `percent` (of the shorter side; 50 = fully rounded).
+    pub unit: String,
+    /// `all` (default), `top`, `bottom`, `left` or `right`.
+    pub corners: String,
+    /// `transparent` (default) or a solid fill color (hex or common name).
+    pub background: String,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        Self {
+            radius: None,
+            unit: "px".to_string(),
+            corners: "all".to_string(),
+            background: "transparent".to_string(),
+        }
+    }
+}
+
+/// [`Params`] validated into the typed values [`round_corners`] takes.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Options {
+    pub radius: Option<f64>,
+    pub unit: Unit,
+    pub corners: Corners,
+    pub background: Option<[u8; 3]>,
+}
+
+impl Params {
+    /// Validate the string options. Pure and cheap, so the chat handler can
+    /// call it to fail fast before fetching the image.
+    pub fn options(&self) -> Result<Options, String> {
+        Ok(Options {
+            radius: self.radius,
+            unit: parse_unit(&self.unit)?,
+            corners: parse_corners(&self.corners)?,
+            background: parse_background(&self.background)?,
+        })
+    }
+}
+
+/// Output filename for every surface.
+pub const OUT_NAME: &str = "rounded.png";
+
+/// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
+pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
+    let o = params.options()?;
+    let png = round_corners(bytes, o.radius, o.unit, o.corners, o.background)?;
+    Ok((png, OUT_NAME.to_string()))
+}
 
 /// Which corners to round.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -338,6 +398,72 @@ mod tests {
         let img = image::load_from_memory(&out).unwrap();
         assert_eq!(img.get_pixel(0, 0).0[3], 0, "default radius rounds the corner");
         assert_eq!(img.get_pixel(50, 50).0[3], 255, "center kept");
+    }
+
+    #[test]
+    fn params_defaults_match_schema() {
+        let p = Params::default();
+        assert_eq!(p.radius, None);
+        assert_eq!((p.unit.as_str(), p.corners.as_str(), p.background.as_str()), ("px", "all", "transparent"));
+        assert_eq!(
+            p.options().unwrap(),
+            Options { radius: None, unit: Unit::Px, corners: Corners::All, background: None }
+        );
+    }
+
+    #[test]
+    fn params_reject_invalid_options() {
+        let bad_unit = Params { unit: "furlongs".into(), ..Params::default() };
+        assert!(bad_unit.options().unwrap_err().contains("unit"));
+        let bad_corners = Params { corners: "diagonal".into(), ..Params::default() };
+        assert!(bad_corners.options().unwrap_err().contains("corners"));
+        let bad_bg = Params { background: "boguscolor".into(), ..Params::default() };
+        assert!(bad_bg.options().unwrap_err().contains("unknown color"));
+        assert!(apply(&opaque_png(4, 4), &bad_unit).is_err());
+    }
+
+    #[test]
+    fn params_deserialize_with_missing_fields() {
+        let p: Params = serde_json::from_str(r#"{"radius": 8, "corners": "top"}"#).unwrap();
+        assert_eq!(p, Params { radius: Some(8.0), corners: "top".into(), ..Params::default() });
+        let empty: Params = serde_json::from_str("{}").unwrap();
+        assert_eq!(empty, Params::default());
+    }
+
+    #[test]
+    fn apply_returns_png_and_name() {
+        let src = opaque_png(40, 20);
+        let (out, name) = apply(&src, &Params { radius: Some(8.0), ..Params::default() }).unwrap();
+        assert_eq!(name, "rounded.png");
+        let img = image::load_from_memory_with_format(&out, ImageFormat::Png).unwrap();
+        assert_eq!(img.dimensions(), (40, 20));
+        assert_eq!(img.get_pixel(0, 0).0[3], 0, "corner transparent");
+        assert_eq!(img.get_pixel(20, 10).0, [200, 100, 50, 255], "center unchanged");
+    }
+
+    /// Pins the values the page spec (tests/tool-page-image-rounded-corners.spec.ts)
+    /// asserts on the 64x64 gray fixture.
+    #[test]
+    fn page_spec_expectations_on_gray_fixture() {
+        let src = std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/../../../tests/fixtures/gray-64x64.png")).unwrap();
+        let center_src = image::load_from_memory(&src).unwrap().get_pixel(32, 32).0;
+        assert_eq!(center_src, [128, 128, 128, 255], "fixture is uniform mid-gray");
+        let (out, _) = apply(&src, &Params { radius: Some(16.0), ..Params::default() }).unwrap();
+        let img = image::load_from_memory(&out).unwrap();
+        assert_eq!(img.dimensions(), (64, 64));
+        assert_eq!(img.get_pixel(0, 0).0[3], 0);
+        assert_eq!(img.get_pixel(63, 63).0[3], 0);
+        assert_eq!(img.get_pixel(32, 32).0, center_src);
+        assert_eq!(img.get_pixel(0, 32).0, center_src, "left-edge midpoint untouched");
+
+        let (out, _) = apply(
+            &src,
+            &Params { radius: Some(16.0), corners: "top".into(), background: "#ff0000".into(), ..Params::default() },
+        )
+        .unwrap();
+        let img = image::load_from_memory(&out).unwrap();
+        assert_eq!(img.get_pixel(0, 0).0, [255, 0, 0, 255], "top corner filled red");
+        assert_eq!(img.get_pixel(0, 63).0, center_src, "bottom corner square");
     }
 
     #[test]
