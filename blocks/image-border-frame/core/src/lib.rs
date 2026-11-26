@@ -37,25 +37,39 @@ impl Params {
     pub fn thickness_px(&self) -> u32 {
         self.thickness.min(MAX_THICKNESS) as u32
     }
+
+    /// Validate the options. Pure and cheap, so the chat handler can call it
+    /// to fail fast before fetching the image.
+    pub fn options(&self) -> Result<Options, String> {
+        Ok(Options { thickness: self.thickness_px(), color: parse_color(&self.color)? })
+    }
+}
+
+/// [`Params`] validated into the typed values [`add_border`] takes.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Options {
+    pub thickness: u32,
+    pub color: Rgba<u8>,
 }
 
 /// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
 /// The color is validated before the image is decoded.
 pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
-    let color = parse_color(&params.color)?;
-    Ok((add_border(bytes, params.thickness_px(), color)?, OUT_NAME.to_string()))
+    let o = params.options()?;
+    Ok((add_border(bytes, o.thickness, o.color)?, OUT_NAME.to_string()))
 }
 
 /// Parse `#rgb`, `#rrggbb`, or `#rrggbbaa` into RGBA.
 pub fn parse_color(s: &str) -> Result<Rgba<u8>, String> {
     let h = s.trim().trim_start_matches('#');
+    // Hex digits only from here on: the byte-offset slicing below would panic
+    // on a multi-byte character.
+    if !h.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(format!("invalid color '{s}' (use #rgb, #rrggbb, or #rrggbbaa)"));
+    }
     let v = |a: &str| u8::from_str_radix(a, 16).map_err(|_| format!("invalid color '{s}'"));
     let (r, g, b, a) = match h.len() {
-        3 => {
-            let cs: Vec<char> = h.chars().collect();
-            let d = |c: char| v(&c.to_string().repeat(2));
-            (d(cs[0])?, d(cs[1])?, d(cs[2])?, 255)
-        }
+        3 => (v(&h[0..1].repeat(2))?, v(&h[1..2].repeat(2))?, v(&h[2..3].repeat(2))?, 255),
         6 => (v(&h[0..2])?, v(&h[2..4])?, v(&h[4..6])?, 255),
         8 => (v(&h[0..2])?, v(&h[2..4])?, v(&h[4..6])?, v(&h[6..8])?),
         _ => return Err(format!("invalid color '{s}' (use #rgb, #rrggbb, or #rrggbbaa)")),
@@ -145,6 +159,22 @@ mod tests {
         assert_eq!(p, Params { thickness: 20, color: "#fff".into() });
         let p: Params = serde_json::from_str("{}").unwrap();
         assert_eq!(p, Params::default());
+    }
+
+    #[test]
+    fn non_ascii_color_is_an_error_not_a_panic() {
+        for bad in ["#aébcd", "#éa", "é", "#ff00ffé"] {
+            let err = parse_color(bad).unwrap_err();
+            assert!(err.contains("invalid color"), "{bad}: {err}");
+        }
+    }
+
+    #[test]
+    fn options_validate_without_an_image() {
+        let p = Params { thickness: 5, color: "#éa".into() };
+        assert!(p.options().unwrap_err().contains("invalid color"));
+        let o = Params { thickness: 9_999, color: "#0f0".into() }.options().unwrap();
+        assert_eq!(o, Options { thickness: 2000, color: Rgba([0, 255, 0, 255]) });
     }
 
     #[test]

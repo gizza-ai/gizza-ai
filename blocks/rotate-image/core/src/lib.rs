@@ -26,13 +26,28 @@ impl Default for Params {
     }
 }
 
+/// [`Params`] validated into the typed values [`rotate`] takes.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Options {
+    pub angle: f64,
+    pub background: Rgba<u8>,
+}
+
+impl Params {
+    /// Validate the options. Pure and cheap, so the chat handler can call it
+    /// to fail fast before fetching the image.
+    pub fn options(&self) -> Result<Options, String> {
+        Ok(Options { angle: self.angle, background: parse_color(&self.background)? })
+    }
+}
+
 /// Output filename for every surface.
 pub const OUT_NAME: &str = "rotated.png";
 
 /// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
 pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
-    let bg = parse_color(&params.background)?;
-    Ok((rotate(bytes, params.angle, bg)?, OUT_NAME.to_string()))
+    let o = params.options()?;
+    Ok((rotate(bytes, o.angle, o.background)?, OUT_NAME.to_string()))
 }
 
 /// Parse a `#rrggbb`, `#rrggbbaa`, `#rgb`, or `transparent` background color.
@@ -49,6 +64,13 @@ pub fn parse_color(s: &str) -> Result<Rgba<u8>, String> {
         return Ok(Rgba([0, 0, 0, 255]));
     }
     let hex = t.strip_prefix('#').unwrap_or(&t);
+    // Hex digits only from here on: the byte-offset slicing below would panic
+    // on a multi-byte character.
+    if !hex.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(format!(
+            "invalid background '{s}' (use #rgb, #rrggbb, #rrggbbaa, transparent, white, or black)"
+        ));
+    }
     let parse2 = |h: &str| -> Result<u8, String> {
         u8::from_str_radix(h, 16).map_err(|_| format!("invalid hex color '{s}'"))
     };
@@ -281,6 +303,22 @@ mod tests {
         assert_eq!(parse_color("black").unwrap(), Rgba([0, 0, 0, 255]));
         assert!(parse_color("#zzz").is_err());
         assert!(parse_color("notacolor").is_err());
+    }
+
+    #[test]
+    fn non_ascii_color_is_an_error_not_a_panic() {
+        for bad in ["#aébcd", "#éa", "é", "#ffé", "#ff00ffé"] {
+            let err = parse_color(bad).unwrap_err();
+            assert!(err.contains("invalid background"), "{bad}: {err}");
+        }
+    }
+
+    #[test]
+    fn options_validate_without_an_image() {
+        let p = Params { angle: 45.0, background: "#aébcd".to_string() };
+        assert!(p.options().unwrap_err().contains("invalid background"));
+        let o = Params { angle: 30.0, background: "#f00".to_string() }.options().unwrap();
+        assert_eq!(o, Options { angle: 30.0, background: Rgba([255, 0, 0, 255]) });
     }
 
     #[test]

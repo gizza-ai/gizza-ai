@@ -76,6 +76,8 @@ impl RotateImage {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("rotate-image")?;
+    // Fail fast on bad options before fetching the image.
+    args.params.options().map_err(SkillError::InvalidArgs)?;
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
     let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;

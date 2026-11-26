@@ -71,7 +71,8 @@ impl ImageBorderFrame {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-border-frame")?;
-    let thickness = args.params.thickness_px();
+    // Fail fast on bad options before fetching the image.
+    let thickness = args.params.options().map_err(SkillError::InvalidArgs)?.thickness;
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
     let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
