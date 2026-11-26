@@ -1,7 +1,9 @@
 //! gizza-ai ffmpeg JS bridge.
 //!
-//! Exports a single function `ffmpegExec(argsJson, inputsJson, outputName)`
-//! that the Rust BrowserFfmpegService calls via wasm-bindgen.
+//! Exports `ffmpegExecBytes(args, inputs, outputName)` (raw bytes, used by the
+//! tool pages and the editor) and its base64/JSON wrapper
+//! `ffmpegExec(argsJson, inputsJson, outputName)`, which the Rust
+//! BrowserFfmpegService calls via wasm-bindgen.
 //!
 //! @ffmpeg/ffmpeg + @ffmpeg/core are loaded lazily on first call from the
 //! jsdelivr CDN. Subsequent calls reuse the same FFmpeg instance.
@@ -87,29 +89,49 @@ function uint8ToB64(arr) {
 }
 
 /**
- * Run ffmpeg with the given CLI args.
+ * Run ffmpeg with the given CLI args on raw bytes (no base64).
  *
  * Calls are serialized FIFO: they share one FFmpeg instance and its virtual
  * FS, and tools reuse fixed in/out filenames — interleaved
  * writeFile/exec/readFile from overlapping calls would cross-wire inputs and
  * outputs (e.g. an earlier call reading back a later call's output).
  *
- * @param {string} argsJson    JSON-encoded array of strings, e.g. '["-i","in","out"]'
- * @param {string} inputsJson  JSON-encoded array of {name, bytes_b64}
+ * Input bytes are copied before they are handed to ffmpeg: its writeFile
+ * transfers the buffer to the ffmpeg worker, which would otherwise detach the
+ * caller's array.
+ *
+ * @param {string[]} args                               e.g. ["-i","in","out"]
+ * @param {{name:string, bytes:Uint8Array}[]} inputs   virtual-FS input files
  * @param {string} outputName  Filename to read back from ffmpeg's virtual FS
- * @returns {Promise<{exit_code:number, output_b64:string, log:string}>}
+ * @returns {Promise<{exit_code:number, output:Uint8Array|null, log:string}>}
  */
 let execChain = Promise.resolve();
 
-export function ffmpegExec(argsJson, inputsJson, outputName) {
-    const run = execChain.then(() => execOnce(argsJson, inputsJson, outputName));
+export function ffmpegExecBytes(args, inputs, outputName) {
+    const run = execChain.then(() => execOnce(args, inputs, outputName));
     execChain = run.then(() => {}, () => {});
     return run;
 }
 
-async function execOnce(argsJson, inputsJson, outputName) {
-    const args = JSON.parse(argsJson);
-    const inputs = JSON.parse(inputsJson);
+/**
+ * Base64/JSON form of {@link ffmpegExecBytes} — the contract the chat app's
+ * Rust BrowserFfmpegService (via wasm-bindgen) and older page modules use.
+ *
+ * @param {string} argsJson    JSON-encoded array of strings
+ * @param {string} inputsJson  JSON-encoded array of {name, bytes_b64}
+ * @param {string} outputName  Filename to read back from ffmpeg's virtual FS
+ * @returns {Promise<{exit_code:number, output_b64:string, log:string}>}
+ */
+export async function ffmpegExec(argsJson, inputsJson, outputName) {
+    const inputs = JSON.parse(inputsJson).map(({ name, bytes_b64 }) => ({
+        name,
+        bytes: b64ToUint8(bytes_b64),
+    }));
+    const { exit_code, output, log } = await ffmpegExecBytes(JSON.parse(argsJson), inputs, outputName);
+    return { exit_code, output_b64: output ? uint8ToB64(output) : "", log };
+}
+
+async function execOnce(args, inputs, outputName) {
     const ffmpeg = await ensureFfmpeg();
 
     let log = "";
@@ -117,21 +139,20 @@ async function execOnce(argsJson, inputsJson, outputName) {
     ffmpeg.on("log", onLog);
 
     try {
-        for (const { name, bytes_b64 } of inputs) {
-            await ffmpeg.writeFile(name, b64ToUint8(bytes_b64));
+        for (const { name, bytes } of inputs) {
+            await ffmpeg.writeFile(name, bytes.slice());
         }
         const exit_code = await ffmpeg.exec(args);
 
-        let output_b64 = "";
+        let output = null;
         try {
             const out = await ffmpeg.readFile(outputName);
-            const u8 = out instanceof Uint8Array ? out : new TextEncoder().encode(out);
-            output_b64 = uint8ToB64(u8);
+            output = out instanceof Uint8Array ? out : new TextEncoder().encode(out);
         } catch (_) {
-            // ffmpeg failed before producing output — leave output_b64 empty.
+            // ffmpeg failed before producing output — leave output null.
         }
 
-        return { exit_code, output_b64, log };
+        return { exit_code, output, log };
     } finally {
         ffmpeg.off("log", onLog);
     }

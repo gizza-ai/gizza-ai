@@ -35,6 +35,17 @@ const ONNX_RUNTIME_FILES: &[&str] = &[
     "ort-wasm-simd-threaded.wasm",
 ];
 
+/// Runtime modules published once under `/tools/_runtime/` so pages other than
+/// a tool's own page (e.g. an image editor) can drive any published tool by its
+/// `tool.json` `page` spec with the exact code the tool page runs. Model pages
+/// resolve their worker at `../_model-runtime/` from here as from a tool dir.
+const SHARED_RUNTIME_FILES: &[&str] = &[
+    "tool-run.js",
+    "tool-fields.js",
+    "tool-ffmpeg.js",
+    "tool-model.js",
+];
+
 fn main() {
     if let Err(e) = run() {
         eprintln!("gizza-tool-pages: {e}");
@@ -122,6 +133,13 @@ fn run() -> Result<(), String> {
         )?;
     }
 
+    let shared_runtime = pkg_tools.join("_runtime");
+    fs::create_dir_all(&shared_runtime)
+        .map_err(|e| format!("mkdir {}: {e}", shared_runtime.display()))?;
+    for name in SHARED_RUNTIME_FILES {
+        copy_file(&runtime.join(name), &shared_runtime.join(name))?;
+    }
+
     // "X to Y" conversion pair pages nested under the converter tools —
     // enumerated once, linked from each parent's "Popular conversions"
     // section and rendered below after the parent pages exist.
@@ -198,6 +216,11 @@ fn run() -> Result<(), String> {
         // every page (not just format="svg") — a missing file 404s the import
         // and aborts the whole module, so this copy is unconditional too.
         copy_file(&runtime.join("tool-svg.js"), &out.join("tool-svg.js"))?;
+        // tool.js statically imports tool-run.js (which imports tool-fields.js)
+        // on every page; the runtime-specific modules it imports lazily are
+        // copied per runtime below.
+        copy_file(&runtime.join("tool-run.js"), &out.join("tool-run.js"))?;
+        copy_file(&runtime.join("tool-fields.js"), &out.join("tool-fields.js"))?;
         copy_file(&root.join("js/query-prefill.js"), &out.join("query-prefill.js"))?;
         copy_file(&runtime.join("tool.css"), &out.join("tool.css"))?;
         copy_file(&runtime.join("header.css"), &out.join("header.css"))?;

@@ -1,0 +1,45 @@
+// Run a published tool on one input file — the single entry point shared by
+// the tool page (tool.js) and any page that drives a tool by its spec (e.g. an
+// editor applying a tool to its current image).
+//
+// `page` is the tool's page spec: window.GIZZA_TOOL on the tool page, or the
+// `page` section of /tools/<slug>/tool.json elsewhere — same shape
+// ({runtime, export, module, format, model, inputs[]}). `mod` is the tool's
+// initialised web-wasm module (unused by the model runtime). `values` maps
+// field name → raw string value; coercion happens here (tool-fields.js).
+//
+// Resolves {blob, outName, mime, backend?}; rejects with an Error whose message
+// is fit to show the user. Runtime modules are imported lazily so a page only
+// fetches the runtime it uses.
+
+import { fieldArgs } from "./tool-fields.js";
+
+export async function runTool(page, mod, file, values, deps = {}) {
+  const read = (input) => (values && values[input.name] != null ? values[input.name] : "");
+  switch (page && page.runtime) {
+    case "ffmpeg": {
+      if (typeof deps.execBytes !== "function") throw new Error("ffmpeg is not available on this page.");
+      const { runFfmpeg } = await import("./tool-ffmpeg.js");
+      const r = await runFfmpeg(page, mod, deps.execBytes, file, fieldArgs(page.inputs, read));
+      if (!r.ok) throw new Error(r.error);
+      return { blob: r.blob, outName: r.outName, mime: r.mime };
+    }
+    case "model": {
+      const model = await import("./tool-model.js");
+      const run = deps.runModel || model.runModel;
+      await (deps.validateFile || model.validateModelFile)(file);
+      const fields = Object.fromEntries(
+        page.inputs.filter((i) => i.source === "field").map((i) => [i.name, read(i)]),
+      );
+      const result = model.validateModelResult(await run(page.model, file, fields, deps.onProgress));
+      return {
+        blob: result.blob,
+        outName: result.filename || `${page.slug || "result"}.png`,
+        mime: result.blob.type || "image/png",
+        backend: result.backend,
+      };
+    }
+    default:
+      throw new Error(`unsupported runtime "${page && page.runtime}"`);
+  }
+}

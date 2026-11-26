@@ -26,7 +26,10 @@ pub fn fmt_num(x: f64) -> String {
 }
 
 /// How one `source="field"` input renders on the page.
-#[derive(Debug, Clone, PartialEq)]
+/// Serialized (tagged by `kind`, kebab-case) into the page config so non-page
+/// consumers of a tool (`tool.json` → `page`) can render the same controls.
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+#[serde(tag = "kind", rename_all = "kebab-case")]
 pub enum Control {
     Text,
     Textarea,
