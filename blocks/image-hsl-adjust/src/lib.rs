@@ -29,6 +29,7 @@ fn descriptor() -> ToolDescriptor {
             Param::number("hue")
                 .min(-360.0)
                 .max(360.0)
+                .default(0.0)
                 .describe("Hue shift in degrees, -360 to 360 (0 = no change)."),
         )
         .param(
@@ -104,7 +105,7 @@ mod tests {
                 "properties": {
                     "url":        { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
                     "ref":        { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
-                    "hue":        { "type": "number", "minimum": -360, "maximum": 360, "description": "Hue shift in degrees, -360 to 360 (0 = no change)." },
+                    "hue":        { "type": "number", "minimum": -360, "maximum": 360, "default": 0.0, "description": "Hue shift in degrees, -360 to 360 (0 = no change)." },
                     "saturation": { "type": "number", "minimum": 0, "maximum": 4, "default": 1.0, "description": "Saturation scale factor (0 = grayscale, 1 = unchanged, >1 = more vivid; max 4)." },
                     "lightness":  { "type": "number", "minimum": 0, "maximum": 4, "default": 1.0, "description": "Lightness scale factor (0 = black, 1 = unchanged, >1 = brighter; max 4)." }
                 },
