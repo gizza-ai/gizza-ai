@@ -140,7 +140,11 @@ export class ModelWorkerClient {
     if (pending.cleanup) pending.cleanup();
     if (message.type === "result") pending.resolve(message);
     else if (message.type === "cancelled") pending.reject(abortError());
-    else pending.reject(new Error(message.error || "AI inference failed."));
+    else {
+      pending.reject(new Error(message.error || "AI inference failed."));
+      // The worker's runtime trapped: retire it so the next call gets a fresh one.
+      if (message.fatal) this.stop(message.error || "AI worker failed.");
+    }
   }
 
   // Text-to-image: `prompt` → { blob, filename, backend }. Aborting `signal`

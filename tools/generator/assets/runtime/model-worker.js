@@ -36,7 +36,16 @@ const U2NET_PROCESSOR_CONFIG = {
   size: { longest_edge: 320 },
 };
 
+// A WebAssembly trap (ONNX Runtime running out of its wasm heap, typically)
+// leaves the runtime's memory unusable: the client must replace this worker.
+function isFatal(error) {
+  return typeof WebAssembly !== "undefined" && error instanceof WebAssembly.RuntimeError;
+}
+
 function errorMessage(error) {
+  if (isFatal(error)) {
+    return "The AI model ran out of memory on this device. Try again; if it keeps failing, this device can't run it.";
+  }
   if (typeof error === "string") return error;
   if (error && typeof error.message === "string") return error.message;
   return "Unknown inference error";
@@ -171,11 +180,18 @@ async function runTask(pipe, task, file) {
 // Replies:  progress { stage: "download", progress: 0..1 } while weights load,
 //           progress { stage: "generate", count, total } per image token,
 //           then { type: "result", id, blob, filename, backend } |
-//           { type: "cancelled", id } | { type: "error", id, error }.
+//           { type: "cancelled", id } | { type: "error", id, error, fatal }
+//           (fatal: the worker's runtime is broken; replace the worker).
 //           Cancel during the model download replies "cancelled" at once.
 
-// Per-module dtypes and devices from Hugging Face's janus-pro-webgpu reference:
-// half precision where the GPU supports shader-f16, full precision otherwise.
+// Per-module dtypes and devices. The shader-f16 set is Hugging Face's
+// janus-pro-webgpu reference. Its full-precision set (fp32 embeddings, lm_head
+// and gen_head: about 4 GB) does not load: ONNX Runtime stages every session's
+// weights through its 4 GB wasm32 heap, even for WebGPU sessions, and the
+// concurrent loads overrun it ("memory access out of bounds" — seen on an
+// RTX 4070 Ti under Chrome on Linux, which exposes no shader-f16). So without
+// shader-f16 the embeddings are 8-bit and the heads 4-bit weights (fp32
+// compute), about 1.6 GB in all.
 // Input embedding preparation runs on WebAssembly (an upstream WebGPU issue);
 // every generation stage runs on WebGPU.
 const JANUS_DTYPES = {
@@ -188,10 +204,10 @@ const JANUS_DTYPES = {
     image_decode: "fp32",
   },
   f32: {
-    prepare_inputs_embeds: "fp32",
+    prepare_inputs_embeds: "q8",
     language_model: "q4",
-    lm_head: "fp32",
-    gen_head: "fp32",
+    lm_head: "q4",
+    gen_head: "q4",
     gen_img_embeds: "fp32",
     image_decode: "fp32",
   },
@@ -221,7 +237,7 @@ function loadJanus(model) {
     for (const id of waiters) {
       postMessage({ type: "progress", id, progress: { stage: "download", progress: fraction, loaded, total } });
     }
-  });
+  }, (model.download_mb || 0) * 1e6);
   const promise = (async () => {
     const gpu = self.navigator && self.navigator.gpu;
     const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
@@ -338,7 +354,7 @@ async function generateImage(request) {
     const blob = await outputs[0].toBlob("image/png");
     postMessage({ type: "result", id, blob, filename: "generated.png", backend: "webgpu" });
   } catch (error) {
-    postMessage({ type: "error", id, error: errorMessage(error) });
+    postMessage({ type: "error", id, error: errorMessage(error), fatal: isFatal(error) });
   } finally {
     generations.delete(id);
   }

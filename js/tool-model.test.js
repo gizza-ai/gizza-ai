@@ -300,3 +300,57 @@ test("downloadTracker combines files and never reports a smaller fraction", () =
   track({ status: "done", file: "never-started.json" }); // unknown file: ignored
   assert.equal(seen.length, 5);
 });
+
+test("downloadTracker measures against the declared size until the weights report theirs", () => {
+  const seen = [];
+  const track = downloadTracker((fraction) => seen.push(fraction), 1000);
+  // The small files finish first; without the declared size this read 100%.
+  track({ status: "progress", file: "config.json", loaded: 10, total: 10 });
+  track({ status: "done", file: "config.json" });
+  assert.equal(seen.at(-1), 10 / 1000);
+  track({ status: "progress", file: "weights.onnx", loaded: 490, total: 990 });
+  assert.equal(seen.at(-1), 500 / 1000);
+  // A larger-than-declared total takes over as the denominator.
+  track({ status: "progress", file: "extra.onnx", loaded: 0, total: 500 });
+  assert.equal(seen.at(-1), 500 / 1000, "held, never backwards");
+  track({ status: "done", file: "weights.onnx" });
+  track({ status: "done", file: "extra.onnx" });
+  assert.equal(seen.at(-1), 1);
+});
+
+test("a fatal worker error rejects the call and retires the worker; others fail too", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const first = client.generate(JANUS, "a red fox");
+  const second = client.generate(JANUS, "a blue bird");
+  const id = worker.posted[0].id;
+  worker.emit("message", { type: "error", id, error: "The AI model ran out of memory on this device.", fatal: true });
+  await assert.rejects(first, /ran out of memory/);
+  await assert.rejects(second, /ran out of memory/);
+  assert.equal(worker.terminated, true);
+  assert.equal(client.stopped, true);
+});
+
+test("a non-fatal worker error keeps the worker", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const call = client.generate(JANUS, "a red fox");
+  worker.emit("message", { type: "error", id: worker.posted[0].id, error: "Describe the image you want first." });
+  await assert.rejects(call, /Describe the image/);
+  assert.equal(worker.terminated, false);
+  client.dispose();
+});
+
+test("downloadTracker follows the model's progress_total once it arrives", () => {
+  const seen = [];
+  const track = downloadTracker((fraction, loaded, total) => seen.push({ fraction, loaded, total }), 1000);
+  track({ status: "progress", file: "tokenizer.json", loaded: 5, total: 5 }); // processor file, before the model
+  assert.equal(seen.at(-1).fraction, 5 / 1000);
+  track({ status: "progress_total", loaded: 100, total: 400 });
+  assert.deepEqual(seen.at(-1), { fraction: 0.25, loaded: 100, total: 400 });
+  // Per-file events no longer move the bar once the overall total is known.
+  track({ status: "progress", file: "weights.onnx", loaded: 1, total: 10 });
+  assert.equal(seen.length, 2);
+  track({ status: "progress_total", loaded: 400, total: 400 });
+  assert.equal(seen.at(-1).fraction, 1);
+});
