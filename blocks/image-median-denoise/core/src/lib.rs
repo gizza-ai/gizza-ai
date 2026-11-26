@@ -16,9 +16,11 @@
 //!   values in the window, so white dust/salt is wiped out harder (at the cost
 //!   of a slight overall darkening); `dark` (0.7) is the mirror image for black
 //!   specks/pepper on light paper.
-//! * `channels` → the filter's `planes` bitmask. `all` (15) filters everything
-//!   in whatever planar format ffmpeg negotiates (planar RGB for a PNG — no
-//!   color-space conversion). `luma` (1) and `chroma` (6) only make sense in
+//! * `channels` → the filter's `planes` bitmask. `all` (7) filters every COLOR
+//!   plane in whatever planar format ffmpeg negotiates (planar RGB for a PNG —
+//!   no color-space conversion). The alpha plane (bit 3) is never filtered:
+//!   transparency is a shape, not noise, and a median over it would erode the
+//!   corners of every opaque region and shift soft edges. `luma` (1) and `chroma` (6) only make sense in
 //!   Y'CbCr, so those two prepend `format=yuva444p`: `luma` smooths brightness
 //!   noise but keeps color detail, `chroma` kills blotchy color noise while
 //!   leaving luminance detail pin-sharp. That conversion is a round trip
@@ -52,7 +54,8 @@ pub enum Target {
 /// Which image planes the median is applied to (the `planes` bitmask).
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Channels {
-    /// Every plane, in the format ffmpeg negotiates (planar RGB for a PNG).
+    /// Every color plane, in the format ffmpeg negotiates (planar RGB for a
+    /// PNG). Alpha is left untouched.
     All,
     /// Y only — smooths brightness noise, keeps color detail.
     Luma,
@@ -149,9 +152,10 @@ pub fn channels_name(c: Channels) -> &'static str {
 }
 
 /// The ffmpeg `planes` bitmask (bit 0 = Y/G, 1 = U/B, 2 = V/R, 3 = alpha).
+/// Bit 3 is never set, so an image's alpha channel passes through unchanged.
 pub fn planes(c: Channels) -> u32 {
     match c {
-        Channels::All => 15,
+        Channels::All => 7,
         Channels::Luma => 1,
         Channels::Chroma => 6,
     }
@@ -379,7 +383,7 @@ mod tests {
                 "-i",
                 "in.png",
                 "-vf",
-                "median=radius=1:planes=15:percentile=0.50",
+                "median=radius=1:planes=7:percentile=0.50",
                 "out.png"
             ]
         );
@@ -410,7 +414,7 @@ mod tests {
     fn cleared_numeric_fields_fall_back_to_defaults() {
         // The page sends 0 for a cleared number box — that must not error.
         let (argv, _) = plan_named("in.png", 0.0, Some(""), Some(""), 0.0, Some(""), 0.0, false).unwrap();
-        assert_eq!(argv[3], "median=radius=1:planes=15:percentile=0.50");
+        assert_eq!(argv[3], "median=radius=1:planes=7:percentile=0.50");
     }
 
     #[test]
@@ -434,12 +438,21 @@ mod tests {
     }
 
     #[test]
+    fn no_channel_mode_filters_the_alpha_plane() {
+        // Bit 3 is alpha: a median over it would erode the corners of opaque
+        // shapes on a transparent PNG/WebP.
+        for c in [Channels::All, Channels::Luma, Channels::Chroma] {
+            assert_eq!(planes(c) & 8, 0, "{c:?} must leave alpha alone");
+        }
+    }
+
+    #[test]
     fn channels_set_planes_and_force_yuv_when_needed() {
         let (all, _) =
             plan("in.png", 1.0, Target::Both, Channels::All, 1.0, OutFormat::Keep, 0.0, false)
                 .unwrap();
         assert!(all[3].starts_with("median="), "all keeps the native format: {all:?}");
-        assert!(all[3].contains("planes=15"));
+        assert!(all[3].contains("planes=7"));
 
         let (luma, _) =
             plan("in.png", 1.0, Target::Both, Channels::Luma, 1.0, OutFormat::Keep, 0.0, false)

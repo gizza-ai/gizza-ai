@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import { ALPHA_SQUARE, alphaReport } from './alpha-square';
 
 async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
@@ -106,3 +107,19 @@ test('image-median-denoise preset chips and generated CLI example are generic', 
   expect(cli).not.toContain('TODO');
   expect(cli).not.toContain('gizza.ai');
 });
+
+// The median runs on the color planes only: filtering the alpha plane eroded
+// every corner of an opaque shape on a transparent background (the square's
+// corner pixel became transparent).
+for (const format of ['keep', 'webp'] as const) {
+  test(`image-median-denoise keeps a transparent PNG's alpha mask exactly (format=${format})`, async ({ page }) => {
+    await page.goto('/tools/image-median-denoise/');
+    await page.selectOption('#in-format', format);
+    await page.setInputFiles('#in-image', ALPHA_SQUARE);
+    const src = await outputSrc(page);
+    const r = await alphaReport(page, src);
+    expect(r.corner[3]).toBe(0);
+    expect(r.squareCorner[3]).toBe(255);
+    expect(r.mismatches).toBe(0);
+  });
+}
