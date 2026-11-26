@@ -63,8 +63,15 @@ speckle that covers a couple of pixels.
   above, fine line art and small type start to erode. Keep the window as small
   as it can be while still catching the noise.
 - *Luma only* and *chroma only* convert the image through Y'CbCr, which can
-  shift untouched channels by ±1 sRGB step. *All* filters the image in its
-  native planar layout, with no colour conversion.
+  shift untouched channels by ±1 sRGB step. *All* filters the RGB channels
+  directly, with no colour conversion.
+- Transparency is preserved (PNG — including palette PNGs — WebP and GIF): the
+  alpha channel is never filtered, and fully transparent pixels don't vote on
+  the colour of their visible neighbours, so the corners of a logo on a
+  transparent background keep their colour. The output always carries an
+  alpha channel, so an opaque PNG comes back as a (fully opaque) RGBA PNG.
+  JPEG has no alpha: a transparent image converted to JPG is flattened onto
+  white.
 - Choosing PNG, JPG or WebP for an animated GIF keeps only the first frame;
   *keep* filters every frame and stays animated.
 
