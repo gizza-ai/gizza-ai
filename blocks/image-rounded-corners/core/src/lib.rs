@@ -122,6 +122,11 @@ pub fn parse_background(s: &str) -> Result<Option<[u8; 3]>, String> {
         return Ok(None);
     }
     if let Some(hex) = t.strip_prefix('#') {
+        // Hex digits only from here on: the byte-offset slicing below would
+        // panic on a multi-byte character.
+        if !hex.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return Err(format!("invalid hex color {s:?} (use #rgb or #rrggbb)"));
+        }
         let expand = |c: &str| -> Result<[u8; 3], String> {
             let bytes: Vec<u8> = match c.len() {
                 // #rgb / #rgba -> duplicate each nibble
@@ -420,6 +425,16 @@ mod tests {
         let bad_bg = Params { background: "boguscolor".into(), ..Params::default() };
         assert!(bad_bg.options().unwrap_err().contains("unknown color"));
         assert!(apply(&opaque_png(4, 4), &bad_unit).is_err());
+    }
+
+    #[test]
+    fn non_ascii_background_is_an_error_not_a_panic() {
+        for bad in ["#aébcd", "#éa", "#ff00ffé", "#ééé"] {
+            let err = parse_background(bad).unwrap_err();
+            assert!(err.contains("invalid hex color"), "{bad}: {err}");
+        }
+        let p = Params { background: "#aébcd".into(), ..Params::default() };
+        assert!(p.options().unwrap_err().contains("invalid hex color"));
     }
 
     #[test]
