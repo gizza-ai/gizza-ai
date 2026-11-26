@@ -29,12 +29,14 @@ fn descriptor() -> ToolDescriptor {
             Param::integer("brightness")
                 .min(-255.0)
                 .max(255.0)
+                .default(0.0)
                 .describe("Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)."),
         )
         .param(
             Param::number("contrast")
                 .min(-100.0)
                 .max(100.0)
+                .default(0.0)
                 .describe("Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)."),
         )
 }
@@ -96,8 +98,8 @@ mod tests {
                 "properties": {
                     "url":        { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
                     "ref":        { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
-                    "brightness": { "type": "integer", "minimum": -255, "maximum": 255, "description": "Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)." },
-                    "contrast":   { "type": "number", "minimum": -100, "maximum": 100, "description": "Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)." }
+                    "brightness": { "type": "integer", "minimum": -255, "maximum": 255, "default": 0.0, "description": "Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)." },
+                    "contrast":   { "type": "number", "minimum": -100, "maximum": 100, "default": 0.0, "description": "Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)." }
                 },
                 "additionalProperties": false,
                 "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
