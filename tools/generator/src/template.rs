@@ -9,12 +9,14 @@ use crate::pairs::PairLink;
 use crate::site::SiteConfig;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
-/// A model download size for people: "5 MB", "2.4 GB".
+/// A model download size for people: "5 MB", "2.4 GB". Switches on the
+/// value as it would print in MB, so 999.7 MB reads "1.0 GB", not "1000 MB".
 fn download_size(mb: f64) -> String {
-    if mb >= 1000.0 {
+    let whole_mb = mb.round();
+    if whole_mb >= 1000.0 {
         format!("{:.1} GB", mb / 1000.0)
     } else {
-        format!("{mb:.0} MB")
+        format!("{whole_mb:.0} MB")
     }
 }
 
@@ -167,7 +169,10 @@ pub fn render_page(
                                 (download_size(model.download_mb))
                                 " of model files, then they're cached. Your input stays in this browser \
                                  and is never uploaded for inference."
-                                @if model.devices.iter().all(|d| d == "webgpu") {
+                                // tool-model.js treats an empty device list as
+                                // ["wasm"], so only a non-empty all-WebGPU list
+                                // means the model needs WebGPU.
+                                @if !model.devices.is_empty() && model.devices.iter().all(|d| d == "webgpu") {
                                     " Needs WebGPU (a recent desktop Chrome or Edge)."
                                 }
                             }
@@ -1593,6 +1598,29 @@ accept = "audio/*"
     fn download_size_formats_mb_and_gb() {
         assert_eq!(download_size(5.0), "5 MB");
         assert_eq!(download_size(2410.0), "2.4 GB");
+        assert_eq!(download_size(999.4), "999 MB");
+        assert_eq!(download_size(999.7), "1.0 GB", "rounds up into GB, never \"1000 MB\"");
+        assert_eq!(download_size(1000.0), "1.0 GB");
+    }
+
+    #[test]
+    fn model_with_no_declared_devices_does_not_claim_webgpu() {
+        // An empty device list runs on the WASM fallback (tool-model.js
+        // compatibleDevices), so the page must not say it needs WebGPU.
+        let mut meta = sample();
+        meta.runtime = "model".to_string();
+        meta.format = "image".to_string();
+        meta.model = Some(crate::meta::ModelSpec {
+            task: "background-removal".into(),
+            id: "org/model".into(),
+            revision: "abc".into(),
+            devices: vec![],
+            dtypes: Default::default(),
+            download_mb: 5.0,
+        });
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains("downloads about 5 MB of model files"));
+        assert!(!html.contains("Needs WebGPU"), "an empty device list is the WASM fallback");
     }
 
     #[test]
