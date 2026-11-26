@@ -1,14 +1,15 @@
 //! gizza-ai/rotate-image — rotate an image clockwise by 90/180/270 degrees
 //! (lossless) or any arbitrary angle (bilinear resample into an enlarged canvas
 //! with a configurable background fill). Returns a PNG. Pure-Rust (image crate) —
-//! runs on all backends incl. the chat SW. Surfaces: chat + CLI (image input +
-//! image bytes output → no page, like flip-image / normalize-image).
+//! runs on all backends incl. the chat SW. Surfaces: chat + CLI (this handler)
+//! and the standalone page (web/, `wasm-image` runtime) — both call core `apply`
+//! with the same `Params`.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{build_media_envelope, resolve_source};
 use gizza_ai_block_utils::{AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor};
-use gizza_ai_rotate_image_core::{parse_color, rotate};
+use gizza_ai_rotate_image_core::{apply, Params};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -19,18 +20,8 @@ const MAX_OUTPUT_BYTES: usize = 32 * 1024 * 1024;
 struct Args {
     #[serde(flatten)]
     source: SourceFields,
-    #[serde(default = "default_angle")]
-    angle: f64,
-    #[serde(default = "default_background")]
-    background: String,
-}
-
-fn default_angle() -> f64 {
-    90.0
-}
-
-fn default_background() -> String {
-    "transparent".to_string()
+    #[serde(flatten)]
+    params: Params,
 }
 
 fn descriptor() -> ToolDescriptor {
@@ -85,15 +76,14 @@ impl RotateImage {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("rotate-image")?;
-    let bg = parse_color(&args.background).map_err(SkillError::InvalidArgs)?;
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
-    let png = rotate(&bytes, args.angle, bg).map_err(SkillError::InvalidArgs)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
     build_media_envelope(
         &png,
         "image/png",
-        "rotated.png".to_string(),
-        format!("rotated image ({}°, {} bytes PNG)", args.angle, png.len()),
+        out_name,
+        format!("rotated image ({}°, {} bytes PNG)", args.params.angle, png.len()),
         MAX_OUTPUT_BYTES,
     )
 }

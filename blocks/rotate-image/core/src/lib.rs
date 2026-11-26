@@ -6,6 +6,34 @@
 use std::io::Cursor;
 
 use image::{DynamicImage, ImageFormat, Rgba, RgbaImage};
+use serde::Deserialize;
+
+/// The tool's options, shared by every surface: the chat/CLI handler flattens
+/// them from its JSON args, the browser page deserializes them from its params
+/// object. Missing fields take the schema defaults (90°, transparent).
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct Params {
+    /// Degrees, clockwise (negative = counter-clockwise).
+    pub angle: f64,
+    /// Fill for corners exposed by an arbitrary-angle rotation (see `parse_color`).
+    pub background: String,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        Self { angle: 90.0, background: "transparent".to_string() }
+    }
+}
+
+/// Output filename for every surface.
+pub const OUT_NAME: &str = "rotated.png";
+
+/// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
+pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
+    let bg = parse_color(&params.background)?;
+    Ok((rotate(bytes, params.angle, bg)?, OUT_NAME.to_string()))
+}
 
 /// Parse a `#rrggbb`, `#rrggbbaa`, `#rgb`, or `transparent` background color.
 /// Returns an RGBA pixel. Empty / "transparent" => fully transparent.
@@ -253,6 +281,46 @@ mod tests {
         assert_eq!(parse_color("black").unwrap(), Rgba([0, 0, 0, 255]));
         assert!(parse_color("#zzz").is_err());
         assert!(parse_color("notacolor").is_err());
+    }
+
+    #[test]
+    fn params_defaults() {
+        let p = Params::default();
+        assert_eq!(p.angle, 90.0);
+        assert_eq!(p.background, "transparent");
+    }
+
+    #[test]
+    fn params_deserialize_with_missing_fields() {
+        let p: Params = serde_json::from_str(r#"{"angle": -45}"#).unwrap();
+        assert_eq!(p, Params { angle: -45.0, background: "transparent".to_string() });
+        let p: Params = serde_json::from_str(r##"{"background": "#fff"}"##).unwrap();
+        assert_eq!(p, Params { angle: 90.0, background: "#fff".to_string() });
+        let p: Params = serde_json::from_str("{}").unwrap();
+        assert_eq!(p, Params::default());
+    }
+
+    #[test]
+    fn apply_rejects_bad_background() {
+        let bytes = png(2, 1, |_, _| Rgba([1, 2, 3, 255]));
+        let p = Params { angle: 45.0, background: "notacolor".to_string() };
+        let err = apply(&bytes, &p).unwrap_err();
+        assert!(err.contains("invalid background"), "{err}");
+    }
+
+    #[test]
+    fn apply_90_on_non_square_swaps_dims_and_names_output() {
+        // 4x2, red at top-left, blue elsewhere. 90° clockwise maps source
+        // (x, y) -> (h-1-y, x), so red lands at the top-right of a 2x4 image.
+        let red = Rgba([255, 0, 0, 255]);
+        let blue = Rgba([0, 0, 255, 255]);
+        let bytes = png(4, 2, |x, y| if (x, y) == (0, 0) { red } else { blue });
+        let (out, name) = apply(&bytes, &Params { angle: 90.0, ..Params::default() }).unwrap();
+        assert_eq!(name, "rotated.png");
+        let img = image::load_from_memory_with_format(&out, ImageFormat::Png).unwrap();
+        assert_eq!(img.dimensions(), (2, 4));
+        assert_eq!(img.get_pixel(1, 0), red);
+        assert_eq!(img.get_pixel(0, 0), blue);
     }
 
     #[test]

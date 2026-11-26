@@ -1,0 +1,52 @@
+slug          = "rotate-image"
+title         = "Rotate an Image Online — 90°, 180° or Any Angle"
+description   = "Rotate a photo 90°, 180° or by any angle to straighten it, right in your browser. Lossless right angles, custom fill color, PNG result, nothing uploaded. Free."
+tags          = ["image", "rotate", "rotate image", "turn", "straighten", "90 degrees", "180 degrees", "tilt", "photo", "png"]
+h1            = "Rotate an Image"
+hero_subtitle = "Pick an image and an angle — the rotated PNG is made in your browser, nothing is uploaded."
+wasm          = "gizza_ai_rotate_image_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Rotated image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "angle"
+source      = "field"
+label       = "Angle in degrees, clockwise (−360 to 360)"
+placeholder = "90"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Corner fill (non-right angles only)"
+placeholder = "transparent, white, black or #rrggbb"
+kind        = "color"
+
+[[example]]
+label  = "90° clockwise"
+params = { angle = "90" }
+
+[[example]]
+label  = "Upside down (180°)"
+params = { angle = "180" }
+
+[[example]]
+label  = "90° counter-clockwise"
+params = { angle = "-90" }
+
+[[example]]
+label  = "Straighten a tilted horizon (2°)"
+params = { angle = "2", background = "white" }
+
+[[example]]
+label  = "Diamond tilt (45°, transparent)"
+params = { angle = "45", background = "transparent" }
