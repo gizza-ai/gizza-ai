@@ -1,0 +1,12 @@
+{
+  "id": "acme/janus-web",
+  "sha": "0123456789abcdef0123456789abcdef01234567",
+  "gated": false,
+  "private": false,
+  "cardData": {
+    "license": "mit"
+  },
+  "config": {
+    "model_type": "multi_modality"
+  }
+}

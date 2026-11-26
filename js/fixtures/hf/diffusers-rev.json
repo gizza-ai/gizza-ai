@@ -1,0 +1,14 @@
+{
+  "id": "acme/sd-plain",
+  "sha": "0123456789abcdef0123456789abcdef01234567",
+  "gated": false,
+  "private": false,
+  "cardData": {
+    "license": "openrail"
+  },
+  "config": {
+    "diffusers": {
+      "_class_name": "StableDiffusionPipeline"
+    }
+  }
+}

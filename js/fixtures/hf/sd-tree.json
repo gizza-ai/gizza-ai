@@ -1,0 +1,95 @@
+[
+  {
+    "type": "file",
+    "path": "tokenizer/tokenizer.json",
+    "size": 2000000
+  },
+  {
+    "type": "file",
+    "path": "manifest.json",
+    "size": 3000
+  },
+  {
+    "type": "file",
+    "path": "LICENSE.md",
+    "size": 9000
+  },
+  {
+    "type": "file",
+    "path": "nof16q8/text_encoder/model.onnx",
+    "size": 100000
+  },
+  {
+    "type": "file",
+    "path": "nof16q8/text_encoder/model.onnx.data",
+    "size": 133,
+    "lfs": {
+      "size": 100000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "nof16q8/unet/model.onnx",
+    "size": 100000
+  },
+  {
+    "type": "file",
+    "path": "nof16q8/unet/model.onnx.data",
+    "size": 133,
+    "lfs": {
+      "size": 100000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "nof16q8/vae_decoder/model.onnx",
+    "size": 100000
+  },
+  {
+    "type": "file",
+    "path": "nof16q8/vae_decoder/model.onnx.data",
+    "size": 133,
+    "lfs": {
+      "size": 100000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "fp16/text_encoder/model.onnx",
+    "size": 100000
+  },
+  {
+    "type": "file",
+    "path": "fp16/text_encoder/model.onnx.data",
+    "size": 133,
+    "lfs": {
+      "size": 200000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "fp16/unet/model.onnx",
+    "size": 100000
+  },
+  {
+    "type": "file",
+    "path": "fp16/unet/model.onnx.data",
+    "size": 133,
+    "lfs": {
+      "size": 200000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "fp16/vae_decoder/model.onnx",
+    "size": 100000
+  },
+  {
+    "type": "file",
+    "path": "fp16/vae_decoder/model.onnx.data",
+    "size": 133,
+    "lfs": {
+      "size": 200000000
+    }
+  }
+]
