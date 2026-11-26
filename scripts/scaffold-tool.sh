@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Scaffold the name-substituted BOILERPLATE for a new gizza tool. The skill
 # (.claude/skills/new-tool/SKILL.md) fills the tool-specific logic afterward.
-# Usage: scripts/scaffold-tool.sh <slug> <pure|ffmpeg>
+# Usage: scripts/scaffold-tool.sh <slug> <pure|ffmpeg|wasm-image>
+#   pure       — typed fields in → text/number out (web `run`, `wasm` runtime)
+#   ffmpeg     — media file in → ffmpeg argv (web `build_argv`, `ffmpeg` runtime)
+#   wasm-image — image file in → pure-Rust (`image` crate) edit → PNG out
+#                (core `Params` + `apply`, web `run(params, input)`, `wasm-image` runtime)
 set -euo pipefail
 
 # Portable in-place sed (GNU `sed -i` has no BSD/macOS equivalent: `sed -i`
@@ -13,13 +17,13 @@ sed_inplace() {
   sed "$expr" "$file" > "$tmp" && mv "$tmp" "$file"
 }
 
-slug="${1:?usage: scaffold-tool.sh <slug> <pure|ffmpeg>}"
-type="${2:?usage: scaffold-tool.sh <slug> <pure|ffmpeg>}"
+slug="${1:?usage: scaffold-tool.sh <slug> <pure|ffmpeg|wasm-image>}"
+type="${2:?usage: scaffold-tool.sh <slug> <pure|ffmpeg|wasm-image>}"
 # kebab-case [a-z0-9-]; may start with a digit (e.g. 7z-extract) but not a hyphen,
 # and must not start/end with '-'. Block names allow leading digits (wafer-run
 # validate_block_name); all crate/lib identifiers are prefixed gizza-ai-/gizza_ai_.
 [[ "$slug" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]] || { echo "slug must be kebab-case [a-z0-9-], no leading/trailing hyphen" >&2; exit 2; }
-[[ "$type" == pure || "$type" == ffmpeg ]] || { echo "type must be pure|ffmpeg" >&2; exit 2; }
+[[ "$type" == pure || "$type" == ffmpeg || "$type" == wasm-image ]] || { echo "type must be pure|ffmpeg|wasm-image" >&2; exit 2; }
 root="$(cd "$(dirname "$0")/.." && pwd)"
 dir="$root/blocks/$slug"
 [[ -e "$dir" ]] && { echo "blocks/$slug already exists — refusing to overwrite" >&2; exit 2; }
@@ -354,6 +358,240 @@ name   = "file"
 source = "file"
 accept = "image/*"
 label  = "File"
+EOF
+elif [[ "$type" == wasm-image ]]; then
+  # Pure-Rust image edit (the `image` crate) that runs on every surface: the chat
+  # /CLI handler and the page's `wasm-image` worker both call core `apply` with
+  # the same serde `Params`. Mirrors blocks/image-brightness-contrast.
+  cat > "$dir/core/Cargo.toml" <<EOF
+[package]
+name = "${crate}-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp"] }
+
+[dev-dependencies]
+serde_json = "1"
+EOF
+  cat > "$dir/core/src/lib.rs" <<'EOF'
+//! gizza-ai/__SLUG__ core — pure-Rust (`image` crate) image edit shared by the
+//! chat/CLI handler and the `wasm-image` page. Returns PNG bytes. The new-tool
+//! skill adds the real `Params` fields and the edit inside `apply`.
+
+use std::io::Cursor;
+
+use image::{GenericImageView, ImageFormat};
+use serde::Deserialize;
+
+/// The tool's options, shared by every surface: the chat/CLI handler flattens
+/// them from its JSON args, the browser page deserializes them from its params
+/// object (blank fields omitted, checkboxes as booleans). Missing fields take
+/// their `Default` value, which must match the schema defaults in `descriptor()`.
+#[derive(Debug, Clone, Default, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct Params {}
+
+/// Output filename for every surface.
+pub const OUT_NAME: &str = "__SLUG__.png";
+
+/// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
+pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
+    let _ = params;
+    let img = image::load_from_memory(bytes).map_err(|e| format!("could not decode image: {e}"))?;
+    let (w, h) = img.dimensions();
+    if w == 0 || h == 0 {
+        return Err("image has zero dimension".into());
+    }
+    let mut out = Cursor::new(Vec::new());
+    img.write_to(&mut out, ImageFormat::Png).map_err(|e| format!("PNG encode failed: {e}"))?;
+    Ok((out.into_inner(), OUT_NAME.to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{DynamicImage, Rgba, RgbaImage};
+
+    fn solid(w: u32, h: u32, c: Rgba<u8>) -> Vec<u8> {
+        let mut out = Cursor::new(Vec::new());
+        DynamicImage::ImageRgba8(RgbaImage::from_pixel(w, h, c)).write_to(&mut out, ImageFormat::Png).unwrap();
+        out.into_inner()
+    }
+
+    #[test]
+    fn apply_returns_png_and_name() {
+        let (out, name) = apply(&solid(5, 3, Rgba([10, 20, 30, 128])), &Params::default()).unwrap();
+        assert_eq!(name, OUT_NAME);
+        let img = image::load_from_memory_with_format(&out, ImageFormat::Png).unwrap();
+        assert_eq!(img.dimensions(), (5, 3));
+    }
+
+    #[test]
+    fn params_deserialize_with_missing_fields() {
+        let p: Params = serde_json::from_str("{}").unwrap();
+        assert_eq!(p, Params::default());
+    }
+
+    #[test]
+    fn errors() {
+        assert!(apply(b"not an image", &Params::default()).is_err());
+    }
+}
+EOF
+  cat > "$dir/web/Cargo.toml" <<EOF
+[package]
+name = "${crate}-web"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+${crate}-core = { path = "../core" }
+gizza-ai-web-utils = { path = "../../../web-utils" }
+EOF
+  cat > "$dir/web/src/lib.rs" <<EOF
+//! Browser-facing wasm-bindgen wrapper for the standalone /tools/$slug/ page
+//! (\`wasm-image\` runtime): the same core \`apply\` + \`Params\` the chat block
+//! uses, run in the page's image worker.
+
+use wasm_bindgen::prelude::*;
+
+use ${ucrate}_core::{apply, Params};
+use gizza_ai_web_utils::{image_output, js_err, params_from_js};
+
+/// \`params\`: the page's field values keyed by name (blank fields omitted,
+/// checkboxes as booleans); \`input\`: the encoded image.
+/// Returns \`{ bytes: Uint8Array, out_name }\` or throws a JS error string.
+#[wasm_bindgen]
+pub fn run(params: JsValue, input: &[u8]) -> Result<JsValue, JsValue> {
+    let params: Params = params_from_js(params)?;
+    let (png, out_name) = apply(input, &params).map_err(js_err)?;
+    image_output(&png, &out_name)
+}
+EOF
+  cat > "$dir/src/lib.rs" <<EOF
+//! gizza-ai/$slug — pure-Rust image edit. Returns a PNG. Runs on all backends
+//! incl. the chat SW. Surfaces: chat + CLI (this handler) and the standalone
+//! page (web/, \`wasm-image\` runtime) — both call core \`apply\` with the same
+//! \`Params\`. See blocks/image-brightness-contrast/src/lib.rs for a full example.
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
+
+#[cfg(target_arch = "wasm32")]
+use gizza_ai_block_utils::{build_media_envelope, resolve_source};
+use gizza_ai_block_utils::{AssetKind, Input, SkillError, SkillResultExt, SourceFields, ToolDescriptor};
+use ${ucrate}_core::{apply, Params};
+use serde::Deserialize;
+use wafer_sdk::*;
+
+const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
+const MAX_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
+
+#[derive(Deserialize, Debug)]
+struct Args {
+    #[serde(flatten)]
+    source: SourceFields,
+    #[serde(flatten)]
+    params: Params,
+}
+
+/// Single source for the chat schema (and CLI). Import \`Param\` and add one
+/// \`.param(...)\` per core \`Params\` field, with the same name and default, e.g.
+/// \`.param(Param::integer("amount").min(-100.0).max(100.0).describe("..."))\`.
+fn descriptor() -> ToolDescriptor {
+    ToolDescriptor::new(Input::Image)
+}
+fn schema_json() -> String { descriptor().to_schema_json() }
+
+#[cfg(target_arch = "wasm32")]
+struct Tool;
+
+#[cfg(target_arch = "wasm32")]
+#[wafer_block(
+    name = "gizza-ai/$slug",
+    version = "0.1.0",
+    interface = "handler@v1",
+    summary = "TODO: one-line summary.",
+    requires = ["wafer-run/network"],
+    capabilities(network, callable_blocks = ["wafer-run/network"]),
+    skill(
+        description = "TODO: describe the tool. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+        parameters = schema_json()
+    ),
+)]
+impl Tool {
+    fn handle(_msg: Message, body: Vec<u8>) -> GuestResult {
+        match run(body) {
+            Ok(v) => GuestResult::respond(v),
+            Err(e) => GuestResult::error(e.into()),
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
+    let args: Args = serde_json::from_slice(&body).invalid_args("$slug")?;
+    let (bytes, _mime, _name) =
+        resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
+    build_media_envelope(
+        &png,
+        "image/png",
+        out_name,
+        format!("processed image ({} bytes PNG)", png.len()),
+        MAX_OUTPUT_BYTES,
+    )
+}
+EOF
+  cat > "$dir/manifest.json" <<EOF
+{
+  "name": "gizza-ai/$slug",
+  "version": "0.1.0",
+  "interface": "handler@v1",
+  "summary": "TODO: one-line summary.",
+  "role": "skill",
+  "requires": ["wafer-run/network"],
+  "tool": {
+    "description": "TODO: describe the tool. Returns a PNG. Provide the image as either url (HTTP/HTTPS) or ref from a prior tool call.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
+        "ref": { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." }
+      },
+      "additionalProperties": false,
+      "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]
+    }
+  }
+}
+EOF
+  cat > "$dir/page/meta.toml" <<EOF
+slug          = "$slug"
+title         = "TODO"
+description   = "TODO."
+tags          = []
+h1            = "TODO"
+hero_subtitle = "TODO."
+wasm          = "${ucrate}_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Result"
+format        = "image"
+
+# The file input comes first; add one [[input]] source = "field" per core
+# Params field (name = the field name) after it.
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
 EOF
 fi
 
