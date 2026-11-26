@@ -36,8 +36,9 @@ struct Descriptor<'a> {
     /// block has no manifest or no `tool` object.
     #[serde(skip_serializing_if = "Option::is_none")]
     tool: Option<ToolSpec>,
-    /// The page config (`ToolMeta::client_config`): runtime, web export,
-    /// module, inputs with labels + controls — what another page needs to run
+    /// The page spec (`ToolMeta::page_spec` — the inline page config plus
+    /// per-input controls): runtime, web export, module, inputs with labels +
+    /// controls — what another page needs to run
     /// this tool with the tool page's own runtime (`/tools/_runtime/`).
     page: Value,
 }
@@ -126,7 +127,7 @@ pub fn tool_descriptor(
         },
         cli: cli_example(meta, schema),
         tool,
-        page: meta.client_config(schema),
+        page: meta.page_spec(schema),
     };
     serde_json::to_string_pretty(&descriptor).expect("serialize tool descriptor")
 }

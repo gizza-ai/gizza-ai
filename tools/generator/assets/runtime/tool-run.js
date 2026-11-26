@@ -9,7 +9,10 @@
 // field name → raw string value; coercion happens here (tool-fields.js).
 //
 // Resolves {blob, outName, mime, backend?}; rejects with an Error whose message
-// is fit to show the user. Runtime modules are imported lazily so a page only
+// is fit to show the user. `deps.signal` (an AbortSignal) cancels a superseded
+// run: model inference is the expensive step, so it is checked after input
+// validation and an aborted run rejects with the signal's reason (an
+// "AbortError" DOMException by default) instead of starting inference. Runtime modules are imported lazily so a page only
 // fetches the runtime it uses.
 
 import { fieldArgs } from "./tool-fields.js";
@@ -28,6 +31,7 @@ export async function runTool(page, mod, file, values, deps = {}) {
       const model = await import("./tool-model.js");
       const run = deps.runModel || model.runModel;
       await (deps.validateFile || model.validateModelFile)(file);
+      if (deps.signal) deps.signal.throwIfAborted();
       const fields = Object.fromEntries(
         page.inputs.filter((i) => i.source === "field").map((i) => [i.name, read(i)]),
       );
