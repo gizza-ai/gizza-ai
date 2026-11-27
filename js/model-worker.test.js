@@ -2,20 +2,13 @@
 // in place of ./transformers.min.js) and a fake WebGPU adapter.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { registerHooks } from "node:module";
+import { register } from "node:module";
 
 import { IMAGE_MODELS, resolveVariant } from "../tools/generator/assets/runtime/image-models.js";
 import { JANUS_DTYPES, janusLoadKey, janusVariant } from "../tools/generator/assets/runtime/janus-builds.js";
 
 const FAKE = new URL("./fixtures/model-worker/fake-transformers.js", import.meta.url).href;
-registerHooks({
-  resolve(specifier, context, next) {
-    if (specifier === "./transformers.min.js" && String(context.parentURL).endsWith("/model-worker.js")) {
-      return { url: FAKE, shortCircuit: true };
-    }
-    return next(specifier, context);
-  },
-});
+register("./fixtures/model-worker/resolve-fake-transformers.mjs", import.meta.url);
 
 const listeners = [];
 const posted = [];
