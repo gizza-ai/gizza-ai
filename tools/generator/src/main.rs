@@ -48,6 +48,7 @@ const SD_ORT_GZIPPED: &[&str] = &["ort-wasm-simd-threaded.asyncify.wasm"];
 const MODEL_RUNTIME_MODULES: &[&str] = &[
     "model-worker.js",
     "model-download-progress.js",
+    "janus-builds.js",
     "sd-worker.js",
     "sd-core.js",
 ];
@@ -64,6 +65,8 @@ const SHARED_RUNTIME_FILES: &[&str] = &[
     "tool-ffmpeg.js",
     "tool-model.js",
     "custom-model.js",
+    // custom-model.js's Janus builds, the same module model-worker.js loads.
+    "janus-builds.js",
     "image-models.js",
     "tool-crop-box.js",
     "tool-crop-box.css",
@@ -533,6 +536,7 @@ mod tests {
             "sd-core.js",
             "model-worker.js",
             "model-download-progress.js",
+            "janus-builds.js",
         ] {
             assert!(MODEL_RUNTIME_MODULES.contains(&f), "{f} not published");
             assert!(
@@ -618,7 +622,7 @@ mod tests {
 
     #[test]
     fn shared_runtime_publishes_model_registry_and_custom_check() {
-        for f in ["image-models.js", "custom-model.js"] {
+        for f in ["image-models.js", "custom-model.js", "janus-builds.js"] {
             assert!(SHARED_RUNTIME_FILES.contains(&f), "{f} not published");
         }
     }
