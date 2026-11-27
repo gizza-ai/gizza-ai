@@ -3,6 +3,8 @@
 // a registry entry the picker can use. Every request goes to the Hugging Face
 // API through the injected `fetch`; no /resolve/ URL is ever requested.
 
+import { JANUS_DEVICES, JANUS_DTYPES, JANUS_NEEDS_F16 } from "./janus-builds.js";
+
 const HF = "https://huggingface.co";
 const SPEC = /^([A-Za-z0-9][\w.-]*)\/([\w.-]+?)(?:@([^\s@]+))?$/;
 const DOTS_ONLY = /^\.+$/;
@@ -16,40 +18,9 @@ const NEEDS_LOGIN = "needs a Hugging Face login, which gizza doesn't support";
 // can't be told apart from a private or gated repo.
 const NOT_FOUND_OR_LOCKED = `not found, or private/gated (${NEEDS_LOGIN})`;
 
-const JANUS_COMPONENTS = [
-  "prepare_inputs_embeds",
-  "language_model",
-  "lm_head",
-  "gen_head",
-  "gen_img_embeds",
-  "image_decode",
-];
-// Mirrors JANUS_DTYPES in model-worker.js; suffix is the onnx file suffix.
+const JANUS_COMPONENTS = Object.keys(JANUS_DEVICES);
+// The onnx file suffix of each dtype.
 const DTYPE_SUFFIX = { fp32: "", fp16: "_fp16", q4: "_q4", q4f16: "_q4f16", q8: "_quantized" };
-const JANUS_VARIANTS = {
-  f16: {
-    shaderF16: true,
-    dtypes: {
-      prepare_inputs_embeds: "q4",
-      language_model: "q4f16",
-      lm_head: "fp16",
-      gen_head: "fp16",
-      gen_img_embeds: "fp16",
-      image_decode: "fp32",
-    },
-  },
-  f32: {
-    shaderF16: false,
-    dtypes: {
-      prepare_inputs_embeds: "q8",
-      language_model: "q4",
-      lm_head: "q4",
-      gen_head: "q4",
-      gen_img_embeds: "fp32",
-      image_decode: "fp32",
-    },
-  },
-};
 const SD_VARIANTS = { nof16q8: false, fp16: true };
 const SD_COMPONENTS = ["text_encoder", "unet", "vae_decoder"];
 
@@ -121,14 +92,14 @@ function sumFiles(files, paths) {
 
 function janusVariants(files) {
   const out = {};
-  for (const [name, v] of Object.entries(JANUS_VARIANTS)) {
+  for (const [name, dtypes] of Object.entries(JANUS_DTYPES)) {
     const paths = JANUS_COMPONENTS.flatMap((c) => {
-      const base = `onnx/${c}${DTYPE_SUFFIX[v.dtypes[c]]}.onnx`;
+      const base = `onnx/${c}${DTYPE_SUFFIX[dtypes[c]]}.onnx`;
       return [base, `${base}_data?`];
     });
     const bytes = sumFiles(files, paths);
     if (bytes !== null) {
-      out[name] = { requires: { shaderF16: v.shaderF16 }, download_mb: toMb(bytes), verified: false };
+      out[name] = { requires: { shaderF16: JANUS_NEEDS_F16[name] }, download_mb: toMb(bytes), verified: false };
     }
   }
   return out;
