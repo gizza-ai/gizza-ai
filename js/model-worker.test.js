@@ -120,7 +120,20 @@ test("loading is reported only while the weights load; a warm generation starts 
 
 test("the load key and the variant pick are per build", () => {
   const base = { id: "a/b", revision: "r" };
-  assert.notEqual(janusLoadKey({ ...base, variant: "f16" }), janusLoadKey({ ...base, variant: "f32" }));
-  assert.notEqual(janusLoadKey({ ...base, variant: "f16" }), janusLoadKey(base));
+  assert.notEqual(janusLoadKey({ ...base, variant: "f16" }, gpu(true)), janusLoadKey({ ...base, variant: "f32" }, gpu(true)));
+  // A descriptor without a variant is keyed by the build its adapter picks.
+  assert.equal(janusLoadKey(base, gpu(true)), janusLoadKey({ ...base, variant: "f16" }, gpu(true)));
+  assert.equal(janusLoadKey(base, gpu(false)), janusLoadKey({ ...base, variant: "f32" }, gpu(false)));
+  assert.notEqual(janusLoadKey(base, gpu(false)), janusLoadKey({ ...base, variant: "f16" }, gpu(true)));
   assert.throws(() => janusVariant({ ...base, variant: "int4" }, gpu(true)), /no "int4" build/);
+});
+
+test("the variant-less imagine descriptor and the registry descriptor for its build share one load", async () => {
+  adapter = gpu(true);
+  const legacy = { task: "text-to-image", id: "acme/janus-shared", revision: "abc", download_mb: 1 };
+  const cold = await generate(legacy);
+  assert.deepEqual(cold.model.dtype, JANUS_DTYPES.f16);
+  const warm = await generate({ ...legacy, variant: "f16", engine: "janus" });
+  assert.equal(warm.reply.type, "result");
+  assert.equal(warm.model, null, "no second load of the same build");
 });

@@ -174,48 +174,93 @@ async function withWorkers(fn) {
 
 const isEngineWorker = (w, file) => w.url.endsWith(`/_model-runtime/${file}`) && w.options.type === "module";
 
+// The resident slot admits calls asynchronously (it may wait for another
+// model, and reads the adapter for Janus): let it settle before inspecting.
+const settle = () => new Promise((r) => setImmediate(r));
+const result = (w, i = 0, filename = "generated.png") =>
+  w.emit({ type: "result", id: w.posted[i].id, blob: new Blob(["png"]), filename, backend: "webgpu" });
+
 test("generateWith routes each engine to its own worker", async () => {
   await withWorkers(async (workers) => {
     const sd = generateWith(SD, " a red fox ", { nav });
+    await settle();
     assert.equal(workers.length, 1);
     assert.ok(isEngineWorker(workers[0], "sd-worker.js"), workers[0].url);
     const msg = workers[0].posted[0];
     assert.deepEqual({ type: msg.type, model: msg.model, prompt: msg.prompt }, { type: "generate", model: SD, prompt: "a red fox" });
-    workers[0].emit({ type: "result", id: msg.id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+    result(workers[0]);
     assert.equal((await sd).filename, "generated.png");
 
     const again = generateWith(SD, "a cat", { nav });
+    await settle();
     assert.equal(workers.length, 1, "the resident engine is reused");
-    workers[0].emit({ type: "result", id: workers[0].posted[1].id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+    result(workers[0], 1);
     await again;
   });
 });
 
-test("switching to SD-Turbo terminates the Janus worker first; its generation never resolves", async () => {
+for (const [from, to, fromFile, toFile] of [
+  ["Janus", "SD-Turbo", "model-worker.js", "sd-worker.js"],
+  ["SD-Turbo", "Janus", "sd-worker.js", "model-worker.js"],
+]) {
+  test(`starting ${to} while ${from} generates lets ${from} finish, then replaces its worker`, async () => {
+    const pick = (name) => (name === "Janus" ? JANUS : SD);
+    await withWorkers(async (workers) => {
+      const running = generateWith(pick(from), "a red fox", { nav });
+      await settle();
+      assert.ok(isEngineWorker(workers[0], fromFile), workers[0].url);
+      const seen = [];
+      const next = generateWith(pick(to), "a blue bird", { nav, onProgress: (p) => seen.push(p) });
+      await settle();
+      assert.equal(workers.length, 1, `${to} waits for ${from}'s generation`);
+      assert.equal(workers[0].terminated, false, `${from}'s generation is not cancelled`);
+      assert.deepEqual(seen, [{ stage: "queued" }]);
+      result(workers[0], 0, "first.png");
+      assert.equal((await running).filename, "first.png", `${from}'s generation completes`);
+      await settle();
+      assert.equal(workers[0].terminated, true, `${from} is gone before ${to} starts`);
+      assert.ok(isEngineWorker(workers[1], toFile));
+      result(workers[1], 0, "second.png");
+      assert.equal((await next).filename, "second.png");
+    });
+  });
+}
+
+test("a queued call cancelled while it waits leaves the running model alone and never starts", async () => {
   await withWorkers(async (workers) => {
-    const janus = generateWith(JANUS, "a red fox", { nav });
-    assert.ok(isEngineWorker(workers[0], "model-worker.js"), workers[0].url);
-    const janusId = workers[0].posted[0].id;
-    const sd = generateWith(SD, "a red fox", { nav });
-    assert.equal(workers[0].terminated, true, "Janus is gone before SD starts");
-    assert.ok(isEngineWorker(workers[1], "sd-worker.js"));
-    await assert.rejects(janus, (e) => e.name === "AbortError");
-    // A result the dead worker had in flight resolves nothing.
-    workers[0].emit({ type: "result", id: janusId, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
-    workers[1].emit({ type: "result", id: workers[1].posted[0].id, blob: new Blob(["png"]), filename: "sd.png", backend: "webgpu" });
-    assert.equal((await sd).filename, "sd.png");
+    const running = generateWith(JANUS, "a red fox", { nav });
+    await settle();
+    const controller = new AbortController();
+    const queued = generateWith(SD, "a blue bird", { nav, signal: controller.signal });
+    await settle();
+    controller.abort();
+    await assert.rejects(queued, (e) => e.name === "AbortError");
+    await settle();
+    assert.equal(workers.length, 1, "SD never starts");
+    assert.equal(workers[0].terminated, false);
+    result(workers[0]);
+    await running;
   });
 });
 
-test("switching to Janus terminates the SD-Turbo worker first", async () => {
+test("a call that arrives behind a queued switch waits its turn instead of joining the outgoing model", async () => {
   await withWorkers(async (workers) => {
-    const sd = generateWith(SD, "a red fox", { nav });
-    const janus = generateWith(JANUS, "a red fox", { nav });
-    assert.equal(workers[0].terminated, true);
-    assert.ok(isEngineWorker(workers[1], "model-worker.js"));
-    await assert.rejects(sd, (e) => e.name === "AbortError");
-    workers[1].emit({ type: "result", id: workers[1].posted[0].id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
-    await janus;
+    const first = generateWith(JANUS, "a red fox", { nav });
+    await settle();
+    const sd = generateWith(SD, "a blue bird", { nav });
+    const janusAgain = generateWith(JANUS, "a cat", { nav });
+    await settle();
+    assert.equal(workers[0].posted.length, 1, "nothing new reaches Janus while SD waits");
+    result(workers[0]);
+    await first;
+    await settle();
+    assert.ok(isEngineWorker(workers[1], "sd-worker.js"));
+    result(workers[1]);
+    await sd;
+    await settle();
+    assert.ok(isEngineWorker(workers[2], "model-worker.js"), "Janus comes back after SD");
+    result(workers[2]);
+    await janusAgain;
   });
 });
 
@@ -229,23 +274,47 @@ test("switching models on the same engine replaces its worker; the same model re
       [{ ...other, variant: other.variant === "f16" ? "f32" : "f16" }, 3, "another variant: replaced"],
       [{ ...JANUS, revision: "fedcba9876543210fedcba9876543210fedcba98" }, 4, "another revision: replaced"],
     ];
-    const calls = [];
     for (const [descriptor, count, why] of steps) {
-      calls.push(generateWith(descriptor, "a red fox", { nav }));
+      const call = generateWith(descriptor, "a red fox", { nav });
+      await settle();
       assert.equal(workers.length, count, why);
-      assert.ok(isEngineWorker(workers.at(-1), "model-worker.js"));
+      const live = workers.at(-1);
+      assert.ok(isEngineWorker(live, "model-worker.js"));
       assert.ok(workers.slice(0, -1).every((w) => w.terminated), `${why}: the previous model is gone first`);
+      result(live, live.posted.length - 1);
+      await call;
     }
-    const live = workers.at(-1);
-    live.emit({ type: "result", id: live.posted[0].id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
-    const settled = await Promise.allSettled(calls);
-    assert.deepEqual(settled.map((r) => r.status), ["rejected", "rejected", "rejected", "rejected", "fulfilled"]);
   });
+});
+
+test("the imagine page's variant-less Janus descriptor shares the worker of the registry build it would load", async () => {
+  const adapterNav = (f16) => ({ gpu: { requestAdapter: async () => ({ features: new Set(f16 ? ["shader-f16"] : []) }) } });
+  const legacy = { task: "text-to-image", id: JANUS.id, revision: JANUS.revision, download_mb: 1 };
+  for (const [f16, same, other] of [[true, "f16", "f32"], [false, "f32", "f16"]]) {
+    await withWorkers(async (workers) => {
+      const nav = adapterNav(f16);
+      const a = generateWith({ ...legacy, engine: "janus" }, "a red fox", { nav });
+      await settle();
+      result(workers[0]);
+      await a;
+      const b = generateWith({ ...JANUS, variant: same }, "a red fox", { nav });
+      await settle();
+      assert.equal(workers.length, 1, `the ${same} descriptor reuses the legacy load on this GPU`);
+      result(workers[0], 1);
+      await b;
+      const c = generateWith({ ...JANUS, variant: other }, "a red fox", { nav });
+      await settle();
+      assert.equal(workers.length, 2, `the ${other} build is another model`);
+      result(workers[1]);
+      await c;
+    });
+  }
 });
 
 test("a fatal SD error retires its worker and the next generation gets a fresh one", async () => {
   await withWorkers(async (workers) => {
     const first = generateWith(SD, "a red fox", { nav });
+    await settle();
     workers[0].emit({
       type: "error",
       id: workers[0].posted[0].id,
@@ -255,6 +324,7 @@ test("a fatal SD error retires its worker and the next generation gets a fresh o
     await assert.rejects(first, /enough free storage/);
     assert.equal(workers[0].terminated, true);
     const second = generateWith(SD, "a red fox", { nav });
+    await settle();
     assert.equal(workers.length, 2);
     assert.ok(isEngineWorker(workers[1], "sd-worker.js"));
     workers[1].emit({ type: "result", id: workers[1].posted[0].id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
@@ -267,6 +337,7 @@ test("generateWith forwards progress and cancels through the signal", async () =
     const seen = [];
     const controller = new AbortController();
     const p = generateWith(SD, "a red fox", { nav, signal: controller.signal, onProgress: (x) => seen.push(x) });
+    await settle();
     const { id } = workers[0].posted[0];
     workers[0].emit({ type: "progress", id, progress: { stage: "download", progress: 0.5 } });
     controller.abort();
