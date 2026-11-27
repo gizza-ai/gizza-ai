@@ -11,10 +11,10 @@
 //
 // Resolves {blob, outName, mime, backend?}; rejects with an Error whose message
 // is fit to show the user. `deps.signal` (an AbortSignal) cancels a superseded
-// run, which rejects with an AbortError that callers drop rather than show:
-// model inference is checked after input validation (the expensive step comes
-// after it), and a wasm-image job that hasn't finished is dropped. Runtime
-// modules are imported lazily so a page only
+// or cancelled run, which rejects with an AbortError that callers drop rather
+// than show: a text-to-image run is handed the signal, other model tools check
+// it after input validation (before inference starts), and a wasm-image job
+// that hasn't finished is dropped. Runtime modules are imported lazily so a page only
 // fetches the runtime it uses.
 
 import { coerceField, fieldArgs } from "./tool-fields.js";
@@ -31,6 +31,20 @@ export async function runTool(page, mod, file, values, deps = {}) {
     }
     case "model": {
       const model = await import("./tool-model.js");
+      // Text-to-image tools take no file: their `prompt` field is the input.
+      if (page.model && page.model.task === "text-to-image") {
+        const prompt = read(page.inputs.find((i) => i.name === "prompt") || { name: "prompt" });
+        const result = await (deps.generateImage || model.generateImage)(page.model, prompt, {
+          onProgress: deps.onProgress,
+          signal: deps.signal,
+        });
+        return {
+          blob: result.blob,
+          outName: result.filename || "generated.png",
+          mime: result.blob.type || "image/png",
+          backend: result.backend,
+        };
+      }
       const run = deps.runModel || model.runModel;
       await (deps.validateFile || model.validateModelFile)(file);
       if (deps.signal) deps.signal.throwIfAborted();

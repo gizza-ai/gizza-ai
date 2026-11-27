@@ -566,8 +566,119 @@ function gatherArgs() {
   });
 }
 
+// Prompt-only model tools (text-to-image): Generate runs once per click and
+// becomes Cancel while the model works; field edits never auto-run.
+async function setupPromptModel() {
+  const { progressLabel } = await import("./tool-model.js");
+  const media = document.getElementById("tool-output-media");
+  const dl = document.getElementById("tool-output-download");
+  const copyImage = document.getElementById("tool-copy-image");
+  const button = document.getElementById("tool-generate");
+  const fieldInputs = cfg.inputs.filter((i) => i.source === "field");
+  if (!media || !dl || !button || cfg.format !== "image" || !fieldInputs.some((i) => i.name === "prompt")) {
+    showError("tool misconfigured: text-to-image needs a prompt field, a Generate button, and image output");
+    return;
+  }
+  const idleLabel = button.textContent;
+  let outputUrl = null;
+  let controller = null;
+
+  const setRunning = (running) => {
+    button.textContent = running ? "Cancel" : idleLabel;
+    button.classList.toggle("is-running", running);
+  };
+
+  // Abort reason for a generation Reset cleared: Reset has already blanked
+  // the output, so the cancellation is not reported.
+  const RESET = Symbol("reset");
+
+  async function generate() {
+    if (controller) {
+      // The worker answers at once while the model downloads, and at the
+      // next image token while generating; the catch below restores the UI.
+      controller.abort();
+      out.textContent = "Cancelling…";
+      return;
+    }
+    controller = new AbortController();
+    const { signal } = controller;
+    setRunning(true);
+    // The previous image must not sit beside a new run's progress (or
+    // outlive it if this one fails or is cancelled).
+    media.hidden = true;
+    dl.hidden = true;
+    if (copyImage) copyImage.hidden = true;
+    if (outputUrl) URL.revokeObjectURL(outputUrl);
+    outputUrl = null;
+    out.classList.remove("error");
+    out.textContent = "Loading AI model…";
+    try {
+      const values = Object.fromEntries(
+        fieldInputs.map((i) => [i.name, readField(document.getElementById(i.elementId))]),
+      );
+      const result = await runTool(cfg, null, null, values, {
+        signal,
+        onProgress: (progress) => {
+          if (!signal.aborted) out.textContent = progressLabel(progress);
+        },
+      });
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      outputUrl = URL.createObjectURL(result.blob);
+      media.src = outputUrl;
+      media.hidden = false;
+      dl.href = outputUrl;
+      dl.download = result.outName;
+      dl.hidden = false;
+      if (copyImage) copyImage.hidden = false;
+      out.textContent = `Finished locally with ${result.backend}.`;
+    } catch (error) {
+      if (error && error.name === "AbortError") {
+        out.classList.remove("error");
+        out.textContent = signal.reason === RESET ? "" : "Cancelled.";
+      } else {
+        showError((error && error.message) || "Image generation failed.");
+      }
+    } finally {
+      controller = null;
+      setRunning(false);
+    }
+  }
+
+  for (const field of queryPrefill(cfg.inputs, location.search).fields) {
+    applyField(document.getElementById(field.elementId), field.value);
+  }
+  applyMetaDefaults();
+  wireTagLists();
+  wireSliders();
+  wireColors();
+  // Example chips and Reset only fill fields here; Generate is explicit.
+  wireWidgetChrome(() => {});
+  // Reset also stops an in-flight generation so its image never reappears
+  // over the cleared page.
+  const reset = document.getElementById("tool-reset");
+  if (reset) {
+    reset.addEventListener("click", () => {
+      if (controller) controller.abort(RESET);
+    });
+  }
+  button.addEventListener("click", generate);
+  // Ctrl/Cmd+Enter in the prompt generates, as in a chat box.
+  const prompt = document.getElementById(fieldInputs.find((i) => i.name === "prompt").elementId);
+  prompt.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      if (!controller) generate();
+    }
+  });
+}
+
 async function main() {
   wireFileDropzones();
+  if (cfg.runtime === "model" && cfg.model && cfg.model.task === "text-to-image") {
+    await setupPromptModel();
+    return;
+  }
+
   if (cfg.runtime === "model") {
     const { progressLabel } = await import("./tool-model.js");
     const media = document.getElementById("tool-output-media");

@@ -115,3 +115,25 @@ test("wasm-image errors reject with the tool's message", async () => {
     /could not decode image/,
   );
 });
+
+test("text-to-image models generate from the prompt field without a file", async () => {
+  const page = {
+    runtime: "model",
+    model: { task: "text-to-image", id: "m", revision: "r" },
+    inputs: [{ name: "prompt", source: "field" }],
+  };
+  const signal = new AbortController().signal;
+  let call;
+  const r = await runTool(page, null, null, { prompt: "a lighthouse at dusk" }, {
+    signal,
+    generateImage: async (model, prompt, opts) => {
+      call = { model, prompt, signal: opts.signal };
+      return { blob: new Blob([new Uint8Array([1])], { type: "image/png" }), filename: "generated.png", backend: "webgpu" };
+    },
+  });
+  assert.equal(call.prompt, "a lighthouse at dusk");
+  assert.equal(call.model, page.model);
+  assert.equal(call.signal, signal);
+  assert.equal(r.outName, "generated.png");
+  assert.equal(r.backend, "webgpu");
+});

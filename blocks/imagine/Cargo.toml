@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["."]
+members = [".", "web"]
 
 [package]
 name = "gizza-ai-imagine-block"

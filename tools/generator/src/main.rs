@@ -132,10 +132,9 @@ fn run() -> Result<(), String> {
             &runtime.join("LICENSE.onnxruntime.txt"),
             &model_runtime.join("LICENSE.onnxruntime.txt"),
         )?;
-        copy_file(
-            &runtime.join("model-worker.js"),
-            &model_runtime.join("model-worker.js"),
-        )?;
+        for name in ["model-worker.js", "model-download-progress.js"] {
+            copy_file(&runtime.join(name), &model_runtime.join(name))?;
+        }
     }
 
     let shared_runtime = pkg_tools.join("_runtime");

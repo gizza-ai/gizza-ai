@@ -9,6 +9,17 @@ use crate::pairs::PairLink;
 use crate::site::SiteConfig;
 use maud::{html, Markup, PreEscaped, DOCTYPE};
 
+/// A model download size for people: "5 MB", "2.4 GB". Switches on the
+/// value as it would print in MB, so 999.7 MB reads "1.0 GB", not "1000 MB".
+fn download_size(mb: f64) -> String {
+    let whole_mb = mb.round();
+    if whole_mb >= 1000.0 {
+        format!("{:.1} GB", mb / 1000.0)
+    } else {
+        format!("{whole_mb:.0} MB")
+    }
+}
+
 /// Render the full HTML document for a tool page. `content_html` is the
 /// markdown-rendered SEO section. `custom_js`/`custom_css` say whether the tool
 /// ships a `page/custom.js`/`page/custom.css` (copied next to the page by
@@ -155,9 +166,15 @@ pub fn render_page(
                         @if let Some(model) = &meta.model {
                             p class="tool-model-note" {
                                 "Private AI: the first run downloads about "
-                                (format!("{:.0}", model.download_mb))
-                                " MB of model files. Your input stays in this browser \
+                                (download_size(model.download_mb))
+                                " of model files, then they're cached. Your input stays in this browser \
                                  and is never uploaded for inference."
+                                // tool-model.js treats an empty device list as
+                                // ["wasm"], so only a non-empty all-WebGPU list
+                                // means the model needs WebGPU.
+                                @if !model.devices.is_empty() && model.devices.iter().all(|d| d == "webgpu") {
+                                    " Needs WebGPU (a recent desktop Chrome or Edge)."
+                                }
                             }
                         }
                         // Every other tool on the site is local-only, so a tool that
@@ -318,6 +335,12 @@ pub fn render_page(
                                         button type="button" class="tool-example-chip" data-example=(i) { (ex.label) }
                                     }
                                 }
+                            }
+                            // Prompt-only model tools (text-to-image) run on an explicit
+                            // click — a multi-second generation per keystroke would be
+                            // unusable. tool.js turns it into Cancel while running.
+                            @if meta.model.as_ref().is_some_and(|m| m.task == "text-to-image") {
+                                button id="tool-generate" class="tool-generate-btn" type="button" { "Generate image" }
                             }
                             div class="tool-output-label" { (meta.output_label) }
                             // Media display covers svg too: the SVG is rendered as
@@ -1562,6 +1585,54 @@ accept = "audio/*"
         assert!(html.contains(r#"<img id="tool-output-media""#), "image media output");
         assert!(html.contains(r#"id="tool-copy-image""#), "copy-image for image output");
         assert!(html.contains(r#""runtime":"wasm-image""#), "runtime reaches tool.js");
+    }
+
+    #[test]
+    fn text_to_image_page_renders_generate_button_and_webgpu_note() {
+        let mut meta = sample();
+        meta.runtime = "model".to_string();
+        meta.format = "image".to_string();
+        meta.model = Some(crate::meta::ModelSpec {
+            task: "text-to-image".into(),
+            id: "org/model".into(),
+            revision: "abc".into(),
+            devices: vec!["webgpu".into()],
+            dtypes: Default::default(),
+            download_mb: 2410.0,
+        });
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains(r#"<button id="tool-generate" class="tool-generate-btn" type="button">Generate image</button>"#));
+        assert!(html.contains("downloads about 2.4 GB of model files"), "GB formatting");
+        assert!(html.contains("Needs WebGPU"), "WebGPU-only models say so up front");
+    }
+
+    #[test]
+    fn download_size_formats_mb_and_gb() {
+        assert_eq!(download_size(5.0), "5 MB");
+        assert_eq!(download_size(2410.0), "2.4 GB");
+        assert_eq!(download_size(999.4), "999 MB");
+        assert_eq!(download_size(999.7), "1.0 GB", "rounds up into GB, never \"1000 MB\"");
+        assert_eq!(download_size(1000.0), "1.0 GB");
+    }
+
+    #[test]
+    fn model_with_no_declared_devices_does_not_claim_webgpu() {
+        // An empty device list runs on the WASM fallback (tool-model.js
+        // compatibleDevices), so the page must not say it needs WebGPU.
+        let mut meta = sample();
+        meta.runtime = "model".to_string();
+        meta.format = "image".to_string();
+        meta.model = Some(crate::meta::ModelSpec {
+            task: "background-removal".into(),
+            id: "org/model".into(),
+            revision: "abc".into(),
+            devices: vec![],
+            dtypes: Default::default(),
+            download_mb: 5.0,
+        });
+        let html = render_page(&branded(), &meta, "", &ParamSchema::empty(), false, false, &[], &[]);
+        assert!(html.contains("downloads about 5 MB of model files"));
+        assert!(!html.contains("Needs WebGPU"), "an empty device list is the WASM fallback");
     }
 
     #[test]

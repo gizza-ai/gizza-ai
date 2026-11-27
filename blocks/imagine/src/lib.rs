@@ -1,5 +1,9 @@
 //! gizza-ai/imagine — text-to-image skill block.
 //!
+//! Surfaces: chat (this handler, via the host's image service) and the
+//! standalone page (page/ + web/, the shared model runtime's `text-to-image`
+//! task running the same Janus-Pro model at a pinned revision).
+//!
 //! Dispatches to the `wafer-run/image` service block via the typed SDK
 //! client. The browser-side `BrowserImageService` (registered in
 //! `gizza-ai/src/lib.rs`) provides the actual inference via
@@ -192,6 +196,13 @@ mod tests {
         .unwrap();
         let derived: serde_json::Value = serde_json::from_str(&schema_json()).unwrap();
         assert_eq!(derived, authored, "no LLM-facing chat-schema drift");
+    }
+
+    #[test]
+    fn page_runs_the_same_model_the_chat_uses() {
+        let meta = include_str!("../page/meta.toml");
+        assert!(meta.contains(&format!("id = \"{MODEL_ID}\"")));
+        assert!(meta.contains("task = \"text-to-image\""));
     }
 
     #[test]

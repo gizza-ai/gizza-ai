@@ -3,12 +3,14 @@ import assert from "node:assert/strict";
 
 import {
   compatibleDevices,
+  generateImage,
   MODEL_FILE_LIMITS,
   ModelWorkerClient,
   progressLabel,
   validateModelFile,
   validateModelResult,
 } from "../tools/generator/assets/runtime/tool-model.js";
+import { downloadTracker } from "../tools/generator/assets/runtime/model-download-progress.js";
 
 test("compatibleDevices prefers WebGPU and keeps WASM fallback", () => {
   const model = { devices: ["webgpu", "wasm", "webgpu", "other"] };
@@ -114,6 +116,10 @@ class FakeWorker {
     this.listeners.get(type)?.({ data });
   }
 
+  fail(message) {
+    this.listeners.get("error")?.({ message });
+  }
+
   terminate() {
     this.terminated = true;
   }
@@ -157,4 +163,194 @@ test("ModelWorkerClient rejects worker-reported failures", async () => {
   worker.emit("message", { type: "error", id, error: "model failed" });
   await assert.rejects(promise, /model failed/);
   client.dispose();
+});
+
+const JANUS = { task: "text-to-image", id: "onnx-community/Janus-Pro-1B-ONNX", revision: "abc", devices: ["webgpu"] };
+
+test("progressLabel reports image-token generation progress", () => {
+  assert.equal(progressLabel({ stage: "generate", count: 144, total: 576 }), "Generating image… 25%");
+});
+
+test("ModelWorkerClient.generate posts the prompt and resolves the generated image", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const seen = [];
+  const promise = client.generate(JANUS, "a red fox", { onProgress: (p) => seen.push(p) });
+  const posted = worker.posted[0];
+  assert.equal(posted.type, "generate");
+  assert.equal(posted.prompt, "a red fox");
+  assert.equal(posted.model.id, JANUS.id);
+  worker.emit("message", { type: "progress", id: posted.id, progress: { stage: "generate", count: 1, total: 576 } });
+  worker.emit("message", { type: "result", id: posted.id, blob: new Blob(["png"], { type: "image/png" }), filename: "generated.png", backend: "webgpu" });
+  const result = await promise;
+  assert.equal(result.filename, "generated.png");
+  assert.deepEqual(seen, [{ stage: "generate", count: 1, total: 576 }]);
+  client.dispose();
+});
+
+test("aborting a generation asks the worker to cancel and rejects with AbortError", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const id = worker.posted[0].id;
+  controller.abort();
+  assert.deepEqual(worker.posted[1], { type: "cancel", id });
+  worker.emit("message", { type: "cancelled", id });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  client.dispose();
+});
+
+test("an already-aborted signal never starts a generation", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(client.generate(JANUS, "x", { signal: controller.signal }), (error) => error.name === "AbortError");
+  assert.equal(worker.posted.length, 0);
+  client.dispose();
+});
+
+test("generateImage needs WebGPU, a pinned text-to-image model and a prompt", async () => {
+  await assert.rejects(generateImage(JANUS, "a fox", { nav: {} }), /needs WebGPU/);
+  await assert.rejects(generateImage({ ...JANUS, revision: "" }, "a fox", { nav: { gpu: {} } }), /pinned model/);
+  await assert.rejects(generateImage({ ...JANUS, task: "background-removal" }, "a fox", { nav: { gpu: {} } }), /text-to-image/);
+  await assert.rejects(generateImage(JANUS, "   ", { nav: { gpu: {} } }), /Describe the image/);
+});
+
+test("a result that lands after abort still rejects with AbortError", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const id = worker.posted[0].id;
+  controller.abort();
+  // The worker finished before it read the cancel.
+  worker.emit("message", { type: "result", id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  client.dispose();
+});
+
+test("a worker crash fails pending calls, detaches abort listeners and stops the worker", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const generation = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const run = client.run(
+    { task: "u2net-background-removal", id: "BritishWerewolf/U-2-Netp", revision: "abc", devices: ["wasm"] },
+    { type: "image/png", size: 1 },
+  );
+  worker.fail("worker script crashed");
+  await assert.rejects(generation, /worker script crashed/);
+  await assert.rejects(run, /worker script crashed/);
+  assert.equal(worker.terminated, true);
+  assert.equal(client.stopped, true);
+  assert.equal(client.pending.size, 0);
+  const postedBefore = worker.posted.length;
+  controller.abort();
+  assert.equal(worker.posted.length, postedBefore, "no cancel is posted to the dead worker");
+});
+
+test("after a worker crash the shared client starts a fresh worker", async () => {
+  const NativeWorker = globalThis.Worker;
+  const workers = [];
+  globalThis.Worker = class extends FakeWorker {
+    constructor() {
+      super();
+      workers.push(this);
+    }
+  };
+  try {
+    const nav = { gpu: {} };
+    const first = generateImage(JANUS, "a red fox", { nav });
+    assert.equal(workers.length, 1);
+    workers[0].fail("boom");
+    await assert.rejects(first, /boom/);
+    assert.equal(workers[0].terminated, true);
+
+    const second = generateImage(JANUS, "a red fox", { nav });
+    assert.equal(workers.length, 2, "a new worker replaces the crashed one");
+    const { id } = workers[1].posted[0];
+    workers[1].emit("message", { type: "result", id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+    assert.equal((await second).filename, "generated.png");
+    workers[1].fail("cleanup");
+  } finally {
+    globalThis.Worker = NativeWorker;
+  }
+});
+
+test("downloadTracker combines files and never reports a smaller fraction", () => {
+  const seen = [];
+  const track = downloadTracker((fraction, loaded, total) => seen.push({ fraction, loaded, total }));
+  track({ status: "initiate", file: "a.onnx" }); // no size yet: ignored
+  track({ status: "progress", file: "a.onnx", loaded: 50, total: 100 });
+  assert.deepEqual(seen.at(-1), { fraction: 0.5, loaded: 50, total: 100 });
+  // A second, larger file joins: the byte ratio drops to 60/1100, but the
+  // reported fraction holds at its high-water mark.
+  track({ status: "progress", file: "b.onnx", loaded: 10, total: 1000 });
+  assert.deepEqual(seen.at(-1), { fraction: 0.5, loaded: 60, total: 1100 });
+  track({ status: "done", file: "a.onnx" });
+  track({ status: "progress", file: "b.onnx", loaded: 900, total: 1000 });
+  assert.equal(seen.at(-1).fraction, 1000 / 1100);
+  track({ status: "done", file: "b.onnx" });
+  assert.equal(seen.at(-1).fraction, 1);
+  for (let i = 1; i < seen.length; i += 1) {
+    assert.ok(seen[i].fraction >= seen[i - 1].fraction, "monotonic");
+  }
+  track({ status: "done", file: "never-started.json" }); // unknown file: ignored
+  assert.equal(seen.length, 5);
+});
+
+test("downloadTracker measures against the declared size until the weights report theirs", () => {
+  const seen = [];
+  const track = downloadTracker((fraction) => seen.push(fraction), 1000);
+  // The small files finish first; without the declared size this read 100%.
+  track({ status: "progress", file: "config.json", loaded: 10, total: 10 });
+  track({ status: "done", file: "config.json" });
+  assert.equal(seen.at(-1), 10 / 1000);
+  track({ status: "progress", file: "weights.onnx", loaded: 490, total: 990 });
+  assert.equal(seen.at(-1), 500 / 1000);
+  // A larger-than-declared total takes over as the denominator.
+  track({ status: "progress", file: "extra.onnx", loaded: 0, total: 500 });
+  assert.equal(seen.at(-1), 500 / 1000, "held, never backwards");
+  track({ status: "done", file: "weights.onnx" });
+  track({ status: "done", file: "extra.onnx" });
+  assert.equal(seen.at(-1), 1);
+});
+
+test("a fatal worker error rejects the call and retires the worker; others fail too", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const first = client.generate(JANUS, "a red fox");
+  const second = client.generate(JANUS, "a blue bird");
+  const id = worker.posted[0].id;
+  worker.emit("message", { type: "error", id, error: "The AI model ran out of memory on this device.", fatal: true });
+  await assert.rejects(first, /ran out of memory/);
+  await assert.rejects(second, /ran out of memory/);
+  assert.equal(worker.terminated, true);
+  assert.equal(client.stopped, true);
+});
+
+test("a non-fatal worker error keeps the worker", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const call = client.generate(JANUS, "a red fox");
+  worker.emit("message", { type: "error", id: worker.posted[0].id, error: "Describe the image you want first." });
+  await assert.rejects(call, /Describe the image/);
+  assert.equal(worker.terminated, false);
+  client.dispose();
+});
+
+test("downloadTracker follows the model's progress_total once it arrives", () => {
+  const seen = [];
+  const track = downloadTracker((fraction, loaded, total) => seen.push({ fraction, loaded, total }), 1000);
+  track({ status: "progress", file: "tokenizer.json", loaded: 5, total: 5 }); // processor file, before the model
+  assert.equal(seen.at(-1).fraction, 5 / 1000);
+  track({ status: "progress_total", loaded: 100, total: 400 });
+  assert.deepEqual(seen.at(-1), { fraction: 0.25, loaded: 100, total: 400 });
+  // Per-file events no longer move the bar once the overall total is known.
+  track({ status: "progress", file: "weights.onnx", loaded: 1, total: 10 });
+  assert.equal(seen.length, 2);
+  track({ status: "progress_total", loaded: 400, total: 400 });
+  assert.equal(seen.at(-1).fraction, 1);
 });
