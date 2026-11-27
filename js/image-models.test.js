@@ -49,6 +49,41 @@ test("resolveVariant prefers verified, falls back to unverified, else null", () 
   assert.equal(resolveVariant(custom, { ...f16, shaderF16: false }), null);
 });
 
+test("a custom SD-Turbo-layout repo on an f16 GPU resolves nof16q8 while fp16 is unproven", () => {
+  const f16 = { webgpu: true, shaderF16: true, maxBufferSize: 2 ** 31 };
+  const unverified = (v) => ({ ...v, verified: false });
+  const sd = byId("sd-turbo");
+  const customSd = {
+    ...sd,
+    id: "custom:acme/sd-web@abc",
+    variants: { nof16q8: unverified(sd.variants.nof16q8), fp16: unverified(sd.variants.fp16) },
+  };
+  assert.equal(sd.variants.fp16.verified, false, "the curated fp16 build is still unverified");
+  assert.equal(resolveVariant(customSd, f16).name, "nof16q8");
+  // Janus proves both builds, so a custom Janus repo still prefers f16 there.
+  const janus = byId("janus-pro-1b");
+  const customJanus = {
+    ...janus,
+    id: "custom:acme/janus-web@abc",
+    variants: { f32: unverified(janus.variants.f32), f16: unverified(janus.variants.f16) },
+  };
+  assert.equal(resolveVariant(customJanus, f16).name, "f16");
+  assert.equal(resolveVariant(customJanus, { ...f16, shaderF16: false }).name, "f32");
+});
+
+test("deviceFit says when no build runs on this GPU, and why", () => {
+  const f16Only = {
+    ...byId("sd-turbo"),
+    id: "custom:x/y@abc",
+    variants: { fp16: { requires: { shaderF16: true }, download_mb: 1, verified: false } },
+  };
+  const fit = deviceFit(f16Only, { webgpu: true, shaderF16: false, maxBufferSize: 2 ** 31 });
+  assert.equal(fit.level, "unsupported");
+  assert.match(fit.note, /No build of this model runs on this GPU/);
+  assert.match(fit.note, /shader-f16/);
+  assert.doesNotMatch(fit.note, /verified/);
+});
+
 test("deviceFit is unsupported without webgpu", () => {
   for (const m of IMAGE_MODELS) {
     const fit = deviceFit(m, { webgpu: false, shaderF16: false, maxBufferSize: 0 });
