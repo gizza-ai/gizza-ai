@@ -99,6 +99,15 @@ test("every entry has license name and url, and shape matches custom entries", (
   assert.equal(IMAGE_MODELS.filter((m) => m.recommended).length, 1);
 });
 
+test("a license summary that cites the Acceptable Use Policy links it as an https aup url", () => {
+  assert.equal(byId("sd-turbo").license.aup, "https://stability.ai/use-policy");
+  for (const m of IMAGE_MODELS) {
+    if (/Acceptable Use Policy/.test(m.license.summary)) assert.ok(m.license.aup, `${m.id} cites the AUP without linking it`);
+    if (m.license.aup !== undefined) assert.equal(new URL(m.license.aup).protocol, "https:", m.id);
+  }
+  assert.equal(byId("janus-pro-1b").license.aup, undefined, "aup is optional");
+});
+
 test("adapterInfo reads webgpu, shader-f16 and maxBufferSize", async () => {
   const nav = {
     gpu: {
