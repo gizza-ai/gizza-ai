@@ -1,6 +1,6 @@
 // Curated image-model registry for the image-model picker. Entries have the
 // same shape custom-model.js returns for custom repos, so the picker treats
-// both alike. A variant is only ever chosen when `verified` is true; flip
+// both alike. Verified variants are preferred; flip
 // `fp16.verified` for SD-Turbo once it has been proven on a real f16 GPU.
 
 import { generateOn } from "./tool-model.js";
@@ -69,12 +69,18 @@ export async function adapterInfo(nav) {
   };
 }
 
-// Best verified variant this adapter can run; f16 variants win when usable.
+// Best variant this adapter can run: verified ones win, then f16 ones. An
+// unverified variant is used only when no verified one is compatible (custom
+// entries are never verified).
 export function resolveVariant(entry, info) {
   if (!info?.webgpu) return null;
   const usable = Object.entries(entry.variants)
-    .filter(([, v]) => v.verified && (!v.requires.shaderF16 || info.shaderF16))
-    .sort(([, a], [, b]) => Number(b.requires.shaderF16) - Number(a.requires.shaderF16));
+    .filter(([, v]) => !v.requires.shaderF16 || info.shaderF16)
+    .sort(
+      ([, a], [, b]) =>
+        Number(b.verified) - Number(a.verified) ||
+        Number(b.requires.shaderF16) - Number(a.requires.shaderF16),
+    );
   if (usable.length === 0) return null;
   const [name, v] = usable[0];
   return {
