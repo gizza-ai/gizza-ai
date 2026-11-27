@@ -6,6 +6,14 @@
 
 import { generateOn } from "./tool-model.js";
 
+// The terms every SD-Turbo-derived model carries, curated or custom: Stability
+// AI's Community License asks for this attribution and binds its Acceptable
+// Use Policy.
+export const STABILITY_TERMS = Object.freeze({
+  aup: "https://stability.ai/use-policy",
+  attribution: "Powered by Stability AI",
+});
+
 export const IMAGE_MODELS = Object.freeze([
   {
     id: "sd-turbo",
@@ -20,8 +28,7 @@ export const IMAGE_MODELS = Object.freeze([
       url: "https://huggingface.co/gizza-ai/sd-turbo-web/blob/d2df2e40f2251622ec60053b0e9bfa8c64b7f14d/LICENSE.md",
       summary:
         "Free, including commercial use under $1M annual revenue; the Acceptable Use Policy applies.",
-      aup: "https://stability.ai/use-policy",
-      attribution: "Powered by Stability AI",
+      ...STABILITY_TERMS,
     },
     recommended: true,
     variants: {
@@ -71,16 +78,25 @@ export async function adapterInfo(nav) {
   };
 }
 
-// Best variant this adapter can run: verified ones win, then f16 ones. An
-// unverified variant is used only when no verified one is compatible (custom
-// entries are never verified).
+// Whether the curated entries prove the `name` build of `engine` (e.g. SD-Turbo's
+// nof16q8, not yet its fp16). A custom repo in an engine's layout is never
+// verified itself, but carries this trust: its builds are the same graphs.
+function provenBuild(engine, name) {
+  return IMAGE_MODELS.some((m) => m.engine === engine && m.variants[name]?.verified === true);
+}
+
+// Best variant this adapter can run: verified ones win, then builds the
+// curated entries prove for the engine, then f16 ones. An unverified variant
+// is used only when no verified one is compatible (custom entries are never
+// verified).
 export function resolveVariant(entry, info) {
   if (!info?.webgpu) return null;
   const usable = Object.entries(entry.variants)
     .filter(([, v]) => !v.requires.shaderF16 || info.shaderF16)
     .sort(
-      ([, a], [, b]) =>
+      ([an, a], [bn, b]) =>
         Number(b.verified) - Number(a.verified) ||
+        Number(provenBuild(entry.engine, bn)) - Number(provenBuild(entry.engine, an)) ||
         Number(b.requires.shaderF16) - Number(a.requires.shaderF16),
     );
   if (usable.length === 0) return null;
@@ -104,7 +120,11 @@ export function deviceFit(entry, info) {
     return { level: "unsupported", note: "This browser has no WebGPU, which image models need." };
   }
   if (!resolveVariant(entry, info)) {
-    return { level: "unsupported", note: "No verified build of this model fits this GPU." };
+    // Every build needs shader-f16 (the only build requirement), which this GPU lacks.
+    return {
+      level: "unsupported",
+      note: "No build of this model runs on this GPU: it needs shader-f16, which this GPU doesn't provide.",
+    };
   }
   const need = MIN_BUFFER[entry.engine] ?? 0;
   if (info.maxBufferSize < need) {
@@ -129,8 +149,9 @@ export function defaultModel(info) {
 
 // Generate with a resolved descriptor (resolveVariant(...).descriptor) on its
 // engine: `prompt` → { blob, filename, backend }. Same progress, cancel and
-// fatal contract as generateImage; the other engine's worker is terminated
-// first, so its pending generation rejects with an AbortError.
+// fatal contract as generateImage. Another resident model finishes its
+// running calls first (this call reports progress stage "queued" meanwhile);
+// then its worker is terminated and this model's starts.
 export function generateWith(descriptor, prompt, { onProgress = null, signal = null, nav = globalThis.navigator || {} } = {}) {
   return generateOn(descriptor && descriptor.engine, descriptor, prompt, { onProgress, signal, nav });
 }
