@@ -74,3 +74,16 @@ test('initLatents scales raw noise by SIGMA: the latents stepEpsilon expects', (
   // Zero predicted noise leaves x0 at the noised latents themselves.
   assert.deepEqual(Array.from(stepEpsilon(lat, new Float32Array(3))), Array.from(lat));
 });
+
+test('padTokens truncates an encoded prompt like CLIP: BOS, 75 body tokens, EOS', () => {
+  const encoded = [49406, ...Array.from({ length: 100 }, (_, i) => 1000 + i), 49407];
+  const out = padTokens(encoded);
+  assert.equal(out.length, 77);
+  assert.equal(out[0], 49406);
+  assert.equal(out[76], 49407);
+  assert.deepEqual(Array.from(out.slice(1, 76)), Array.from({ length: 75 }, (_, i) => 1000 + i));
+  assert.ok(!out.includes(0), 'no pad ids');
+  // Exactly 77 encoded ids are already CLIP-shaped and pass through.
+  const exact = [49406, ...new Array(75).fill(7), 49407];
+  assert.deepEqual(Array.from(padTokens(exact)), exact);
+});
