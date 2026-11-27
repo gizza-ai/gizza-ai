@@ -93,9 +93,10 @@ pub fn parse_chroma(s: &str) -> Result<Chroma, String> {
     }
 }
 
-/// Map web-conventional quality 1-100 to ffmpeg's `-q:v` range 31 (worst) – 2
-/// (best). Identical to `gizza-ai/image-convert` / `image-compress` /
-/// `png-to-jpg` so every tool here agrees on what "quality 90" means.
+/// Map web-conventional quality 1-100 to ffmpeg's JPEG (mjpeg) `-q:v` range 31
+/// (worst) – 2 (best). JPEG only — WebP takes `-quality` 1-100 directly.
+/// Identical to `gizza-ai/image-convert` / `image-compress` / `png-to-jpg` so
+/// every tool here agrees on what "quality 90" means.
 pub fn quality_to_qv(q: u8) -> u8 {
     let q = q.clamp(1, 100) as f32;
     let qv = 31.0 - (q - 1.0) * (29.0 / 99.0);
@@ -151,9 +152,21 @@ pub fn plan(
         "-pix_fmt".to_string(),
         pix_fmt(fmt, chroma).to_string(),
     ];
-    if fmt != Format::Png {
-        argv.push("-q:v".to_string());
-        argv.push(quality_to_qv(q).to_string());
+    match fmt {
+        // mjpeg's `-q:v` is inverted (2 best … 31 worst).
+        Format::Jpeg => {
+            argv.push("-q:v".to_string());
+            argv.push(quality_to_qv(q).to_string());
+        }
+        // libwebp's `-quality` runs 0 worst … 100 best — the page's own
+        // direction — so it takes `q` as-is, clamped like image-convert's.
+        // (libwebp reads `-q:v` on that same 0-100 scale, so the mjpeg value
+        // would invert it.)
+        Format::Webp => {
+            argv.push("-quality".to_string());
+            argv.push(q.clamp(1, 100).to_string());
+        }
+        Format::Png => {}
     }
     argv.push(out_name.clone());
     Ok((argv, out_name))
@@ -318,7 +331,24 @@ mod tests {
         let (webp, out) = plan("in.jpg", "webp", 90.0, "4:4:4").unwrap();
         assert_eq!(out, "out.webp");
         assert_eq!(flag_value(&webp, "-pix_fmt").unwrap(), "yuv420p");
-        assert_eq!(flag_value(&webp, "-q:v").unwrap(), "5");
+        assert_eq!(flag_value(&webp, "-quality").unwrap(), "90");
+        assert!(flag_value(&webp, "-q:v").is_none(), "webp must not get mjpeg's -q:v: {webp:?}");
+    }
+
+    #[test]
+    fn webp_quality_runs_the_same_direction_as_the_page() {
+        for q in [1u8, 10, 50, 90, 100] {
+            let (argv, _) = plan("in.jpg", "webp", q as f64, "").unwrap();
+            assert_eq!(flag_value(&argv, "-quality"), Some(q.to_string()), "{argv:?}");
+        }
+        let (cleared, _) = plan("in.jpg", "webp", 0.0, "").unwrap();
+        assert_eq!(flag_value(&cleared, "-quality"), Some(DEFAULT_QUALITY.to_string()));
+    }
+
+    #[test]
+    fn jpeg_does_not_get_webp_quality_flag() {
+        let (argv, _) = plan("in.jpg", "jpeg", 90.0, "").unwrap();
+        assert!(flag_value(&argv, "-quality").is_none(), "{argv:?}");
     }
 
     #[test]

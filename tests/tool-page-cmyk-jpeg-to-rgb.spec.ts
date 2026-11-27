@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import { outputSize } from './output-size';
 
 const JPEG_FIXTURE = path.resolve(__dirname, 'fixtures/white-64x64.jpg');
 
@@ -69,3 +70,34 @@ test('cmyk-jpeg-to-rgb page ships runnable CLI, labels, and preset chips', async
   await expect(page.locator('#in-chroma option[value="4:4:4"]')).toHaveText('4:4:4 — full colour detail for type & logos');
   await expect(page.locator('.tool-example-chip')).toHaveCount(3);
 });
+
+// Pins the quality DIRECTION per lossy encoder against the browser's real
+// ffmpeg.wasm build: mjpeg's `-q:v` is inverted (2 best – 31 worst) while
+// libwebp's `-quality` is 0 worst – 100 best, and the page's 1-100 quality
+// must mean "higher = better" for both. A detailed photo, not the flat white
+// fixture, so the encoder's quality actually changes the size.
+const PHOTO_FIXTURE = path.resolve(__dirname, 'fixtures/photo-320.jpg');
+
+function convertedBytes(page, format: string, quality: number) {
+  return outputSize(
+    page,
+    `/tools/cmyk-jpeg-to-rgb/?format=${format}&quality=${quality}&chroma=4%3A2%3A0`,
+    '#in-file',
+    PHOTO_FIXTURE,
+    { '#in-format': format, '#in-quality': String(quality) },
+  );
+}
+
+for (const [format, mime] of [
+  ['webp', 'image/webp'],
+  ['jpeg', 'image/jpeg'],
+] as const) {
+  test(`cmyk-jpeg-to-rgb: higher quality gives a larger ${format}`, async ({ page }) => {
+    const lo = await convertedBytes(page, format, 10);
+    const hi = await convertedBytes(page, format, 90);
+    expect(lo.mime).toBe(mime);
+    expect(hi.mime).toBe(mime);
+    console.log(`cmyk-jpeg-to-rgb ${format}: q10=${lo.bytes} B, q90=${hi.bytes} B`);
+    expect(hi.bytes).toBeGreaterThan(lo.bytes);
+  });
+}

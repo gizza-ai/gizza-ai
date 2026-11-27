@@ -285,6 +285,9 @@ dependencies = [
 [[package]]
 name = "gizza-ai-image-convert-core"
 version = "0.1.0"
+dependencies = [
+ "gizza-ai-block-utils",
+]
 
 [[package]]
 name = "gizza-ai-image-convert-web"

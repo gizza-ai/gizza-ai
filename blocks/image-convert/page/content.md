@@ -33,8 +33,9 @@ producing a broken image.
 <summary>How does the quality setting work?</summary>
 
 Quality runs from **1 to 100** (default **85**) and only applies to **JPEG and
-WebP** — under the hood it's mapped onto ffmpeg's `-q:v` scale. PNG is a lossless
-format, so the quality value is ignored entirely when PNG is the target.
+WebP** — higher means better-looking and larger. Under the hood it's mapped onto
+the JPEG encoder's own scale and passed to the WebP encoder as-is. PNG is a
+lossless format, so the quality value is ignored entirely when PNG is the target.
 
 </details>
 
