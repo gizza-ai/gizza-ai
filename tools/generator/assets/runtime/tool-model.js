@@ -232,15 +232,21 @@ const ENGINE_CLIENTS = Object.freeze({
   "sd-turbo": () => new SdWorkerClient(),
 });
 
-// One engine resident at a time: each holds gigabytes of GPU and wasm memory,
-// and terminating a worker is the only guaranteed release. Switching engines
-// disposes the other engine's worker before the new one starts.
-let resident = null; // { engine, client }
+// One model resident at a time: each holds gigabytes of GPU and wasm memory,
+// and terminating a worker is the only guaranteed release. Switching to
+// another model — another engine, or another repo, revision or variant on
+// the same engine — disposes the resident worker before the new one starts.
+let resident = null; // { key, client }
 
-function engineClient(engine) {
-  if (resident && resident.engine === engine && !resident.client.stopped) return resident.client;
+function residentKey(engine, model) {
+  return `${engine}|${model.id}@${model.revision}|${model.variant || ""}`;
+}
+
+function engineClient(engine, model) {
+  const key = residentKey(engine, model);
+  if (resident && resident.key === key && !resident.client.stopped) return resident.client;
   if (resident) resident.client.dispose();
-  resident = { engine, client: ENGINE_CLIENTS[engine]() };
+  resident = { key, client: ENGINE_CLIENTS[engine]() };
   return resident.client;
 }
 
@@ -262,7 +268,7 @@ export function generateOn(engine, model, prompt, { onProgress = null, signal = 
   if (!String(prompt || "").trim()) {
     return Promise.reject(new Error("Describe the image you want first."));
   }
-  return engineClient(engine).generate(model, String(prompt).trim(), { onProgress, signal });
+  return engineClient(engine, model).generate(model, String(prompt).trim(), { onProgress, signal });
 }
 
 // The imagine page's pinned Janus model.
@@ -270,6 +276,8 @@ export function generateImage(model, prompt, options) {
   return generateOn("janus", model, prompt, options);
 }
 
+// Image-input models run on the Transformers.js worker, resident one model at
+// a time like the image generators.
 export function runModel(model, file, fields, onProgress) {
   if (!model || !model.task || !model.id || !model.revision) {
     return Promise.reject(new Error("This AI tool is missing its pinned model configuration."));
@@ -277,5 +285,5 @@ export function runModel(model, file, fields, onProgress) {
   if (!compatibleDevices(model).length) {
     return Promise.reject(new Error("This browser supports neither WebGPU nor the WebAssembly fallback."));
   }
-  return engineClient("janus").run(model, file, fields, onProgress);
+  return engineClient("janus", model).run(model, file, fields, onProgress);
 }
