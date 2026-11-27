@@ -7,6 +7,7 @@ import {
   MODEL_FILE_LIMITS,
   ModelWorkerClient,
   progressLabel,
+  SdWorkerClient,
   validateModelFile,
   validateModelResult,
 } from "../tools/generator/assets/runtime/tool-model.js";
@@ -353,4 +354,103 @@ test("downloadTracker follows the model's progress_total once it arrives", () =>
   assert.equal(seen.length, 2);
   track({ status: "progress_total", loaded: 400, total: 400 });
   assert.equal(seen.at(-1).fraction, 1);
+});
+
+// Transformers.js can't abort a download, and this fake worker (like the real
+// one mid-download) never stops the transfer on "cancel".
+for (const stage of ["loading", "download"]) {
+  test(`cancelling a cold Janus ${stage} terminates the worker so the transfer stops`, async () => {
+    const worker = new FakeWorker();
+    const client = new ModelWorkerClient(() => worker);
+    const controller = new AbortController();
+    const seen = [];
+    const promise = client.generate(JANUS, "a red fox", { signal: controller.signal, onProgress: (p) => seen.push(p) });
+    const { id } = worker.posted[0];
+    worker.emit("message", { type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
+    if (stage === "download") worker.emit("message", { type: "progress", id, progress: { stage: "download", progress: 0.3 } });
+    controller.abort();
+    await assert.rejects(promise, (error) => error.name === "AbortError");
+    assert.equal(worker.terminated, true, "terminating is the only way to stop the download");
+    assert.equal(client.stopped, true);
+    assert.equal(worker.posted.length, 1, "no cancel is posted to a worker that can't honour it");
+    worker.emit("message", { type: "progress", id, progress: { stage: "download", progress: 0.4 } });
+    assert.equal(seen.length, stage === "download" ? 2 : 1, "nothing is forwarded after the abort");
+  });
+}
+
+test("a cancel the worker reads after it began loading still terminates it", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const { id } = worker.posted[0];
+  controller.abort(); // before any progress reached the page
+  assert.deepEqual(worker.posted[1], { type: "cancel", id });
+  assert.equal(worker.terminated, false);
+  // The worker had already started the load when it posted this.
+  worker.emit("message", { type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  assert.equal(worker.terminated, true);
+});
+
+test("cancelling once the weights are loaded stops the run and keeps the worker", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const { id } = worker.posted[0];
+  worker.emit("message", { type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
+  worker.emit("message", { type: "progress", id, progress: { stage: "download", progress: 1 } });
+  worker.emit("message", { type: "progress", id, progress: { stage: "generate", count: 0, total: 576 } });
+  controller.abort();
+  assert.deepEqual(worker.posted[1], { type: "cancel", id }, "the stopping criteria end the run");
+  worker.emit("message", { type: "cancelled", id });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  assert.equal(worker.terminated, false, "no needless kill once the weights are loaded");
+  client.dispose();
+});
+
+test("the SD worker aborts its own downloads, so cancelling one keeps the worker", async () => {
+  const worker = new FakeWorker();
+  const client = new SdWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const { id } = worker.posted[0];
+  worker.emit("message", { type: "progress", id, progress: { stage: "download", progress: 0.3 } });
+  controller.abort();
+  assert.deepEqual(worker.posted[1], { type: "cancel", id });
+  worker.emit("message", { type: "cancelled", id });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  assert.equal(worker.terminated, false);
+  client.dispose();
+});
+
+test("the imagine page's generateImage cancel during a cold download replaces the worker", async () => {
+  const NativeWorker = globalThis.Worker;
+  const workers = [];
+  globalThis.Worker = class extends FakeWorker {
+    constructor() {
+      super();
+      workers.push(this);
+    }
+  };
+  try {
+    const nav = { gpu: {} };
+    const controller = new AbortController();
+    const first = generateImage(JANUS, "a red fox", { nav, signal: controller.signal });
+    const { id } = workers[0].posted[0];
+    workers[0].emit("message", { type: "progress", id, progress: { stage: "download", progress: 0.1 } });
+    controller.abort();
+    await assert.rejects(first, (error) => error.name === "AbortError");
+    assert.equal(workers[0].terminated, true);
+
+    const second = generateImage(JANUS, "a red fox", { nav });
+    assert.equal(workers.length, 2, "the next call starts a fresh worker");
+    const next = workers[1].posted[0];
+    workers[1].emit("message", { type: "result", id: next.id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+    assert.equal((await second).filename, "generated.png");
+    workers[1].fail("cleanup");
+  } finally {
+    globalThis.Worker = NativeWorker;
+  }
 });

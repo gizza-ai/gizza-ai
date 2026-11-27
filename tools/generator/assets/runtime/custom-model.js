@@ -3,48 +3,24 @@
 // a registry entry the picker can use. Every request goes to the Hugging Face
 // API through the injected `fetch`; no /resolve/ URL is ever requested.
 
+import { JANUS_DEVICES, JANUS_DTYPES, JANUS_NEEDS_F16 } from "./janus-builds.js";
+
 const HF = "https://huggingface.co";
 const SPEC = /^([A-Za-z0-9][\w.-]*)\/([\w.-]+?)(?:@([^\s@]+))?$/;
+const DOTS_ONLY = /^\.+$/;
+const COMMIT_SHA = /^[0-9a-f]{40}$/;
 const MAX_TREE_PAGES = 100;
 
 const UNSUPPORTED =
   "This repo isn't a supported format. gizza runs Janus-Pro web ONNX repos and gizza's own SD-Turbo web conversions.";
 const NEEDS_LOGIN = "needs a Hugging Face login, which gizza doesn't support";
+// Anonymous API calls get 401 for a repo that doesn't exist too, so a typo
+// can't be told apart from a private or gated repo.
+const NOT_FOUND_OR_LOCKED = `not found, or private/gated (${NEEDS_LOGIN})`;
 
-const JANUS_COMPONENTS = [
-  "prepare_inputs_embeds",
-  "language_model",
-  "lm_head",
-  "gen_head",
-  "gen_img_embeds",
-  "image_decode",
-];
-// Mirrors JANUS_DTYPES in model-worker.js; suffix is the onnx file suffix.
+const JANUS_COMPONENTS = Object.keys(JANUS_DEVICES);
+// The onnx file suffix of each dtype.
 const DTYPE_SUFFIX = { fp32: "", fp16: "_fp16", q4: "_q4", q4f16: "_q4f16", q8: "_quantized" };
-const JANUS_VARIANTS = {
-  f16: {
-    shaderF16: true,
-    dtypes: {
-      prepare_inputs_embeds: "q4",
-      language_model: "q4f16",
-      lm_head: "fp16",
-      gen_head: "fp16",
-      gen_img_embeds: "fp16",
-      image_decode: "fp32",
-    },
-  },
-  f32: {
-    shaderF16: false,
-    dtypes: {
-      prepare_inputs_embeds: "q8",
-      language_model: "q4",
-      lm_head: "q4",
-      gen_head: "q4",
-      gen_img_embeds: "fp32",
-      image_decode: "fp32",
-    },
-  },
-};
 const SD_VARIANTS = { nof16q8: false, fp16: true };
 const SD_COMPONENTS = ["text_encoder", "unet", "vae_decoder"];
 
@@ -60,16 +36,25 @@ async function getOk(fetchFn, url) {
   if (res.ok) return res;
   if (res.status === 404) throw new Refusal("repo or revision not found on Hugging Face");
   if (res.status === 429) throw new Refusal("Hugging Face is rate-limiting; try again in a minute");
-  if (res.status === 401 || res.status === 403) throw new Refusal(NEEDS_LOGIN);
+  if (res.status === 401 || res.status === 403) throw new Refusal(NOT_FOUND_OR_LOCKED);
   throw new Refusal(`Hugging Face returned an error (HTTP ${res.status})`);
 }
 
+// The next tree page, which must stay on the Hugging Face API.
 function nextLink(res) {
   const header = res.headers.get("link");
   if (!header) return null;
   for (const part of header.split(",")) {
     const m = part.match(/<([^>]+)>\s*;\s*rel="?next"?/);
-    if (m) return m[1];
+    if (!m) continue;
+    let next;
+    try {
+      next = new URL(m[1]);
+    } catch {
+      next = null;
+    }
+    if (!next || next.origin !== HF) throw new Refusal("Hugging Face returned an unexpected next-page link");
+    return next.href;
   }
   return null;
 }
@@ -107,30 +92,31 @@ function sumFiles(files, paths) {
 
 function janusVariants(files) {
   const out = {};
-  for (const [name, v] of Object.entries(JANUS_VARIANTS)) {
+  for (const [name, dtypes] of Object.entries(JANUS_DTYPES)) {
     const paths = JANUS_COMPONENTS.flatMap((c) => {
-      const base = `onnx/${c}${DTYPE_SUFFIX[v.dtypes[c]]}.onnx`;
+      const base = `onnx/${c}${DTYPE_SUFFIX[dtypes[c]]}.onnx`;
       return [base, `${base}_data?`];
     });
     const bytes = sumFiles(files, paths);
     if (bytes !== null) {
-      out[name] = { requires: { shaderF16: v.shaderF16 }, download_mb: toMb(bytes), verified: false };
+      out[name] = { requires: { shaderF16: JANUS_NEEDS_F16[name] }, download_mb: toMb(bytes), verified: false };
     }
   }
   return out;
 }
 
+// The SD worker sizes its downloads from manifest.json, so the check needs it.
 function sdVariants(files) {
-  const tokenizer = sumFiles(files, ["tokenizer/tokenizer.json"]);
+  const shared = sumFiles(files, ["tokenizer/tokenizer.json", "manifest.json"]);
   const out = {};
-  if (tokenizer === null) return out;
+  if (shared === null) return out;
   for (const [name, shaderF16] of Object.entries(SD_VARIANTS)) {
     const bytes = sumFiles(
       files,
       SD_COMPONENTS.flatMap((c) => [`${name}/${c}/model.onnx`, `${name}/${c}/model.onnx.data`]),
     );
     if (bytes !== null) {
-      out[name] = { requires: { shaderF16 }, download_mb: toMb(tokenizer + bytes), verified: false };
+      out[name] = { requires: { shaderF16 }, download_mb: toMb(shared + bytes), verified: false };
     }
   }
   return out;
@@ -138,7 +124,15 @@ function sdVariants(files) {
 
 function licenseOf(repo, cardData) {
   const raw = cardData?.license;
-  const name = Array.isArray(raw) ? raw.join(", ") : raw || "unspecified";
+  const names = (Array.isArray(raw) ? raw : [raw]).filter((n) => typeof n === "string" && n.trim());
+  if (names.length === 0) {
+    return {
+      name: "no license stated",
+      url: `${HF}/${repo}`,
+      summary: "The repo states no license. Check the model card before using results.",
+    };
+  }
+  const name = names.join(", ");
   return {
     name,
     url: `${HF}/${repo}`,
@@ -151,7 +145,7 @@ function licenseOf(repo, cardData) {
 // own size and requirement, so the picker resolves the variant from it.
 export async function inspectCustomModel(spec, { fetch: fetchFn } = {}) {
   const m = SPEC.exec(String(spec).trim());
-  if (!m) return { ok: false, reason: "enter a Hugging Face repo as owner/name" };
+  if (!m || DOTS_ONLY.test(m[2])) return { ok: false, reason: "enter a Hugging Face repo as owner/name" };
   const repo = `${m[1]}/${m[2]}`;
   const rev = m[3] || "main";
   try {
@@ -159,7 +153,9 @@ export async function inspectCustomModel(spec, { fetch: fetchFn } = {}) {
     const meta = await metaRes.json();
     if (meta.gated || meta.private) return { ok: false, reason: NEEDS_LOGIN };
     const sha = meta.sha;
-    if (!sha) throw new Refusal("Hugging Face didn't return a commit for this revision");
+    if (typeof sha !== "string" || !COMMIT_SHA.test(sha)) {
+      throw new Refusal("Hugging Face didn't return a commit for this revision");
+    }
     const files = await readTree(fetchFn, repo, sha);
 
     let engine = null;

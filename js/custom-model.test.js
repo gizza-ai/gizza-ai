@@ -61,9 +61,9 @@ test("gizza SD repo is recognised and sized from the variant files", async () =>
   assert.deepEqual(e.output, { w: 512, h: 512 });
   assert.equal(e.variants.nof16q8.requires.shaderF16, false);
   assert.equal(e.variants.fp16.requires.shaderF16, true);
-  // tokenizer 2 MB + 3 graphs 0.1 MB + 3 data files
-  assert.equal(e.variants.nof16q8.download_mb, Math.round((2e6 + 0.3e6 + 300e6) / 1e6));
-  assert.equal(e.variants.fp16.download_mb, Math.round((2e6 + 0.3e6 + 600e6) / 1e6));
+  // tokenizer 2 MB + manifest 3 kB + 3 graphs 0.1 MB + 3 data files
+  assert.equal(e.variants.nof16q8.download_mb, Math.round((2e6 + 3e3 + 0.3e6 + 300e6) / 1e6));
+  assert.equal(e.variants.fp16.download_mb, Math.round((2e6 + 3e3 + 0.3e6 + 600e6) / 1e6));
   assert.ok(f.seen[0].includes("/revision/main"));
   assert.ok(f.seen.some((u) => u.includes(`/tree/${SHA}?recursive=true`)));
   noResolve(f);
@@ -123,4 +123,68 @@ test("malformed specs are rejected without a request", async () => {
   const r = await inspectCustomModel("not a repo", { fetch: f, info: INFO });
   assert.equal(r.ok, false);
   assert.equal(f.seen.length, 0);
+});
+
+test("an SD repo without manifest.json is not a supported format (the worker sizes from it)", async () => {
+  const tree = fx("sd-tree").filter((f) => f.path !== "manifest.json");
+  const f = mockFetch(repoRoutes(fx("sd-rev"), tree));
+  const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+  assert.equal(r.ok, false);
+  assert.match(r.reason, /isn't a supported format/);
+});
+
+test("a repo with no license says no license stated, not a license name", async () => {
+  for (const cardData of [undefined, {}, { license: "" }, { license: [] }]) {
+    const f = mockFetch(repoRoutes({ ...fx("sd-rev"), cardData }, fx("sd-tree")));
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+    assert.equal(r.entry.license.name, "no license stated", JSON.stringify(cardData));
+    assert.match(r.entry.license.summary, /states no license/);
+    assert.doesNotMatch(r.entry.license.summary, /declared by the repo/);
+  }
+  const f = mockFetch(repoRoutes({ ...fx("sd-rev"), cardData: { license: ["mit", "apache-2.0"] } }, fx("sd-tree")));
+  const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+  assert.equal(r.entry.license.name, "mit, apache-2.0");
+});
+
+test("401/403 may be a typo or a locked repo, and the message says both", async () => {
+  for (const status of [401, 403]) {
+    const f = mockFetch([["/revision/", () => new Response("", { status })]]);
+    const r = await inspectCustomModel("acme/typo", { fetch: f, info: INFO });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, "not found, or private/gated (needs a Hugging Face login, which gizza doesn't support)");
+  }
+});
+
+test("a revision whose commit is not a 40-hex sha is refused before any tree request", async () => {
+  for (const sha of [undefined, "", "main", "../../evil", `${SHA}/x`, SHA.toUpperCase()]) {
+    const f = mockFetch(repoRoutes({ ...fx("sd-rev"), sha }, fx("sd-tree")));
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+    assert.equal(r.ok, false, String(sha));
+    assert.match(r.reason, /didn't return a commit/);
+    assert.equal(f.seen.filter((u) => u.includes("/tree/")).length, 0);
+  }
+});
+
+test("tree pagination never leaves huggingface.co", async () => {
+  for (const next of ["https://evil.example/api/models/acme/sd-web/tree/x?page=2", "http://huggingface.co/api/x", "//evil.example/x", "not a url"]) {
+    const f = mockFetch([
+      ["/tree/", () => json(fx("sd-tree").slice(0, 4), { headers: { Link: `<${next}>; rel="next"` } })],
+      ["/revision/", () => json(fx("sd-rev"))],
+    ]);
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+    assert.equal(r.ok, false, next);
+    assert.match(r.reason, /unexpected next-page link/);
+    assert.ok(f.seen.every((u) => u.startsWith("https://huggingface.co/")), f.seen.join(" "));
+  }
+});
+
+test("dot-only repo names are rejected without a request", async () => {
+  for (const spec of ["owner/..", "owner/.", "owner/...@main"]) {
+    const f = mockFetch([]);
+    const r = await inspectCustomModel(spec, { fetch: f, info: INFO });
+    assert.equal(r.ok, false, spec);
+    assert.equal(f.seen.length, 0, spec);
+  }
+  const f = mockFetch(repoRoutes(fx("sd-rev"), fx("sd-tree")));
+  assert.equal((await inspectCustomModel("owner/.hidden-ok", { fetch: f, info: INFO })).ok, true);
 });

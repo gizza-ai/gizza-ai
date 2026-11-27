@@ -1,6 +1,7 @@
 // Curated image-model registry for the image-model picker. Entries have the
 // same shape custom-model.js returns for custom repos, so the picker treats
-// both alike. Verified variants are preferred; flip
+// both alike. `license` is { name, url, summary, attribution?, aup? }: `aup`
+// links the Acceptable Use Policy a summary refers to. Verified variants are preferred; flip
 // `fp16.verified` for SD-Turbo once it has been proven on a real f16 GPU.
 
 import { generateOn } from "./tool-model.js";
@@ -19,6 +20,7 @@ export const IMAGE_MODELS = Object.freeze([
       url: "https://huggingface.co/gizza-ai/sd-turbo-web/blob/d2df2e40f2251622ec60053b0e9bfa8c64b7f14d/LICENSE.md",
       summary:
         "Free, including commercial use under $1M annual revenue; the Acceptable Use Policy applies.",
+      aup: "https://stability.ai/use-policy",
       attribution: "Powered by Stability AI",
     },
     recommended: true,

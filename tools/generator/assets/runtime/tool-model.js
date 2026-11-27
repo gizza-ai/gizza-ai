@@ -111,6 +111,11 @@ export function validateModelResult(result, options = {}) {
 }
 
 export class ModelWorkerClient {
+  // Whether the worker stops a model download itself on cancel. Transformers.js
+  // can't abort one, so for this worker a cancel during the download
+  // terminates it: that is the only way to stop the transfer.
+  cancelStopsDownload = false;
+
   constructor(workerFactory = moduleWorker(MODEL_WORKER_URL)) {
     this.worker = workerFactory();
     this.nextId = 1;
@@ -157,18 +162,31 @@ export class ModelWorkerClient {
   }
 
   // Text-to-image: `prompt` → { blob, filename, backend }. Aborting `signal`
-  // asks the worker to stop at the next image token and rejects with an
-  // AbortError once it has.
+  // rejects with an AbortError: once the weights are loaded the worker stops
+  // at the next image token; while they still download (stage "loading" or
+  // "download") a worker that can't abort downloads is terminated, so no
+  // further bytes arrive and the next call starts a fresh worker.
   generate(model, prompt, { onProgress = null, signal = null } = {}) {
     if (signal && signal.aborted) return Promise.reject(abortError());
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      const onAbort = () => this.worker.postMessage({ type: "cancel", id });
+      let stage = null; // the worker's last reported stage
+      const downloading = () => !this.cancelStopsDownload && (stage === "loading" || stage === "download");
+      const onAbort = () => {
+        if (downloading()) this.dispose();
+        else this.worker.postMessage({ type: "cancel", id });
+      };
+      // The worker may have started loading before it read the cancel.
+      const progress = (p) => {
+        stage = p && p.stage;
+        if (signal && signal.aborted && downloading()) this.dispose();
+        else if (onProgress) onProgress(p);
+      };
       const cleanup = signal ? () => signal.removeEventListener("abort", onAbort) : null;
       // A result the worker posted before it saw the cancel still counts as
       // cancelled: the caller has already moved on.
       const settle = (message) => (signal && signal.aborted ? reject(abortError()) : resolve(message));
-      this.pending.set(id, { resolve: settle, reject, onProgress, cleanup });
+      this.pending.set(id, { resolve: settle, reject, onProgress: progress, cleanup });
       if (signal) signal.addEventListener("abort", onAbort, { once: true });
       this.worker.postMessage({ type: "generate", id, model, prompt });
     });
@@ -195,8 +213,11 @@ export class ModelWorkerClient {
   }
 }
 
-// SD-Turbo's worker speaks the same generate/cancel protocol.
+// SD-Turbo's worker speaks the same generate/cancel protocol, and aborts its
+// own downloads on cancel.
 export class SdWorkerClient extends ModelWorkerClient {
+  cancelStopsDownload = true;
+
   constructor(workerFactory = moduleWorker(SD_WORKER_URL)) {
     super(workerFactory);
   }
@@ -211,15 +232,21 @@ const ENGINE_CLIENTS = Object.freeze({
   "sd-turbo": () => new SdWorkerClient(),
 });
 
-// One engine resident at a time: each holds gigabytes of GPU and wasm memory,
-// and terminating a worker is the only guaranteed release. Switching engines
-// disposes the other engine's worker before the new one starts.
-let resident = null; // { engine, client }
+// One model resident at a time: each holds gigabytes of GPU and wasm memory,
+// and terminating a worker is the only guaranteed release. Switching to
+// another model — another engine, or another repo, revision or variant on
+// the same engine — disposes the resident worker before the new one starts.
+let resident = null; // { key, client }
 
-function engineClient(engine) {
-  if (resident && resident.engine === engine && !resident.client.stopped) return resident.client;
+function residentKey(engine, model) {
+  return `${engine}|${model.id}@${model.revision}|${model.variant || ""}`;
+}
+
+function engineClient(engine, model) {
+  const key = residentKey(engine, model);
+  if (resident && resident.key === key && !resident.client.stopped) return resident.client;
   if (resident) resident.client.dispose();
-  resident = { engine, client: ENGINE_CLIENTS[engine]() };
+  resident = { key, client: ENGINE_CLIENTS[engine]() };
   return resident.client;
 }
 
@@ -241,7 +268,7 @@ export function generateOn(engine, model, prompt, { onProgress = null, signal = 
   if (!String(prompt || "").trim()) {
     return Promise.reject(new Error("Describe the image you want first."));
   }
-  return engineClient(engine).generate(model, String(prompt).trim(), { onProgress, signal });
+  return engineClient(engine, model).generate(model, String(prompt).trim(), { onProgress, signal });
 }
 
 // The imagine page's pinned Janus model.
@@ -249,6 +276,8 @@ export function generateImage(model, prompt, options) {
   return generateOn("janus", model, prompt, options);
 }
 
+// Image-input models run on the Transformers.js worker, resident one model at
+// a time like the image generators.
 export function runModel(model, file, fields, onProgress) {
   if (!model || !model.task || !model.id || !model.revision) {
     return Promise.reject(new Error("This AI tool is missing its pinned model configuration."));
@@ -256,5 +285,5 @@ export function runModel(model, file, fields, onProgress) {
   if (!compatibleDevices(model).length) {
     return Promise.reject(new Error("This browser supports neither WebGPU nor the WebAssembly fallback."));
   }
-  return engineClient("janus").run(model, file, fields, onProgress);
+  return engineClient("janus", model).run(model, file, fields, onProgress);
 }
