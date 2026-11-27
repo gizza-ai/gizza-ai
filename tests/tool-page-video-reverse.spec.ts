@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -75,7 +75,7 @@ test('video-reverse page renders a real muted MP4 output', async ({ page }) => {
   await page.setInputFiles('#in-file', MP4);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
   const decoded = await decodeVideo(page, src);
   expect(decoded.w).toBe(128);
   expect(decoded.h).toBe(128);

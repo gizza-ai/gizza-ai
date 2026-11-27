@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/audio-waveform-video/ page renders an ANIMATED waveform
 // MP4 from an uploaded audio file in-browser via ffmpeg's showwaves (@ffmpeg/core
 // from jsDelivr — needs network). Mixed media shape: audio in, VIDEO out
-// (out.mp4 → data:video/mp4). Beyond the mime prefix, each test decodes a real
+// (out.mp4 → video/mp4). Beyond the mime prefix, each test decodes a real
 // frame on a canvas and asserts the REQUESTED dimensions and real wave pixels
 // (media-correctness rule): an MP4 has no alpha, so the background is always
 // opaque; the default background is a near-black slate with an indigo wave, and
@@ -25,7 +25,7 @@ type Stats = {
   rightBlue: number; // blue pixels in the right quarter (gradient end)
 };
 
-// Seek a data:video URL to `time` seconds, draw that frame to a canvas, and
+// Seek a video result to `time` seconds, draw that frame to a canvas, and
 // count pixels matching a few fixed color predicates. Antialiasing blends edges,
 // so match generously on the dominant channel.
 async function frameStats(page: Page, dataUrl: string, time: number): Promise<Stats> {
@@ -92,7 +92,7 @@ async function outputSrc(page: Page): Promise<string> {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
   return src!;
 }
 

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 test('photo-filter-presets page applies default sepia filter', async ({ page }) => {
@@ -8,7 +8,7 @@ test('photo-filter-presets page applies default sepia filter', async ({ page }) 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
 });
 
 test('photo-filter-presets page applies noir preset', async ({ page }) => {
@@ -19,5 +19,5 @@ test('photo-filter-presets page applies noir preset', async ({ page }) => {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
 });

@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 }); // ffmpeg CDN on first run
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -31,7 +31,7 @@ test('image-auto-orient page forces EXIF orientation 6 and swaps dimensions', as
   await page.setInputFiles('#in-image', fixture('wide-3x2.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.png');
   expect(await imageSize(page, src)).toEqual({ w: 2, h: 3 });
 });
@@ -44,7 +44,7 @@ test('image-auto-orient deep-link prefills orientation, format, and quality', as
   await page.setInputFiles('#in-image', fixture('wide-3x2.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.webp');
   expect(await imageSize(page, src)).toEqual({ w: 2, h: 3 });
 });

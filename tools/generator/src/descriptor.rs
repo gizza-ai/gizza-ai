@@ -36,6 +36,11 @@ struct Descriptor<'a> {
     /// block has no manifest or no `tool` object.
     #[serde(skip_serializing_if = "Option::is_none")]
     tool: Option<ToolSpec>,
+    /// The page spec (`ToolMeta::page_spec` — the inline page config plus
+    /// per-input controls): runtime, web export, module, inputs with labels +
+    /// controls — what another page needs to run
+    /// this tool with the tool page's own runtime (`/tools/_runtime/`).
+    page: Value,
 }
 
 #[derive(Serialize)]
@@ -122,6 +127,7 @@ pub fn tool_descriptor(
         },
         cli: cli_example(meta, schema),
         tool,
+        page: meta.page_spec(schema),
     };
     serde_json::to_string_pretty(&descriptor).expect("serialize tool descriptor")
 }
@@ -227,6 +233,47 @@ source = "field"
         );
         // Pretty-printed (multi-line) output.
         assert!(json.contains('\n'), "pretty-printed");
+    }
+
+    #[test]
+    fn page_section_carries_runtime_module_and_typed_controls() {
+        let m = manifest();
+        let json = tool_descriptor(&branded(), &audio_tool(), &schema_of(&m), Some(&m));
+        let v: Value = serde_json::from_str(&json).unwrap();
+        let page = &v["page"];
+        assert_eq!(page["runtime"], "ffmpeg");
+        assert_eq!(page["export"], "build_argv");
+        assert_eq!(page["module"], "./gizza_ai_audio_convert_web.js");
+        assert_eq!(page["inputs"][0]["source"], "file");
+        assert_eq!(page["inputs"][0]["label"], "Audio");
+        assert!(page["inputs"][0].get("control").is_none(), "file inputs have no control");
+        assert_eq!(page["inputs"][1]["label"], "Format");
+        assert_eq!(
+            page["inputs"][1]["control"],
+            json!({ "kind": "select", "options": ["mp3", "wav"], "default": "mp3" })
+        );
+    }
+
+    #[test]
+    fn controls_serialize_tagged_by_kind() {
+        use crate::control::Control;
+        let number = Control::Number { min: Some(1.0), max: None, default: None, step_any: false };
+        assert_eq!(
+            serde_json::to_value(number).unwrap(),
+            json!({ "kind": "number", "min": 1.0, "max": null, "default": null, "step_any": false })
+        );
+        let slider = Control::Slider { min: -1.0, max: 1.0, default: Some(0.0), step: "0.1".into() };
+        assert_eq!(serde_json::to_value(slider).unwrap()["kind"], "slider");
+        assert_eq!(
+            serde_json::to_value(Control::Checkbox { default: true }).unwrap(),
+            json!({ "kind": "checkbox", "default": true })
+        );
+        assert_eq!(
+            serde_json::to_value(Control::Color { default: Some("#ffffff".into()) }).unwrap(),
+            json!({ "kind": "color", "default": "#ffffff" })
+        );
+        assert_eq!(serde_json::to_value(Control::Text).unwrap(), json!({ "kind": "text" }));
+        assert_eq!(serde_json::to_value(Control::TagList { options: vec![] }).unwrap()["kind"], "tag-list");
     }
 
     #[test]

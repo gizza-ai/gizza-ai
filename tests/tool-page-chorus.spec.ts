@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -27,7 +27,7 @@ test('chorus page renders real audio output for an uploaded file', async ({ page
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodedDuration(page, src!);
   expect(duration).toBeGreaterThan(2.5);
   expect(duration).toBeLessThan(4.0);
@@ -46,7 +46,7 @@ test('chorus deep-link preloads advanced params and renders wav output', async (
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodedDuration(page, src!);
   expect(duration).toBeGreaterThan(2.5);
   expect(duration).toBeLessThan(4.0);

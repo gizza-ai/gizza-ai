@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/video-eq-adjust/ page adjusts an uploaded video's
 // brightness / contrast / saturation / gamma in one ffmpeg `eq` pass in-browser
 // (@ffmpeg/core from jsDelivr — needs network) and re-encodes to H.264 + AAC.
-// Output keeps the mp4 container, so the media src is a data:video/mp4 URL. The
+// Output keeps the mp4 container, so the media src is a video/mp4 result. The
 // wasm `build_argv` is pure and shared with the chat block via core, so we also
 // assert the argv/out-name plan directly the same way the nearby ffmpeg page
 // specs do.
@@ -32,7 +32,7 @@ async function expectPlayableVideoDataUrl(page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
   const frame = await page.evaluate(async (dataUrl) => {
     const v = document.createElement('video');
     v.muted = true;

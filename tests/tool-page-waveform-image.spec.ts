@@ -1,11 +1,11 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/waveform-image/ page renders a static waveform PNG from
 // an uploaded audio file in-browser via ffmpeg's showwavespic (@ffmpeg/core
 // from jsDelivr — needs network). Mixed media shape: audio in, image out
-// (out.png → data:image/png). Beyond the mime prefix, each test decodes the
+// (out.png → image/png). Beyond the mime prefix, each test decodes the
 // image on a canvas and asserts the REQUESTED dimensions and real wave pixels
 // (media-correctness rule): the default background must be transparent at the
 // corners with colored wave pixels in the body; a background run must have
@@ -72,7 +72,7 @@ test('waveform-image renders a transparent 320x100 PNG with accent wave pixels',
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const png = await decodePng(page, src!, 'indigo');
   expect(png.w).toBe(320); // the REQUESTED size, not the default
   expect(png.h).toBe(100);
@@ -93,7 +93,7 @@ test('waveform-image background run yields opaque black corners and a red wave',
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const png = await decodePng(page, src!, 'red');
   expect(png.w).toBe(320);
   expect(png.h).toBe(100);
@@ -132,7 +132,7 @@ test('waveform-image deep link prefills size, color and scale, then renders', as
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   const png = await decodePng(page, src!, 'red');
   expect(png.w).toBe(320);
   expect(png.h).toBe(100);

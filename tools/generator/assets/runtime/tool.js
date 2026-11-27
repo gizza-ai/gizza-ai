@@ -4,6 +4,7 @@
 
 import { queryPrefill } from "./query-prefill.js";
 import { svgDataUrl } from "./tool-svg.js";
+import { runTool } from "./tool-run.js";
 
 const cfg = window.GIZZA_TOOL;
 const out = document.getElementById(cfg.output.elementId);
@@ -561,7 +562,7 @@ function gatherArgs() {
 async function main() {
   wireFileDropzones();
   if (cfg.runtime === "model") {
-    const { progressLabel, runModel, validateModelFile, validateModelResult } = await import("./tool-model.js");
+    const { progressLabel } = await import("./tool-model.js");
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
     const copyImage = document.getElementById("tool-copy-image");
@@ -573,7 +574,11 @@ async function main() {
       return;
     }
 
-    let runSeq = 0;
+    // Each run owns an AbortController; starting a new run (including the
+    // no-file run Reset triggers) aborts the previous one, so a superseded run
+    // never starts inference (runTool checks the signal after validation) and
+    // never touches the DOM. An aborted run's rejection is ignored.
+    let runController = null;
     let outputUrl = null;
     const clearOutputUrl = () => {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
@@ -581,7 +586,10 @@ async function main() {
     };
 
     async function run() {
-      const seq = ++runSeq;
+      if (runController) runController.abort();
+      const controller = new AbortController();
+      runController = controller;
+      const { signal } = controller;
       const file = fileInput.files && fileInput.files[0];
       clearOutputUrl();
       if (!file) return;
@@ -591,26 +599,27 @@ async function main() {
       out.classList.remove("error");
       out.textContent = "Checking image…";
       try {
-        await validateModelFile(file);
-        if (seq !== runSeq) return;
-        const fields = Object.fromEntries(fieldInputs.map((input) => {
+        const values = Object.fromEntries(fieldInputs.map((input) => {
           const el = document.getElementById(input.elementId);
           return [input.name, el ? readField(el) : ""];
         }));
-        const result = validateModelResult(await runModel(cfg.model, file, fields, (progress) => {
-          if (seq === runSeq) out.textContent = progressLabel(progress);
-        }));
-        if (seq !== runSeq) return;
+        const result = await runTool(cfg, null, file, values, {
+          signal,
+          onProgress: (progress) => {
+            if (!signal.aborted) out.textContent = progressLabel(progress);
+          },
+        });
+        if (signal.aborted) return;
         outputUrl = URL.createObjectURL(result.blob);
         out.textContent = `Finished locally with ${result.backend}.`;
         media.src = outputUrl;
         media.hidden = false;
         dl.href = outputUrl;
-        dl.download = result.filename || `${cfg.slug}.png`;
+        dl.download = result.outName;
         dl.hidden = false;
         if (copyImage) copyImage.hidden = false;
       } catch (error) {
-        if (seq !== runSeq) return;
+        if (signal.aborted) return; // superseded (AbortError) — the newer run owns the DOM
         const message = typeof error === "string" ? error : error && error.message;
         showError(message || "AI inference failed.");
       }
@@ -692,8 +701,7 @@ async function main() {
     },
   };
   if (cfg.runtime === "ffmpeg") {
-    const { runFfmpeg } = await import("./tool-ffmpeg.js");
-    const { ffmpegExec } = await import("./ffmpeg.js");
+    const { ffmpegExecBytes } = await import("./ffmpeg.js");
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
     // Image-output pages only (the generator gates #tool-copy-image on
@@ -805,61 +813,62 @@ async function main() {
     // takes a ticket (including the no-file early return, so Reset's rerun
     // invalidates an in-flight run); only the newest ticket may touch the DOM.
     let runSeq = 0;
+    // The current result's object URL — revoked when a run starts with no
+    // file (Reset/clear), when a run fails, or when a newer result replaces
+    // it, so repeated runs don't pin old outputs.
+    let outputUrl = null;
+    const clearOutputUrl = () => {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      outputUrl = null;
+    };
 
     async function run() {
       const seq = ++runSeq;
       const file = fileInput && fileInput.files && fileInput.files[0];
-      if (!file) return;
+      if (!file) {
+        clearOutputUrl();
+        return;
+      }
       out.textContent = "Processing…";
       out.classList.remove("error");
       media.hidden = true;
       dl.hidden = true;
       if (copyImage) copyImage.hidden = true;
       if (outputWf) outputWf.clear();
-      // Coerce a field value to Number ONLY when the param's DECLARED schema
-      // type is numeric (i.numeric, baked from manifest.json tool.parameters by
-      // the generator) — so wasm-bindgen f64 params marshal correctly, while a
-      // string param whose value happens to be digits (a bare hex color
-      // "112233", a numeric-looking label/code) stays a string. Empty and
-      // non-finite values pass through as the raw string; the WASM function
-      // applies its own defaults. readField (not .value) so a checkbox marshals
-      // its CHECKED state as "true"/"false" — a checkbox element's .value is the
-      // constant "on" regardless of state, which would read as always-on.
-      const fieldArgs = fieldInputs.map((i) => {
-        const el = document.getElementById(i.elementId);
-        const v = el ? readField(el) : "";
-        if (i.numeric && v !== "") {
-          const n = Number(v);
-          if (Number.isFinite(n)) return n;
-        }
-        return v;
-      });
-      const r = await runFfmpeg(cfg, mod, ffmpegExec, file, fieldArgs);
+      const values = Object.fromEntries(
+        fieldInputs.map((i) => [i.name, readField(document.getElementById(i.elementId))]),
+      );
+      let r;
+      try {
+        r = await runTool(cfg, mod, file, values, { execBytes: ffmpegExecBytes });
+      } catch (e) {
+        if (seq !== runSeq) return;
+        clearOutputUrl();
+        showError((typeof e === "string" ? e : e && e.message) || "Processing failed.");
+        return;
+      }
       if (seq !== runSeq) return; // superseded while ffmpeg ran — drop the result
-      if (r.ok) {
-        out.textContent = "";
-        media.src = r.dataUrl;
-        media.hidden = false;
-        dl.href = r.dataUrl;
-        dl.download = r.outName;
-        dl.hidden = false;
-        // Reveal "Copy image" only for image results — guard on the data URL so
-        // a misconfigured non-image never exposes it (video/audio never render
-        // the button at all).
-        if (copyImage) copyImage.hidden = !String(r.dataUrl).startsWith("data:image/");
-        // Visual result: decode the output into the read-only waveform. The
-        // native <audio controls> stays visible (accessible transport +
-        // decode-failure fallback); the waveform adds the before/after view.
-        if (outputWf && String(r.dataUrl).startsWith("data:audio/")) {
-          try {
-            const blob = await (await fetch(r.dataUrl)).blob();
-            if (seq === runSeq) await outputWf.load(blob);
-          } catch (e) {
-            if (seq === runSeq) outputWf.clear(); // fallback: native player alone, as today
-          }
+      out.textContent = "";
+      clearOutputUrl();
+      outputUrl = URL.createObjectURL(r.blob);
+      media.src = outputUrl;
+      media.hidden = false;
+      dl.href = outputUrl;
+      dl.download = r.outName;
+      dl.hidden = false;
+      // Reveal "Copy image" only for image results — guard on the MIME so a
+      // misconfigured non-image never exposes it (video/audio never render
+      // the button at all).
+      if (copyImage) copyImage.hidden = !r.mime.startsWith("image/");
+      // Visual result: decode the output into the read-only waveform. The
+      // native <audio controls> stays visible (accessible transport +
+      // decode-failure fallback); the waveform adds the before/after view.
+      if (outputWf && r.mime.startsWith("audio/")) {
+        try {
+          await outputWf.load(r.blob);
+        } catch (e) {
+          if (seq === runSeq) outputWf.clear(); // fallback: native player alone, as today
         }
-      } else {
-        showError(r.error);
       }
     }
 

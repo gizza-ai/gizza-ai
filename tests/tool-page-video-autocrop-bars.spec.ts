@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The /tools/video-autocrop-bars/ page is a TWO-pass ffmpeg flow owned by
@@ -20,20 +20,20 @@ const LETTERBOX_MOV = path.resolve(__dirname, 'fixtures/letterbox-320x240.mov');
 const NOBARS = path.resolve(__dirname, 'fixtures/tiny-128x128.mp4');
 
 // Decode the produced video: real dimensions + duration prove the crop
-// happened. `forceMp4Mime` relabels the data URL for the probe element only —
+// happened. `forceMp4Mime` relabels the result for the probe element only —
 // Chromium's ISO-BMFF demuxer handles MOV bytes, but may refuse the
-// `video/quicktime` MIME on a data: URL.
+// `video/quicktime` MIME.
 async function decodeVideo(page, src: string, forceMp4Mime = false) {
   return page.evaluate(async ({ dataUrl, force }: { dataUrl: string; force: boolean }) => {
     const v = document.createElement('video');
     v.muted = true;
-    v.src = force ? dataUrl.replace(/^data:video\/[^;]+/, 'data:video/mp4') : dataUrl;
+    const blob = await (await fetch(dataUrl)).blob();
+    v.src = force ? URL.createObjectURL(new Blob([blob], { type: 'video/mp4' })) : dataUrl;
     await new Promise((resolve, reject) => {
       v.addEventListener('loadeddata', resolve, { once: true });
       v.addEventListener('error', () => reject(new Error('video failed to decode')), { once: true });
     });
-    const b64 = dataUrl.split(',')[1] || '';
-    return { w: v.videoWidth, h: v.videoHeight, dur: v.duration, bytes: atob(b64).length };
+    return { w: v.videoWidth, h: v.videoHeight, dur: v.duration, bytes: blob.size };
   }, { dataUrl: src, force: forceMp4Mime });
 }
 
@@ -52,7 +52,7 @@ test('letterbox bars are detected and cropped (defaults: threshold 24, round 2)'
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
   const r = await decodeVideo(page, src!);
   expect(r.w).toBe(320); // 320x240 → 320x180: 30px top+bottom bars removed
   expect(r.h).toBe(180);
@@ -96,7 +96,7 @@ test('mov input (secondary container) keeps the container: out.mov', async ({ pa
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/quicktime/); // h264_out_ext keeps mov
+  expect((await readResult(page, src)).mime).toMatch(/^video\/quicktime/); // h264_out_ext keeps mov
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.mov');
   const r = await decodeVideo(page, src!, true); // probe relabeled as mp4 (see helper)
   expect(r.w).toBe(320);

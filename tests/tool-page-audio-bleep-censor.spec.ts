@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -61,7 +61,7 @@ test('audio-bleep-censor page bleeps a region and keeps the full clip', async ({
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const { duration, bytes } = await decodeInfo(page, src!);
   expect(bytes).toBeGreaterThan(5_000); // a real encode, not a stub
   expect(duration).toBeGreaterThan(2.9); // nothing outside the region is cut
@@ -80,7 +80,7 @@ test('audio-bleep-censor deep link prefills mute + wav and silences only the reg
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
 
   const { duration, bytes } = await decodeInfo(page, src!);
   expect(bytes).toBeGreaterThan(5_000);

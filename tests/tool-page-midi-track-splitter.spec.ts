@@ -17,8 +17,10 @@ async function firstDownloadMidi(page: Page) {
   return page.evaluate(async () => {
     const a = document.querySelector('#tool-output a.split-download') as HTMLAnchorElement | null;
     const href = a?.href || '';
-    if (!href.startsWith('data:audio/midi;base64,')) return { error: 'no MIDI data URL: ' + href };
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'audio/midi') return { error: 'no MIDI result: ' + blob.type };
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const text = new TextDecoder('latin1').decode(buf);
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const tempos: number[] = [];

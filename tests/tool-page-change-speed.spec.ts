@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/change-speed/ page re-encodes an uploaded video in-browser
@@ -13,5 +13,5 @@ test('change-speed page speeds up an uploaded video', async ({ page }) => {
 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
-  expect(await media.getAttribute('src')).toMatch(/^data:video\//);
+  expect((await readResult(page, await media.getAttribute('src'))).mime).toMatch(/^video\//);
 });

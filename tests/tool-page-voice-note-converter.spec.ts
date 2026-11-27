@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -25,7 +25,7 @@ test('voice-note-converter page encodes mp3 to Opus voice note', async ({ page }
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.8);
   expect(duration).toBeLessThan(3.3);
@@ -41,7 +41,7 @@ test('voice-note-converter deep link prefills mp3 bitrate and mono=false', async
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.8);
   expect(duration).toBeLessThan(3.3);

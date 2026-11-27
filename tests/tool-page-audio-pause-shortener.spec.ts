@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -40,7 +40,7 @@ test('audio-pause-shortener page shortens long gaps to a tighter pacing', async 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const outDuration = await durationOfDataUrl(page, src!);
   expect(outDuration).toBeLessThan(inputDuration - 0.5);
   expect(outDuration).toBeGreaterThan(1.5);
@@ -58,7 +58,7 @@ test('audio-pause-shortener deep link applies tighter pause settings and wav out
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const outDuration = await durationOfDataUrl(page, src!);
   expect(outDuration).toBeLessThan(inputDuration - 0.5);
 }

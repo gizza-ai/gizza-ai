@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/image-drop-shadow/ page casts a shadow from the input's
@@ -14,7 +14,7 @@ import path from 'node:path';
 
 type Px = { r: number; g: number; b: number; a: number };
 
-// Decode the output data URL onto a canvas and sample RGBA at given points.
+// Decode the output result onto a canvas and sample RGBA at given points.
 async function samplePixels(
   page: import('@playwright/test').Page,
   dataUrl: string,
@@ -51,7 +51,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   // ffmpeg loads from CDN on first run; allow generous time.
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -145,7 +145,7 @@ test('image-drop-shadow format=jpg flattens onto white and honours color=red', a
   await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/white-64x64.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
 
   const { w, h, px } = await samplePixels(page, src, [
@@ -178,7 +178,7 @@ test('image-drop-shadow format=webp + keep-original-size holds the input dimensi
   await page.setInputFiles('#in-image', path.resolve(__dirname, 'fixtures/alpha-grad-64.png'));
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/webp/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/webp/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.webp');
 
   const { w, h, px } = await samplePixels(page, src, [

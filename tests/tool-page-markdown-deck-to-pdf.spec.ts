@@ -4,10 +4,12 @@ async function decodePdf(page: import('@playwright/test').Page) {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:application/pdf;base64,')) {
-      return { error: 'no PDF download href: ' + href };
+    if (!href) return { error: 'no download href' };
+    const blob = await (await fetch(href)).blob();
+    if (blob.type !== 'application/pdf') {
+      return { error: 'no PDF download result: ' + blob.type };
     }
-    const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
+    const buf = new Uint8Array(await blob.arrayBuffer());
     const latin1 = new TextDecoder('latin1').decode(buf);
     return {
       magicOk: buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46 && buf[4] === 0x2d,

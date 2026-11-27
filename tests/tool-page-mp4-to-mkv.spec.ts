@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/mp4-to-mkv/ page rewraps an uploaded MP4 into a Matroska
 // .mkv in-browser via ffmpeg (single-threaded @ffmpeg/core from jsDelivr — needs
 // network). It's a lossless remux: `-i in.mp4 -map 0 -c copy out.mkv`, no params.
-// The output is a data:video/x-matroska (video/*) URL.
+// The output is a video/x-matroska (video/*) URL.
 //
 // Tests assert REAL output correctness: they decode the produced video in a
 // <video> element and check the preserved 128x128 dimensions + duration, so a
@@ -58,7 +58,7 @@ test('mp4-to-mkv page remuxes an MP4 to MKV losslessly', async ({ page }) => {
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
   // Container changed .mp4 -> .mkv (Matroska); some builds label it generically.
-  expect(src).toMatch(/^data:video\/(x-matroska|)/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/(x-matroska|)/);
 
   // A remux must preserve the exact frame size and a real (>0) duration.
   const meta = await decodeVideo(page, src!);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -8,7 +8,7 @@ async function outputVideoInfo(page: Page): Promise<{ src: string; duration: num
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 120_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\//);
+  expect((await readResult(page, src)).mime).toMatch(/^video\//);
   const info = await page.evaluate(
     (dataUrl: string) =>
       new Promise<{ duration: number; width: number; height: number }>((resolve, reject) => {
@@ -48,7 +48,7 @@ test('video-set-keyframe-interval deep link supports frame units and scene cuts'
   await expect(page.locator('#in-preset')).toHaveValue('veryfast');
   await page.setInputFiles('#in-file', FIXTURE);
   const info = await outputVideoInfo(page);
-  expect(info.src).toContain('data:video/mp4');
+  expect((await readResult(page, info.src)).mime).toMatch(/^video\/mp4/);
   expect(info.width).toBe(64);
   expect(info.height).toBe(64);
 });

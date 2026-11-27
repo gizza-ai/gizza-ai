@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   compatibleDevices,
+  MODEL_FILE_LIMITS,
   ModelWorkerClient,
   progressLabel,
   validateModelFile,
@@ -49,6 +50,15 @@ test("validateModelFile rejects non-images and oversized files", async () => {
     null,
     "Node has no createImageBitmap, so byte/type validation is still usable",
   );
+});
+
+test("validateModelFile enforces the exported MODEL_FILE_LIMITS", async () => {
+  const { maxBytes, types } = MODEL_FILE_LIMITS;
+  for (const type of types) {
+    assert.equal(await validateModelFile({ type, size: maxBytes }), null, `${type} at the byte limit passes`);
+  }
+  await assert.rejects(validateModelFile({ type: types[0], size: maxBytes + 1 }), /too large/);
+  assert.ok(Object.isFrozen(MODEL_FILE_LIMITS), "callers can't loosen the shared limits");
 });
 
 test("validateModelResult rejects empty cutouts and accepts a mixed alpha result", () => {

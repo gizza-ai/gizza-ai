@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const FIXTURE = path.resolve(__dirname, 'fixtures/tone-quiet-3s.mp3');
@@ -10,7 +10,7 @@ test('audio-metadata-stripper page outputs playable audio with default cover-art
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   const duration = await page.evaluate(async (dataUrl: string) => {
     const res = await fetch(dataUrl);
     const buf = await res.arrayBuffer();
@@ -30,5 +30,5 @@ test('audio-metadata-stripper deep link can keep cover art option', async ({ pag
   await page.setInputFiles('#in-audio', FIXTURE);
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
-  expect(await media.getAttribute('src')).toMatch(/^data:audio\//);
+  expect((await readResult(page, await media.getAttribute('src'))).mime).toMatch(/^audio\//);
 });

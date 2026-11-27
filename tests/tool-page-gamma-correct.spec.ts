@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const GRAY = path.resolve(__dirname, 'fixtures/gray-64x64.png');
@@ -9,7 +9,7 @@ async function outputSrc(page: import('@playwright/test').Page) {
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: FF_TIMEOUT });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
   return src!;
 }
 
@@ -49,7 +49,7 @@ test('gamma-correct deep-link gamma=0.5 darkens mid-gray and mirrors slider', as
   await page.setInputFiles('#in-file', GRAY);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/png/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/png/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.png');
   const p = await sampleCenter(page, src);
   expect(p.r).toBeLessThan(90);
@@ -77,7 +77,7 @@ test('gamma-correct preset chip and jpg format run end-to-end', async ({ page })
   await page.setInputFiles('#in-file', WHITE);
 
   const src = await outputSrc(page);
-  expect(src).toMatch(/^data:image\/jpeg/);
+  expect((await readResult(page, src)).mime).toMatch(/^image\/jpeg/);
   await expect(page.locator('#tool-output-download')).toHaveAttribute('download', 'out.jpg');
 });
 

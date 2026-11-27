@@ -2,14 +2,14 @@ import { test, expect } from './fixtures';
 
 // csv-to-xlsx produces a BINARY .xlsx download, so "real output" means decoding
 // the workbook the page offers and asserting its actual contents. The helper
-// runs in the browser: it fetches the #tool-output-download data: URL, checks
+// runs in the browser: it fetches the #tool-output-download URL, checks
 // the ZIP magic, and inflates individual OOXML parts with DecompressionStream
 // so we can assert cell text (shared strings) and native numeric cells.
 async function decodeWorkbook(page: import('@playwright/test').Page) {
   return page.evaluate(async () => {
     const dl = document.getElementById('tool-output-download') as HTMLAnchorElement | null;
     const href = dl && dl.href;
-    if (!href || !href.startsWith('data:')) return { error: 'no download href: ' + href };
+    if (!href) return { error: 'no download href' };
     const buf = new Uint8Array(await (await fetch(href)).arrayBuffer());
     const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     const latin1 = new TextDecoder('latin1');

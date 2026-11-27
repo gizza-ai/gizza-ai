@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 test('image-crop page crops an uploaded image', async ({ page }) => {
@@ -28,5 +28,5 @@ test('image-crop page crops an uploaded image', async ({ page }) => {
   await expect(media).toBeVisible({ timeout: 90_000 });
   
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:image\//);
+  expect((await readResult(page, src)).mime).toMatch(/^image\//);
 });

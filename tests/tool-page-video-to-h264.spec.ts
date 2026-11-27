@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 // The generated /tools/video-to-h264/ page force-transcodes an uploaded clip to
 // universally-playable H.264 High-profile MP4 (yuv420p, +faststart, AAC) in the
 // browser via ffmpeg-wasm (single-threaded @ffmpeg/core from jsDelivr — needs
-// network). Output is ALWAYS a data:video/mp4 URL, regardless of input codec.
+// network). Output is ALWAYS a video/mp4 result, regardless of input codec.
 //
 // Each test asserts REAL output correctness: it decodes the produced video in a
 // <video> element and checks the container MIME + preserved dimensions/duration.
@@ -14,7 +14,7 @@ import path from 'node:path';
 // The exact H.264 profile pinning (high/main/baseline + yuv420p) is asserted by
 // the core unit tests (argv tokens) and verified natively via ffprobe.
 
-// Decode a data:video/ URL and read its intrinsic size + duration.
+// Decode a video/ result and read its intrinsic size + duration.
 async function decodeVideo(page, src: string) {
   return await page.evaluate(async (dataUrl) => {
     const v = document.createElement('video');
@@ -41,7 +41,7 @@ test('video-to-h264 normalizes a VP9/Opus .webm to playable H.264 MP4 (default h
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/); // container is always MP4
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/); // container is always MP4
 
   // A pure normalize keeps frame size + duration (no scale/trim). clip-1s.webm
   // is 64x64, ~1s. The browser decoding it at all proves it's H.264/MP4.
@@ -66,7 +66,7 @@ test('video-to-h264 deep-link re-encodes an MP4 at baseline profile, non-default
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src);
   expect(meta.w).toBe(128);
@@ -85,7 +85,7 @@ test('video-to-h264 re-encodes a QuickTime .mov at main profile (tertiary format
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src);
   expect(meta.w).toBe(128);

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
@@ -185,7 +185,7 @@ test('aiff-to-wav page converts an uploaded AIFF to WAV with defaults', async ({
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
 
   // "keep" defaults must preserve the fixture's 8 kHz mono 3 s content.
   const stats = await decodeStats(page, src!);
@@ -209,7 +209,7 @@ test('aiff-to-wav deep link prefills 16-bit 44100 Hz stereo and converts', async
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
 
   // The prefilled resample + upmix must actually take effect.
   const stats = await decodeStats(page, src!);

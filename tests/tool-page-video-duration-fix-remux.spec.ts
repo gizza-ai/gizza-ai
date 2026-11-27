@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 
 const fixture = path.resolve(__dirname, 'fixtures/tiny-128x128.mp4');
@@ -43,7 +43,7 @@ test('video-duration-fix-remux page remuxes an MP4 without re-encoding', async (
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:video\/mp4/);
+  expect((await readResult(page, src)).mime).toMatch(/^video\/mp4/);
 
   const meta = await decodeVideo(page, src!);
   expect(meta.w).toBe(128);

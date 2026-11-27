@@ -1,10 +1,10 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
 
 // The generated /tools/audio-resampler/ page resamples an uploaded audio file
 // in-browser via ffmpeg (@ffmpeg/core from jsDelivr — needs network). Output is
-// audio, so the media element is an <audio> with a data:audio/ src. The first
+// audio, so the media element is an <audio> with an audio/ result. The first
 // test parses the produced WAV header (offset 24 = sample rate, u32 LE) to prove
 // the output is EXACTLY the requested rate, and decodes it with WebAudio to prove
 // the full source duration survived. The deep-link test proves prefilling + a
@@ -41,7 +41,7 @@ test('audio-resampler page resamples to exactly 16000 Hz WAV', async ({ page }) 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\//);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\//);
   expect(await wavSampleRate(page, src!)).toBe(16000);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.9);
@@ -57,7 +57,7 @@ test('audio-resampler deep link prefills rate=48000&format=flac', async ({ page 
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
   const src = await media.getAttribute('src');
-  expect(src).toMatch(/^data:audio\/(flac|x-flac)/);
+  expect((await readResult(page, src)).mime).toMatch(/^audio\/(flac|x-flac)/);
   const duration = await decodeDuration(page, src!);
   expect(duration).toBeGreaterThan(2.9);
   expect(duration).toBeLessThan(3.2);

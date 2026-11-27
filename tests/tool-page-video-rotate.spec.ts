@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, readResult } from './fixtures';
 import path from 'node:path';
 test('video-rotate page rotates an uploaded video', async ({ page }) => {
   await page.goto('/tools/video-rotate/');
@@ -7,5 +7,5 @@ test('video-rotate page rotates an uploaded video', async ({ page }) => {
   await page.setInputFiles('#in-file', path.resolve(__dirname, 'fixtures/tiny-128x128.mp4'));
   const media = page.locator('#tool-output-media');
   await expect(media).toBeVisible({ timeout: 90_000 });
-  expect(await media.getAttribute('src')).toMatch(/^data:video\//);
+  expect((await readResult(page, await media.getAttribute('src'))).mime).toMatch(/^video\//);
 });
