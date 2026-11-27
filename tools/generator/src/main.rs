@@ -35,6 +35,26 @@ const ONNX_RUNTIME_FILES: &[&str] = &[
     "ort-wasm-simd-threaded.wasm",
 ];
 
+/// SD-Turbo's own ONNX Runtime (onnxruntime-web 1.31.1, npm alias
+/// `onnxruntime-web-sd`), published under `/tools/_model-runtime/ort-sd/`.
+/// Its WebGPU build loads only the asyncify factory + binary.
+const SD_ORT_FILES: &[&str] = &["ort.webgpu.min.mjs", "ort-wasm-simd-threaded.asyncify.mjs"];
+/// The asyncify binary is 27.4 MiB, over Cloudflare Pages' 25 MiB per-file
+/// limit, so it ships gzipped (~7 MB) as `<name>.gz` and never raw: sd-worker.js
+/// inflates it with DecompressionStream and hands ORT the bytes as
+/// `env.wasm.wasmBinary`, so ORT never fetches a `.wasm` itself.
+const SD_ORT_GZIPPED: &[&str] = &["ort-wasm-simd-threaded.asyncify.wasm"];
+/// Worker-side modules published next to model-worker.js.
+const MODEL_RUNTIME_MODULES: &[&str] = &[
+    "model-worker.js",
+    "model-download-progress.js",
+    "janus-builds.js",
+    "sd-worker.js",
+    "sd-core.js",
+];
+/// Cloudflare Pages rejects any single file larger than this.
+const PAGES_MAX_FILE_BYTES: u64 = 25 * 1024 * 1024;
+
 /// Runtime modules published once under `/tools/_runtime/` so pages other than
 /// a tool's own page (e.g. an image editor) can drive any published tool by its
 /// `tool.json` `page` spec with the exact code the tool page runs. Model pages
@@ -44,6 +64,10 @@ const SHARED_RUNTIME_FILES: &[&str] = &[
     "tool-fields.js",
     "tool-ffmpeg.js",
     "tool-model.js",
+    "custom-model.js",
+    // custom-model.js's Janus builds, the same module model-worker.js loads.
+    "janus-builds.js",
+    "image-models.js",
     "tool-crop-box.js",
     "tool-crop-box.css",
     "tool-mime.js",
@@ -132,9 +156,15 @@ fn run() -> Result<(), String> {
             &runtime.join("LICENSE.onnxruntime.txt"),
             &model_runtime.join("LICENSE.onnxruntime.txt"),
         )?;
-        for name in ["model-worker.js", "model-download-progress.js"] {
+        for name in MODEL_RUNTIME_MODULES {
             copy_file(&runtime.join(name), &model_runtime.join(name))?;
         }
+        publish_sd_ort(
+            &root.join("node_modules/onnxruntime-web-sd/dist"),
+            &model_runtime.join("ort-sd"),
+            dependency_hint,
+        )?;
+        check_pages_file_sizes(&model_runtime)?;
     }
 
     let shared_runtime = pkg_tools.join("_runtime");
@@ -412,6 +442,62 @@ fn render_markdown(md: &str) -> String {
     buf
 }
 
+/// Publishes SD-Turbo's ONNX Runtime into `out` (see SD_ORT_FILES).
+fn publish_sd_ort(dist: &Path, out: &Path, dependency_hint: &str) -> Result<(), String> {
+    fs::create_dir_all(out).map_err(|e| format!("mkdir {}: {e}", out.display()))?;
+    for name in SD_ORT_FILES.iter().chain(SD_ORT_GZIPPED) {
+        let source = dist.join(name);
+        if !source.is_file() {
+            return Err(format!("missing {} ({dependency_hint})", source.display()));
+        }
+    }
+    for name in SD_ORT_FILES {
+        copy_file(&dist.join(name), &out.join(name))?;
+    }
+    for name in SD_ORT_GZIPPED {
+        gzip_file(&dist.join(name), &out.join(format!("{name}.gz")))?;
+    }
+    Ok(())
+}
+
+fn gzip_file(from: &Path, to: &Path) -> Result<(), String> {
+    use flate2::{write::GzEncoder, Compression};
+    use std::io::Write;
+    let bytes = fs::read(from).map_err(|e| format!("read {}: {e}", from.display()))?;
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::best());
+    encoder
+        .write_all(&bytes)
+        .and_then(|()| encoder.finish())
+        .and_then(|gz| fs::write(to, gz))
+        .map_err(|e| format!("gzip {} -> {}: {e}", from.display(), to.display()))
+}
+
+/// Fails the build if any file under `dir` is too large for Cloudflare Pages,
+/// so the limit is caught here, not at deploy upload.
+fn check_pages_file_sizes(dir: &Path) -> Result<(), String> {
+    let entries = fs::read_dir(dir).map_err(|e| format!("read {}: {e}", dir.display()))?;
+    for entry in entries {
+        let path = entry
+            .map_err(|e| format!("read {}: {e}", dir.display()))?
+            .path();
+        if path.is_dir() {
+            check_pages_file_sizes(&path)?;
+            continue;
+        }
+        let size = fs::metadata(&path)
+            .map_err(|e| format!("stat {}: {e}", path.display()))?
+            .len();
+        if size > PAGES_MAX_FILE_BYTES {
+            return Err(format!(
+                "{} is {:.1} MiB, over Cloudflare Pages' 25 MiB per-file limit",
+                path.display(),
+                size as f64 / 1048576.0
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn copy_file(from: &Path, to: &Path) -> Result<(), String> {
     fs::copy(from, to)
         .map(|_| ())
@@ -434,5 +520,110 @@ mod tests {
         }
         assert!(ONNX_RUNTIME_FILES.contains(&"ort-wasm-simd-threaded.mjs"));
         assert!(ONNX_RUNTIME_FILES.contains(&"ort-wasm-simd-threaded.wasm"));
+    }
+
+    fn scratch_dir(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("gizza-gen-{name}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn model_runtime_publishes_the_sd_worker_and_its_math() {
+        for f in [
+            "sd-worker.js",
+            "sd-core.js",
+            "model-worker.js",
+            "model-download-progress.js",
+            "janus-builds.js",
+        ] {
+            assert!(MODEL_RUNTIME_MODULES.contains(&f), "{f} not published");
+            assert!(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("assets/runtime")
+                    .join(f)
+                    .is_file(),
+                "{f} missing from assets/runtime"
+            );
+        }
+    }
+
+    #[test]
+    fn sd_ort_ships_its_webgpu_build_with_the_binary_only_gzipped() {
+        assert!(SD_ORT_FILES.contains(&"ort.webgpu.min.mjs"));
+        assert!(SD_ORT_FILES.contains(&"ort-wasm-simd-threaded.asyncify.mjs"));
+        assert!(
+            SD_ORT_FILES.iter().all(|f| !f.ends_with(".wasm")),
+            "raw wasm is never published"
+        );
+        assert_eq!(SD_ORT_GZIPPED, &["ort-wasm-simd-threaded.asyncify.wasm"]);
+        // sd-worker.js names the same files.
+        let worker = fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/runtime/sd-worker.js"),
+        )
+        .unwrap();
+        for f in [
+            "./ort-sd/ort.webgpu.min.mjs",
+            "ort-wasm-simd-threaded.asyncify.mjs",
+            "ort-wasm-simd-threaded.asyncify.wasm.gz",
+        ] {
+            assert!(worker.contains(f), "sd-worker.js does not load {f}");
+        }
+    }
+
+    #[test]
+    fn publish_sd_ort_gzips_the_binary_and_keeps_it_under_the_pages_limit() {
+        let dist = scratch_dir("sd-dist");
+        let out = scratch_dir("sd-out").join("ort-sd");
+        for f in SD_ORT_FILES {
+            fs::write(dist.join(f), "export default 1;").unwrap();
+        }
+        // Compressible like the real 27.4 MiB binary (7.1 MB gzipped), and
+        // over the limit raw.
+        let wasm: Vec<u8> = (0..PAGES_MAX_FILE_BYTES + 1024)
+            .map(|i| (i % 7) as u8)
+            .collect();
+        fs::write(dist.join(SD_ORT_GZIPPED[0]), &wasm).unwrap();
+        publish_sd_ort(&dist, &out, "hint").unwrap();
+
+        assert!(
+            !out.join(SD_ORT_GZIPPED[0]).exists(),
+            "raw wasm is not published"
+        );
+        let gz = fs::read(out.join(format!("{}.gz", SD_ORT_GZIPPED[0]))).unwrap();
+        let mut inflated = Vec::new();
+        std::io::Read::read_to_end(&mut flate2::read::GzDecoder::new(&gz[..]), &mut inflated)
+            .unwrap();
+        assert_eq!(inflated, wasm);
+        for f in SD_ORT_FILES {
+            assert!(out.join(f).is_file());
+        }
+        check_pages_file_sizes(out.parent().unwrap()).unwrap();
+
+        fs::remove_file(dist.join(SD_ORT_FILES[0])).unwrap();
+        let err = publish_sd_ort(&dist, &out, "run npm install").unwrap_err();
+        assert!(err.contains("run npm install"), "{err}");
+    }
+
+    #[test]
+    fn pages_size_check_rejects_a_file_over_25_mib() {
+        let dir = scratch_dir("pages-limit");
+        let nested = dir.join("ort-sd");
+        fs::create_dir_all(&nested).unwrap();
+        let at_limit = fs::File::create(nested.join("ok.wasm")).unwrap();
+        at_limit.set_len(PAGES_MAX_FILE_BYTES).unwrap();
+        check_pages_file_sizes(&dir).unwrap();
+        let over = fs::File::create(nested.join("big.wasm")).unwrap();
+        over.set_len(PAGES_MAX_FILE_BYTES + 1).unwrap();
+        let err = check_pages_file_sizes(&dir).unwrap_err();
+        assert!(err.contains("big.wasm") && err.contains("25 MiB"), "{err}");
+    }
+
+    #[test]
+    fn shared_runtime_publishes_model_registry_and_custom_check() {
+        for f in ["image-models.js", "custom-model.js", "janus-builds.js"] {
+            assert!(SHARED_RUNTIME_FILES.contains(&f), "{f} not published");
+        }
     }
 }

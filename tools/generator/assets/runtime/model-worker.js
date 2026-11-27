@@ -14,6 +14,7 @@ import {
   RawImage,
 } from "./transformers.min.js";
 import { downloadTracker } from "./model-download-progress.js";
+import { JANUS_DEVICES, JANUS_DTYPES, janusLoadKey, janusVariant } from "./janus-builds.js";
 
 env.backends.onnx.wasm.wasmPaths = new URL("./", import.meta.url).href;
 env.backends.onnx.wasm.proxy = false;
@@ -182,55 +183,35 @@ async function runTask(pipe, task, file) {
 //           then { type: "result", id, blob, filename, backend } |
 //           { type: "cancelled", id } | { type: "error", id, error, fatal }
 //           (fatal: the worker's runtime is broken; replace the worker).
-//           Cancel during the model download replies "cancelled" at once.
-
-// Per-module dtypes and devices. The shader-f16 set is Hugging Face's
-// janus-pro-webgpu reference. Its full-precision set (fp32 embeddings, lm_head
-// and gen_head: about 4 GB) does not load: ONNX Runtime stages every session's
-// weights through its 4 GB wasm32 heap, even for WebGPU sessions, and the
-// concurrent loads overrun it ("memory access out of bounds" — seen on an
-// RTX 4070 Ti under Chrome on Linux, which exposes no shader-f16). So without
-// shader-f16 the embeddings are 8-bit and the heads 4-bit weights (fp32
-// compute), about 1.6 GB in all.
-// Input embedding preparation runs on WebAssembly (an upstream WebGPU issue);
-// every generation stage runs on WebGPU.
-const JANUS_DTYPES = {
-  f16: {
-    prepare_inputs_embeds: "q4",
-    language_model: "q4f16",
-    lm_head: "fp16",
-    gen_head: "fp16",
-    gen_img_embeds: "fp16",
-    image_decode: "fp32",
-  },
-  f32: {
-    prepare_inputs_embeds: "q8",
-    language_model: "q4",
-    lm_head: "q4",
-    gen_head: "q4",
-    gen_img_embeds: "fp32",
-    image_decode: "fp32",
-  },
-};
-const JANUS_DEVICES = {
-  prepare_inputs_embeds: "wasm",
-  language_model: "webgpu",
-  lm_head: "webgpu",
-  gen_head: "webgpu",
-  gen_img_embeds: "webgpu",
-  image_decode: "webgpu",
-};
+//           progress { stage: "loading" } is posted only while the weights
+//           are not yet loaded. Transformers.js can't abort a download, so
+//           the client terminates this worker on a cancel in that window;
+//           here a cancel while loading just stops this generation waiting.
+//           The descriptor's `variant` (f16 | f32) picks the build; a
+//           descriptor without one (the imagine page) is sniffed from the GPU.
 
 const WEBGPU_REQUIRED = "Image generation needs WebGPU, which this browser or device doesn't provide.";
 
-// One Janus load per worker, shared by every generation that waits on it. A
-// cancelled generation stops waiting but the load keeps going, so the next
-// Generate reuses the weights already downloaded. Download progress goes to
-// every generation currently waiting on the load.
-let janus = null; // { key, promise, waiters: Set<generation id> }
+// One Janus load per worker, shared by every generation that waits on it.
+// The client keeps one model build per worker (it replaces the worker to
+// switch), so a load for another key only follows a failed one. The key is
+// the build the load picks on this adapter, so the imagine page's
+// variant-less descriptor shares the load of the registry's descriptor for
+// the same build. Download progress goes to every generation currently
+// waiting on the load.
+let janus = null; // { key, promise, ready, waiters: Set<generation id> }
 
-function loadJanus(model) {
-  const key = `${model.id}@${model.revision}`;
+async function gpuAdapter() {
+  const gpu = self.navigator && self.navigator.gpu;
+  const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
+  if (!adapter) throw new Error(WEBGPU_REQUIRED);
+  return adapter;
+}
+
+// Synchronous from the adapter on, so concurrent generations see each
+// other's load.
+function loadJanus(model, adapter) {
+  const key = janusLoadKey(model, adapter);
   if (janus && janus.key === key) return janus;
   const waiters = new Set();
   const progress_callback = downloadTracker((fraction, loaded, total) => {
@@ -239,25 +220,27 @@ function loadJanus(model) {
     }
   }, (model.download_mb || 0) * 1e6);
   const promise = (async () => {
-    const gpu = self.navigator && self.navigator.gpu;
-    const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
-    if (!adapter) throw new Error(WEBGPU_REQUIRED);
-    const precision = adapter.features && adapter.features.has("shader-f16") ? "f16" : "f32";
+    const variant = janusVariant(model, adapter);
     return Promise.all([
       AutoProcessor.from_pretrained(model.id, { revision: model.revision, progress_callback }),
       MultiModalityCausalLM.from_pretrained(model.id, {
         revision: model.revision,
-        dtype: JANUS_DTYPES[precision],
+        dtype: JANUS_DTYPES[variant],
         device: JANUS_DEVICES,
         progress_callback,
       }),
     ]);
   })();
-  const load = { key, promise, waiters };
+  const load = { key, promise, ready: false, waiters };
   janus = load;
-  promise.catch(() => {
-    if (janus === load) janus = null;
-  });
+  promise.then(
+    () => {
+      load.ready = true;
+    },
+    () => {
+      if (janus === load) janus = null;
+    },
+  );
   return load;
 }
 
@@ -295,10 +278,8 @@ function startGeneration(id) {
 }
 
 // Waits for the shared model load, or for this generation's cancel —
-// whichever comes first. Returns CANCELLED on cancel; the load itself is not
-// aborted and stays cached for the next generation.
-async function awaitJanus(id, model, generation) {
-  const load = loadJanus(model);
+// whichever comes first. Returns CANCELLED on cancel.
+async function awaitJanus(id, load, generation) {
   load.waiters.add(id);
   try {
     return await Promise.race([load.promise, generation.cancelled]);
@@ -317,15 +298,23 @@ async function generateImage(request) {
     }
     const text = String(prompt || "").trim();
     if (!text) throw new Error("Describe the image you want first.");
-    postMessage({ type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
-    const loaded = await awaitJanus(id, model, generation);
+    const adapter = await gpuAdapter();
+    if (stopping.interrupted) {
+      postMessage({ type: "cancelled", id });
+      return;
+    }
+    const load = loadJanus(model, adapter);
+    if (!load.ready) postMessage({ type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
+    const loaded = await awaitJanus(id, load, generation);
     if (loaded === CANCELLED || stopping.interrupted) {
       postMessage({ type: "cancelled", id });
       return;
     }
     const [processor, janusModel] = loaded;
-    const inputs = await processor([{ role: "<|User|>", content: text }], { chat_template: "text_to_image" });
     const total = processor.num_image_tokens;
+    // The weights are in: from here a cancel stops the run, not the worker.
+    postMessage({ type: "progress", id, progress: { stage: "generate", count: 0, total } });
+    const inputs = await processor([{ role: "<|User|>", content: text }], { chat_template: "text_to_image" });
     const streamer = new TokenProgress(total, (count) => {
       postMessage({ type: "progress", id, progress: { stage: "generate", count, total } });
     });
@@ -365,8 +354,9 @@ self.addEventListener("message", (event) => {
   if (request.type === "generate") generateImage(request);
   else if (request.type === "cancel") {
     // While the model loads, cancel answers at once (awaitJanus stops
-    // waiting); while generating, the stopping criteria end the run at the
-    // next image token.
+    // waiting; the client also terminates the worker to stop the download);
+    // while generating, the stopping criteria end the run at the next image
+    // token.
     const generation = generations.get(request.id);
     if (generation) {
       generation.stopping.interrupt();

@@ -1,0 +1,23 @@
+[
+  {
+    "type": "file",
+    "path": "model_index.json",
+    "size": 500
+  },
+  {
+    "type": "file",
+    "path": "unet/diffusion_pytorch_model.safetensors",
+    "size": 133,
+    "lfs": {
+      "size": 3000000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "vae/diffusion_pytorch_model.safetensors",
+    "size": 133,
+    "lfs": {
+      "size": 300000000
+    }
+  }
+]

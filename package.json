@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test js/query-prefill.test.js js/tool-ffmpeg.test.js js/tool-model.test.js js/tools-index.test.js js/tool-svg.test.js js/tool-fields.test.js js/tool-run.test.js js/tool-crop-box.test.js js/tool-wasm-image.test.js"
+    "test": "node --test js/query-prefill.test.js js/tool-ffmpeg.test.js js/tool-model.test.js js/tools-index.test.js js/tool-svg.test.js js/tool-fields.test.js js/tool-run.test.js js/tool-crop-box.test.js js/tool-wasm-image.test.js js/sd-core.test.js js/custom-model.test.js js/image-models.test.js js/sd-worker.test.js js/model-worker.test.js"
   },
   "devDependencies": {
     "linkedom": "^0.18.0"
   },
   "dependencies": {
-    "@huggingface/transformers": "4.2.0"
+    "@huggingface/transformers": "4.2.0",
+    "onnxruntime-web-sd": "npm:onnxruntime-web@1.31.1"
   }
 }

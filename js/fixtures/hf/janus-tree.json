@@ -1,0 +1,422 @@
+[
+  {
+    "type": "file",
+    "path": "config.json",
+    "size": 1000
+  },
+  {
+    "type": "file",
+    "path": "README.md",
+    "size": 500
+  },
+  {
+    "type": "file",
+    "path": "preprocessor_config.json",
+    "size": 400
+  },
+  {
+    "type": "file",
+    "path": "processor_config.json",
+    "size": 300
+  },
+  {
+    "type": "file",
+    "path": "tokenizer.json",
+    "size": 4000000
+  },
+  {
+    "type": "file",
+    "path": "tokenizer_config.json",
+    "size": 2000
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 80000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_fp16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_fp16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 40000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_q4.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_q4.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_q4f16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_q4f16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_quantized.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/prepare_inputs_embeds_quantized.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 20000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 80000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_fp16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_fp16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 40000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_q4.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_q4.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_q4f16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_q4f16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_quantized.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/language_model_quantized.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 20000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 80000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_fp16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_fp16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 40000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_q4.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_q4.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_q4f16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_q4f16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_quantized.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/lm_head_quantized.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 20000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 80000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_fp16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_fp16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 40000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_q4.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_q4.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_q4f16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_q4f16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_quantized.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_head_quantized.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 20000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 80000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_fp16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_fp16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 40000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_q4.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_q4.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_q4f16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_q4f16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_quantized.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/gen_img_embeds_quantized.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 20000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 80000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_fp16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_fp16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 40000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_q4.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_q4.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_q4f16.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_q4f16.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 10000000
+    }
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_quantized.onnx",
+    "size": 1000000
+  },
+  {
+    "type": "file",
+    "path": "onnx/image_decode_quantized.onnx_data",
+    "size": 133,
+    "lfs": {
+      "size": 20000000
+    }
+  }
+]
