@@ -1,7 +1,16 @@
 // Shared client for standalone AI-model tool pages. Heavy inference runs in a
 // module worker so model loading and CPU/WASM fallback do not freeze the UI.
 
-const MODEL_WORKER_URL = new URL("../_model-runtime/model-worker.js", import.meta.url);
+// Each engine's worker. model-worker.js hosts Transformers.js (Janus and the
+// image-input models); sd-worker.js hosts SD-Turbo on its own ONNX Runtime.
+export const MODEL_WORKER_URL = new URL("../_model-runtime/model-worker.js", import.meta.url);
+export const SD_WORKER_URL = new URL("../_model-runtime/sd-worker.js", import.meta.url);
+
+// The worker factory hook: a client takes a factory so tests (and any page
+// hosting a worker elsewhere) can supply their own.
+export function moduleWorker(url) {
+  return () => new Worker(url, { type: "module" });
+}
 
 export function compatibleDevices(model, nav = globalThis.navigator || {}) {
   const requested = Array.isArray(model && model.devices) && model.devices.length
@@ -102,7 +111,7 @@ export function validateModelResult(result, options = {}) {
 }
 
 export class ModelWorkerClient {
-  constructor(workerFactory = () => new Worker(MODEL_WORKER_URL, { type: "module" })) {
+  constructor(workerFactory = moduleWorker(MODEL_WORKER_URL)) {
     this.worker = workerFactory();
     this.nextId = 1;
     this.pending = new Map();
@@ -111,13 +120,13 @@ export class ModelWorkerClient {
     this.stopped = false;
     this.worker.addEventListener("message", (event) => this.onMessage(event.data));
     this.worker.addEventListener("error", (event) => {
-      this.stop(event && event.message ? event.message : "AI worker failed.");
+      this.stop(new Error(event && event.message ? event.message : "AI worker failed."));
     });
   }
 
-  // Terminate the worker and fail every pending call, detaching their abort
-  // listeners so a later abort cannot post to the dead worker.
-  stop(message) {
+  // Terminate the worker and fail every pending call with `error`, detaching
+  // their abort listeners so a later abort cannot post to the dead worker.
+  stop(error) {
     if (this.stopped) return;
     this.stopped = true;
     this.worker.terminate();
@@ -125,7 +134,7 @@ export class ModelWorkerClient {
     this.pending.clear();
     for (const { reject, cleanup } of pending) {
       if (cleanup) cleanup();
-      reject(new Error(message));
+      reject(error);
     }
   }
 
@@ -143,7 +152,7 @@ export class ModelWorkerClient {
     else {
       pending.reject(new Error(message.error || "AI inference failed."));
       // The worker's runtime trapped: retire it so the next call gets a fresh one.
-      if (message.fatal) this.stop(message.error || "AI worker failed.");
+      if (message.fatal) this.stop(new Error(message.error || "AI worker failed."));
     }
   }
 
@@ -179,8 +188,17 @@ export class ModelWorkerClient {
     });
   }
 
+  // Terminates the worker (releasing everything it holds); pending calls
+  // reject with an AbortError, as their caller has moved on.
   dispose() {
-    this.stop("AI worker stopped.");
+    this.stop(abortError());
+  }
+}
+
+// SD-Turbo's worker speaks the same generate/cancel protocol.
+export class SdWorkerClient extends ModelWorkerClient {
+  constructor(workerFactory = moduleWorker(SD_WORKER_URL)) {
+    super(workerFactory);
   }
 }
 
@@ -188,16 +206,29 @@ function abortError() {
   return new DOMException("Image generation was cancelled.", "AbortError");
 }
 
-let sharedClient = null;
+const ENGINE_CLIENTS = Object.freeze({
+  janus: () => new ModelWorkerClient(),
+  "sd-turbo": () => new SdWorkerClient(),
+});
 
-function client() {
-  if (!sharedClient || sharedClient.stopped) sharedClient = new ModelWorkerClient();
-  return sharedClient;
+// One engine resident at a time: each holds gigabytes of GPU and wasm memory,
+// and terminating a worker is the only guaranteed release. Switching engines
+// disposes the other engine's worker before the new one starts.
+let resident = null; // { engine, client }
+
+function engineClient(engine) {
+  if (resident && resident.engine === engine && !resident.client.stopped) return resident.client;
+  if (resident) resident.client.dispose();
+  resident = { engine, client: ENGINE_CLIENTS[engine]() };
+  return resident.client;
 }
 
-// Generate an image locally from `prompt` with a pinned text-to-image model
-// (`model.task === "text-to-image"`). WebGPU only.
-export function generateImage(model, prompt, { onProgress = null, signal = null, nav = globalThis.navigator || {} } = {}) {
+// Generate an image locally from `prompt` on `engine` with a pinned
+// text-to-image model (`model.task === "text-to-image"`). WebGPU only.
+export function generateOn(engine, model, prompt, { onProgress = null, signal = null, nav = globalThis.navigator || {} } = {}) {
+  if (!Object.hasOwn(ENGINE_CLIENTS, engine)) {
+    return Promise.reject(new Error(`Unknown image engine "${engine}".`));
+  }
   if (!nav.gpu) {
     return Promise.reject(new Error("Image generation needs WebGPU, which this browser or device doesn't provide."));
   }
@@ -210,7 +241,12 @@ export function generateImage(model, prompt, { onProgress = null, signal = null,
   if (!String(prompt || "").trim()) {
     return Promise.reject(new Error("Describe the image you want first."));
   }
-  return client().generate(model, String(prompt).trim(), { onProgress, signal });
+  return engineClient(engine).generate(model, String(prompt).trim(), { onProgress, signal });
+}
+
+// The imagine page's pinned Janus model.
+export function generateImage(model, prompt, options) {
+  return generateOn("janus", model, prompt, options);
 }
 
 export function runModel(model, file, fields, onProgress) {
@@ -220,5 +256,5 @@ export function runModel(model, file, fields, onProgress) {
   if (!compatibleDevices(model).length) {
     return Promise.reject(new Error("This browser supports neither WebGPU nor the WebAssembly fallback."));
   }
-  return client().run(model, file, fields, onProgress);
+  return engineClient("janus").run(model, file, fields, onProgress);
 }
