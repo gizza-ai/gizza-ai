@@ -498,3 +498,86 @@ test("the runtime binary loads once per worker", async () => {
   assert.equal((await h.final(2)).type, "result");
   assert.equal(h.fetch.calls.filter((c) => c.path === "<wasm>").length, wasmFetches, "the runtime loads once per worker");
 });
+
+test("the runtime loads before any weights, so a broken runtime fails fast and readably", async () => {
+  const h = harness();
+  generate(h, 1);
+  assert.equal((await h.final(1)).type, "result");
+  assert.equal(h.fetch.calls[0].path, "<wasm>", "the runtime is the first fetch");
+
+  for (const broken of [async () => new Response("gone", { status: 404 }), async () => { throw new TypeError("Failed to fetch"); }]) {
+    const f = fakeFetch();
+    const inner = f.fetch;
+    f.fetch = async (u, o) => (u === WASM_URL ? (f.calls.push({ path: "<wasm>" }), broken()) : inner(u, o));
+    const b = harness({ fetch: f });
+    generate(b, 1);
+    const reply = await b.final(1);
+    assert.equal(reply.type, "error");
+    assert.match(reply.error, /Couldn't load the image runtime/);
+    assert.deepEqual(f.calls.map((c) => c.path), ["<wasm>"], "no weights are fetched");
+  }
+});
+
+const withManifest = (manifest) => {
+  const f = fakeFetch();
+  const inner = f.fetch;
+  f.fetch = async (u, o) => {
+    if (u === url("manifest.json")) {
+      f.calls.push({ path: "manifest.json" });
+      return new Response(JSON.stringify(manifest));
+    }
+    return inner(u, o);
+  };
+  return f;
+};
+
+test("the repo's manifest sizes the fixed layout but never adds files to download", async () => {
+  const extra = { path: "nof16q8/unet/extra.bin", bytes: 3 };
+  const f = withManifest({
+    ...MANIFEST,
+    shared: [...MANIFEST.shared, { path: "huge.bin", bytes: 9e9 }],
+    variants: { ...MANIFEST.variants, nof16q8: { files: [...MANIFEST.variants.nof16q8.files, extra] } },
+  });
+  const h = harness({ fetch: f });
+  generate(h, 1);
+  assert.equal((await h.final(1)).type, "result");
+  const fetched = f.calls.map((c) => c.path).filter((p) => p !== "<wasm>" && p !== "manifest.json");
+  assert.deepEqual(fetched.sort(), Object.keys(FILES).sort());
+  const downloads = h.posted.filter((m) => m.type === "progress" && m.progress.stage === "download");
+  assert.equal(downloads.at(-1).progress.total, TOTAL, "only the layout's files count");
+});
+
+test("a manifest path that climbs out of the repo or is absolute is rejected", async () => {
+  for (const path of ["../other/model.onnx", "nof16q8/../../x", "/etc/passwd", "nof16q8//unet"]) {
+    const f = withManifest({ ...MANIFEST, shared: [...MANIFEST.shared, { path, bytes: 1 }] });
+    const h = harness({ fetch: f });
+    generate(h, 1);
+    const reply = await h.final(1);
+    assert.equal(reply.type, "error", path);
+    assert.match(reply.error, /manifest lists an invalid file/);
+    assert.deepEqual(f.calls.map((c) => c.path), ["<wasm>", "manifest.json"], "nothing else is fetched");
+  }
+});
+
+test("a manifest missing one of the layout's files is an error, not a partial run", async () => {
+  const files = MANIFEST.variants.nof16q8.files.filter((x) => x.path !== "nof16q8/vae_decoder/model.onnx.data");
+  const f = withManifest({ ...MANIFEST, variants: { ...MANIFEST.variants, nof16q8: { files } } });
+  const h = harness({ fetch: f });
+  generate(h, 1);
+  const reply = await h.final(1);
+  assert.equal(reply.type, "error");
+  assert.match(reply.error, /doesn't list nof16q8\/vae_decoder\/model\.onnx\.data/);
+});
+
+test("file URLs encode each path segment", async () => {
+  const seen = [];
+  const h = harness({
+    fetch: {
+      fetch: async (u) => (u === WASM_URL ? gzip(WASM) : (seen.push(u), new Response("nope", { status: 404 }))),
+      calls: [],
+    },
+  });
+  h.engine.handle({ type: "generate", id: 1, model: { ...MODEL, id: "acme/sd web#1", revision: "a?b" }, prompt: "a fox" });
+  assert.equal((await h.final(1)).type, "error");
+  assert.deepEqual(seen, ["https://huggingface.co/acme/sd%20web%231/resolve/a%3Fb/manifest.json"]);
+});

@@ -6,7 +6,8 @@
 // Request:  { type: "generate", id, model, prompt }   (model: an image-models.js
 //           descriptor with engine "sd-turbo"),  { type: "cancel", id }
 // Replies:  progress { stage: "download", progress: 0..1, loaded, total } over
-//           every file the run needs (sizes from the repo's manifest.json),
+//           every file the run needs (the fixed repo layout below; the repo's
+//           manifest.json only supplies their sizes),
 //           progress { stage: "generate", count, total: 3 } (text, unet, vae),
 //           then { type: "result", id, blob, filename, backend } |
 //           { type: "cancelled", id } | { type: "error", id, error, fatal }
@@ -52,7 +53,21 @@ const SESSION_OPTIONS = Object.freeze({
 
 const WEBGPU_REQUIRED = "Image generation needs WebGPU, which this browser or device doesn't provide.";
 
-const fileUrl = (model, path) => `https://huggingface.co/${model.id}/resolve/${model.revision}/${path}`;
+// The files one generation needs, by layout. The repo's manifest only sizes
+// them: it never decides what is downloaded.
+const runPaths = (variant) => [
+  TOKENIZER,
+  ...STAGES.flatMap((stage) => [`${variant}/${stage}/model.onnx`, `${variant}/${stage}/model.onnx.data`]),
+];
+const VARIANT_NAME = /^[A-Za-z0-9][\w-]*$/;
+
+// A relative path with no empty, `.` or `..` segment.
+const safePath = (path) =>
+  typeof path === "string" && !path.startsWith("/") && path.split("/").every((s) => s && s !== "." && s !== "..");
+
+const encodePath = (path) => path.split("/").map(encodeURIComponent).join("/");
+const fileUrl = (model, path) =>
+  `https://huggingface.co/${encodePath(model.id)}/resolve/${encodeURIComponent(model.revision)}/${encodePath(path)}`;
 
 async function readAll(stream, signal) {
   const reader = (signal ? stream.pipeThrough(new TransformStream(), { signal }) : stream).getReader();
@@ -144,13 +159,14 @@ export function createSdEngine(deps) {
       const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
       if (!adapter) throw new Error(WEBGPU_REQUIRED);
       progress({ stage: "loading", device: "webgpu" });
+      // The ~7 MB runtime first: a broken one fails before gigabytes of weights.
+      await loadRuntime(signal);
+      check();
 
       const cache = await caches.open(SD_CACHE);
       const manifest = JSON.parse(new TextDecoder().decode(await cachedBytes(cache, model, "manifest.json", null, signal)));
       const files = runFiles(manifest, model);
       await download(cache, model, files, signal, progress);
-      check();
-      await loadRuntime(signal);
       check();
 
       progress({ stage: "generate", count: 0, total: STAGES.length });
@@ -195,15 +211,25 @@ export function createSdEngine(deps) {
     }
   }
 
+  // The run's fixed file list, each sized from the manifest.
   function runFiles(manifest, model) {
-    if (!manifest || manifest.schema !== 1 || !manifest.variants) {
+    if (!manifest || manifest.schema !== 1 || !manifest.variants || !Array.isArray(manifest.shared)) {
       throw new Error("The image model's manifest is not one this page understands.");
     }
-    const variant = manifest.variants[model.variant];
-    if (!variant) throw new Error(`The image model has no "${model.variant}" build.`);
-    const tokenizer = manifest.shared.find((f) => f.path === TOKENIZER);
-    if (!tokenizer) throw new Error("The image model's manifest lists no tokenizer.");
-    return [tokenizer, ...variant.files];
+    const name = String(model.variant);
+    const variant = VARIANT_NAME.test(name) && Object.hasOwn(manifest.variants, name) ? manifest.variants[name] : null;
+    if (!variant || !Array.isArray(variant.files)) throw new Error(`The image model has no "${name}" build.`);
+    const sizes = new Map();
+    for (const file of [...manifest.shared, ...variant.files]) {
+      if (!file || !safePath(file.path) || !Number.isSafeInteger(file.bytes) || file.bytes < 0) {
+        throw new Error("The image model's manifest lists an invalid file.");
+      }
+      sizes.set(file.path, file.bytes);
+    }
+    return runPaths(name).map((path) => {
+      if (!sizes.has(path)) throw new Error(`The image model's manifest doesn't list ${path}.`);
+      return { path, bytes: sizes.get(path) };
+    });
   }
 
   // Every file the run needs into Cache Storage, reporting one overall
@@ -269,13 +295,12 @@ export function createSdEngine(deps) {
   }
 
   // The wasm binary ships gzipped (see main.rs); ORT gets it inflated, so it
-  // never fetches a .wasm itself. Loaded once per worker, before any session.
+  // never fetches a .wasm itself. Loaded once per worker, before any weights.
   async function loadRuntime(signal) {
     if (ort.env.wasm.wasmBinary) return;
-    const response = await fetch(wasmUrl, { signal });
     let bytes;
     try {
-      bytes = await loadWasmBinary(response, signal);
+      bytes = await loadWasmBinary(await fetch(wasmUrl, { signal }), signal);
     } catch (error) {
       if (signal.aborted) throw error;
       throw new Error(`Couldn't load the image runtime (${error.message || error}).`);
