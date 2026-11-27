@@ -194,12 +194,24 @@ const WEBGPU_REQUIRED = "Image generation needs WebGPU, which this browser or de
 
 // One Janus load per worker, shared by every generation that waits on it.
 // The client keeps one model build per worker (it replaces the worker to
-// switch), so a load for another key only follows a failed one. Download
-// progress goes to every generation currently waiting on the load.
+// switch), so a load for another key only follows a failed one. The key is
+// the build the load picks on this adapter, so the imagine page's
+// variant-less descriptor shares the load of the registry's descriptor for
+// the same build. Download progress goes to every generation currently
+// waiting on the load.
 let janus = null; // { key, promise, ready, waiters: Set<generation id> }
 
-function loadJanus(model) {
-  const key = janusLoadKey(model);
+async function gpuAdapter() {
+  const gpu = self.navigator && self.navigator.gpu;
+  const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
+  if (!adapter) throw new Error(WEBGPU_REQUIRED);
+  return adapter;
+}
+
+// Synchronous from the adapter on, so concurrent generations see each
+// other's load.
+function loadJanus(model, adapter) {
+  const key = janusLoadKey(model, adapter);
   if (janus && janus.key === key) return janus;
   const waiters = new Set();
   const progress_callback = downloadTracker((fraction, loaded, total) => {
@@ -208,9 +220,6 @@ function loadJanus(model) {
     }
   }, (model.download_mb || 0) * 1e6);
   const promise = (async () => {
-    const gpu = self.navigator && self.navigator.gpu;
-    const adapter = gpu && typeof gpu.requestAdapter === "function" ? await gpu.requestAdapter() : null;
-    if (!adapter) throw new Error(WEBGPU_REQUIRED);
     const variant = janusVariant(model, adapter);
     return Promise.all([
       AutoProcessor.from_pretrained(model.id, { revision: model.revision, progress_callback }),
@@ -289,7 +298,12 @@ async function generateImage(request) {
     }
     const text = String(prompt || "").trim();
     if (!text) throw new Error("Describe the image you want first.");
-    const load = loadJanus(model);
+    const adapter = await gpuAdapter();
+    if (stopping.interrupted) {
+      postMessage({ type: "cancelled", id });
+      return;
+    }
+    const load = loadJanus(model, adapter);
     if (!load.ready) postMessage({ type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
     const loaded = await awaitJanus(id, load, generation);
     if (loaded === CANCELLED || stopping.interrupted) {

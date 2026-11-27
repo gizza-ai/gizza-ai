@@ -50,8 +50,7 @@ const hasF16 = (adapter) => Boolean(adapter && adapter.features && adapter.featu
 // as named; only the legacy imagine descriptor, which names none, is picked
 // from the adapter's shader-f16 support.
 export function janusVariant(model, adapter) {
-  const variant = model && model.variant;
-  if (variant === undefined || variant === null || variant === "") return hasF16(adapter) ? "f16" : "f32";
+  const variant = janusBuild(model, adapter);
   if (!Object.hasOwn(JANUS_DTYPES, variant)) throw new Error(`The image model has no "${variant}" build.`);
   if (JANUS_NEEDS_F16[variant] && !hasF16(adapter)) {
     throw new Error(`The "${variant}" build needs a GPU with shader-f16, which this device doesn't provide.`);
@@ -59,7 +58,16 @@ export function janusVariant(model, adapter) {
   return variant;
 }
 
-// One resident Janus load per model build.
-export function janusLoadKey(model) {
-  return `${model.id}@${model.revision}|${model.variant || ""}`;
+// The build `model` loads on `adapter`, unchecked: the descriptor's `variant`
+// as named, or for the legacy descriptor the one its adapter picks.
+export function janusBuild(model, adapter) {
+  const variant = model && model.variant;
+  if (variant === undefined || variant === null || variant === "") return hasF16(adapter) ? "f16" : "f32";
+  return variant;
+}
+
+// One resident Janus load per model build: a descriptor without a variant
+// shares the load of the one naming the build it would pick.
+export function janusLoadKey(model, adapter) {
+  return `${model.id}@${model.revision}|${janusBuild(model, adapter)}`;
 }

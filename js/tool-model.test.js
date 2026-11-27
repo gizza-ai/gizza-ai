@@ -7,6 +7,7 @@ import {
   MODEL_FILE_LIMITS,
   ModelWorkerClient,
   progressLabel,
+  runModel,
   SdWorkerClient,
   validateModelFile,
   validateModelResult,
@@ -99,6 +100,9 @@ test("validateModelResult rejects empty cutouts and accepts a mixed alpha result
   };
   assert.equal(validateModelResult(result), result);
 });
+
+// The shared resident slot admits calls asynchronously.
+const settle = () => new Promise((r) => setImmediate(r));
 
 class FakeWorker {
   listeners = new Map();
@@ -264,12 +268,14 @@ test("after a worker crash the shared client starts a fresh worker", async () =>
   try {
     const nav = { gpu: {} };
     const first = generateImage(JANUS, "a red fox", { nav });
+    await settle();
     assert.equal(workers.length, 1);
     workers[0].fail("boom");
     await assert.rejects(first, /boom/);
     assert.equal(workers[0].terminated, true);
 
     const second = generateImage(JANUS, "a red fox", { nav });
+    await settle();
     assert.equal(workers.length, 2, "a new worker replaces the crashed one");
     const { id } = workers[1].posted[0];
     workers[1].emit("message", { type: "result", id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
@@ -438,6 +444,7 @@ test("the imagine page's generateImage cancel during a cold download replaces th
     const nav = { gpu: {} };
     const controller = new AbortController();
     const first = generateImage(JANUS, "a red fox", { nav, signal: controller.signal });
+    await settle();
     const { id } = workers[0].posted[0];
     workers[0].emit("message", { type: "progress", id, progress: { stage: "download", progress: 0.1 } });
     controller.abort();
@@ -445,6 +452,7 @@ test("the imagine page's generateImage cancel during a cold download replaces th
     assert.equal(workers[0].terminated, true);
 
     const second = generateImage(JANUS, "a red fox", { nav });
+    await settle();
     assert.equal(workers.length, 2, "the next call starts a fresh worker");
     const next = workers[1].posted[0];
     workers[1].emit("message", { type: "result", id: next.id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
@@ -453,4 +461,104 @@ test("the imagine page's generateImage cancel during a cold download replaces th
   } finally {
     globalThis.Worker = NativeWorker;
   }
+});
+
+test("a cancel once the download reports every byte posts the worker's cancel, not a termination", async () => {
+  const worker = new FakeWorker();
+  const client = new ModelWorkerClient(() => worker);
+  const controller = new AbortController();
+  const promise = client.generate(JANUS, "a red fox", { signal: controller.signal });
+  const { id } = worker.posted[0];
+  worker.emit("message", { type: "progress", id, progress: { stage: "loading", device: "webgpu" } });
+  worker.emit("message", { type: "progress", id, progress: { stage: "download", progress: 1 } });
+  // Sessions are still being created: no generate progress yet.
+  controller.abort();
+  assert.deepEqual(worker.posted[1], { type: "cancel", id });
+  assert.equal(worker.terminated, false, "nothing left to download, so the load is kept");
+  worker.emit("message", { type: "cancelled", id });
+  await assert.rejects(promise, (error) => error.name === "AbortError");
+  assert.equal(worker.terminated, false);
+  client.dispose();
+});
+
+test("progressLabel explains a call waiting for another model", () => {
+  assert.equal(progressLabel({ stage: "queued" }), "Waiting for the running model to finish…");
+});
+
+// The shared resident slot: one model at a time, and starting another model
+// never cancels a running call.
+async function withSharedWorkers(fn) {
+  const NativeWorker = globalThis.Worker;
+  const workers = [];
+  globalThis.Worker = class extends FakeWorker {
+    constructor(url) {
+      super();
+      this.url = String(url);
+      workers.push(this);
+    }
+  };
+  try {
+    await fn(workers);
+  } finally {
+    for (const w of workers) if (!w.terminated) w.fail("cleanup");
+    globalThis.Worker = NativeWorker;
+  }
+}
+const U2NET = { task: "u2net-background-removal", id: "BritishWerewolf/U-2-Netp", revision: "abc", devices: ["wasm"] };
+const done = (w, i = 0, filename = "out.png") =>
+  w.emit("message", { type: "result", id: w.posted[i].id, blob: new Blob(["png"]), filename, backend: "webgpu" });
+
+test("a running generation survives another model's runModel starting, which waits for it", async () => {
+  await withSharedWorkers(async (workers) => {
+    const nav = { gpu: {} };
+    const generation = generateImage(JANUS, "a red fox", { nav });
+    await settle();
+    workers[0].emit("message", { type: "progress", id: workers[0].posted[0].id, progress: { stage: "generate", count: 3, total: 576 } });
+    const seen = [];
+    const run = runModel(U2NET, { type: "image/png", size: 1 }, {}, (p) => seen.push(p));
+    await settle();
+    assert.equal(workers.length, 1, "the run waits for the generation");
+    assert.equal(workers[0].terminated, false);
+    assert.deepEqual(seen, [{ stage: "queued" }]);
+    done(workers[0], 0, "generated.png");
+    assert.equal((await generation).filename, "generated.png", "the generation completes, not cancelled");
+    await settle();
+    assert.equal(workers[0].terminated, true, "then the generator's worker is released");
+    assert.equal(workers[1].posted[0].type, "run");
+    done(workers[1], 0, "background-removed.png");
+    assert.equal((await run).filename, "background-removed.png");
+  });
+});
+
+test("a running runModel survives another model's generation starting, which waits for it", async () => {
+  await withSharedWorkers(async (workers) => {
+    const run = runModel(U2NET, { type: "image/png", size: 1 }, {});
+    await settle();
+    const generation = generateImage(JANUS, "a red fox", { nav: { gpu: {} } });
+    await settle();
+    assert.equal(workers.length, 1, "the generation waits for the run");
+    assert.equal(workers[0].terminated, false);
+    done(workers[0], 0, "background-removed.png");
+    assert.equal((await run).filename, "background-removed.png", "the run completes, not cancelled");
+    await settle();
+    assert.equal(workers[0].terminated, true);
+    assert.equal(workers[1].posted[0].type, "generate");
+    done(workers[1], 0, "generated.png");
+    assert.equal((await generation).filename, "generated.png");
+  });
+});
+
+test("a running model that fails still releases the slot to the waiting one", async () => {
+  await withSharedWorkers(async (workers) => {
+    const run = runModel(U2NET, { type: "image/png", size: 1 }, {});
+    await settle();
+    const generation = generateImage(JANUS, "a red fox", { nav: { gpu: {} } });
+    await settle();
+    workers[0].emit("message", { type: "error", id: workers[0].posted[0].id, error: "model failed" });
+    await assert.rejects(run, /model failed/);
+    await settle();
+    assert.equal(workers[0].terminated, true);
+    done(workers[1], 0, "generated.png");
+    await generation;
+  });
 });

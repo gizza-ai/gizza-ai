@@ -3,6 +3,8 @@
 
 // Each engine's worker. model-worker.js hosts Transformers.js (Janus and the
 // image-input models); sd-worker.js hosts SD-Turbo on its own ONNX Runtime.
+import { janusBuild } from "./janus-builds.js";
+
 export const MODEL_WORKER_URL = new URL("../_model-runtime/model-worker.js", import.meta.url);
 export const SD_WORKER_URL = new URL("../_model-runtime/sd-worker.js", import.meta.url);
 
@@ -27,6 +29,9 @@ export function progressLabel(progress) {
   if (!progress || typeof progress !== "object") return "Loading AI model…";
   if (progress.stage === "inference") {
     return `Processing locally with ${progress.device || "AI"}…`;
+  }
+  if (progress.stage === "queued") {
+    return "Waiting for the running model to finish…";
   }
   if (progress.stage === "fallback") {
     return `Trying ${progress.device || "the CPU fallback"}…`;
@@ -123,6 +128,7 @@ export class ModelWorkerClient {
     // A stopped client (worker crashed or disposed) never runs again; the
     // shared accessor below replaces it with a fresh worker.
     this.stopped = false;
+    this.idleWaiters = [];
     this.worker.addEventListener("message", (event) => this.onMessage(event.data));
     this.worker.addEventListener("error", (event) => {
       this.stop(new Error(event && event.message ? event.message : "AI worker failed."));
@@ -141,6 +147,20 @@ export class ModelWorkerClient {
       if (cleanup) cleanup();
       reject(error);
     }
+    this.notifyIdle();
+  }
+
+  // Resolves once no call is pending (at once if none is, or once stopped).
+  whenIdle() {
+    if (this.pending.size === 0) return Promise.resolve();
+    return new Promise((resolve) => this.idleWaiters.push(resolve));
+  }
+
+  notifyIdle() {
+    if (this.pending.size !== 0) return;
+    const waiters = this.idleWaiters;
+    this.idleWaiters = [];
+    for (const resolve of waiters) resolve();
   }
 
   onMessage(message) {
@@ -159,19 +179,23 @@ export class ModelWorkerClient {
       // The worker's runtime trapped: retire it so the next call gets a fresh one.
       if (message.fatal) this.stop(new Error(message.error || "AI worker failed."));
     }
+    this.notifyIdle();
   }
 
   // Text-to-image: `prompt` → { blob, filename, backend }. Aborting `signal`
   // rejects with an AbortError: once the weights are loaded the worker stops
-  // at the next image token; while they still download (stage "loading" or
-  // "download") a worker that can't abort downloads is terminated, so no
-  // further bytes arrive and the next call starts a fresh worker.
+  // at the next image token; while they still download (stage "loading", or
+  // "download" short of 100%) a worker that can't abort downloads is
+  // terminated, so no further bytes arrive and the next call starts a fresh
+  // worker. Once every byte is in, the worker's own cancel answers at once.
   generate(model, prompt, { onProgress = null, signal = null } = {}) {
     if (signal && signal.aborted) return Promise.reject(abortError());
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       let stage = null; // the worker's last reported stage
-      const downloading = () => !this.cancelStopsDownload && (stage === "loading" || stage === "download");
+      let downloaded = false; // the download reported every byte
+      const downloading = () =>
+        !this.cancelStopsDownload && (stage === "loading" || (stage === "download" && !downloaded));
       const onAbort = () => {
         if (downloading()) this.dispose();
         else this.worker.postMessage({ type: "cancel", id });
@@ -179,6 +203,7 @@ export class ModelWorkerClient {
       // The worker may have started loading before it read the cancel.
       const progress = (p) => {
         stage = p && p.stage;
+        if (stage === "download" && Number(p.progress) >= 1) downloaded = true;
         if (signal && signal.aborted && downloading()) this.dispose();
         else if (onProgress) onProgress(p);
       };
@@ -207,7 +232,9 @@ export class ModelWorkerClient {
   }
 
   // Terminates the worker (releasing everything it holds); pending calls
-  // reject with an AbortError, as their caller has moved on.
+  // reject with an AbortError, as their caller has moved on. Only a caller
+  // that cancelled disposes a client: switching models waits for the
+  // resident one's calls instead (see engineClient).
   dispose() {
     this.stop(abortError());
   }
@@ -234,20 +261,66 @@ const ENGINE_CLIENTS = Object.freeze({
 
 // One model resident at a time: each holds gigabytes of GPU and wasm memory,
 // and terminating a worker is the only guaranteed release. Switching to
-// another model — another engine, or another repo, revision or variant on
-// the same engine — disposes the resident worker before the new one starts.
+// another model — another engine, or another repo, revision or build on the
+// same engine — waits for the resident model's calls to settle, then
+// disposes its worker before the new one starts: starting another model
+// never cancels a running one. Calls are admitted in order, so once a switch
+// is queued no new work reaches the outgoing model.
 let resident = null; // { key, client }
+let admitted = Promise.resolve(); // the last call's turn at the resident slot
 
-function residentKey(engine, model) {
-  return `${engine}|${model.id}@${model.revision}|${model.variant || ""}`;
+async function gpuAdapter(nav) {
+  const gpu = nav && nav.gpu;
+  if (!gpu || typeof gpu.requestAdapter !== "function") return null;
+  try {
+    return await gpu.requestAdapter();
+  } catch {
+    return null;
+  }
 }
 
-function engineClient(engine, model) {
-  const key = residentKey(engine, model);
-  if (resident && resident.key === key && !resident.client.stopped) return resident.client;
-  if (resident) resident.client.dispose();
-  resident = { key, client: ENGINE_CLIENTS[engine]() };
-  return resident.client;
+// The model build a call loads: a Janus text-to-image descriptor without a
+// variant (the imagine page's) loads the build its adapter picks, so it
+// shares a worker with the registry descriptor that names that build.
+async function residentKey(engine, model, nav) {
+  const build = engine === "janus" && model.task === "text-to-image"
+    ? janusBuild(model, await gpuAdapter(nav))
+    : model.variant || "";
+  return `${engine}|${model.id}@${model.revision}|${build}`;
+}
+
+// Resolves when `client` has no pending call; rejects with an AbortError if
+// `signal` aborts first. The abort listener is removed either way.
+function idleOrAborted(client, signal) {
+  if (!signal) return client.whenIdle();
+  return new Promise((resolve, reject) => {
+    const onAbort = () => reject(abortError());
+    if (signal.aborted) return onAbort();
+    signal.addEventListener("abort", onAbort, { once: true });
+    client.whenIdle().then(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    });
+  });
+}
+
+function engineClient(engine, model, { nav = null, signal = null, onProgress = null }) {
+  const turn = admitted.then(async () => {
+    if (signal && signal.aborted) throw abortError();
+    const key = await residentKey(engine, model, nav);
+    if (resident && resident.key === key && !resident.client.stopped) return resident.client;
+    if (resident) {
+      const outgoing = resident.client;
+      if (outgoing.pending.size && onProgress) onProgress({ stage: "queued" });
+      // A caller that gives up while queued leaves the running model alone.
+      await idleOrAborted(outgoing, signal);
+      outgoing.dispose();
+    }
+    resident = { key, client: ENGINE_CLIENTS[engine]() };
+    return resident.client;
+  });
+  admitted = turn.catch(() => {});
+  return turn;
 }
 
 // Generate an image locally from `prompt` on `engine` with a pinned
@@ -268,7 +341,9 @@ export function generateOn(engine, model, prompt, { onProgress = null, signal = 
   if (!String(prompt || "").trim()) {
     return Promise.reject(new Error("Describe the image you want first."));
   }
-  return engineClient(engine, model).generate(model, String(prompt).trim(), { onProgress, signal });
+  const text = String(prompt).trim();
+  return engineClient(engine, model, { nav, signal, onProgress }).then((client) =>
+    client.generate(model, text, { onProgress, signal }));
 }
 
 // The imagine page's pinned Janus model.
@@ -285,5 +360,5 @@ export function runModel(model, file, fields, onProgress) {
   if (!compatibleDevices(model).length) {
     return Promise.reject(new Error("This browser supports neither WebGPU nor the WebAssembly fallback."));
   }
-  return engineClient("janus", model).run(model, file, fields, onProgress);
+  return engineClient("janus", model, { onProgress }).then((client) => client.run(model, file, fields, onProgress));
 }
