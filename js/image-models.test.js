@@ -37,6 +37,18 @@ test("defaultModel still returns the recommended entry without webgpu", () => {
   assert.equal(defaultModel({ webgpu: false, shaderF16: false, maxBufferSize: 0 }).id, "sd-turbo");
 });
 
+test("resolveVariant prefers verified, falls back to unverified, else null", () => {
+  const f16 = { webgpu: true, shaderF16: true, maxBufferSize: 2 ** 31 };
+  assert.equal(resolveVariant(byId("sd-turbo"), f16).name, "nof16q8");
+  const custom = {
+    ...byId("sd-turbo"),
+    id: "custom:x/y@abc",
+    variants: { fp16: { requires: { shaderF16: true }, download_mb: 1, verified: false } },
+  };
+  assert.equal(resolveVariant(custom, f16).name, "fp16");
+  assert.equal(resolveVariant(custom, { ...f16, shaderF16: false }), null);
+});
+
 test("deviceFit is unsupported without webgpu", () => {
   for (const m of IMAGE_MODELS) {
     const fit = deviceFit(m, { webgpu: false, shaderF16: false, maxBufferSize: 0 });
