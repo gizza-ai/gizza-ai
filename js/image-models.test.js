@@ -219,6 +219,30 @@ test("switching to Janus terminates the SD-Turbo worker first", async () => {
   });
 });
 
+test("switching models on the same engine replaces its worker; the same model reuses it", async () => {
+  await withWorkers(async (workers) => {
+    const other = { ...JANUS, id: "acme/janus-web", revision: "0123456789abcdef0123456789abcdef01234567" };
+    const steps = [
+      [JANUS, 1, "first model"],
+      [JANUS, 1, "same model: reused"],
+      [other, 2, "another repo on the same engine: replaced"],
+      [{ ...other, variant: other.variant === "f16" ? "f32" : "f16" }, 3, "another variant: replaced"],
+      [{ ...JANUS, revision: "fedcba9876543210fedcba9876543210fedcba98" }, 4, "another revision: replaced"],
+    ];
+    const calls = [];
+    for (const [descriptor, count, why] of steps) {
+      calls.push(generateWith(descriptor, "a red fox", { nav }));
+      assert.equal(workers.length, count, why);
+      assert.ok(isEngineWorker(workers.at(-1), "model-worker.js"));
+      assert.ok(workers.slice(0, -1).every((w) => w.terminated), `${why}: the previous model is gone first`);
+    }
+    const live = workers.at(-1);
+    live.emit({ type: "result", id: live.posted[0].id, blob: new Blob(["png"]), filename: "generated.png", backend: "webgpu" });
+    const settled = await Promise.allSettled(calls);
+    assert.deepEqual(settled.map((r) => r.status), ["rejected", "rejected", "rejected", "rejected", "fulfilled"]);
+  });
+});
+
 test("a fatal SD error retires its worker and the next generation gets a fresh one", async () => {
   await withWorkers(async (workers) => {
     const first = generateWith(SD, "a red fox", { nav });
