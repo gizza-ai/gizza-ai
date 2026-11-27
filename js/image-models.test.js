@@ -26,6 +26,16 @@ test("shader-f16 does not select fp16 while it is unverified", () => {
   assert.equal(resolveVariant(m, info).name, "nof16q8");
 });
 
+test("defaultModel falls back to Janus when SD-Turbo is risky on a small-buffer adapter", () => {
+  const info = { webgpu: true, shaderF16: false, maxBufferSize: 2 ** 29 };
+  assert.equal(deviceFit(byId("sd-turbo"), info).level, "risky");
+  assert.equal(defaultModel(info).id, "janus-pro-1b");
+});
+
+test("defaultModel still returns the recommended entry without webgpu", () => {
+  assert.equal(defaultModel({ webgpu: false, shaderF16: false, maxBufferSize: 0 }).id, "sd-turbo");
+});
+
 test("deviceFit is unsupported without webgpu", () => {
   for (const m of IMAGE_MODELS) {
     const fit = deviceFit(m, { webgpu: false, shaderF16: false, maxBufferSize: 0 });
