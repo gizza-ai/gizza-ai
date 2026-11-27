@@ -1,5 +1,13 @@
 import { test, expect } from './fixtures';
 import path from 'node:path';
+import {
+  ALPHA_SQUARE,
+  ALPHA_SQUARE_GIF,
+  ALPHA_SQUARE_PAL,
+  alphaReport,
+  expectFlattenedOnWhite,
+  resultUrl,
+} from './alpha-square';
 
 // The generated /tools/image-film-grain/ page overlays analog film grain on an
 // uploaded image in-browser via ffmpeg's `noise` filter (single-threaded
@@ -119,4 +127,37 @@ test('image-film-grain format=jpg converts the output to JPEG', async ({ page })
   const s = await sampleGrid(page, src);
   expect(s.w).toBe(64);
   expect(s.lumaSpread).toBeGreaterThan(5); // grain survived the JPEG encode
+});
+
+// Grain is a color effect: monochrome grain used to round through opaque
+// yuv444p (dropping alpha), colored grain used `alls`, which also speckled the
+// alpha plane, and a `yuva444p|yuv444p` list still picked the opaque entry for
+// a palette PNG with tRNS.
+for (const mono of [true, false]) {
+  for (const [name, fixture, mime] of [
+    ['RGBA PNG', ALPHA_SQUARE, 'image/png'],
+    ['palette PNG', ALPHA_SQUARE_PAL, 'image/png'],
+    ['GIF', ALPHA_SQUARE_GIF, 'image/gif'],
+  ] as const) {
+    test(`image-film-grain keeps a transparent ${name}'s alpha mask exactly (monochrome=${mono})`, async ({ page }) => {
+      await page.goto('/tools/image-film-grain/');
+      await page.fill('#in-amount', '60');
+      if (!mono) await page.uncheck('#in-monochrome');
+      await page.setInputFiles('#in-image', fixture);
+      const r = await alphaReport(page, await resultUrl(page));
+      expect(r.mime).toBe(mime);
+      expect(r.corner[3]).toBe(0);
+      expect(r.mismatches).toBe(0);
+    });
+  }
+}
+
+// JPEG has no alpha: the grained result is flattened onto white instead of
+// exposing the green stored under the transparent pixels.
+test('image-film-grain flattens a transparent PNG onto white for JPEG output', async ({ page }) => {
+  await page.goto('/tools/image-film-grain/');
+  await page.fill('#in-amount', '60');
+  await page.selectOption('#in-format', 'jpg');
+  await page.setInputFiles('#in-image', ALPHA_SQUARE);
+  expectFlattenedOnWhite(await alphaReport(page, await resultUrl(page)));
 });

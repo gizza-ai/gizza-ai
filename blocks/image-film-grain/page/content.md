@@ -48,8 +48,11 @@ apart per pixel, so the speckle picks up color.
   and amount always produce the same result. Grain *size* (coarse clumps) and
   a separate luma/chroma balance aren't adjustable — ffmpeg's `noise` filter
   works at single-pixel resolution.
-- Transparency is not preserved for monochrome grain: it processes in opaque
-  YUV, so a transparent PNG comes back fully opaque.
+- Transparency is preserved: grain only touches the color channels, so a
+  transparent PNG (including palette PNGs), WebP or GIF keeps its exact alpha.
+  The output always carries an alpha channel, so an opaque PNG comes back as a
+  (fully opaque) RGBA PNG. JPEG has no alpha channel: a transparent image
+  converted to `jpg` is flattened onto white.
 
 ## FAQ
 

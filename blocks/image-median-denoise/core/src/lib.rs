@@ -16,13 +16,30 @@
 //!   values in the window, so white dust/salt is wiped out harder (at the cost
 //!   of a slight overall darkening); `dark` (0.7) is the mirror image for black
 //!   specks/pepper on light paper.
-//! * `channels` → the filter's `planes` bitmask. `all` (15) filters everything
-//!   in whatever planar format ffmpeg negotiates (planar RGB for a PNG — no
-//!   color-space conversion). `luma` (1) and `chroma` (6) only make sense in
-//!   Y'CbCr, so those two prepend `format=yuva444p`: `luma` smooths brightness
-//!   noise but keeps color detail, `chroma` kills blotchy color noise while
-//!   leaving luminance detail pin-sharp. That conversion is a round trip
-//!   through Y'CbCr, so expect ±1 sRGB rounding on the untouched channels.
+//! * `channels` → the filter's `planes` bitmask. `all` (7) filters the three
+//!   color planes in planar RGB (no color-space conversion). `luma` (1) and
+//!   `chroma` (6) only make sense in Y'CbCr, so those two convert to
+//!   `yuv444p` first: `luma` smooths brightness noise but keeps color detail,
+//!   `chroma` kills blotchy color noise while leaving luminance detail
+//!   pin-sharp. That conversion is a round trip through Y'CbCr, so expect ±1
+//!   sRGB rounding on the untouched channels.
+//! * **Transparency** — the alpha plane is never filtered: transparency is a
+//!   shape, not noise, and a median over it would erode the corners of every
+//!   opaque region. Fully transparent pixels must not vote on the COLOR either:
+//!   the RGB stored under them is arbitrary (often black, or leftover color),
+//!   and at a convex corner of an opaque shape they are the majority of the
+//!   window, so a plain median would paint the corner with that hidden color.
+//!   Before the median, every fully transparent pixel's color is replaced by
+//!   the alpha-weighted average of the visible pixels around it ("color
+//!   bleed": premultiply, box blur, unpremultiply), out to the farthest
+//!   distance any median pass can reach (`radius × passes`); then the original
+//!   alpha is merged back. The chain always runs in an alpha format, because
+//!   ffmpeg cannot be trusted to detect alpha (a palette PNG with tRNS
+//!   decodes as `pal8`, which negotiation treats as opaque) — so an opaque PNG
+//!   comes back as a fully opaque RGBA PNG. The output container then decides
+//!   what happens to the alpha
+//!   ([`gizza_ai_block_utils::ffmpeg::finish_image_alpha`]): kept for
+//!   PNG/WebP, a transparent palette for GIF, a flatten onto white for JPEG.
 //! * `passes` 1–3 → the median token repeated. Two mild passes remove dense
 //!   noise more gently than one big radius (GIMP's Despeckle calls this
 //!   "recursive").
@@ -38,6 +55,8 @@
 //! and every filter string is a single space-free token so it passes as one
 //! argv element.
 
+use gizza_ai_block_utils::ffmpeg::finish_image_alpha;
+
 /// Which specks the filter should lean on removing (the `percentile` knob).
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Target {
@@ -52,7 +71,8 @@ pub enum Target {
 /// Which image planes the median is applied to (the `planes` bitmask).
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Channels {
-    /// Every plane, in the format ffmpeg negotiates (planar RGB for a PNG).
+    /// Every color plane, in the format ffmpeg negotiates (planar RGB for a
+    /// PNG). Alpha is left untouched.
     All,
     /// Y only — smooths brightness noise, keeps color detail.
     Luma,
@@ -149,9 +169,10 @@ pub fn channels_name(c: Channels) -> &'static str {
 }
 
 /// The ffmpeg `planes` bitmask (bit 0 = Y/G, 1 = U/B, 2 = V/R, 3 = alpha).
+/// Bit 3 is never set, so an image's alpha channel passes through unchanged.
 pub fn planes(c: Channels) -> u32 {
     match c {
-        Channels::All => 15,
+        Channels::All => 7,
         Channels::Luma => 1,
         Channels::Chroma => 6,
     }
@@ -234,26 +255,39 @@ pub fn jpeg_qscale(quality: u32) -> u32 {
     scaled.round().clamp(2.0, 31.0) as u32
 }
 
-/// Build the `-vf` filter chain (a single space-free token).
-pub fn filter(radius: u32, target: Target, channels: Channels, passes: u32) -> String {
-    let mut chain = String::new();
-    // luma/chroma are Y'CbCr concepts — force a planar YUV+alpha format so the
-    // `planes` bitmask means brightness/color rather than green/blue-red.
-    if channels != Channels::All {
-        chain.push_str("format=yuva444p,");
-    }
+/// The median pass(es) alone: one `median` token per pass, comma-joined.
+pub fn medians(radius: u32, target: Target, channels: Channels, passes: u32) -> String {
     let one = format!(
         "median=radius={radius}:planes={}:percentile={:.2}",
         planes(channels),
         percentile(target)
     );
-    for i in 0..passes {
-        if i > 0 {
-            chain.push(',');
-        }
-        chain.push_str(&one);
-    }
-    chain
+    vec![one; passes as usize].join(",")
+}
+
+/// Build the filter chain (a single space-free token) on a frame that carries
+/// alpha; [`plan`] finishes it for the output container.
+///
+/// The frame is split three ways: the color leg is bled into the fully
+/// transparent pixels (premultiply → box blur of radius `radius × passes`,
+/// clamped to what the image size allows → unpremultiply), the original is
+/// laid OVER that bleed with its alpha snapped to "any visibility = keep" so
+/// only fully transparent pixels take the bled color, the median runs on that
+/// opaque frame, and the third leg's untouched alpha is merged back.
+pub fn filter(radius: u32, target: Target, channels: Channels, passes: u32) -> String {
+    let bleed = radius * passes;
+    // luma/chroma are Y'CbCr concepts — convert to planar YUV so the `planes`
+    // bitmask means brightness/color rather than green/blue-red.
+    let yuv = if channels == Channels::All { "" } else { "format=yuv444p," };
+    let medians = medians(radius, target, channels, passes);
+    format!(
+        "format=gbrap,split=3[mcolor][mkeep][malpha];\
+         [mcolor]premultiply=inplace=1,boxblur=lr=min({bleed}\\,min(w\\,h)/2):lp=1,\
+         unpremultiply=inplace=1[mbleed];\
+         [mkeep]lut=a=255*not(not(val))[mvisible];\
+         [mbleed][mvisible]overlay=format=gbrp,{yuv}{medians}[mmedian];\
+         [malpha]alphaextract[ma];[mmedian][ma]alphamerge"
+    )
 }
 
 /// The output extension for `format`, given the input's extension.
@@ -301,7 +335,7 @@ pub fn plan(
         "-i".to_string(),
         in_name.to_string(),
         "-vf".to_string(),
-        filter(radius, target, channels, passes),
+        finish_image_alpha(&filter(radius, target, channels, passes), ext),
     ];
     if ext.eq_ignore_ascii_case("jpg") || ext.eq_ignore_ascii_case("jpeg") {
         argv.push("-q:v".to_string());
@@ -355,6 +389,9 @@ pub fn plan_named(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use gizza_ai_block_utils::ffmpeg::{FLATTEN_ON_WHITE, GIF_ALPHA_PALETTE};
+
+    const DEFAULT_MEDIAN: &str = "median=radius=1:planes=7:percentile=0.50";
 
     fn default_plan(in_name: &str) -> (Vec<String>, String) {
         plan(
@@ -379,10 +416,12 @@ mod tests {
                 "-i",
                 "in.png",
                 "-vf",
-                "median=radius=1:planes=15:percentile=0.50",
+                filter(1, Target::Both, Channels::All, 1).as_str(),
                 "out.png"
             ]
         );
+        assert_eq!(medians(1, Target::Both, Channels::All, 1), DEFAULT_MEDIAN);
+        assert!(argv[3].contains(&format!("[mbleed][mvisible]overlay=format=gbrp,{DEFAULT_MEDIAN}[mmedian]")));
         assert_eq!(out, "out.png");
         // A single space-free token, so it passes as one argv element.
         assert!(!argv[3].contains(' '));
@@ -410,7 +449,7 @@ mod tests {
     fn cleared_numeric_fields_fall_back_to_defaults() {
         // The page sends 0 for a cleared number box — that must not error.
         let (argv, _) = plan_named("in.png", 0.0, Some(""), Some(""), 0.0, Some(""), 0.0, false).unwrap();
-        assert_eq!(argv[3], "median=radius=1:planes=15:percentile=0.50");
+        assert_eq!(argv[3], filter(1, Target::Both, Channels::All, 1));
     }
 
     #[test]
@@ -419,7 +458,7 @@ mod tests {
             let t = parse_target(Some(name)).unwrap();
             let (argv, _) =
                 plan("in.png", 1.0, t, Channels::All, 1.0, OutFormat::Keep, 0.0, false).unwrap();
-            assert!(argv[3].ends_with(&format!("percentile={pct}")), "{argv:?}");
+            assert!(argv[3].contains(&format!("percentile={pct}[mmedian]")), "{argv:?}");
             assert_eq!(target_name(t), name);
         }
     }
@@ -434,17 +473,76 @@ mod tests {
     }
 
     #[test]
+    fn no_channel_mode_filters_the_alpha_plane() {
+        // Bit 3 is alpha: a median over it would erode the corners of opaque
+        // shapes on a transparent PNG/WebP.
+        for c in [Channels::All, Channels::Luma, Channels::Chroma] {
+            assert_eq!(planes(c) & 8, 0, "{c:?} must leave alpha alone");
+        }
+    }
+
+    #[test]
+    fn transparent_pixels_take_bled_color_before_the_median() {
+        // The color under fully transparent pixels is arbitrary; at a convex
+        // corner of an opaque shape it is the majority of the window, so it is
+        // replaced by the alpha-weighted color of the visible neighbours first.
+        let f = filter(2, Target::Both, Channels::All, 3);
+        assert!(f.starts_with("format=gbrap,split=3[mcolor][mkeep][malpha];"), "{f}");
+        // Bleed reach = radius x passes, clamped to what boxblur allows.
+        assert!(
+            f.contains("[mcolor]premultiply=inplace=1,boxblur=lr=min(6\\,min(w\\,h)/2):lp=1,unpremultiply=inplace=1[mbleed];"),
+            "{f}"
+        );
+        // Only FULLY transparent pixels take the bleed: any visibility keeps
+        // the pixel's own color.
+        assert!(f.contains("[mkeep]lut=a=255*not(not(val))[mvisible];"), "{f}");
+        // The untouched alpha goes back on at the end.
+        assert!(f.ends_with("[malpha]alphaextract[ma];[mmedian][ma]alphamerge"), "{f}");
+        assert!(!f.contains(char::is_whitespace), "single argv token: {f}");
+    }
+
+    #[test]
+    fn alpha_format_is_forced_for_every_input() {
+        // A format list would negotiate to an opaque format for a palette PNG
+        // with tRNS (pal8 doesn't count as alpha in ffmpeg).
+        for c in [Channels::All, Channels::Luma, Channels::Chroma] {
+            let f = filter(1, Target::Both, c, 1);
+            assert!(f.starts_with("format=gbrap,"), "{f}");
+            assert!(!f.contains('|'), "{f}");
+        }
+    }
+
+    #[test]
+    fn output_container_decides_what_happens_to_alpha() {
+        let core = filter(1, Target::Both, Channels::All, 1);
+        for (input, format, tail) in [
+            ("in.png", OutFormat::Keep, String::new()),
+            ("in.png", OutFormat::Webp, String::new()),
+            ("in.png", OutFormat::Jpg, format!(",{FLATTEN_ON_WHITE}")),
+            ("in.jpeg", OutFormat::Keep, format!(",{FLATTEN_ON_WHITE}")),
+            ("anim.gif", OutFormat::Keep, format!(",{GIF_ALPHA_PALETTE}")),
+        ] {
+            let (argv, _) =
+                plan(input, 1.0, Target::Both, Channels::All, 1.0, format, 0.0, false).unwrap();
+            assert_eq!(argv[3], format!("{core}{tail}"), "{input} {format:?}");
+        }
+    }
+
+    #[test]
     fn channels_set_planes_and_force_yuv_when_needed() {
         let (all, _) =
             plan("in.png", 1.0, Target::Both, Channels::All, 1.0, OutFormat::Keep, 0.0, false)
                 .unwrap();
-        assert!(all[3].starts_with("median="), "all keeps the native format: {all:?}");
-        assert!(all[3].contains("planes=15"));
+        assert!(all[3].contains(&format!("overlay=format=gbrp,{DEFAULT_MEDIAN}[")), "all stays planar RGB: {all:?}");
+        assert!(!all[3].contains("yuv"), "{all:?}");
 
         let (luma, _) =
             plan("in.png", 1.0, Target::Both, Channels::Luma, 1.0, OutFormat::Keep, 0.0, false)
                 .unwrap();
-        assert_eq!(luma[3], "format=yuva444p,median=radius=1:planes=1:percentile=0.50");
+        assert!(
+            luma[3].contains("overlay=format=gbrp,format=yuv444p,median=radius=1:planes=1:percentile=0.50["),
+            "{luma:?}"
+        );
 
         let (chroma, _) =
             plan("in.png", 1.0, Target::Both, Channels::Chroma, 1.0, OutFormat::Keep, 0.0, false)
@@ -472,7 +570,7 @@ mod tests {
         let (luma, _) =
             plan("in.png", 2.0, Target::Both, Channels::Luma, 2.0, OutFormat::Keep, 0.0, false)
                 .unwrap();
-        assert_eq!(luma[3].matches("format=yuva444p").count(), 1, "{luma:?}");
+        assert_eq!(luma[3].matches("format=yuv444p").count(), 1, "{luma:?}");
         assert_eq!(luma[3].matches("median=").count(), 2);
         // Out of range is rejected, the boundary is not.
         assert!(plan_named("in.png", 1.0, None, None, 4.0, None, 0.0, false).is_err());

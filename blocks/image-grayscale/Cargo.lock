@@ -286,6 +286,9 @@ dependencies = [
 [[package]]
 name = "gizza-ai-image-grayscale-core"
 version = "0.1.0"
+dependencies = [
+ "gizza-ai-block-utils",
+]
 
 [[package]]
 name = "gizza-ai-image-grayscale-web"

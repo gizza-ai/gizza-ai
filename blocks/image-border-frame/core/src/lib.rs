@@ -37,7 +37,10 @@ pub fn add_border(bytes: &[u8], thickness: u32, color: Rgba<u8>) -> Result<Vec<u
     let nh = h + 2 * t;
     let mut canvas: RgbaImage = RgbaImage::from_pixel(nw, nh, color);
     let src = img.to_rgba8();
-    image::imageops::overlay(&mut canvas, &src, t as i64, t as i64);
+    // `replace`, not `overlay`: the frame is only the band around the image.
+    // Compositing the image OVER a canvas filled with the frame color would
+    // flood the image's own transparent pixels with that color.
+    image::imageops::replace(&mut canvas, &src, t as i64, t as i64);
 
     let mut out = Cursor::new(Vec::new());
     DynamicImage::ImageRgba8(canvas)
@@ -80,6 +83,22 @@ mod tests {
         let img = image::load_from_memory(&out).unwrap();
         assert_eq!(img.get_pixel(0, 0), Rgba([255, 0, 0, 255])); // corner = border
         assert_eq!(img.get_pixel(4, 4), Rgba([0, 0, 255, 255])); // inside = original
+    }
+
+    #[test]
+    fn transparent_pixels_inside_the_frame_stay_transparent() {
+        // 4x4: transparent except one opaque blue pixel and one half-alpha pixel.
+        let mut src = RgbaImage::from_pixel(4, 4, Rgba([0, 200, 0, 0]));
+        src.put_pixel(1, 1, Rgba([0, 0, 255, 255]));
+        src.put_pixel(2, 2, Rgba([0, 0, 255, 128]));
+        let mut bytes = Cursor::new(Vec::new());
+        DynamicImage::ImageRgba8(src).write_to(&mut bytes, ImageFormat::Png).unwrap();
+        let out = add_border(&bytes.into_inner(), 2, Rgba([255, 0, 0, 255])).unwrap();
+        let img = image::load_from_memory(&out).unwrap();
+        assert_eq!(img.get_pixel(0, 0), Rgba([255, 0, 0, 255])); // frame
+        assert_eq!(img.get_pixel(2, 2)[3], 0, "transparent pixel must not take the frame color");
+        assert_eq!(img.get_pixel(3, 3), Rgba([0, 0, 255, 255]));
+        assert_eq!(img.get_pixel(4, 4), Rgba([0, 0, 255, 128]), "partial alpha kept as-is");
     }
 
     #[test]

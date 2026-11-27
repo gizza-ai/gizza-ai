@@ -201,6 +201,73 @@ impl Block for FfmpegBlock {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Image transparency through ffmpeg filter chains
+// ---------------------------------------------------------------------------
+//
+// ffmpeg picks every filter's pixel format by negotiation, and its "does this
+// input have alpha?" scoring cannot be trusted for images: an indexed PNG whose
+// palette carries transparency (tRNS) decodes as `pal8`, which ffmpeg does NOT
+// count as an alpha format — so a format LIST like `format=yuva444p|yuv444p`
+// silently picks the opaque entry and the transparency is gone. Image tools
+// therefore run their effect in an alpha-carrying format unconditionally
+// (an opaque input just gets a fully opaque alpha plane) and finish the chain
+// with [`finish_image_alpha`], which adapts that alpha to the output container.
+
+/// How an image output container stores transparency.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ImageAlpha {
+    /// A real alpha channel (PNG, WebP, …): the chain's alpha passes through.
+    Channel,
+    /// GIF: one fully transparent palette entry, so alpha needs a palette
+    /// built for it (ffmpeg's default GIF path quantizes to a fixed opaque
+    /// `bgr8` palette and drops transparency entirely).
+    Palette,
+    /// JPEG: no alpha at all. The image is flattened onto white — what the
+    /// transparent result looks like on a page — instead of letting the
+    /// encoder drop alpha and expose whatever color sits under transparent
+    /// pixels (often black, or leftover RGB).
+    None,
+}
+
+/// Flatten an RGBA frame onto white: `out = c·a + 255·(1−a)`. `negate` (which
+/// leaves alpha alone) turns that into premultiplication over black of the
+/// inverted color, and a second `negate` maps it back. Single argv token.
+pub const FLATTEN_ON_WHITE: &str = "format=gbrap,negate,premultiply=inplace=1,negate,format=gbrp";
+
+/// Encode alpha as GIF transparency: a palette generated from the frames with
+/// one reserved transparent entry, then mapped with a 50% alpha cutoff (GIF
+/// transparency is on/off). Also replaces the fixed 3-3-2 `bgr8` palette
+/// ffmpeg otherwise quantizes GIFs to. Single argv token.
+pub const GIF_ALPHA_PALETTE: &str = "split[gifa][gifb];\
+    [gifa]palettegen=reserve_transparent=1[gifp];\
+    [gifb][gifp]paletteuse=alpha_threshold=128";
+
+/// How `out.<ext>` stores transparency (`ext` matched case-insensitively).
+/// Anything that is not JPEG or GIF is handed the alpha channel as-is; an
+/// encoder that can't store it drops it.
+pub fn image_alpha(out_ext: &str) -> ImageAlpha {
+    if out_ext.eq_ignore_ascii_case("jpg") || out_ext.eq_ignore_ascii_case("jpeg") {
+        ImageAlpha::None
+    } else if out_ext.eq_ignore_ascii_case("gif") {
+        ImageAlpha::Palette
+    } else {
+        ImageAlpha::Channel
+    }
+}
+
+/// Finish a single-input/single-output filter chain whose output carries an
+/// alpha plane so that `out.<ext>` keeps the transparency the container can
+/// hold: unchanged for an alpha channel, a transparent palette for GIF, and a
+/// flatten onto white for JPEG. Single argv token in, single token out.
+pub fn finish_image_alpha(chain: &str, out_ext: &str) -> String {
+    match image_alpha(out_ext) {
+        ImageAlpha::Channel => chain.to_string(),
+        ImageAlpha::Palette => format!("{chain},{GIF_ALPHA_PALETTE}"),
+        ImageAlpha::None => format!("{chain},{FLATTEN_ON_WHITE}"),
+    }
+}
+
 #[cfg(test)]
 mod h264_out_ext_tests {
     use super::h264_out_ext;
@@ -274,5 +341,46 @@ mod copy_out_ext_tests {
     fn only_the_last_extension_counts() {
         assert_eq!(copy_out_ext("archive.tar.webm"), "webm");
         assert_eq!(copy_out_ext("clip.webm.avi"), "mp4");
+    }
+}
+
+#[cfg(test)]
+mod image_alpha_tests {
+    use super::*;
+
+    #[test]
+    fn containers_map_to_their_transparency_model() {
+        for ext in ["png", "PNG", "webp", "tiff", "bmp"] {
+            assert_eq!(image_alpha(ext), ImageAlpha::Channel, "{ext}");
+        }
+        for ext in ["jpg", "JPG", "jpeg", "Jpeg"] {
+            assert_eq!(image_alpha(ext), ImageAlpha::None, "{ext}");
+        }
+        assert_eq!(image_alpha("gif"), ImageAlpha::Palette);
+        assert_eq!(image_alpha("GIF"), ImageAlpha::Palette);
+    }
+
+    #[test]
+    fn finish_appends_the_container_tail() {
+        assert_eq!(finish_image_alpha("format=ya8", "png"), "format=ya8");
+        assert_eq!(finish_image_alpha("format=ya8", "webp"), "format=ya8");
+        assert_eq!(
+            finish_image_alpha("format=ya8", "jpg"),
+            format!("format=ya8,{FLATTEN_ON_WHITE}")
+        );
+        assert_eq!(
+            finish_image_alpha("format=ya8", "gif"),
+            format!("format=ya8,{GIF_ALPHA_PALETTE}")
+        );
+    }
+
+    #[test]
+    fn tails_are_single_argv_tokens() {
+        for tail in [FLATTEN_ON_WHITE, GIF_ALPHA_PALETTE] {
+            assert!(!tail.contains(char::is_whitespace), "{tail}");
+        }
+        // The palette leg must reserve a transparent entry and map alpha to it.
+        assert!(GIF_ALPHA_PALETTE.contains("reserve_transparent=1"));
+        assert!(GIF_ALPHA_PALETTE.contains("alpha_threshold=128"));
     }
 }
