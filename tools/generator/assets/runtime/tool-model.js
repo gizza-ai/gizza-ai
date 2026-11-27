@@ -111,6 +111,11 @@ export function validateModelResult(result, options = {}) {
 }
 
 export class ModelWorkerClient {
+  // Whether the worker stops a model download itself on cancel. Transformers.js
+  // can't abort one, so for this worker a cancel during the download
+  // terminates it: that is the only way to stop the transfer.
+  cancelStopsDownload = false;
+
   constructor(workerFactory = moduleWorker(MODEL_WORKER_URL)) {
     this.worker = workerFactory();
     this.nextId = 1;
@@ -157,18 +162,31 @@ export class ModelWorkerClient {
   }
 
   // Text-to-image: `prompt` → { blob, filename, backend }. Aborting `signal`
-  // asks the worker to stop at the next image token and rejects with an
-  // AbortError once it has.
+  // rejects with an AbortError: once the weights are loaded the worker stops
+  // at the next image token; while they still download (stage "loading" or
+  // "download") a worker that can't abort downloads is terminated, so no
+  // further bytes arrive and the next call starts a fresh worker.
   generate(model, prompt, { onProgress = null, signal = null } = {}) {
     if (signal && signal.aborted) return Promise.reject(abortError());
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      const onAbort = () => this.worker.postMessage({ type: "cancel", id });
+      let stage = null; // the worker's last reported stage
+      const downloading = () => !this.cancelStopsDownload && (stage === "loading" || stage === "download");
+      const onAbort = () => {
+        if (downloading()) this.dispose();
+        else this.worker.postMessage({ type: "cancel", id });
+      };
+      // The worker may have started loading before it read the cancel.
+      const progress = (p) => {
+        stage = p && p.stage;
+        if (signal && signal.aborted && downloading()) this.dispose();
+        else if (onProgress) onProgress(p);
+      };
       const cleanup = signal ? () => signal.removeEventListener("abort", onAbort) : null;
       // A result the worker posted before it saw the cancel still counts as
       // cancelled: the caller has already moved on.
       const settle = (message) => (signal && signal.aborted ? reject(abortError()) : resolve(message));
-      this.pending.set(id, { resolve: settle, reject, onProgress, cleanup });
+      this.pending.set(id, { resolve: settle, reject, onProgress: progress, cleanup });
       if (signal) signal.addEventListener("abort", onAbort, { once: true });
       this.worker.postMessage({ type: "generate", id, model, prompt });
     });
@@ -195,8 +213,11 @@ export class ModelWorkerClient {
   }
 }
 
-// SD-Turbo's worker speaks the same generate/cancel protocol.
+// SD-Turbo's worker speaks the same generate/cancel protocol, and aborts its
+// own downloads on cancel.
 export class SdWorkerClient extends ModelWorkerClient {
+  cancelStopsDownload = true;
+
   constructor(workerFactory = moduleWorker(SD_WORKER_URL)) {
     super(workerFactory);
   }
