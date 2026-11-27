@@ -3,6 +3,8 @@
 // both alike. A variant is only ever chosen when `verified` is true; flip
 // `fp16.verified` for SD-Turbo once it has been proven on a real f16 GPU.
 
+import { generateOn } from "./tool-model.js";
+
 export const IMAGE_MODELS = Object.freeze([
   {
     id: "sd-turbo",
@@ -115,4 +117,12 @@ export function defaultModel(info) {
     recommended[0] ??
     IMAGE_MODELS[0]
   );
+}
+
+// Generate with a resolved descriptor (resolveVariant(...).descriptor) on its
+// engine: `prompt` → { blob, filename, backend }. Same progress, cancel and
+// fatal contract as generateImage; the other engine's worker is terminated
+// first, so its pending generation rejects with an AbortError.
+export function generateWith(descriptor, prompt, { onProgress = null, signal = null, nav = globalThis.navigator || {} } = {}) {
+  return generateOn(descriptor && descriptor.engine, descriptor, prompt, { onProgress, signal, nav });
 }
