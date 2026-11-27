@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  TIMESTEP, SIGMA, VAE_SCALE, padTokens, noise, scaleModelInput, stepEpsilon, latentsForVae, toImageData,
+  TIMESTEP, SIGMA, VAE_SCALE, padTokens, noise, initLatents, scaleModelInput, stepEpsilon, latentsForVae, toImageData,
 } from '../tools/generator/assets/runtime/sd-core.js';
 
 const ref = JSON.parse(readFileSync(new URL('./fixtures/sd/reference.json', import.meta.url), 'utf8'));
@@ -64,4 +64,13 @@ test('toImageData maps [-1,1] to [0,255], clamps, and is opaque RGBA', () => {
   const out = toImageData(Float32Array.from([-1, 1, 0, 5, -5, 0]), 2, 1);
   assert.ok(out instanceof Uint8ClampedArray);
   assert.deepEqual(Array.from(out), [0, 128, 0, 255, 255, 255, 128, 255]);
+});
+
+test('initLatents scales raw noise by SIGMA: the latents stepEpsilon expects', () => {
+  const raw = Float32Array.from([1, -2, 0.5]);
+  const lat = initLatents(raw);
+  assert.ok(lat instanceof Float32Array);
+  assert.deepEqual(Array.from(lat), Array.from(raw, (v) => Math.fround(v * SIGMA)));
+  // Zero predicted noise leaves x0 at the noised latents themselves.
+  assert.deepEqual(Array.from(stepEpsilon(lat, new Float32Array(3))), Array.from(lat));
 });

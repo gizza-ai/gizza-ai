@@ -52,6 +52,13 @@ export function noise(seed, n) {
   return out;
 }
 
+// Raw N(0,1) noise -> the noised latents (noise * init_noise_sigma) that stepEpsilon takes.
+export function initLatents(raw) {
+  const out = new Float32Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw[i] * SIGMA;
+  return out;
+}
+
 // Raw N(0,1) noise -> scaled UNet input: (noise * init_noise_sigma) / sqrt(sigma^2 + 1).
 export function scaleModelInput(latents) {
   const k = SIGMA / Math.sqrt(SIGMA * SIGMA + 1);
