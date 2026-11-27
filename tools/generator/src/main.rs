@@ -45,6 +45,7 @@ const SHARED_RUNTIME_FILES: &[&str] = &[
     "tool-ffmpeg.js",
     "tool-model.js",
     "custom-model.js",
+    "image-models.js",
     "tool-crop-box.js",
     "tool-crop-box.css",
 ];
