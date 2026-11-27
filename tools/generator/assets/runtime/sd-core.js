@@ -23,11 +23,17 @@ function sigmaAt(t, numTrain = 1000, betaStart = 0.00085, betaEnd = 0.012) {
 
 export const SIGMA = sigmaAt(TIMESTEP); // 14.6146...; also init_noise_sigma for trailing spacing
 
-// Pads with 0 ("!", the SD 2.x tokenizer pad) / truncates to 77 like CLIPTokenizer(padding="max_length", truncation=True).
+// Encoded prompt ([BOS, ...body, EOS], untruncated) -> 77 ids like CLIPTokenizer(padding="max_length",
+// truncation=True): a long body is cut to 75 tokens and EOS kept last; short input pads with 0 ("!", the
+// SD 2.x tokenizer pad).
 export function padTokens(ids) {
   const out = new Int32Array(SEQ_LEN);
-  const n = Math.min(ids.length, SEQ_LEN);
-  for (let i = 0; i < n; i++) out[i] = Number(ids[i]);
+  if (ids.length > SEQ_LEN) {
+    for (let i = 0; i < SEQ_LEN - 1; i++) out[i] = Number(ids[i]);
+    out[SEQ_LEN - 1] = Number(ids[ids.length - 1]);
+    return out;
+  }
+  for (let i = 0; i < ids.length; i++) out[i] = Number(ids[i]);
   return out;
 }
 

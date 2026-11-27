@@ -3,8 +3,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { createSdEngine, inflateGzip, SD_CACHE } from "../tools/generator/assets/runtime/sd-worker.js";
+import { createSdEngine, loadWasmBinary, SD_CACHE } from "../tools/generator/assets/runtime/sd-worker.js";
+import { readFileSync } from "node:fs";
 import { SEQ_LEN, TIMESTEP } from "../tools/generator/assets/runtime/sd-core.js";
+
+const REF = JSON.parse(readFileSync(new URL("./fixtures/sd/reference.json", import.meta.url), "utf8"));
 
 const REPO = "gizza-ai/sd-turbo-web";
 const REV = "d2df2e40f2251622ec60053b0e9bfa8c64b7f14d";
@@ -18,7 +21,7 @@ const MODEL = {
   output: { w: 16, h: 16 },
 };
 const WASM_URL = "https://gizza.test/tools/_model-runtime/ort-sd/ort-wasm-simd-threaded.asyncify.wasm.gz";
-const WASM = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 42, 42, 42]);
+const WASM = new Uint8Array([0x00, 0x61, 0x73, 0x6d, 1, 0, 0, 0, 42, 42, 42]);
 const gzip = (bytes) => new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip")));
 const url = (path) => `https://huggingface.co/${REPO}/resolve/${REV}/${path}`;
 
@@ -181,13 +184,14 @@ function fakeOrt({ runError = null, onRun = null } = {}) {
 
 class FakeTokenizer {
   static calls = [];
+  static ids = [49406, 320, 49407];
   constructor(json, config) {
     this.json = json;
     this.config = config;
   }
   _call(text, options) {
     FakeTokenizer.calls.push({ text, options, json: this.json });
-    return { input_ids: [49406, 320, 49407] };
+    return { input_ids: FakeTokenizer.ids };
   }
 }
 // Transformers.js tokenizers are callable objects; mimic that.
@@ -288,8 +292,33 @@ test("a generation downloads every file once, runs the three stages one session 
   // The tokenizer is built from the repo's tokenizer.json and truncates like CLIP.
   assert.deepEqual(FakeTokenizer.calls[0].json, { fake: "tokenizer" });
   assert.equal(FakeTokenizer.calls[0].text, "a red fox");
-  assert.equal(FakeTokenizer.calls[0].options.truncation, true);
-  assert.equal(FakeTokenizer.calls[0].options.max_length, SEQ_LEN);
+  // Encoded whole: padTokens does CLIP's truncation, keeping the end token.
+  assert.notEqual(FakeTokenizer.calls[0].options.truncation, true);
+});
+
+async function encodedIds(ids) {
+  FakeTokenizer.calls = [];
+  FakeTokenizer.ids = ids;
+  try {
+    const h = harness();
+    generate(h, 1);
+    assert.equal((await h.final(1)).type, "result");
+    return Array.from(h.ort.log.runs[0].feeds.input_ids.data);
+  } finally {
+    FakeTokenizer.ids = [49406, 320, 49407];
+  }
+}
+
+test("a short prompt's ids are the Python reference ids, padded with 0", async () => {
+  assert.deepEqual(await encodedIds(REF.token_ids_unpadded), REF.input_ids);
+});
+
+test("a prompt over 75 tokens keeps <|endoftext|> at index 76 and has no pad ids", async () => {
+  const ids = await encodedIds([49406, ...new Array(100).fill(3240), 49407]);
+  assert.equal(ids.length, SEQ_LEN);
+  assert.equal(ids[0], 49406);
+  assert.equal(ids[76], 49407);
+  assert.ok(!ids.includes(0));
 });
 
 test("a second generation is served from Cache Storage without fetching", async () => {
@@ -412,13 +441,29 @@ test("an unknown variant is reported, not guessed", async () => {
   assert.match(reply.error, /int4/);
 });
 
-test("inflateGzip inflates a gzip body", async () => {
+const WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d];
+
+test("loadWasmBinary inflates a gzipped binary", async () => {
   const big = new Uint8Array(300_000).map((_, i) => i % 251);
-  assert.deepEqual(await inflateGzip(gzip(big), new AbortController().signal), big);
-  await assert.rejects(inflateGzip(new Response("x", { status: 404 }), new AbortController().signal), /404/);
+  big.set(WASM_MAGIC);
+  assert.deepEqual(await loadWasmBinary(gzip(big), new AbortController().signal), big);
+  await assert.rejects(loadWasmBinary(new Response("x", { status: 404 }), new AbortController().signal), /404/);
 });
 
-test("inflateGzip stops when its signal aborts", async () => {
+test("loadWasmBinary takes raw wasm as-is (a server already applied Content-Encoding: gzip)", async () => {
+  const raw = new Uint8Array([...WASM_MAGIC, 1, 0, 0, 0, 9, 9]);
+  assert.deepEqual(await loadWasmBinary(new Response(raw), new AbortController().signal), raw);
+});
+
+test("loadWasmBinary rejects anything that is neither gzip nor wasm", async () => {
+  await assert.rejects(
+    loadWasmBinary(new Response("<!doctype html><title>404</title>"), new AbortController().signal),
+    /neither gzip nor WebAssembly/,
+  );
+  await assert.rejects(loadWasmBinary(new Response(new Uint8Array()), new AbortController().signal), /neither gzip nor WebAssembly/);
+});
+
+test("loadWasmBinary stops when its signal aborts", async () => {
   const controller = new AbortController();
   const body = new ReadableStream({
     start(c) {
@@ -428,9 +473,20 @@ test("inflateGzip stops when its signal aborts", async () => {
       return new Promise(() => {}); // the network stalls
     },
   });
-  const pending = inflateGzip(new Response(body), controller.signal);
+  const pending = loadWasmBinary(new Response(body), controller.signal);
   setTimeout(() => controller.abort(), 5);
   await assert.rejects(pending, (e) => e.name === "AbortError");
+});
+
+test("a runtime binary served pre-inflated still reaches ORT", async () => {
+  const raw = new Uint8Array([...WASM_MAGIC, 1, 0, 0, 0]);
+  const f = fakeFetch();
+  const inner = f.fetch;
+  f.fetch = async (u, o) => (u === WASM_URL ? new Response(raw) : inner(u, o));
+  const h = harness({ fetch: f });
+  generate(h, 1);
+  assert.equal((await h.final(1)).type, "result");
+  assert.deepEqual(Array.from(h.ort.log.created[0].wasmBinary), Array.from(raw));
 });
 
 test("the runtime binary loads once per worker", async () => {

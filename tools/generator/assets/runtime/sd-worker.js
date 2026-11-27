@@ -54,11 +54,8 @@ const WEBGPU_REQUIRED = "Image generation needs WebGPU, which this browser or de
 
 const fileUrl = (model, path) => `https://huggingface.co/${model.id}/resolve/${model.revision}/${path}`;
 
-// Reads a gzip response body into one buffer, inflating it as it streams.
-// Aborting `signal` stops both the download and the inflate.
-export async function inflateGzip(response, signal) {
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const reader = response.body.pipeThrough(new DecompressionStream("gzip"), { signal }).getReader();
+async function readAll(stream, signal) {
+  const reader = (signal ? stream.pipeThrough(new TransformStream(), { signal }) : stream).getReader();
   const chunks = [];
   let size = 0;
   for (;;) {
@@ -74,6 +71,24 @@ export async function inflateGzip(response, signal) {
     offset += chunk.byteLength;
   }
   return out;
+}
+
+const startsWith = (bytes, magic) => magic.every((b, i) => bytes[i] === b);
+const GZIP_MAGIC = [0x1f, 0x8b];
+const WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d];
+
+// ORT's wasm binary from its .gz. A server that labels the file
+// `Content-Encoding: gzip` has the browser inflate it on the way in, so the
+// bytes are sniffed: gzip is inflated here, wasm is used as-is. Aborting
+// `signal` stops both the download and the inflate.
+export async function loadWasmBinary(response, signal) {
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const bytes = await readAll(response.body, signal);
+  if (startsWith(bytes, GZIP_MAGIC)) {
+    return readAll(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")), signal);
+  }
+  if (startsWith(bytes, WASM_MAGIC)) return bytes;
+  throw new Error("the runtime binary is neither gzip nor WebAssembly");
 }
 
 class Cancelled extends Error {}
@@ -140,8 +155,9 @@ export function createSdEngine(deps) {
 
       progress({ stage: "generate", count: 0, total: STAGES.length });
       const tokenizer = Tokenizer(JSON.parse(new TextDecoder().decode(await readCached(cache, model, files, TOKENIZER))), {});
-      // CLIP truncation; padTokens pads with the SD 2.x pad id.
-      const encoded = tokenizer(text, { truncation: true, max_length: SEQ_LEN, return_tensor: false });
+      // Encoded whole: Transformers.js truncation drops the end token, so
+      // padTokens truncates (keeping it) and pads like CLIPTokenizer.
+      const encoded = tokenizer(text, { return_tensor: false });
       const ids = padTokens(Array.from(encoded.input_ids, Number));
 
       const stage = async (name, feeds) => {
@@ -259,7 +275,7 @@ export function createSdEngine(deps) {
     const response = await fetch(wasmUrl, { signal });
     let bytes;
     try {
-      bytes = await inflateGzip(response, signal);
+      bytes = await loadWasmBinary(response, signal);
     } catch (error) {
       if (signal.aborted) throw error;
       throw new Error(`Couldn't load the image runtime (${error.message || error}).`);
