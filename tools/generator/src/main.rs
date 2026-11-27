@@ -437,4 +437,11 @@ mod tests {
         assert!(ONNX_RUNTIME_FILES.contains(&"ort-wasm-simd-threaded.mjs"));
         assert!(ONNX_RUNTIME_FILES.contains(&"ort-wasm-simd-threaded.wasm"));
     }
+
+    #[test]
+    fn shared_runtime_publishes_model_registry_and_custom_check() {
+        for f in ["image-models.js", "custom-model.js"] {
+            assert!(SHARED_RUNTIME_FILES.contains(&f), "{f} not published");
+        }
+    }
 }

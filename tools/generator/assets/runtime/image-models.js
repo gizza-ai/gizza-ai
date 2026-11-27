@@ -103,6 +103,16 @@ export function deviceFit(entry, info) {
   return { level: "ok", note: "Should run on this device." };
 }
 
-export function defaultModel() {
-  return IMAGE_MODELS.find((m) => m.recommended) ?? IMAGE_MODELS[0];
+// First recommended entry that fits this device, else any entry that fits,
+// else the first entry that is not unsupported, else the recommended entry (so the picker always has one).
+export function defaultModel(info) {
+  const fit = (m) => deviceFit(m, info).level;
+  const recommended = IMAGE_MODELS.filter((m) => m.recommended);
+  return (
+    recommended.find((m) => fit(m) === "ok") ??
+    IMAGE_MODELS.find((m) => fit(m) === "ok") ??
+    IMAGE_MODELS.find((m) => fit(m) !== "unsupported") ??
+    recommended[0] ??
+    IMAGE_MODELS[0]
+  );
 }
