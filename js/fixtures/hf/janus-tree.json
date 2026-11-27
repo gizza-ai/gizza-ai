@@ -11,6 +11,26 @@
   },
   {
     "type": "file",
+    "path": "preprocessor_config.json",
+    "size": 400
+  },
+  {
+    "type": "file",
+    "path": "processor_config.json",
+    "size": 300
+  },
+  {
+    "type": "file",
+    "path": "tokenizer.json",
+    "size": 4000000
+  },
+  {
+    "type": "file",
+    "path": "tokenizer_config.json",
+    "size": 2000
+  },
+  {
+    "type": "file",
     "path": "onnx/prepare_inputs_embeds.onnx",
     "size": 1000000
   },

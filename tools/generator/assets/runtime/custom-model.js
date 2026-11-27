@@ -1,8 +1,10 @@
 // Custom model check for the image-model picker. Given a Hugging Face repo id
 // it reads metadata only (model info + file tree), never weights, and returns
 // a registry entry the picker can use. Every request goes to the Hugging Face
-// API through the injected `fetch`; no /resolve/ URL is ever requested.
+// API through `fetch` (the global one unless injected); no /resolve/ URL is
+// ever requested.
 
+import { STABILITY_TERMS } from "./image-models.js";
 import { JANUS_DEVICES, JANUS_DTYPES, JANUS_NEEDS_F16 } from "./janus-builds.js";
 
 const HF = "https://huggingface.co";
@@ -10,6 +12,7 @@ const SPEC = /^([A-Za-z0-9][\w.-]*)\/([\w.-]+?)(?:@([^\s@]+))?$/;
 const DOTS_ONLY = /^\.+$/;
 const COMMIT_SHA = /^[0-9a-f]{40}$/;
 const MAX_TREE_PAGES = 100;
+const UNEXPECTED = "Hugging Face returned an unexpected response";
 
 const UNSUPPORTED =
   "This repo isn't a supported format. gizza runs Janus-Pro web ONNX repos and gizza's own SD-Turbo web conversions.";
@@ -19,6 +22,17 @@ const NEEDS_LOGIN = "needs a Hugging Face login, which gizza doesn't support";
 const NOT_FOUND_OR_LOCKED = `not found, or private/gated (${NEEDS_LOGIN})`;
 
 const JANUS_COMPONENTS = Object.keys(JANUS_DEVICES);
+// What the worker's AutoProcessor.from_pretrained (Transformers.js 4.2) and
+// MultiModalityCausalLM.from_pretrained fetch besides the onnx graphs: the
+// model config, the image processor config (which names VLChatProcessor),
+// VLChatProcessor's own config, and AutoTokenizer's pair.
+const JANUS_CONFIG_FILES = [
+  "config.json",
+  "preprocessor_config.json",
+  "processor_config.json",
+  "tokenizer.json",
+  "tokenizer_config.json",
+];
 // The onnx file suffix of each dtype.
 const DTYPE_SUFFIX = { fp32: "", fp16: "_fp16", q4: "_q4", q4f16: "_q4f16", q8: "_quantized" };
 const SD_VARIANTS = { nof16q8: false, fp16: true };
@@ -38,6 +52,15 @@ async function getOk(fetchFn, url) {
   if (res.status === 429) throw new Refusal("Hugging Face is rate-limiting; try again in a minute");
   if (res.status === 401 || res.status === 403) throw new Refusal(NOT_FOUND_OR_LOCKED);
   throw new Refusal(`Hugging Face returned an error (HTTP ${res.status})`);
+}
+
+// A 200 body that isn't JSON is Hugging Face misbehaving, not a crash.
+async function readJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    throw new Refusal(UNEXPECTED);
+  }
 }
 
 // The next tree page, which must stay on the Hugging Face API.
@@ -62,9 +85,14 @@ function nextLink(res) {
 async function readTree(fetchFn, repo, sha) {
   const files = new Map(); // path -> bytes
   let url = `${HF}/api/models/${repo}/tree/${sha}?recursive=true`;
-  for (let page = 0; url && page < MAX_TREE_PAGES; page++) {
+  for (let page = 0; url; page++) {
+    // A partial tree could miss files and misjudge the repo.
+    if (page === MAX_TREE_PAGES) throw new Refusal("the repo has too many files to check");
     const res = await getOk(fetchFn, url);
-    for (const item of await res.json()) {
+    const items = await readJson(res);
+    if (!Array.isArray(items)) throw new Refusal(UNEXPECTED);
+    for (const item of items) {
+      if (!item || typeof item !== "object" || typeof item.path !== "string") throw new Refusal(UNEXPECTED);
       if (item.type === "file") files.set(item.path, item.lfs?.size ?? item.size ?? 0);
     }
     url = nextLink(res);
@@ -92,6 +120,8 @@ function sumFiles(files, paths) {
 
 function janusVariants(files) {
   const out = {};
+  const config = sumFiles(files, JANUS_CONFIG_FILES);
+  if (config === null) return out;
   for (const [name, dtypes] of Object.entries(JANUS_DTYPES)) {
     const paths = JANUS_COMPONENTS.flatMap((c) => {
       const base = `onnx/${c}${DTYPE_SUFFIX[dtypes[c]]}.onnx`;
@@ -99,7 +129,7 @@ function janusVariants(files) {
     });
     const bytes = sumFiles(files, paths);
     if (bytes !== null) {
-      out[name] = { requires: { shaderF16: JANUS_NEEDS_F16[name] }, download_mb: toMb(bytes), verified: false };
+      out[name] = { requires: { shaderF16: JANUS_NEEDS_F16[name] }, download_mb: toMb(config + bytes), verified: false };
     }
   }
   return out;
@@ -122,35 +152,37 @@ function sdVariants(files) {
   return out;
 }
 
-function licenseOf(repo, cardData) {
+// The repo's declared license. A repo in gizza's SD-Turbo layout is an
+// SD-Turbo derivative, so Stability AI's attribution and Acceptable Use
+// Policy come with it whatever else the repo declares.
+function licenseOf(repo, cardData, engine) {
   const raw = cardData?.license;
   const names = (Array.isArray(raw) ? raw : [raw]).filter((n) => typeof n === "string" && n.trim());
-  if (names.length === 0) {
-    return {
-      name: "no license stated",
-      url: `${HF}/${repo}`,
-      summary: "The repo states no license. Check the model card before using results.",
-    };
+  const declared = names.length === 0
+    ? { name: "no license stated", url: `${HF}/${repo}`, summary: "The repo states no license." }
+    : { name: names.join(", "), url: `${HF}/${repo}`, summary: `License declared by the repo: ${names.join(", ")}.` };
+  if (engine !== "sd-turbo") {
+    return { ...declared, summary: `${declared.summary} Check the model card before using results.` };
   }
-  const name = names.join(", ");
   return {
-    name,
-    url: `${HF}/${repo}`,
-    summary: `License declared by the repo: ${name}. Check the model card before using results.`,
+    ...declared,
+    summary: `${declared.summary} As an SD-Turbo derivative, Stability AI's Acceptable Use Policy applies. Check the model card before using results.`,
+    ...STABILITY_TERMS,
   };
 }
 
-// spec: "owner/name" or "owner/name@rev". `info` is the WebGPU adapter info
-// ({ webgpu, shaderF16, maxBufferSize }); each variant already carries its
-// own size and requirement, so the picker resolves the variant from it.
-export async function inspectCustomModel(spec, { fetch: fetchFn } = {}) {
+// spec: "owner/name" or "owner/name@rev". Each variant of the returned entry
+// carries its own size and requirement, so the picker resolves the variant
+// for its adapter (resolveVariant) from the entry alone.
+export async function inspectCustomModel(spec, { fetch: fetchFn = (url) => globalThis.fetch(url) } = {}) {
   const m = SPEC.exec(String(spec).trim());
   if (!m || DOTS_ONLY.test(m[2])) return { ok: false, reason: "enter a Hugging Face repo as owner/name" };
   const repo = `${m[1]}/${m[2]}`;
   const rev = m[3] || "main";
   try {
     const metaRes = await getOk(fetchFn, `${HF}/api/models/${repo}/revision/${encodeURIComponent(rev)}`);
-    const meta = await metaRes.json();
+    const meta = await readJson(metaRes);
+    if (!meta || typeof meta !== "object" || Array.isArray(meta)) throw new Refusal(UNEXPECTED);
     if (meta.gated || meta.private) return { ok: false, reason: NEEDS_LOGIN };
     const sha = meta.sha;
     if (typeof sha !== "string" || !COMMIT_SHA.test(sha)) {
@@ -183,7 +215,7 @@ export async function inspectCustomModel(spec, { fetch: fetchFn } = {}) {
         repo,
         revision: sha,
         output,
-        license: licenseOf(repo, meta.cardData),
+        license: licenseOf(repo, meta.cardData, engine),
         variants,
       },
     };

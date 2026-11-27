@@ -20,7 +20,6 @@ function mockFetch(routes) {
   return fn;
 }
 const noResolve = (f) => assert.equal(f.seen.filter((u) => u.includes("/resolve/")).length, 0);
-const INFO = { webgpu: true, shaderF16: true, maxBufferSize: 4e9 };
 
 function repoRoutes(rev, tree) {
   return [
@@ -31,7 +30,7 @@ function repoRoutes(rev, tree) {
 
 test("janus repo is recognised with per-variant sizes", async () => {
   const f = mockFetch(repoRoutes(fx("janus-rev"), fx("janus-tree")));
-  const r = await inspectCustomModel("acme/janus-web", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/janus-web", { fetch: f });
   assert.equal(r.ok, true);
   assert.equal(r.recognized, "format");
   const e = r.entry;
@@ -44,16 +43,20 @@ test("janus repo is recognised with per-variant sizes", async () => {
   assert.equal(e.variants.f16.requires.shaderF16, true);
   assert.equal(e.variants.f32.requires.shaderF16, false);
   assert.equal(e.variants.f16.verified, false);
+  // config + processor + tokenizer files, then per variant
+  const config = 1000 + 400 + 300 + 4e6 + 2000;
   // f16: q4(1) + q4f16(1) + fp16(4)x3 + fp32(8) of 10 MB data + 6 x 1 MB graphs
-  assert.equal(e.variants.f16.download_mb, Math.round((6e6 + 10e6 * (1 + 1 + 12 + 8)) / 1e6));
+  assert.equal(e.variants.f16.download_mb, Math.round((config + 6e6 + 10e6 * (1 + 1 + 12 + 8)) / 1e6));
   // f32: q8(2) + q4(1)x3 + fp32(8)x2
-  assert.equal(e.variants.f32.download_mb, Math.round((6e6 + 10e6 * (2 + 3 + 16)) / 1e6));
+  assert.equal(e.variants.f32.download_mb, Math.round((config + 6e6 + 10e6 * (2 + 3 + 16)) / 1e6));
+  assert.equal(e.license.aup, undefined, "Stability's terms are for SD-Turbo derivatives only");
+  assert.equal(e.license.attribution, undefined);
   noResolve(f);
 });
 
 test("gizza SD repo is recognised and sized from the variant files", async () => {
   const f = mockFetch(repoRoutes(fx("sd-rev"), fx("sd-tree")));
-  const r = await inspectCustomModel("acme/sd-web@main", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/sd-web@main", { fetch: f });
   assert.equal(r.ok, true);
   const e = r.entry;
   assert.equal(e.engine, "sd-turbo");
@@ -71,7 +74,7 @@ test("gizza SD repo is recognised and sized from the variant files", async () =>
 
 test("plain diffusers repo is not a supported format", async () => {
   const f = mockFetch(repoRoutes(fx("diffusers-rev"), fx("diffusers-tree")));
-  const r = await inspectCustomModel("acme/sd-plain", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/sd-plain", { fetch: f });
   assert.equal(r.ok, false);
   assert.match(r.reason, /isn't a supported format/);
   noResolve(f);
@@ -79,7 +82,7 @@ test("plain diffusers repo is not a supported format", async () => {
 
 test("gated repo needs a login", async () => {
   const f = mockFetch([["/revision/", () => json(fx("gated-rev"))]]);
-  const r = await inspectCustomModel("acme/gated", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/gated", { fetch: f });
   assert.equal(r.ok, false);
   assert.equal(r.reason, "needs a Hugging Face login, which gizza doesn't support");
   noResolve(f);
@@ -87,7 +90,7 @@ test("gated repo needs a login", async () => {
 
 test("404 is not found", async () => {
   const f = mockFetch([]);
-  const r = await inspectCustomModel("acme/nope", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/nope", { fetch: f });
   assert.equal(r.ok, false);
   assert.match(r.reason, /not found/);
   noResolve(f);
@@ -95,7 +98,7 @@ test("404 is not found", async () => {
 
 test("429 is rate limiting", async () => {
   const f = mockFetch([["/revision/", () => new Response("", { status: 429 })]]);
-  const r = await inspectCustomModel("acme/x", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/x", { fetch: f });
   assert.equal(r.ok, false);
   assert.equal(r.reason, "Hugging Face is rate-limiting; try again in a minute");
   noResolve(f);
@@ -112,7 +115,7 @@ test("paginated tree reads every page", async () => {
       json(pages[0], { headers: { Link: '<https://huggingface.co/api/models/acme/sd-web/tree/x?recursive=true&page=2>; rel="next", <https://x/last>; rel="last"' } })],
     ["/revision/", () => json(fx("sd-rev"))],
   ]);
-  const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/sd-web", { fetch: f });
   assert.equal(r.ok, true);
   assert.equal(f.seen.filter((u) => u.includes("/tree/")).length, 3);
   noResolve(f);
@@ -120,7 +123,7 @@ test("paginated tree reads every page", async () => {
 
 test("malformed specs are rejected without a request", async () => {
   const f = mockFetch([]);
-  const r = await inspectCustomModel("not a repo", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("not a repo", { fetch: f });
   assert.equal(r.ok, false);
   assert.equal(f.seen.length, 0);
 });
@@ -128,7 +131,7 @@ test("malformed specs are rejected without a request", async () => {
 test("an SD repo without manifest.json is not a supported format (the worker sizes from it)", async () => {
   const tree = fx("sd-tree").filter((f) => f.path !== "manifest.json");
   const f = mockFetch(repoRoutes(fx("sd-rev"), tree));
-  const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/sd-web", { fetch: f });
   assert.equal(r.ok, false);
   assert.match(r.reason, /isn't a supported format/);
 });
@@ -136,20 +139,20 @@ test("an SD repo without manifest.json is not a supported format (the worker siz
 test("a repo with no license says no license stated, not a license name", async () => {
   for (const cardData of [undefined, {}, { license: "" }, { license: [] }]) {
     const f = mockFetch(repoRoutes({ ...fx("sd-rev"), cardData }, fx("sd-tree")));
-    const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f });
     assert.equal(r.entry.license.name, "no license stated", JSON.stringify(cardData));
     assert.match(r.entry.license.summary, /states no license/);
     assert.doesNotMatch(r.entry.license.summary, /declared by the repo/);
   }
   const f = mockFetch(repoRoutes({ ...fx("sd-rev"), cardData: { license: ["mit", "apache-2.0"] } }, fx("sd-tree")));
-  const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+  const r = await inspectCustomModel("acme/sd-web", { fetch: f });
   assert.equal(r.entry.license.name, "mit, apache-2.0");
 });
 
 test("401/403 may be a typo or a locked repo, and the message says both", async () => {
   for (const status of [401, 403]) {
     const f = mockFetch([["/revision/", () => new Response("", { status })]]);
-    const r = await inspectCustomModel("acme/typo", { fetch: f, info: INFO });
+    const r = await inspectCustomModel("acme/typo", { fetch: f });
     assert.equal(r.ok, false);
     assert.equal(r.reason, "not found, or private/gated (needs a Hugging Face login, which gizza doesn't support)");
   }
@@ -158,7 +161,7 @@ test("401/403 may be a typo or a locked repo, and the message says both", async 
 test("a revision whose commit is not a 40-hex sha is refused before any tree request", async () => {
   for (const sha of [undefined, "", "main", "../../evil", `${SHA}/x`, SHA.toUpperCase()]) {
     const f = mockFetch(repoRoutes({ ...fx("sd-rev"), sha }, fx("sd-tree")));
-    const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f });
     assert.equal(r.ok, false, String(sha));
     assert.match(r.reason, /didn't return a commit/);
     assert.equal(f.seen.filter((u) => u.includes("/tree/")).length, 0);
@@ -171,7 +174,7 @@ test("tree pagination never leaves huggingface.co", async () => {
       ["/tree/", () => json(fx("sd-tree").slice(0, 4), { headers: { Link: `<${next}>; rel="next"` } })],
       ["/revision/", () => json(fx("sd-rev"))],
     ]);
-    const r = await inspectCustomModel("acme/sd-web", { fetch: f, info: INFO });
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f });
     assert.equal(r.ok, false, next);
     assert.match(r.reason, /unexpected next-page link/);
     assert.ok(f.seen.every((u) => u.startsWith("https://huggingface.co/")), f.seen.join(" "));
@@ -181,10 +184,81 @@ test("tree pagination never leaves huggingface.co", async () => {
 test("dot-only repo names are rejected without a request", async () => {
   for (const spec of ["owner/..", "owner/.", "owner/...@main"]) {
     const f = mockFetch([]);
-    const r = await inspectCustomModel(spec, { fetch: f, info: INFO });
+    const r = await inspectCustomModel(spec, { fetch: f });
     assert.equal(r.ok, false, spec);
     assert.equal(f.seen.length, 0, spec);
   }
   const f = mockFetch(repoRoutes(fx("sd-rev"), fx("sd-tree")));
-  assert.equal((await inspectCustomModel("owner/.hidden-ok", { fetch: f, info: INFO })).ok, true);
+  assert.equal((await inspectCustomModel("owner/.hidden-ok", { fetch: f })).ok, true);
+});
+
+test("a Janus repo missing a file the processor or tokenizer loads is refused, reading no weights", async () => {
+  for (const missing of ["config.json", "preprocessor_config.json", "processor_config.json", "tokenizer.json", "tokenizer_config.json"]) {
+    const tree = fx("janus-tree").filter((f) => f.path !== missing);
+    const f = mockFetch(repoRoutes(fx("janus-rev"), tree));
+    const r = await inspectCustomModel("acme/janus-web", { fetch: f });
+    assert.equal(r.ok, false, missing);
+    assert.match(r.reason, /isn't a supported format/, missing);
+    noResolve(f);
+  }
+});
+
+test("a custom SD-Turbo-layout repo keeps its license and carries Stability AI's attribution and AUP", async () => {
+  const f = mockFetch(repoRoutes({ ...fx("sd-rev"), cardData: { license: "openrail" } }, fx("sd-tree")));
+  const { entry } = await inspectCustomModel("acme/sd-web", { fetch: f });
+  assert.equal(entry.license.name, "openrail");
+  assert.equal(entry.license.url, "https://huggingface.co/acme/sd-web");
+  assert.equal(entry.license.attribution, "Powered by Stability AI");
+  assert.equal(entry.license.aup, "https://stability.ai/use-policy");
+  assert.match(entry.license.summary, /Acceptable Use Policy/);
+  const bare = await inspectCustomModel("acme/sd-web", { fetch: mockFetch(repoRoutes({ ...fx("sd-rev"), cardData: {} }, fx("sd-tree"))) });
+  assert.equal(bare.entry.license.name, "no license stated");
+  assert.equal(bare.entry.license.attribution, "Powered by Stability AI");
+});
+
+test("fetch defaults to the global fetch", async () => {
+  const native = globalThis.fetch;
+  const f = mockFetch(repoRoutes(fx("sd-rev"), fx("sd-tree")));
+  globalThis.fetch = f;
+  try {
+    assert.equal((await inspectCustomModel("acme/sd-web")).ok, true);
+    assert.ok(f.seen.length >= 2);
+  } finally {
+    globalThis.fetch = native;
+  }
+});
+
+test("a malformed Hugging Face response is a refusal, not a crash", async () => {
+  const text = (body) => () => new Response(body, { status: 200 });
+  const cases = [
+    ["non-JSON revision", [["/revision/", text("<html>oops</html>")]]],
+    ["array revision", [["/revision/", () => json([])]]],
+    ["non-JSON tree", [["/tree/", text("not json")], ["/revision/", () => json(fx("sd-rev"))]]],
+    ["object tree", [["/tree/", () => json({ error: "x" })], ["/revision/", () => json(fx("sd-rev"))]]],
+    ["tree with a null item", [["/tree/", () => json([null])], ["/revision/", () => json(fx("sd-rev"))]]],
+  ];
+  for (const [why, routes] of cases) {
+    const f = mockFetch(routes);
+    const r = await inspectCustomModel("acme/sd-web", { fetch: f });
+    assert.deepEqual(r, { ok: false, reason: "Hugging Face returned an unexpected response" }, why);
+    noResolve(f);
+  }
+});
+
+test("a tree that still has a next page after the page cap is refused, not judged on part of it", async () => {
+  let pages = 0;
+  const f = mockFetch([
+    ["/tree/", () => {
+      pages += 1;
+      return json(fx("sd-tree"), {
+        headers: { Link: `<https://huggingface.co/api/models/acme/sd-web/tree/x?recursive=true&cursor=${pages}>; rel="next"` },
+      });
+    }],
+    ["/revision/", () => json(fx("sd-rev"))],
+  ]);
+  const r = await inspectCustomModel("acme/sd-web", { fetch: f });
+  assert.equal(r.ok, false);
+  assert.match(r.reason, /too many files/);
+  assert.equal(pages, 100);
+  noResolve(f);
 });
