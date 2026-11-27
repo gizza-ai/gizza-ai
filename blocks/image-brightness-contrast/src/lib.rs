@@ -1,13 +1,14 @@
 //! gizza-ai/image-brightness-contrast — adjust the brightness and contrast of an
 //! image by signed amounts. Returns a PNG. Pure Rust (image crate) — runs on all
-//! backends incl. the chat SW. Surfaces: chat + CLI (image input + image bytes
-//! output → no page, like normalize-image).
+//! backends incl. the chat SW. Surfaces: chat + CLI (this handler) and the
+//! standalone page (web/, `wasm-image` runtime) — both call core `apply` with
+//! the same `Params`.
 #![cfg_attr(not(target_arch = "wasm32"), allow(dead_code, unused_imports))]
 
 #[cfg(target_arch = "wasm32")]
 use gizza_ai_block_utils::{build_media_envelope, resolve_source};
 use gizza_ai_block_utils::{AssetKind, Input, Param, SkillError, SkillResultExt, SourceFields, ToolDescriptor};
-use gizza_ai_image_brightness_contrast_core::adjust;
+use gizza_ai_image_brightness_contrast_core::{apply, Params};
 use serde::Deserialize;
 use wafer_sdk::*;
 
@@ -18,10 +19,8 @@ const MAX_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
 struct Args {
     #[serde(flatten)]
     source: SourceFields,
-    #[serde(default)]
-    brightness: i64,
-    #[serde(default)]
-    contrast: f64,
+    #[serde(flatten)]
+    params: Params,
 }
 
 fn descriptor() -> ToolDescriptor {
@@ -30,12 +29,14 @@ fn descriptor() -> ToolDescriptor {
             Param::integer("brightness")
                 .min(-255.0)
                 .max(255.0)
+                .default(0.0)
                 .describe("Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)."),
         )
         .param(
             Param::number("contrast")
                 .min(-100.0)
                 .max(100.0)
+                .default(0.0)
                 .describe("Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)."),
         )
 }
@@ -72,15 +73,14 @@ impl ImageBrightnessContrast {
 #[cfg(target_arch = "wasm32")]
 fn run(body: Vec<u8>) -> Result<Vec<u8>, SkillError> {
     let args: Args = serde_json::from_slice(&body).invalid_args("image-brightness-contrast")?;
-    let brightness = args.brightness.clamp(-255, 255) as i32;
-    let contrast = args.contrast.clamp(-100.0, 100.0) as f32;
+    let (brightness, contrast) = args.params.normalized();
     let (bytes, _mime, _name) =
         resolve_source(args.source.into_inner(), AssetKind::Image, MAX_INPUT_BYTES)?;
-    let png = adjust(&bytes, brightness, contrast).map_err(SkillError::InvalidArgs)?;
+    let (png, out_name) = apply(&bytes, &args.params).map_err(SkillError::InvalidArgs)?;
     build_media_envelope(
         &png,
         "image/png",
-        "adjusted.png".to_string(),
+        out_name,
         format!("adjusted brightness {brightness}, contrast {contrast} ({} bytes PNG)", png.len()),
         MAX_OUTPUT_BYTES,
     )
@@ -98,8 +98,8 @@ mod tests {
                 "properties": {
                     "url":        { "type": "string", "description": "Image URL (HTTP/HTTPS). Use either url or ref." },
                     "ref":        { "type": "string", "description": "Reference id from a prior tool call. Use either url or ref." },
-                    "brightness": { "type": "integer", "minimum": -255, "maximum": 255, "description": "Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)." },
-                    "contrast":   { "type": "number", "minimum": -100, "maximum": 100, "description": "Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)." }
+                    "brightness": { "type": "integer", "minimum": -255, "maximum": 255, "default": 0.0, "description": "Brightness adjustment, -255 to 255 (negative darkens, positive brightens; 0 = no change)." },
+                    "contrast":   { "type": "number", "minimum": -100, "maximum": 100, "default": 0.0, "description": "Contrast adjustment, -100 to 100 (negative flattens, positive increases; 0 = no change)." }
                 },
                 "additionalProperties": false,
                 "oneOf": [{ "required": ["url"] }, { "required": ["ref"] }]

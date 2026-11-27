@@ -1,0 +1,67 @@
+slug          = "image-rounded-corners"
+title         = "Round Image Corners Online — Transparent PNG"
+description   = "Round image corners in your browser — radius in pixels or percent, pick which corners, transparent or color fill. PNG output, nothing uploaded."
+tags          = ["image", "rounded corners", "round corners", "border radius", "transparent", "png", "pill", "photo", "screenshot", "thumbnail"]
+h1            = "Round the Corners of an Image"
+hero_subtitle = "Pick an image and a radius — the rounded PNG is made in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_rounded_corners_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Rounded image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "radius"
+source      = "field"
+label       = "Radius (blank = 12% of the shorter side)"
+placeholder = "e.g. 24"
+
+[[input]]
+name   = "unit"
+source = "field"
+label  = "Radius unit"
+
+[input.labels]
+"px"      = "px — absolute pixels"
+"percent" = "percent — of the shorter side (50 = fully rounded)"
+
+[[input]]
+name   = "corners"
+source = "field"
+label  = "Corners to round"
+
+[input.labels]
+"all"    = "all four"
+"top"    = "top two"
+"bottom" = "bottom two"
+"left"   = "left two"
+"right"  = "right two"
+
+[[input]]
+name        = "background"
+source      = "field"
+label       = "Corner fill"
+placeholder = "transparent, white or #3366ff"
+kind        = "color"
+
+[[example]]
+label  = "Subtle (16 px)"
+params = { radius = "16", unit = "px" }
+
+[[example]]
+label  = "Pill / circle (50%)"
+params = { radius = "50", unit = "percent" }
+
+[[example]]
+label  = "Top corners only"
+params = { radius = "24", unit = "px", corners = "top" }
+
+[[example]]
+label  = "Rounded on white"
+params = { radius = "10", unit = "percent", background = "white" }

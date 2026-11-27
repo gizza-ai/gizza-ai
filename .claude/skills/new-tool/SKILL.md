@@ -19,6 +19,10 @@ the build/test/PR commands. Follow these steps in order:
 3. **Classify** the type from the description:
    - **pure** — typed input → typed output, deterministic, no I/O (math, text, time, conversion).
    - **ffmpeg** — image/video transform (resize, crop, convert, grayscale, trim, transcode).
+   - **wasm-image** — an image edit implemented in pure Rust with the `image` crate (adjust,
+     flip, rotate, border, rounded corners, HSL) whose page runs the block's own core in a
+     worker instead of ffmpeg. Prefer it over ffmpeg when the transform is a pixel operation
+     the `image` crate does well — it also works in chat (no ffmpeg in the SW).
    - **network** — fetches a URL (treat as a chat-only block; build it, CLI-test it, no page).
    - **gpu** — needs WebGPU/a model (imagine-style). Build the chat block ONLY; do NOT
      build a page (no headless GPU); CLI is expected to be `unsupported_in_cli`.
@@ -29,7 +33,7 @@ the build/test/PR commands. Follow these steps in order:
    keep finding "out-of-model" features that were one filtergraph away (vignette tint,
    blur-pad). Every table-stake from the competitor scan must land in the descriptor OR the
    out-of-model list — never dropped silently.
-5. **Scaffold:** `scripts/scaffold-tool.sh <slug> <pure|ffmpeg>` (for network/gpu, copy
+5. **Scaffold:** `scripts/scaffold-tool.sh <slug> <pure|ffmpeg|wasm-image>` (for network/gpu, copy
    `blocks/web-fetch`/`blocks/imagine` as the reference instead — they have no page).
 6. **Implement** (replace the `TODO`/`not implemented` stubs):
    - `core/src/lib.rs` — the pure logic (+ ≥1 happy-path & ≥1 error unit test). Use
@@ -37,17 +41,23 @@ the build/test/PR commands. Follow these steps in order:
    - `src/lib.rs` — edit `descriptor()` to the tool's real params (the SINGLE SOURCE
      for the chat schema AND the CLI; `parameters = schema_json()` is already wired, so
      do NOT hand-write an inline JSON schema) + the `skill(description=...)` text. The
-     scaffold already delegates: `run_skill` (pure/no-page) or `resolve_source` →
-     `dispatch_ffmpeg` → `build_media_envelope` (ffmpeg). Param API:
+     scaffold already delegates: `run_skill` (pure/no-page), `resolve_source` →
+     `dispatch_ffmpeg` → `build_media_envelope` (ffmpeg), or `resolve_source` → core `apply`
+     → `build_media_envelope` with `Args { #[serde(flatten)] source, #[serde(flatten)] params }`
+     (wasm-image). Param API:
      `Param::string|integer|number|enumv|boolean|string_map(...)` +
      `.required()/.default(v)/.min(n)/.max(n)/.describe(s)` — give EVERY param a
      `.describe()` that tells an LLM/CLI user what to pass (values, units, default,
      an example); `Input::None` for
      pure/param-only, `Input::Image|Video|Audio|Document|File` for a `url`⊕`ref` media input,
      `source_list` for an array of sources. Exemplars: `blocks/url-encode` (pure),
-     `blocks/image-resize` (ffmpeg page), `blocks/web-fetch` (no-page, flat output).
+     `blocks/image-resize` (ffmpeg page), `blocks/image-brightness-contrast` (wasm-image page),
+     `blocks/web-fetch` (no-page, flat output).
    - `web/src/lib.rs` — the export (pure: `run`; ffmpeg: `build_argv` returning the
-     shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }` — already wired by the scaffold).
+     shared `gizza_ai_block_utils::ArgvPlan { argv, out_name }`; wasm-image: `run(params, input)`
+     via `gizza_ai_web_utils` — all already wired by the scaffold). For wasm-image the real work
+     is core `Params` (`#[serde(default)]`, `Default` = the schema defaults) + `apply` — the web
+     crate and handler need no edits beyond `descriptor()`.
    - `page/meta.toml` + `page/content.md` — real title/desc/tags/inputs (field ORDER must
      match the `build_argv` param order for ffmpeg); + `tests/*.json` wafer fixtures. **Page copy
      must stay GENERIC/brand-free** — this repo renders pages unbranded (no `--site-config`); a
@@ -97,7 +107,7 @@ the build/test/PR commands. Follow these steps in order:
    - unit (always) + wafer fixtures (`tests/*.json`, via the optional `wafer test` — if the `wafer`
      CLI isn't installed, say so and skip; it isn't CI-enforced, `cargo test --workspace` + CLI +
      Playwright are the load-bearing local checks);
-   - **Playwright** the page (pure + ffmpeg): add a spec in `tests/` driving `/tools/<slug>/`.
+   - **Playwright** the page (pure + ffmpeg + wasm-image): add a spec in `tests/` driving `/tools/<slug>/`.
      The spec MUST assert real output correctness — exact text for pure tools; for media,
      decode the result and assert dimensions/pixels (reference.md §media correctness) — plus
      one `?param=` deep-link case;

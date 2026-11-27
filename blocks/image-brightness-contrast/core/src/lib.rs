@@ -6,6 +6,38 @@
 use std::io::Cursor;
 
 use image::{DynamicImage, GenericImageView, ImageFormat};
+use serde::Deserialize;
+
+/// The tool's options, shared by every surface: the chat/CLI handler flattens
+/// them from its JSON args, the browser page deserializes them from its params
+/// object. Missing fields take the schema defaults (0 = no change).
+#[derive(Debug, Clone, Default, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct Params {
+    /// -255..=255; negative darkens, positive brightens.
+    pub brightness: i64,
+    /// -100..=100; negative flattens, positive increases.
+    pub contrast: f64,
+}
+
+impl Params {
+    /// The values actually applied: brightness clamped to -255..=255, contrast
+    /// to -100..=100 (a non-finite contrast means no change).
+    pub fn normalized(&self) -> (i32, f32) {
+        let brightness = self.brightness.clamp(-255, 255) as i32;
+        let contrast = if self.contrast.is_finite() { self.contrast.clamp(-100.0, 100.0) as f32 } else { 0.0 };
+        (brightness, contrast)
+    }
+}
+
+/// Output filename for every surface.
+pub const OUT_NAME: &str = "adjusted.png";
+
+/// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
+pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
+    let (brightness, contrast) = params.normalized();
+    Ok((adjust(bytes, brightness, contrast)?, OUT_NAME.to_string()))
+}
 
 /// Adjust `bytes`. `brightness` is added per channel (roughly -255..255);
 /// `contrast` is a percentage-like factor (negative = less, positive = more,
@@ -81,6 +113,31 @@ mod tests {
         let src = solid(6, 6, Rgba([123, 45, 67, 255]));
         let out = adjust(&src, 0, 0.0).unwrap();
         assert_eq!(image::load_from_memory(&out).unwrap().dimensions(), (6, 6));
+    }
+
+    #[test]
+    fn params_default_to_no_change_and_clamp() {
+        assert_eq!(Params::default().normalized(), (0, 0.0));
+        let p = Params { brightness: 999, contrast: -500.0 };
+        assert_eq!(p.normalized(), (255, -100.0));
+        let nan = Params { brightness: 0, contrast: f64::NAN };
+        assert_eq!(nan.normalized(), (0, 0.0));
+    }
+
+    #[test]
+    fn params_deserialize_with_missing_fields() {
+        let p: Params = serde_json::from_str(r#"{"brightness": 20}"#).unwrap();
+        assert_eq!(p, Params { brightness: 20, contrast: 0.0 });
+    }
+
+    #[test]
+    fn apply_returns_png_and_name() {
+        let src = solid(4, 2, Rgba([100, 100, 100, 255]));
+        let (out, name) = apply(&src, &Params { brightness: 30, contrast: 0.0 }).unwrap();
+        assert_eq!(name, "adjusted.png");
+        let img = image::load_from_memory_with_format(&out, ImageFormat::Png).unwrap();
+        assert_eq!(img.dimensions(), (4, 2));
+        assert!(img.get_pixel(0, 0).0[0] > 100);
     }
 
     #[test]

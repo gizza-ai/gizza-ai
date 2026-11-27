@@ -7,25 +7,12 @@
 //     (`out_name`, which the tool's web/build_argv chooses), NOT the input file's
 //     MIME — so a format/container change (e.g. video transcode) renders correctly.
 
+import { mimeForOutput } from "./tool-mime.js";
+
 export function inputNameFor(filename) {
   const dot = filename.lastIndexOf(".");
   const ext = dot >= 0 ? filename.slice(dot + 1).toLowerCase() : "bin";
   return `in.${ext || "bin"}`;
-}
-
-const EXT_MIME = {
-  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp",
-  gif: "image/gif", bmp: "image/bmp", avif: "image/avif",
-  mp4: "video/mp4", m4v: "video/mp4", webm: "video/webm", mov: "video/quicktime", mkv: "video/x-matroska",
-  mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg", flac: "audio/flac",
-  aac: "audio/aac", m4a: "audio/mp4", m4r: "audio/mp4", opus: "audio/opus",
-};
-
-// MIME for the produced file, from its extension (e.g. "out.mp4" -> "video/mp4").
-export function mimeForOutput(outName) {
-  const dot = outName.lastIndexOf(".");
-  const ext = dot >= 0 ? outName.slice(dot + 1).toLowerCase() : "";
-  return EXT_MIME[ext] || "application/octet-stream";
 }
 
 function b64ToBytes(b64) {

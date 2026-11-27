@@ -344,13 +344,20 @@ function refreshSliders() {
   }
 }
 
+// File-in → media-out runtimes: every run reprocesses the whole file, so
+// sliders and color swatches commit on release (`change`) rather than
+// re-running on every `input` tick of a drag.
+function isMediaRuntime(runtime) {
+  return runtime === "ffmpeg" || runtime === "wasm-image";
+}
+
 function wireSliders() {
   for (const s of document.querySelectorAll(".tool-slider")) {
     const el = document.getElementById(s.dataset.for);
     if (!el) continue;
     s.addEventListener("input", () => {
       el.value = s.value; // live mirror — programmatic writes fire no events
-      if (cfg.runtime !== "ffmpeg") el.dispatchEvent(new Event("input"));
+      if (!isMediaRuntime(cfg.runtime)) el.dispatchEvent(new Event("input"));
     });
     s.addEventListener("change", () => {
       el.value = s.value;
@@ -398,7 +405,7 @@ function wireColors() {
     if (!el) continue;
     s.addEventListener("input", () => {
       el.value = s.value; // live mirror — programmatic writes fire no events
-      if (cfg.runtime !== "ffmpeg") el.dispatchEvent(new Event("input"));
+      if (!isMediaRuntime(cfg.runtime)) el.dispatchEvent(new Event("input"));
     });
     s.addEventListener("change", () => {
       el.value = s.value;
@@ -669,13 +676,17 @@ async function main() {
     return;
   }
 
-  let mod;
-  try {
-    mod = await import(cfg.module);
-    await mod.default(); // wasm-pack --target web init
-  } catch (e) {
-    showError("Failed to load tool.");
-    return;
+  // wasm-image tools run their module inside wasm-image-worker.js; every
+  // other runtime calls it on the page.
+  let mod = null;
+  if (cfg.runtime !== "wasm-image") {
+    try {
+      mod = await import(cfg.module);
+      await mod.default(); // wasm-pack --target web init
+    } catch (e) {
+      showError("Failed to load tool.");
+      return;
+    }
   }
   if (cfg.custom) {
     try {
@@ -700,8 +711,11 @@ async function main() {
       formatNumber,
     },
   };
-  if (cfg.runtime === "ffmpeg") {
-    const { ffmpegExecBytes } = await import("./ffmpeg.js");
+  // File in → media out: ffmpeg tools (argv planned by the web module, run by
+  // ffmpeg.wasm) and wasm-image tools (bytes → bytes in a worker) share this UI.
+  if (isMediaRuntime(cfg.runtime)) {
+    const execBytes =
+      cfg.runtime === "ffmpeg" ? (await import("./ffmpeg.js")).ffmpegExecBytes : undefined;
     const media = document.getElementById("tool-output-media");
     const dl = document.getElementById("tool-output-download");
     // Image-output pages only (the generator gates #tool-copy-image on
@@ -821,9 +835,14 @@ async function main() {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
       outputUrl = null;
     };
+    // Cancels the previous run's queued wasm-image job (its AbortError is
+    // dropped below like any superseded result).
+    let runAbort = null;
 
     async function run() {
       const seq = ++runSeq;
+      if (runAbort) runAbort.abort();
+      runAbort = new AbortController();
       const file = fileInput && fileInput.files && fileInput.files[0];
       if (!file) {
         clearOutputUrl();
@@ -840,7 +859,7 @@ async function main() {
       );
       let r;
       try {
-        r = await runTool(cfg, mod, file, values, { execBytes: ffmpegExecBytes });
+        r = await runTool(cfg, mod, file, values, { execBytes, signal: runAbort.signal });
       } catch (e) {
         if (seq !== runSeq) return;
         clearOutputUrl();

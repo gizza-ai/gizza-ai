@@ -5,6 +5,46 @@
 use std::io::Cursor;
 
 use image::{DynamicImage, GenericImageView, ImageFormat, Rgba, RgbaImage};
+use serde::Deserialize;
+
+/// The tool's options, shared by every surface: the chat/CLI handler flattens
+/// them from its JSON args, the browser page deserializes them from its params
+/// object. Missing fields take the schema defaults (no change).
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct Params {
+    /// Hue shift in degrees, -360..=360 (0 = no change).
+    pub hue: f64,
+    /// Saturation scale, 0..=4 (0 = grayscale, 1 = unchanged).
+    pub saturation: f64,
+    /// Lightness scale, 0..=4 (0 = black, 1 = unchanged).
+    pub lightness: f64,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        Self { hue: 0.0, saturation: 1.0, lightness: 1.0 }
+    }
+}
+
+impl Params {
+    /// The values actually applied, as `(hue, saturation, lightness)`: hue
+    /// clamped to -360..=360, both scales to 0..=4. A non-finite value means
+    /// "no change" for that field.
+    pub fn normalized(&self) -> (f32, f32, f32) {
+        let pick = |v: f64, lo: f64, hi: f64, none: f64| if v.is_finite() { v.clamp(lo, hi) } else { none } as f32;
+        (pick(self.hue, -360.0, 360.0, 0.0), pick(self.saturation, 0.0, 4.0, 1.0), pick(self.lightness, 0.0, 4.0, 1.0))
+    }
+}
+
+/// Output filename for every surface.
+pub const OUT_NAME: &str = "hsl-adjusted.png";
+
+/// Apply `params` to an encoded image. Returns the PNG bytes and their filename.
+pub fn apply(bytes: &[u8], params: &Params) -> Result<(Vec<u8>, String), String> {
+    let (hue, sat, light) = params.normalized();
+    Ok((adjust(bytes, hue, sat, light)?, OUT_NAME.to_string()))
+}
 
 /// RGB (0..=255) → HSL (h in 0..360, s/l in 0..1).
 fn rgb_to_hsl(r: u8, g: u8, b: u8) -> (f32, f32, f32) {
@@ -50,17 +90,15 @@ fn hsl_to_rgb(h: f32, s: f32, l: f32) -> (u8, u8, u8) {
     (conv(r1), conv(g1), conv(b1))
 }
 
-/// Adjust `bytes` in HSL: add `hue_shift` degrees, multiply saturation by
-/// `sat_scale`, multiply lightness by `light_scale`. Returns PNG bytes.
-pub fn adjust(bytes: &[u8], hue_shift: f32, sat_scale: f32, light_scale: f32) -> Result<Vec<u8>, String> {
+/// Adjust `bytes` in HSL: add `hue` degrees, multiply saturation by `ss`,
+/// multiply lightness by `ls`. Expects already-normalized values (see
+/// [`Params::normalized`]). Returns PNG bytes.
+fn adjust(bytes: &[u8], hue: f32, ss: f32, ls: f32) -> Result<Vec<u8>, String> {
     let img = image::load_from_memory(bytes).map_err(|e| format!("could not decode image: {e}"))?;
     let (w, h) = img.dimensions();
     if w == 0 || h == 0 {
         return Err("image has zero dimension".into());
     }
-    let hue = if hue_shift.is_finite() { hue_shift } else { 0.0 };
-    let ss = if sat_scale.is_finite() { sat_scale.max(0.0) } else { 1.0 };
-    let ls = if light_scale.is_finite() { light_scale.max(0.0) } else { 1.0 };
 
     let mut buf: RgbaImage = img.to_rgba8();
     for p in buf.pixels_mut() {
@@ -139,7 +177,54 @@ mod tests {
     }
 
     #[test]
+    fn params_default_to_no_change_and_clamp() {
+        assert_eq!(Params::default().normalized(), (0.0, 1.0, 1.0));
+        let p = Params { hue: 999.0, saturation: -2.0, lightness: 10.0 };
+        assert_eq!(p.normalized(), (360.0, 0.0, 4.0));
+        let nan = Params { hue: f64::NAN, saturation: f64::INFINITY, lightness: f64::NAN };
+        assert_eq!(nan.normalized(), (0.0, 1.0, 1.0));
+    }
+
+    #[test]
+    fn params_deserialize_with_missing_fields() {
+        let p: Params = serde_json::from_str(r#"{"hue": 90}"#).unwrap();
+        assert_eq!(p, Params { hue: 90.0, saturation: 1.0, lightness: 1.0 });
+        let empty: Params = serde_json::from_str("{}").unwrap();
+        assert_eq!(empty, Params::default());
+        assert!(serde_json::from_str::<Params>(r#"{"hue": "abc"}"#).is_err());
+    }
+
+    #[test]
+    fn apply_returns_png_and_name() {
+        let src = {
+            let img = RgbaImage::from_pixel(4, 2, Rgba([255, 0, 0, 255]));
+            let mut out = Cursor::new(Vec::new());
+            DynamicImage::ImageRgba8(img).write_to(&mut out, ImageFormat::Png).unwrap();
+            out.into_inner()
+        };
+        let (out, name) = apply(&src, &Params { hue: 120.0, ..Params::default() }).unwrap();
+        assert_eq!(name, "hsl-adjusted.png");
+        let img = image::load_from_memory_with_format(&out, ImageFormat::Png).unwrap();
+        assert_eq!(img.dimensions(), (4, 2));
+        // red rotated 120° → pure green.
+        assert_eq!(img.get_pixel(0, 0).0, [0, 255, 0, 255]);
+    }
+
+    /// Pixel values the page spec asserts (fixtures/red-2x2.png = solid red).
+    #[test]
+    fn spec_expectations() {
+        let red = solid(Rgba([255, 0, 0, 255]));
+        let p = |hue, saturation, lightness| px0(&apply(&red, &Params { hue, saturation, lightness }).unwrap().0).0;
+        assert_eq!(p(180.0, 1.0, 1.0), [0, 255, 255, 255]);
+        assert_eq!(p(0.0, 0.0, 1.0), [128, 128, 128, 255]);
+        assert_eq!(p(0.0, 0.5, 1.0), [191, 64, 64, 255]);
+        assert_eq!(p(0.0, 1.0, 0.5), [128, 0, 0, 255]);
+    }
+
+    #[test]
     fn errors() {
         assert!(adjust(b"not an image", 0.0, 1.0, 1.0).is_err());
+        let err = apply(b"not an image", &Params::default()).unwrap_err();
+        assert!(err.starts_with("could not decode image"), "{err}");
     }
 }

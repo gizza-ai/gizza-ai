@@ -1,0 +1,34 @@
+slug          = "flip-image"
+title         = "Flip an Image Online — Mirror Horizontally or Vertically"
+description   = "Mirror a photo left-to-right or flip it upside down, right in your browser — one click, a lossless PNG result, nothing uploaded. Free."
+tags          = ["image", "flip", "mirror", "flip horizontal", "flip vertical", "mirror image", "selfie", "photo", "png"]
+h1            = "Flip an Image"
+hero_subtitle = "Pick an image and a direction — the mirrored PNG is made in your browser, nothing is uploaded."
+wasm          = "gizza_ai_flip_image_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Flipped image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name   = "direction"
+source = "field"
+label  = "Direction"
+
+[input.labels]
+"horizontal" = "horizontal — mirror left ↔ right"
+"vertical"   = "vertical — flip top ↕ bottom"
+
+[[example]]
+label  = "Mirror a selfie"
+params = { direction = "horizontal" }
+
+[[example]]
+label  = "Flip upside down"
+params = { direction = "vertical" }

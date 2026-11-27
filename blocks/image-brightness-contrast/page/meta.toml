@@ -1,0 +1,49 @@
+slug          = "image-brightness-contrast"
+title         = "Adjust Image Brightness and Contrast Online"
+description   = "Brighten, darken or add contrast to a photo right in your browser — two sliders, a PNG result, nothing uploaded. Free."
+tags          = ["image", "brightness", "contrast", "photo", "adjust", "lighten", "darken", "exposure", "png"]
+h1            = "Adjust Image Brightness and Contrast"
+hero_subtitle = "Pick an image and move the sliders — the adjusted PNG is made in your browser, nothing is uploaded."
+wasm          = "gizza_ai_image_brightness_contrast_web"
+export        = "run"
+runtime       = "wasm-image"
+output_label  = "Adjusted image"
+format        = "image"
+
+[[input]]
+name   = "image"
+source = "file"
+accept = "image/*"
+label  = "Image"
+
+[[input]]
+name        = "brightness"
+source      = "field"
+label       = "Brightness (−255 to 255)"
+placeholder = "0"
+kind        = "slider"
+step        = "1"
+
+[[input]]
+name        = "contrast"
+source      = "field"
+label       = "Contrast (−100 to 100)"
+placeholder = "0"
+kind        = "slider"
+step        = "1"
+
+[[example]]
+label  = "Brighten a dark photo"
+params = { brightness = "40", contrast = "10" }
+
+[[example]]
+label  = "Punchier contrast"
+params = { contrast = "35" }
+
+[[example]]
+label  = "Faded, low-contrast look"
+params = { brightness = "15", contrast = "-35" }
+
+[[example]]
+label  = "Darken an overexposed shot"
+params = { brightness = "-40", contrast = "15" }
